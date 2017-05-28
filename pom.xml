@@ -447,7 +447,12 @@
             <artifactId>unirest-java</artifactId>
             <version>1.4.9</version>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>com.getsentry.raven</groupId>
+            <artifactId>raven</artifactId>
+            <version>8.0.2</version>
+        </dependency>
+      </dependencies>
 
     <build>
         <resources>
