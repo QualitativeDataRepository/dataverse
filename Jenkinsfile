@@ -2,12 +2,12 @@
 
 node {
   workspace = pwd()
-  properties([[$class: 'ParametersDefinitionProperty', parameterDefinitions:
-  [ [name: 'deployedBy', $class: 'StringParameterDefinition', defaultValue: 'jenkins', description: 'deployer'],
-    [name: 'environment', $class: 'StringParameterDefinition', defaultValue: 'dev-aws', description: 'env'],
-    [name: 'app', $class: 'StringParameterDefinition', defaultValue: "dataverse", description: 'app'],
-    [name: 'branch', $class: 'StringParameterDefinition', defaultValue: "${env.JOB_BASE_NAME}", description: 'branch'] ]
-  ]])
+  // properties([[$class: 'ParametersDefinitionProperty', parameterDefinitions:
+  // [ [name: 'deployedBy', $class: 'StringParameterDefinition', defaultValue: 'jenkins', description: 'deployer'],
+  //   [name: 'environment', $class: 'StringParameterDefinition', defaultValue: 'dev-aws', description: 'env'],
+  //   [name: 'app', $class: 'StringParameterDefinition', defaultValue: "dataverse", description: 'app'],
+  //   [name: 'branch', $class: 'StringParameterDefinition', defaultValue: "${env.JOB_BASE_NAME}", description: 'branch'] ]
+  // ]])
 
   stage('Build') {
     /*
@@ -20,7 +20,7 @@ node {
 
   stage('Test') {
     /*
-    * Run Drush Unit tests
+    * Run Unit tests
     */
     try {
       //notifyBuild("Running unit tests", "good")
