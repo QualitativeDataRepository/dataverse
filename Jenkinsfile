@@ -3,13 +3,13 @@
 node {
   workspace = pwd()
   properties([[$class: 'ParametersDefinitionProperty', parameterDefinitions: [
-    [ name: 'app',         $class: 'StringParameterDefinition', defaultValue: "dataverse" ],
-    [ name: 'branch',      $class: 'StringParameterDefinition', defaultValue: "${env.JOB_BASE_NAME}" ],
+    [ name: 'app',        $class: 'StringParameterDefinition', defaultValue: "dataverse" ],
+    [ name: 'branch',     $class: 'StringParameterDefinition', defaultValue: "${env.JOB_BASE_NAME}" ],
     [ name: 'deployenv',  $class: 'StringParameterDefinition', defaultValue: 'dev-aws' ],
     [ name: 'deployuser', $class: 'StringParameterDefinition', defaultValue: 'jenkins' ]
   ]]])
 
-  stage('Build') {
+  stage('Init') {
     /*
     * Checkout code
     */
@@ -18,18 +18,23 @@ node {
     sh(script:"curl -X POST http://graphite.int.qdr.org:81/events/ -d '{\"what\": \"deploy ${app}/${branch} to ${deployenv}\", \"tags\" : \"deployment\"}'")
   }
 
-  stage('Test') {
+  stage('Build') {
     /*
     * Run Unit tests
     */
     try {
-      //notifyBuild("Running unit tests", "good")
+      withMaven(
+        jdk: 'jdk8',
+        maven: 'mvn-3-5-0') {
+          sh "mvn clean package"
+          // some block
+      }      //notifyBuild("Running unit tests", "good")
       //sh(returnStdout:true, script:"drush test-run --all").trim()
       //sh(returnStdout:true, script:"sudo -u www-data php ./scripts/run-tests.sh --url http://qdr-dev.syr.edu/ --all --color --verbose").trim()
     }
     catch (e) {
-      currentBuild.result = "UNSTABLE"
-      notifyBuild("Warning: Unit tests failed!", "warning")
+      currentBuild.result = "FAILURE"
+      notifyBuild("Warning: Build failed!", "warning")
     }
   }
 
