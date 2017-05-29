@@ -2,12 +2,12 @@
 
 node {
   workspace = pwd()
-  // properties([[$class: 'ParametersDefinitionProperty', parameterDefinitions:
-  // [ [name: 'deployedBy', $class: 'StringParameterDefinition', defaultValue: 'jenkins', description: 'deployer'],
-  //   [name: 'environment', $class: 'StringParameterDefinition', defaultValue: 'dev-aws', description: 'env'],
-  //   [name: 'app', $class: 'StringParameterDefinition', defaultValue: "dataverse", description: 'app'],
-  //   [name: 'branch', $class: 'StringParameterDefinition', defaultValue: "${env.JOB_BASE_NAME}", description: 'branch'] ]
-  // ]])
+  properties([[$class: 'ParametersDefinitionProperty', parameterDefinitions: [
+    [ name: 'app',         $class: 'StringParameterDefinition', defaultValue: "dataverse" ],
+    [ name: 'branch',      $class: 'StringParameterDefinition', defaultValue: "${env.JOB_BASE_NAME}" ],
+    [ name: 'deploy-env',  $class: 'StringParameterDefinition', defaultValue: 'dev-aws' ],
+    [ name: 'deploy-user', $class: 'StringParameterDefinition', defaultValue: 'jenkins' ]
+  ]]])
 
   stage('Build') {
     /*
@@ -15,7 +15,7 @@ node {
     */
     checkout scm
     currentBuild.result = 'SUCCESS'
-    sh(script:"curl -X POST http://grafana.int.qdr.org:81/events/ -d '{\"what\": \"deploy ${app}/${branch} to ${environment}\", \"tags\" : \"deployment\"}'")
+    sh(script:"curl -X POST http://graphite.int.qdr.org:81/events/ -d '{\"what\": \"deploy ${app}/${branch} to ${deploy-env}\", \"tags\" : \"deployment\"}'")
   }
 
   stage('Test') {
@@ -42,22 +42,22 @@ node {
         notifyBuild("Click to <$JOB_URL/workflow-stage|deploy> master", "good")
 
         input message: 'Select environment', ok: 'Press to deploy',
-          name: 'environment', description: 'Deploy master branch?',
+          name: 'deploy-env', description: 'Deploy master branch?',
           parameters: [choice(choices: ['dev-aws', 'stage-aws', 'prod-aws'])],
-          submitterParameter: 'deployedBy'
+          submitterParameter: 'deploy-user'
       }
     }
 
     /*
     * Deploy code
     */
-    // notifyBuild("${deployedBy} deploying ${app} to ${environment} <$BUILD_URL/console|(See Logs)>", "good")
+    // notifyBuild("${deploy-user} deploying ${app} to ${deploy-env} <$BUILD_URL/console|(See Logs)>", "good")
     // try {
-    //   sh(returnStdout:true, script:"./web_deploy.py -v --action deploy -e ${environment} --app ${app} --build_id ${env.BUILD_ID}").trim()
+    //   sh(returnStdout:true, script:"./web_deploy.py -v --action deploy -e ${deploy-env} --app ${app} --build_id ${env.BUILD_ID}").trim()
     // }
     // catch (e) {
     //   currentBuild.result = "FAILURE"
-    //   notifyBuild("Deploying ${app} to ${environment} Failed! <$BUILD_URL/console|(See Logs)>", "danger")
+    //   notifyBuild("Deploying ${app} to ${deploy-env} Failed! <$BUILD_URL/console|(See Logs)>", "danger")
     //   throw e
     // }
     /*
@@ -68,7 +68,7 @@ node {
     // build job: 'Rollback',
     //   parameters: [
     //     string(name: 'build_id', value: "${env.BUILD_ID}"),
-    //     string(name: 'environment', value: "${environment}"),
+    //     string(name: 'environment', value: "${deploy-env}"),
     //     string(name: 'workspace', value: "${workspace}"),
     //     string(name: 'app', value: "${app}")],
     //   wait: false
@@ -80,12 +80,12 @@ node {
     */
     if ("${branch}" == "master" || "${branch}" == "dev") {
       try {
-          notifyBuild("Smoke tests starting: ${environment} <$JENKINS_URL/job/Web-Tests/lastBuild/console|(See Logs)>", "good")
+          notifyBuild("Smoke tests starting: ${deploy-env} <$JENKINS_URL/job/Web-Tests/lastBuild/console|(See Logs)>", "good")
           // build job: 'web-tests', parameters: [
-          //   string(name: 'environment', value: "${environment}")], wait: true
+          //   string(name: 'environment', value: "${deploy-env}")], wait: true
           build job: 'dataverse-tests',
             parameters: [
-              string(name: 'environment', value: "${environment}")],
+              string(name: 'environment', value: "${deploy-env}")],
             wait: true
       }
       catch (e) {
