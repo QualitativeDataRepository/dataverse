@@ -95,7 +95,7 @@ node {
     //     string(name: 'workspace', value: "${workspace}"),
     //     string(name: 'app', value: "${app}")],
     //   wait: false
-  }
+  // }
   //
   // stage('Smoke') {
   //   /*
