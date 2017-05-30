@@ -65,9 +65,10 @@ node {
     unstash 'dataverse-war'
 
     timeout(time: 2, unit: "HOURS") {
-      input message: 'Deploy to', ok: 'Press to deploy',
-        name: 'deployenv', submitterParameter: 'deployuser',
-        parameters: [choice(choices: ['dev', 'stage'])]
+      input message: 'Deploy to', parameters: [string(defaultValue: 'dev', description: '', name: 'deployenv')]
+      // input message: 'Deploy to', ok: 'Press to deploy',
+      //   name: 'deployenv', submitterParameter: 'deployuser',
+      //   parameters: [choice(choices: ['dev', 'stage'])]
       try {
         sh "rsync -av target qdradmin@qdr-${deployenv}-ec2-01.int.qdr.org:"
       }
