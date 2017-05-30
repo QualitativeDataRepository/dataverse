@@ -64,7 +64,7 @@ node {
     */
     unstash 'dataverse-war'
 
-    timeout(time: 2, unit: "HOUR") {
+    timeout(time: 2, unit: "HOURS") {
       input message: 'Deploy to', ok: 'Press to deploy',
         name: 'deployenv', submitterParameter: 'deployuser',
         parameters: [choice(choices: ['dev', 'stage'])]
