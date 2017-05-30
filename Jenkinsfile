@@ -18,40 +18,58 @@ node {
     sh(script:"curl -X POST http://graphite.int.qdr.org:81/events/ -d '{\"what\": \"deploy ${app}/${branch} to ${deployenv}\", \"tags\" : \"deployment\"}'")
   }
 
-  stage('Build') {
+  stage('Test') {
     /*
     * Run Unit tests
     */
+    notifyBuild("Running Tests", "good")
+
     try {
       withMaven(
         jdk: 'jdk8',
         maven: 'mvn-3-5-0') {
-          sh "mvn clean package"
-          // some block
-      }      //notifyBuild("Running unit tests", "good")
-      //sh(returnStdout:true, script:"drush test-run --all").trim()
-      //sh(returnStdout:true, script:"sudo -u www-data php ./scripts/run-tests.sh --url http://qdr-dev.syr.edu/ --all --color --verbose").trim()
+          sh "mvn test"
+        }
+    }
+    catch (e) {
+      currentBuild.result = "UNSTABLE"
+      notifyBuild("Warning: Tests Failed!", "warning")
+    }
+  }
+
+  stage('Build') {
+    /*
+    * Run Unit tests
+    */
+    notifyBuild("Building", "good")
+
+    try {
+      withMaven(
+        jdk: 'jdk8',
+        maven: 'mvn-3-5-0') {
+          sh "mvn clean package -DskipTests"
+      }
     }
     catch (e) {
       currentBuild.result = "FAILURE"
       notifyBuild("Warning: Build failed!", "warning")
     }
   }
-
-  stage('Deploy') {
-    /*
-    *  Require UA step when deploying from master to stage or prod
-    */
-    if ("${branch}" == "master") {
-      timeout(time: 1, unit: "HOUR") {
-        notifyBuild("Click to <$JOB_URL/workflow-stage|deploy> master", "good")
-
-        input message: 'Select environment', ok: 'Press to deploy',
-          name: 'deployenv', description: 'Deploy master branch?',
-          parameters: [choice(choices: ['dev-aws', 'stage-aws', 'prod-aws'])],
-          submitterParameter: 'deployuser'
-      }
-    }
+  //
+  // stage('Deploy') {
+  //   /*
+  //   *  Require UA step when deploying from master to stage or prod
+  //   */
+  //   if ("${branch}" == "master") {
+  //     timeout(time: 1, unit: "HOUR") {
+  //       notifyBuild("Click to <$JOB_URL/workflow-stage|deploy> master", "good")
+  //
+  //       input message: 'Select environment', ok: 'Press to deploy',
+  //         name: 'deployenv', description: 'Deploy master branch?',
+  //         parameters: [choice(choices: ['dev-aws', 'stage-aws', 'prod-aws'])],
+  //         submitterParameter: 'deployuser'
+  //     }
+  //   }
 
     /*
     * Deploy code
@@ -78,32 +96,34 @@ node {
     //     string(name: 'app', value: "${app}")],
     //   wait: false
   }
+  //
+  // stage('Smoke') {
+  //   /*
+  //   * Only for master branch / prod environment.
+  //   */
+  //   if ("${branch}" == "master" || "${branch}" == "dev") {
+  //     try {
+  //         notifyBuild("Smoke tests starting: ${deployenv} <$JENKINS_URL/job/Web-Tests/lastBuild/console|(See Logs)>", "good")
+  //         // build job: 'web-tests', parameters: [
+  //         //   string(name: 'environment', value: "${deployenv}")], wait: true
+  //         build job: 'dataverse-tests',
+  //           parameters: [
+  //             string(name: 'environment', value: "${deployenv}")],
+  //           wait: true
+  //     }
+  //     catch (e) {
+  //       currentBuild.result = "UNSTABLE"
+  //
+  //       throw e
+  //     }
+  //     finally {
+  //       build job: 'Test-Cleanup', wait: false
+  //     }
+  //   }
+  //   echo "RESULT: ${currentBuild.result}"
+  // }
 
-  stage('Smoke') {
-    /*
-    * Only for master branch / prod environment.
-    */
-    if ("${branch}" == "master" || "${branch}" == "dev") {
-      try {
-          notifyBuild("Smoke tests starting: ${deployenv} <$JENKINS_URL/job/Web-Tests/lastBuild/console|(See Logs)>", "good")
-          // build job: 'web-tests', parameters: [
-          //   string(name: 'environment', value: "${deployenv}")], wait: true
-          build job: 'dataverse-tests',
-            parameters: [
-              string(name: 'environment', value: "${deployenv}")],
-            wait: true
-      }
-      catch (e) {
-        currentBuild.result = "UNSTABLE"
 
-        throw e
-      }
-      finally {
-        build job: 'Test-Cleanup', wait: false
-      }
-    }
-    echo "RESULT: ${currentBuild.result}"
-  }
 }
 
 
