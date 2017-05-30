@@ -66,8 +66,8 @@ node {
 
     timeout(time: 2, unit: "HOUR") {
       input message: 'Deploy to', ok: 'Press to deploy',
-        name: 'deployenv', submitterParameter: 'deployuser'
-        parameters: [choice(choices: ['dev', 'stage'])],
+        name: 'deployenv', submitterParameter: 'deployuser',
+        parameters: [choice(choices: ['dev', 'stage'])]
       try {
         sh "rsync -av target qdradmin@qdr-${deployenv}-ec2-01.int.qdr.org:"
       }
