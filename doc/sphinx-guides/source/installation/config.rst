@@ -8,7 +8,8 @@ Settings within Dataverse itself are managed via JVM options or by manipulating 
 
 Once you have finished securing and configuring your Dataverse installation, proceed to the :doc:`administration` section. Advanced configuration topics are covered in the :doc:`r-rapache-tworavens`, :doc:`shibboleth` and :doc:`oauth2` sections.
 
-.. contents:: :local:
+.. contents:: |toctitle|
+  :local:
 
 Securing Your Installation
 --------------------------
@@ -432,9 +433,11 @@ The key required to create users via API as documented at :doc:`/api/native-api`
 :SystemEmail
 ++++++++++++
 
-This is the email address that "system" emails are sent from such as password reset links.
+This is the email address that "system" emails are sent from such as password reset links. Your Dataverse installation will not send mail without this setting in place.
 
-``curl -X PUT -d "Support <support@example.edu>" http://localhost:8080/api/admin/settings/:SystemEmail``
+``curl -X PUT -d 'LibraScholar SWAT Team <support@librascholar.edu>' http://localhost:8080/api/admin/settings/:SystemEmail``
+
+Note that only the email address is required, which you can supply without the ``<`` and ``>`` signs, but if you include the text, it's the way to customize the name of your support team, which appears in the "from" address in emails as well as in help text in the UI.
 
 :FooterCopyright
 ++++++++++++++++
@@ -510,6 +513,7 @@ For systems using Postgresql 8.4 or older, the procedural language `plpgsql` sho
 We have provided an example :download:`here </_static/util/pg8-createsequence-prep.sql>`.
 
 
+
 :ApplicationTermsOfUse
 ++++++++++++++++++++++
 
@@ -539,6 +543,16 @@ Specify a URL where users can read your API Terms of Use.
 Set ``:ExcludeEmailFromExport`` to prevent email addresses for dataset contacts from being exposed in XML or JSON representations of dataset metadata. For a list exported formats such as DDI, see the :doc:`/admin/metadataexport` section of the Admin Guide.
 
 ``curl -X PUT -d true http://localhost:8080/api/admin/settings/:ExcludeEmailFromExport``
+
+:NavbarAboutUrl
++++++++++++++++
+
+Set ``NavbarAboutUrl`` to a fully-qualified url which will be used for the "About" link in the navbar. 
+
+Note: The "About" link will not appear in the navbar until this option is set.
+
+``curl -X PUT -d http://dataverse.example.edu http://localhost:8080/api/admin/settings/:NavbarAboutUrl``
+
 
 :GuidesBaseUrl
 ++++++++++++++
@@ -763,3 +777,29 @@ Set the base URL for the "Compute" button for a dataset.
 Set the base URL for the "Compute" button for a dataset.
 
 ``curl -X PUT -d 'Massachusetts Open Cloud (MOC)' http://localhost:8080/api/admin/settings/:CloudEnvironmentName``
+
+:DataCaptureModuleUrl
++++++++++++++++++++++
+
+The URL for your Data Capture Module (DCM) installation. This component is experimental and can be downloaded from https://github.com/sbgrid/data-capture-module .
+
+``curl -X PUT -d 'https://dcm.example.edu' http://localhost:8080/api/admin/settings/:DataCaptureModuleUrl``
+
+:RepositoryStorageAbstractionLayerUrl
++++++++++++++++++++++++++++++++++++++
+
+The URL for your Repository Storage Abstraction Layer (RSAL) installation. This component is experimental and can be downloaded from https://github.com/sbgrid/rsal .
+
+``curl -X PUT -d 'https://rsal.example.edu' http://localhost:8080/api/admin/settings/:RepositoryStorageAbstractionLayerUrl``
+
+:UploadMethods
+++++++++++++++
+
+This setting is experimental and to be used with the Data Capture Module (DCM). For now, if you set the upload methods to ``dcm/rsync+ssh`` it will allow your users to download rsync scripts from the DCM.
+
+``curl -X PUT -d 'dcm/rsync+ssh' http://localhost:8080/api/admin/settings/:UploadMethods``
+
+:DownloadMethods
+++++++++++++++++
+
+This setting is experimental and related to Repository Storage Abstraction Layer (RSAL). As of this writing it has no effect.
