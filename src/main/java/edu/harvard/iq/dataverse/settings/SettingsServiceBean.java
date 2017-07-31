@@ -291,7 +291,7 @@ public class SettingsServiceBean {
         NavbarAboutUrl,
         
         // Option to override multiple guides with a single url
-        NavbarGuidesUrl; 
+        NavbarGuidesUrl,
 
         
         /**
