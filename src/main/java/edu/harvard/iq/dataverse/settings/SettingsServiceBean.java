@@ -263,11 +263,6 @@ public class SettingsServiceBean {
         */
         ShibPassiveLoginEnabled,
         /**
-         * URL for Shibboleth Single Logout
-         */
-        ShibLogoutUrl,
-      
-         /**
          * Whether Export should exclude FieldType.EMAIL
          */
         ExcludeEmailFromExport,
@@ -298,6 +293,17 @@ public class SettingsServiceBean {
         // Option to override multiple guides with a single url
         NavbarGuidesUrl; 
 
+        
+        /**
+         * QDR Custom settings
+         * 
+         */
+        /** URL for Shibboleth Single Logout */        
+        ShibLogoutUrl,
+        /** Latest version of Terms and Conditions document */
+        ShibAuthTermsVer,
+        /** Url of integrated Drupal Site */
+        QDRDrupalSiteURL;
         
         @Override
         public String toString() {
