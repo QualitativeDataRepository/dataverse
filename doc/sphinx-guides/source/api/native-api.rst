@@ -1,15 +1,16 @@
 Native API
 ==========
 
-Dataverse 4.0 exposes most of its GUI functionality via a REST-based API. Some API calls do not require authentication. Calls that do require authentication require the user's API key. That key can be passed either via an extra query parameter, ``key``, as in ``ENPOINT?key=API_KEY``, or via the HTTP header ``X-Dataverse-key``. Note that while the header option normally requires more work on client side, it is considered safer, as the API key is not logged in the server access logs.
+Dataverse 4 exposes most of its GUI functionality via a REST-based API. This section describes that functionality. Most API endpoints require an API token that can be passed as the ``X-Dataverse-key`` HTTP header or in the URL as the ``key`` query parameter.
 
 .. note:: |CORS| Some API endpoint allow CORS_ (cross-origin resource sharing), which makes them usable from scripts runing in web browsers. These endpoints are marked with a *CORS* badge. 
 
 .. _CORS: https://www.w3.org/TR/cors/
 
-.. warning:: Dataverse 4.0's API is versioned at the URI - all API calls may include the version number like so: ``http://server-address//api/v1/...``. Omitting the ``v1`` part would default to the latest API version (currently 1). When writing scripts/applications that will be used for a long time, make sure to specify the API version, so they don't break when the API is upgraded.
+.. warning:: Dataverse 4's API is versioned at the URI - all API calls may include the version number like so: ``http://server-address/api/v1/...``. Omitting the ``v1`` part would default to the latest API version (currently 1). When writing scripts/applications that will be used for a long time, make sure to specify the API version, so they don't break when the API is upgraded.
 
-.. contents::
+.. contents:: |toctitle|
+    :local:
 
 Endpoints
 ---------
@@ -23,6 +24,7 @@ If ``$id`` is omitted, a root dataverse is created. ``$id`` can either be a data
 
 Download the :download:`JSON example <../_static/api/dataverse-complete.json>` file and modified to create dataverses to suit your needs. The fields ``name``, ``alias``, and ``dataverseContacts`` are required. The controlled vocabulary for ``dataverseType`` is
 
+- ``DEPARTMENT``
 - ``JOURNALS``
 - ``LABORATORY``
 - ``ORGANIZATIONS_INSTITUTIONS``
@@ -380,18 +382,27 @@ Example python code to replace a file.  This may be run by changing these parame
 Builtin Users
 ~~~~~~~~~~~~~
 
-This endpoint deals with users of the built-in authentication provider. For more background on various authentication providers, see :doc:`/user/account` and :doc:`/installation/config`.
+Builtin users are known as "Username/Email and Password" users in the :doc:`/user/account` of the User Guide. Dataverse stores a password (encrypted, of course) for these users, which differs from "remote" users such as Shibboleth or OAuth users where the password is stored elsewhere. See also "Auth Modes: Local vs. Remote vs. Both" in the :doc:`/installation/config` section of the Installation Guide. It's a valid configuration of Dataverse to not use builtin users at all.
 
-For this service to work, the setting ``BuiltinUsers.KEY`` has to be set, and its value passed as ``key`` to
-each of the calls.
+Creating a Builtin User
+^^^^^^^^^^^^^^^^^^^^^^^
 
-Generates a new user. Data about the user are posted via JSON. *Note that the password is passed as a parameter in the query*. ::
+For security reasons, builtin users cannot be created via API unless the team who runs the Dataverse installation has populated a database setting called ``BuiltinUsers.KEY``, which is described under "Securing Your Installation" and "Database Settings" in the :doc:`/installation/config` section of the Installation Guide. You will need to know the value of ``BuiltinUsers.KEY`` before you can proceed.
 
-  POST http://$SERVER/api/builtin-users?password=$password&key=$key
+To create a builtin user via API, you must first construct a JSON document.  You can download :download:`user-add.json <../_static/api/user-add.json>` or copy the text below as a starting point and edit as necessary.
 
-Gets the API token of the user, given the password. ::
+.. literalinclude:: ../_static/api/user-add.json
 
-  GET http://$SERVER/api/builtin-users/$username/api-token?password=$password
+Place this ``user-add.json`` file in your current directory and run the following curl command, substituting variables as necessary. Note that both the password of the new user and the value of ``BuiltinUsers.KEY`` are passed as query parameters::
+
+  curl -d @user-add.json -H "Content-type:application/json" "$SERVER_URL/api/builtin-users?password=$NEWUSER_PASSWORD&key=$BUILTIN_USERS_KEY"
+
+Retrieving the API Token of a Builtin User
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To retrieve the API token of a builtin user, given that user's password, use the curl command below::
+
+  curl "$SERVER_URL/api/builtin-users/$DV_USER_NAME/api-token?password=$DV_USER_PASSWORD"
 
 Roles
 ~~~~~
@@ -549,9 +560,110 @@ Creates a global role in the Dataverse installation. The data POSTed are assumed
 
     POST http://$SERVER/api/admin/roles
 
-List all users::
+List users with the options to search and "page" through results. Only accessible to superusers. Optional parameters:
 
-    GET http://$SERVER/api/admin/authenticatedUsers
+* ``searchTerm`` A string that matches the beginning of a user identifier, first name, last name or email address.
+* ``itemsPerPage`` The number of detailed results to return.  The default is 25.  This number has no limit. e.g. You could set it to 1000 to return 1,000 results
+* ``selectedPage`` The page of results to return.  The default is 1. 
+
+    GET http://$SERVER/api/admin/list-users
+
+
+Sample output appears below. 
+
+* When multiple pages of results exist, the ``selectedPage`` parameters may be specified. 
+* Note, the resulting ``pagination`` section includes ``pageCount``, ``previousPageNumber``, ``nextPageNumber``, and other variables that may be used to re-create the UI.          
+
+.. code-block:: json
+
+    {
+        "status":"OK",
+        "data":{
+            "userCount":27,
+            "selectedPage":1,
+            "pagination":{
+                "isNecessary":true,
+                "numResults":27,
+                "numResultsString":"27",
+                "docsPerPage":25,
+                "selectedPageNumber":1,
+                "pageCount":2,
+                "hasPreviousPageNumber":false,
+                "previousPageNumber":1,
+                "hasNextPageNumber":true,
+                "nextPageNumber":2,
+                "startResultNumber":1,
+                "endResultNumber":25,
+                "startResultNumberString":"1",
+                "endResultNumberString":"25",
+                "remainingResults":2,
+                "numberNextResults":2,
+                "pageNumberList":[
+                    1,
+                    2
+                ]
+            },
+            "bundleStrings":{
+                "userId":"ID",
+                "userIdentifier":"Username",
+                "lastName":"Last Name ",
+                "firstName":"First Name ",
+                "email":"Email",
+                "affiliation":"Affiliation",
+                "position":"Position",
+                "isSuperuser":"Superuser",
+                "authenticationProvider":"Authentication",
+                "roles":"Roles",
+                "createdTime":"Created Time",
+                "lastLoginTime":"Last Login Time",
+                "lastApiUseTime":"Last API Use Time"
+            },
+            "users":[
+                {
+                    "id":8,
+                    "userIdentifier":"created1",
+                    "lastName":"created1",
+                    "firstName":"created1",
+                    "email":"created1@g.com",
+                    "affiliation":"hello",
+                    "isSuperuser":false,
+                    "authenticationProvider":"BuiltinAuthenticationProvider",
+                    "roles":"Curator",
+                    "createdTime":"2017-06-28 10:36:29.444"
+                },
+                {
+                    "id":9,
+                    "userIdentifier":"created8",
+                    "lastName":"created8",
+                    "firstName":"created8",
+                    "email":"created8@g.com",
+                    "isSuperuser":false,
+                    "authenticationProvider":"BuiltinAuthenticationProvider",
+                    "roles":"Curator",
+                    "createdTime":"2000-01-01 00:00:00.0"
+                },
+                {
+                    "id":1,
+                    "userIdentifier":"dataverseAdmin",
+                    "lastName":"Admin",
+                    "firstName":"Dataverse",
+                    "email":"dataverse@mailinator2.com",
+                    "affiliation":"Dataverse.org",
+                    "position":"Admin",
+                    "isSuperuser":true,
+                    "authenticationProvider":"BuiltinAuthenticationProvider",
+                    "roles":"Admin, Contributor",
+                    "createdTime":"2000-01-01 00:00:00.0",
+                    "lastLoginTime":"2017-07-03 12:22:35.926",
+                    "lastApiUseTime":"2017-07-03 12:55:57.186"
+                },
+                **... 22 more user documents ...**      
+            ]
+        }
+    }
+
+.. note:: "List all users" ``GET http://$SERVER/api/admin/authenticatedUsers`` is deprecated, but supported.
+
 
 List user whose ``identifier`` (without the ``@`` sign) is passed::
 

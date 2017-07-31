@@ -6,7 +6,8 @@ Before running the Dataverse installation script, you must install and configure
 
 You **may** find it helpful to look at how the configuration is done automatically by various tools such as Vagrant, Puppet, or Ansible. See the :doc:`prep` section for pointers on diving into these scripts.
 
-.. contents:: :local:
+.. contents:: |toctitle|
+	:local:
 
 Java
 ----
@@ -76,6 +77,8 @@ The Dataverse installation script will start Glassfish if necessary, but while y
 Adjust this :download:`Glassfish init script <../_static/installation/files/etc/init.d/glassfish>` for your needs or write your own.
 
 It is not necessary to have Glassfish running before you execute the Dataverse installation script because it will start Glassfish for you.
+
+Please note that you must run Glassfish in an English locale. If you are using something like ``LANG=de_DE.UTF-8``, ingest of tabular data will fail with the message "RoundRoutines:decimal separator no in right place".
 
 PostgreSQL
 ----------
