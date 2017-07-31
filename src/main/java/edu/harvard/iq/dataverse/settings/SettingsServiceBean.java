@@ -33,7 +33,19 @@ public class SettingsServiceBean {
      * So there.
      */
     public enum Key {
+        /**
+         * Defines a public installation -- all datafiles are unrestricted
+         */
+        PublicInstall,
+        /**
+         * Sets the name of your cloud computing environment.
+         * For example, "Massachusetts Open Cloud"
+         */
         CloudEnvironmentName,
+        /**
+         * Defines the base for a computing environment URL.
+         * The container name will be appended to this on the "Compute" button 
+         */
         ComputeBaseUrl,
         /**
          * For example, https://datacapture.example.org
@@ -74,7 +86,12 @@ public class SettingsServiceBean {
          * Search API. See also https://github.com/IQSS/dataverse/issues/1299
          */
         SearchApiNonPublicAllowed,
-        
+        /**
+         * In Dataverse 4.7 and earlier, an API token was required to use the
+         * Search API. Tokens are no longer required but you can revert to the
+         * old behavior by setting this to false.
+         */
+        SearchApiRequiresToken,
         /**
          * Experimental: Use Solr to power the file listing on the dataset page.
          */
@@ -186,9 +203,6 @@ public class SettingsServiceBean {
         StatusMessageText,
         /* return email address for system emails such as notifications */
         SystemEmail, 
-        /* whether file landing page is available
-        for 4.2 development */
-        ShowFileLandingPage,
         /* size limit for Tabular data file ingests */
         /* (can be set separately for specific ingestable formats; in which 
         case the actual stored option will be TabularIngestSizeLimit:{FORMAT_NAME}
@@ -257,6 +271,26 @@ public class SettingsServiceBean {
          * Whether Export should exclude FieldType.EMAIL
          */
         ExcludeEmailFromExport,
+        /*
+         Location and name of HomePage customization file
+        */
+        HomePageCustomizationFile,
+        /*
+         Location and name of Header customization file
+        */
+        HeaderCustomizationFile,
+        /*
+         Location and name of Footer customization file
+        */
+        FooterCustomizationFile,
+        /*
+         Location and name of CSS customization file
+        */
+        StyleCustomizationFile,
+        /*
+         Location and name of installation logo customization file
+        */
+        LogoCustomizationFile,
         
         // Option to override the navbar url underlying the "About" link
         NavbarAboutUrl,
@@ -375,6 +409,10 @@ public class SettingsServiceBean {
     
     public boolean isTrueForKey( Key key, boolean defaultValue ) {
         return isTrue( key.toString(), defaultValue );
+    }
+
+    public boolean isFalseForKey( Key key, boolean defaultValue ) {
+        return ! isTrue( key.toString(), defaultValue );
     }
             
     public void deleteValueForKey( Key name ) {

@@ -19,7 +19,21 @@
             <ui:param name="dataset" value="#{DatasetPage.dataset}"/>
             <ui:param name="version" value="#{DatasetPage.workingVersion}"/>
             <ui:param name="locked" value="#{DatasetPage.locked}"/>
-            <ui:param name="showMessagePanel" value="#{true}"/>
+	    <ui:param name="showMessagePanel" value="#{true}"/>
+	    <ui:define name="dc_meta_header">
+	    <meta name="DC.identifier" content="#{DatasetPage.persistentId}"/>
+	    <meta name="DC.type" content="Dataset"/>
+	    <meta name="DC.title" content="#{DatasetPage.title}"/>
+	    <meta name="DC.date" content="#{DatasetPage.publicationDate}"/>
+	    <meta name="DC.publisher" content="#{DatasetPage.publisher}" />
+            <meta name="DC.description" content="#{DatasetPage.description}" />
+	    <ui:repeat var="author" value="#{DatasetPage.datasetAuthors}">
+            <meta name="DC.creator" content="#{author}"/>
+	    </ui:repeat>
+            <ui:repeat var="subject" value="#{DatasetPage.datasetSubjects}">
+            <meta name="DC.subject" content="#{subject}"/>
+	    </ui:repeat>
+	    </ui:define>
             <ui:define name="body">
                 <o:importFunctions type="edu.harvard.iq.dataverse.util.MarkupChecker" />
                 <f:metadata>
@@ -141,22 +155,29 @@
                                             </p:commandLink>
                                         </li>
                                         <ui:fragment rendered="#{permissionsWrapper.canManagePermissions(DatasetPage.dataset)}">
-                                            <li class="dropdown-submenu pull-left">
-                                                <a tabindex="-1" href="#">#{bundle['dataset.editBtn.itemLabel.permissions']}</a>
-                                                <ul class="dropdown-menu">
-                                                    <li>
-                                                        <h:link id="managePermissions" styleClass="ui-commandlink ui-widget" outcome="permissions-manage">
-                                                            <h:outputText value="Dataset" />
-                                                            <f:param name="id" value="#{DatasetPage.dataset.id}" />
-                                                        </h:link>
-                                                    </li>
-                                                    <li>
-                                                        <h:link id="manageFilePermissions" styleClass="ui-commandlink ui-widget" outcome="permissions-manage-files">
-                                                            <h:outputText value="File" />
-                                                            <f:param name="id" value="#{DatasetPage.dataset.id}" />
-                                                        </h:link>
-                                                    </li>
-                                                </ul>
+                                            <li class="#{settingsWrapper.publicInstall ? '' : 'dropdown-submenu pull-left'}">
+                                                <ui:fragment rendered="#{!settingsWrapper.publicInstall}">
+                                                    <a tabindex="-1" href="#">#{bundle['dataset.editBtn.itemLabel.permissions']}</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <h:link id="manageDatasetPermissions" styleClass="ui-commandlink ui-widget" outcome="permissions-manage">
+                                                                <h:outputText value="Dataset" />
+                                                                <f:param name="id" value="#{DatasetPage.dataset.id}" />
+                                                            </h:link>
+                                                        </li>
+                                                        <li>
+                                                            <h:link id="manageFilePermissions" styleClass="ui-commandlink ui-widget" outcome="permissions-manage-files">
+                                                                <h:outputText value="File" />
+                                                                <f:param name="id" value="#{DatasetPage.dataset.id}" />
+                                                            </h:link>
+                                                        </li>
+                                                    </ul>
+                                                </ui:fragment>                                            
+                                                <h:link id="managePermissions" rendered="#{settingsWrapper.publicInstall}"
+                                                        styleClass="ui-commandlink ui-widget" outcome="permissions-manage">
+                                                    <h:outputText value="#{bundle['dataset.editBtn.itemLabel.permissions']}" />
+                                                    <f:param name="id" value="#{DatasetPage.dataset.id}" />
+                                                </h:link>
                                             </li>
                                             <li>
                                                 <p:commandLink id="privateUrl" oncomplete="PF('privateUrlConfirmation').show()" action="#{DatasetPage.initPrivateUrlPopUp()}" update="privateUrlPanel">
@@ -506,10 +527,10 @@
                                         rendered="#{(!DatasetPage.workingVersion.deaccessioned or (DatasetPage.workingVersion.deaccessioned and DatasetPage.canUpdateDataset())) 
                                              and (empty DatasetPage.editMode or DatasetPage.editMode == 'METADATA')}">
 
-                                <div class="button-block tab-header margin-bottom text-right" jsf:rendered="#{empty DatasetPage.editMode and !widgetWrapper.widgetView}">
+                                <div class="button-block tab-header margin-bottom text-right" jsf:rendered="#{empty DatasetPage.editMode}">
                                     <p:commandLink type="button" styleClass="btn btn-default btn-access" actionListener="#{DatasetPage.edit('METADATA')}" update="@form,:messagePanel" oncomplete="javascript:post_edit_metadata()" 
-                                                   disabled="#{DatasetPage.locked}" rendered="#{DatasetPage.sessionUserAuthenticated and empty DatasetPage.editMode and !widgetWrapper.widgetView
-                                                               and DatasetPage.canUpdateDataset() and !DatasetPage.dataset.deaccessioned }">
+                                                   disabled="#{DatasetPage.locked}" rendered="#{!widgetWrapper.widgetView and (DatasetPage.sessionUserAuthenticated and empty DatasetPage.editMode and !widgetWrapper.widgetView
+                                                               and DatasetPage.canUpdateDataset() and !DatasetPage.dataset.deaccessioned)}">
                                         <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="0" />
                                         <span class="glyphicon glyphicon-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
                                     </p:commandLink>                                   
@@ -1313,15 +1334,44 @@
                         <p class="text-danger">
                             <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.rejectMessage']}
                         </p>
+                        <ui:remove>
+                        <!--FIXME update for new comments table -->
+                        <p:inputTextarea id="returnReason" rows="3"  value="#{DatasetPage.workingVersion.returnReason}" maxlength="200" widgetVar="returnReason"
+                                         cols="70" counter="display"  counterTemplate="{0} characters remaining." autoResize="false"/>
+                        <p>
+                        <h:outputText id="display" />
+                        </p>
+                        <p:watermark for="returnReason" value="#{bundle['dataset.rejectWatermark']}" id="returnReasonwatermark" />
+                        </ui:remove>
+
                         <div class="button-block">
                             <p:commandButton value="#{bundle.continue}" onclick="PF('sendBackToContributor').hide()" action="#{DatasetPage.sendBackToContributor}" />
+                            <ui:remove>
+                            <p:commandButton value="#{bundle.continue}" onclick="testReturnReason();"  />
+                            </ui:remove>
                             <p:commandButton value="#{bundle.cancel}" onclick="PF('sendBackToContributor').hide();PF('blockDatasetForm').hide();" type="button" />
                         </div>
                     </p:dialog>
-                    <!-- END: Publish/Submit for Review Dialogs -->
+                    <p:remoteCommand name="returnToAuthorCommand"   action="#{DatasetPage.sendBackToContributor}"/>
+                    <p:confirmDialog id="enterReturnReason" message="#{bundle['dataset.reject.enterReason']}" header="#{bundle['dataset.reject.enterReason.header']}" widgetVar="enterReturnReason"> </p:confirmDialog>                   
+                    
+                     <!-- END: Publish/Submit for Review Dialogs -->
                 </h:form>
                 <script type="text/javascript" src="/resources/js/dropins.js" id="dropboxjs" data-app-key="#{DatasetPage.dropBoxKey}"/>
                 <script type="text/javascript">
+                    $(document).ready(function () {
+                        popoverHTML('#{bundle.htmlAllowedTitle}');
+                    });
+                    
+                    function testReturnReason(){
+                        var returnReasonText = PF('returnReason').jq.val();
+                        if (returnReasonText.length===0){
+                            PF('enterReturnReason').show();
+                        } else {
+                            PF('sendBackToContributor').hide();
+                            returnToAuthorCommand();
+                        }                           
+                    }
                     function openDialog() {
                         PF('details').show();
                     }

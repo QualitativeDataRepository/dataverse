@@ -258,7 +258,9 @@ public class SearchServiceBean {
          */
         solrQuery.addFacetField(SearchFields.TYPE);
         solrQuery.addFacetField(SearchFields.FILE_TAG);
-        solrQuery.addFacetField(SearchFields.ACCESS);
+        if (!systemConfig.isPublicInstall()) {
+            solrQuery.addFacetField(SearchFields.ACCESS);
+        }
         /**
          * @todo: do sanity checking... throw error if negative
          */
@@ -734,7 +736,7 @@ public class SearchServiceBean {
             solrQueryResponse.setFilterQueriesActual(actualFilterQueries);
         } else {
             // how often is this null?
-            logger.info("solrQuery.getFilterQueries() was null");
+            logger.fine("solrQuery.getFilterQueries() was null");
         }
 
         solrQueryResponse.setDvObjectCounts(queryResponse.getFacetField("dvObjectType"));
