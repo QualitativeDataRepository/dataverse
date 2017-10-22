@@ -65,9 +65,9 @@ node {
     unstash 'dataverse-war'
 
     timeout(time: 2, unit: "HOURS") {
-      input message: 'Deploy to', parameters: [string(defaultValue: 'dev', description: '', name: 'deploy-to')]
+      def userInput = input message: 'Deploy to', parameters: [string(defaultValue: 'dev', description: '', name: 'deploy-to')]
       try {
-        sh "rsync -av target qdradmin@qdr-${deploy-to}-ec2-01.int.qdr.org:"
+        sh "rsync -av target qdradmin@qdr-"+userInput['deploy-to']+"-ec2-01.int.qdr.org:"
       }
       catch (e) {
         currentBuild.result = "FAILURE"
