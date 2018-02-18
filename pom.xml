@@ -400,7 +400,11 @@
           <artifactId>sentry-log4j</artifactId>
           <version>1.6.8</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry</artifactId>
+            <version>1.6.8</version>
+        </dependency>
         <!-- OAuth2 authentication. -->
         <dependency>
             <groupId>com.github.scribejava</groupId>
