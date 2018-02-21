@@ -68,7 +68,7 @@ public class BundleUtilTest {
                 + " Want to explore basic software features? Try the Dataverse <a href=\"https://demo.dataverse.org\">Demo Site</a>."
                 + " Also, check for your welcome email to verify your address.",
                 BundleUtil.getStringFromBundle("notification.welcome",
-                        Arrays.asList("Root", "<a href=\"http://guides.dataverse.org/en/4.3/user/index.html\">User Guide</a>", "<a href=\"https://demo.dataverse.org\">Demo Site</a>")));
+                        Arrays.asList("Root Collection", "<a href=\"http://guides.dataverse.org/en/4.3/user/index.html\">User Guide</a>", "<a href=\"https://demo.dataverse.org\">Demo Site</a>")));
     }
 
     @Test
