@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -45,6 +46,9 @@ import org.apache.commons.lang.StringUtils;
 @Stateless
 public class MailServiceBean implements java.io.Serializable {
 
+	@Inject
+	SettingsWrapper settingsWrapper;
+	   
     @EJB
     UserNotificationServiceBean userNotificationService;
     @EJB
@@ -443,8 +447,7 @@ public class MailServiceBean implements java.io.Serializable {
                 return messageText;
             case CREATEACC:
                 String accountCreatedMessage = BundleUtil.getStringFromBundle("notification.email.welcome", Arrays.asList(
-                        systemConfig.getGuidesBaseUrl(),
-                        systemConfig.getGuidesVersion()
+                		 settingsWrapper.get(":QDRDrupalSiteURL")
                 ));
                 String optionalConfirmEmailAddon = confirmEmailService.optionalConfirmEmailAddonMsg(userNotification.getUser());
                 accountCreatedMessage += optionalConfirmEmailAddon;
