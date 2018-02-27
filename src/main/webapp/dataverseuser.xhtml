@@ -78,10 +78,10 @@
                                                     <i class="icon-dataverse text-icon-inline text-muted"></i>
                                                     <h:outputFormat value="#{bundle['notification.welcome']}" escape="false">
                                                         <o:param>
-                                                            <h:outputText value="#{dataverseServiceBean.findRootDataverse().name}"/>
+                                                            <h:outputText value="#{dataverseServiceBean.findRootDataverse().name} #{bundle['dataverse']}"/>
                                                         </o:param>
                                                         <o:param>
-                                                            <a href="#{systemConfig.guidesBaseUrl}/#{systemConfig.guidesVersion}/user/index.html" title="#{dataverseServiceBean.findRootDataverse().name} #{bundle['dataverse']} #{bundle['header.guides.user']}" target="_blank">#{bundle['header.guides.user']}</a>
+                                                            <a href="#{settingsWrapper.get(':QDRDrupalSiteURL')}/user/deposit" title="#{dataverseServiceBean.findRootDataverse().name} #{bundle['dataverse']} #{bundle['header.guides.deposit']}" target="_blank">#{bundle['header.guides.deposit']}</a>
                                                         </o:param>
                                                         <o:param>
                                                             <a href="https://demo.dataverse.org">#{bundle['notification.demoSite']}</a>
