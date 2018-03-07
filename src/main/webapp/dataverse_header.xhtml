@@ -84,12 +84,7 @@
                                     </li>
                                     <li>
                                         <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/deposit/data">
-                                            Data Types
-                                        </h:outputLink>
-                                    </li>
-                                    <li>
-                                        <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/deposit/activecitations">
-                                            Active Citation Compilations
+                                            Forms of Data
                                         </h:outputLink>
                                     </li>
                                     <li>
@@ -114,11 +109,12 @@
                                             Search and Browse Data
                                         </h:outputLink>
                                     </li>
-                                    <li>
+  <!--these will return eventualy
+				<li>
                                         <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/discover/pilots">
                                             Pilot Projects
                                         </h:outputLink>
-                                    </li>
+                                    </li> -->
                                 </ul>
                             </div>
                         </li>
@@ -134,6 +130,11 @@
                                     <li>
                                         <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/guidance/managing">
                                             Managing Data
+                                        </h:outputLink>
+                                    </li>
+                                    <li>
+                                        <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/guidance/human-participants">
+                                            Human Participants
                                         </h:outputLink>
                                     </li>
                                     <li>
@@ -171,6 +172,38 @@
                                     <li>
                                         <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/qdr-publications/qdr-access">
                                             QDR Access
+                                        </h:outputLink>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="dropdown">
+                            <div style="padding-top:15px; padding-bottom:15px; margin-left:10px;">
+                                <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/ati">
+                                    ATI
+                                </h:outputLink> 
+                                <span class="dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-hover="dropdown" aria-haspopup="true" aria-expanded="false" style="display:inline; padding-left:2px;">
+                                    <b class="caret"></b>
+                                </span>
+                                <ul class="dropdown-menu" style="margin-top:-1px;">
+                                    <li>
+                                        <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/ati/ati-models">
+                                            ATI Models
+                                        </h:outputLink>
+                                    </li>
+                                    <li>
+                                        <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/ati/ati-instructions">
+                                            ATI Instructions
+                                        </h:outputLink>
+                                    </li>
+                                    <li>
+                                        <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/ati/guide-to-ati">
+                                            A Guide to ATI
+                                        </h:outputLink>
+                                    </li>
+                                    <li>
+                                        <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/ati/ati-initiative">
+                                            ATI Initiative
                                         </h:outputLink>
                                     </li>
                                 </ul>
