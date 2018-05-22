@@ -115,6 +115,10 @@ public abstract class DvObject extends DataverseEntity implements java.io.Serial
     @Column
     private String storageIdentifier;
     
+    //Make dtype queriable
+    @Column(insertable = false, updatable = false) 
+    private String dtype;
+    
     /*
     * Add DOI related fields
     */
