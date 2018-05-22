@@ -80,19 +80,16 @@ public class DvObjectServiceBean implements java.io.Serializable {
                     query.setParameter("identifier", identifier);
                     query.setParameter("protocol", protocol);
                     query.setParameter("authority", authority);
+                    query.setParameter("dtype", typeString);
                     foundDvObject = (DvObject) query.getSingleResult();
                 } catch (javax.persistence.NoResultException e) {
                     // (set to .info, this can fill the log file with thousands of
                     // these messages during a large harvest run)
                     logger.fine("no dvObject found: " + globalId);
                     // DO nothing, just return null.
-                }
-                if((typeString == Dataset.DATAFILE_DTYPE_STRING && foundDvObject.isInstanceofDataset()) ||
-                        (typeString == DataFile.DATAFILE_DTYPE_STRING && foundDvObject.isInstanceofDataFile())) {
-                return foundDvObject;
-                } else { 
                     return null;
                 }
+                return foundDvObject;
             } else {
                 logger.info(
                         "Error parsing identifier: " + globalId + ": ':<authority>/<identifier>' not found in string");

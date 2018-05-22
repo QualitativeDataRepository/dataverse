@@ -194,7 +194,7 @@ public class DatasetServiceBean implements java.io.Serializable {
     }
     
     public Dataset findByGlobalId(String globalId) {
-        return (Dataset) dvObjectService.findByGlobalId(globalId, Dataset.DATAFILE_DTYPE_STRING);
+        return (Dataset) dvObjectService.findByGlobalId(globalId, Dataset.DATASET_DTYPE_STRING);
     }
 
     public String generateDatasetIdentifier(Dataset dataset, IdServiceBean idServiceBean) {
