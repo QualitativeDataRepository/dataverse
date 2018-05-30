@@ -1763,6 +1763,64 @@ public class DatasetPage implements java.io.Serializable {
         } else if (editMode.equals(EditMode.METADATA)) {
             datasetVersionUI = datasetVersionUI.initDatasetVersionUI(workingVersion, true);
             updateDatasetFieldInputLevels();
+
+			// QDR: set pre-populated fields during edit
+			for (DatasetField dsf : dataset.getEditVersion().getDatasetFields()) {
+				if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.otherIdAgency) && dsf.isEmpty()) {
+					dsf.getDatasetFieldValues().get(0).setValue("Qualitative Data Repository");
+				} else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.author)) {
+					for (DatasetFieldCompoundValue authorValue : dsf.getDatasetFieldCompoundValues()) {
+						if (authorValue.isEmpty()) {
+							for (DatasetField subField : authorValue.getChildDatasetFields()) {
+								if (subField.getDatasetFieldType().getName()
+										.equals(DatasetFieldConstant.authorIdType)) {
+									DatasetFieldType authorIdTypeDatasetField = fieldService
+											.findByName(DatasetFieldConstant.authorIdType);
+									subField.setSingleControlledVocabularyValue(
+											fieldService.findControlledVocabularyValueByDatasetFieldTypeAndStrValue(
+													authorIdTypeDatasetField, "ORCID", false));
+								}
+							}
+						}
+					}
+				} else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.keyword)) {
+					for (DatasetFieldCompoundValue keywordValue : dsf.getDatasetFieldCompoundValues()) {
+						if (keywordValue.isEmpty()) {
+							for (DatasetField subField : keywordValue.getChildDatasetFields()) {
+								if (subField.getDatasetFieldType().getName()
+										.equals(DatasetFieldConstant.keywordVocab)) {
+									subField.getDatasetFieldValues().get(0).setValue("ICPSR Subject Thesaurus");
+								} else if (subField.getDatasetFieldType().getName()
+										.equals(DatasetFieldConstant.keywordVocabURI)) {
+									subField.getDatasetFieldValues().get(0)
+											.setValue("https://www.icpsr.umich.edu/icpsrweb/ICPSR/thesaurus/index");
+								}
+							}
+						}
+					}
+				} else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.distributor)) {
+					for (DatasetFieldCompoundValue distributorValue : dsf.getDatasetFieldCompoundValues()) {
+						if (distributorValue.isEmpty()) {
+							for (DatasetField subField : distributorValue.getChildDatasetFields()) {
+								if (subField.getDatasetFieldType().getName()
+										.equals(DatasetFieldConstant.distributorName)) {
+									subField.getDatasetFieldValues().get(0).setValue("Qualitative Data Repository");
+								} else if (subField.getDatasetFieldType().getName()
+										.equals(DatasetFieldConstant.distributorAffiliation)) {
+									subField.getDatasetFieldValues().get(0).setValue("Syracuse University");
+								} else if (subField.getDatasetFieldType().getName()
+										.equals(DatasetFieldConstant.distributorAbbreviation)) {
+									subField.getDatasetFieldValues().get(0).setValue("QDR");
+								} else if (subField.getDatasetFieldType().getName()
+										.equals(DatasetFieldConstant.distributorURL)) {
+									subField.getDatasetFieldValues().get(0).setValue("https://qdr.syr.edu");
+								}
+							}
+						}
+					}
+				}
+			}
+            
             JH.addMessage(FacesMessage.SEVERITY_INFO, JH.localize("dataset.message.editMetadata"));
             //FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Edit Dataset Metadata", " - Add more metadata about your dataset to help others easily find it."));
         } else if (editMode.equals(EditMode.LICENSE)){
