@@ -1768,7 +1768,7 @@ public class DatasetPage implements java.io.Serializable {
 			for (DatasetField dsf : dataset.getEditVersion().getDatasetFields()) {
 				if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.otherIdAgency) && dsf.isEmpty()) {
 					dsf.getDatasetFieldValues().get(0).setValue("Qualitative Data Repository");
-				} else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.author) && dsf.isEmpty()) {
+				} else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.author)) {
 					for (DatasetFieldCompoundValue authorValue : dsf.getDatasetFieldCompoundValues()) {
 						if (authorValue.isEmpty()) {
 							for (DatasetField subField : authorValue.getChildDatasetFields()) {
@@ -1782,7 +1782,8 @@ public class DatasetPage implements java.io.Serializable {
 								}
 							}
 						}
-				} else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.keyword) && dsf.isEmpty()) {
+					}
+				} else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.keyword)) {
 					for (DatasetFieldCompoundValue keywordValue : dsf.getDatasetFieldCompoundValues()) {
 						if (keywordValue.isEmpty()) {
 							for (DatasetField subField : keywordValue.getChildDatasetFields()) {
@@ -1796,8 +1797,8 @@ public class DatasetPage implements java.io.Serializable {
 								}
 							}
 						}
-				} else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.distributor)
-						&& dsf.isEmpty()) {
+					}
+				} else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.distributor)) {
 					for (DatasetFieldCompoundValue distributorValue : dsf.getDatasetFieldCompoundValues()) {
 						if (distributorValue.isEmpty()) {
 							for (DatasetField subField : distributorValue.getChildDatasetFields()) {
