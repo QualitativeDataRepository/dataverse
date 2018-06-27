@@ -64,7 +64,7 @@ import org.hibernate.validator.constraints.NotBlank;
 		, @Index(columnList="contenttype")
 		, @Index(columnList="restricted")})
 public class DataFile extends DvObject implements Comparable {
-    private static final Logger logger = Logger.getLogger(DatasetPage.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(DataFile.class.getCanonicalName());
     private static final long serialVersionUID = 1L;
     public static final String TARGET_URL = "/file.xhtml?persistentId=";
     public static final char INGEST_STATUS_NONE = 65;
@@ -297,6 +297,7 @@ public class DataFile extends DvObject implements Comparable {
     public String getOrderedTagLabelString(){
         List<String> tags = getTagLabels();
         tags.sort(null);
+        logger.info(String.join(" ", tags));
         return String.join(" ", tags);
     }
 
