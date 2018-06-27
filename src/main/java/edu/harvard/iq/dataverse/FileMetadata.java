@@ -186,6 +186,14 @@ public class FileMetadata implements Serializable {
         return ret;
     }
     
+    public String getOrderedCategoryNameString(){
+        List<String> names = getCategoriesByName();
+        names.sort(null);
+        logger.info(String.join(" ", names));
+        return String.join(" ", names);
+    }
+
+    
     
     public JsonArrayBuilder getCategoryNamesAsJsonArrayBuilder() {
 

@@ -293,14 +293,6 @@ public class DataFile extends DvObject implements Comparable {
         }
         return tagStrings;
     }
-
-    public String getOrderedTagLabelString(){
-        List<String> tags = getTagLabels();
-        tags.sort(null);
-        logger.info(String.join(" ", tags));
-        return String.join(" ", tags);
-    }
-
     
     public JsonArrayBuilder getTagLabelsAsJsonArrayBuilder(){
         
