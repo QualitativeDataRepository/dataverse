@@ -210,7 +210,7 @@
             </div>
             
         </p:column>
-         <p:column class="col-file-metadata" id="fileinfo" headerText="Name" sortBy="#{fileMetadata.dataFile.getOrderedCategoryNameString()}">
+         <p:column class="col-file-metadata" id="fileinfo" headerText="Name" sortBy="#{fileMetadata.getOrderedCategoryNameString()}">
             
             <ui:fragment rendered="#{!empty fileMetadata.dataFile.globalId}">
                 <!-- rendered="# {!(fileMetadata.datasetVersion.released or fileMetadata.datasetVersion.deaccessioned)}" -->
