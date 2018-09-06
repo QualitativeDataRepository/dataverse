@@ -43,12 +43,11 @@ public class SearchUtilTest {
         System.out.println("sanitizeQuery");
         assertEquals(null, SearchUtil.sanitizeQuery(null));
         assertEquals("", SearchUtil.sanitizeQuery(""));
-        assertEquals("_text_:doi\\:10.5072/FK2/4QEJQV OR full_text:doi\\:10.5072/FK2/4QEJQV", SearchUtil.sanitizeQuery("doi:10.5072/FK2/4QEJQV"));
+        assertEquals("doi\\:10.5072/FK2/4QEJQV", SearchUtil.sanitizeQuery("doi:10.5072/FK2/4QEJQV"));
         assertEquals("datasetPersistentIdentifier:doi\\:10.5072/FK2/4QEJQV", SearchUtil.sanitizeQuery("datasetPersistentIdentifier:doi:10.5072/FK2/4QEJQV"));
-        assertEquals("_text_:doi\\:4QEJQV OR full_text:doi\\:4QEJQV", SearchUtil.sanitizeQuery("doi:4QEJQV"));
-        assertEquals("_text_:hdl\\:1902.1/21919 OR full_text:hdl\\:1902.1/21919", SearchUtil.sanitizeQuery("hdl:1902.1/21919"));
+        assertEquals("doi\\:4QEJQV", SearchUtil.sanitizeQuery("doi:4QEJQV"));
+        assertEquals("hdl\\:1902.1/21919", SearchUtil.sanitizeQuery("hdl:1902.1/21919"));
         assertEquals("datasetPersistentIdentifier:hdl\\:1902.1/21919", SearchUtil.sanitizeQuery("datasetPersistentIdentifier:hdl:1902.1/21919"));
-        assertEquals("name:Test", SearchUtil.sanitizeQuery("name:Test"));
     }
 
     @Test

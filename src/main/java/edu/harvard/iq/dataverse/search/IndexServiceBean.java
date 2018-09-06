@@ -888,7 +888,7 @@ public class IndexServiceBean {
                             // see whether this file is a good candidate.
 
                             autoParser.parse(instream, textHandler, metadata, context);
-                            datafileSolrInputDocument.addField(SearchFields.TEXT_EN, textHandler.toString());
+                            datafileSolrInputDocument.addField(SearchFields.FULL_TEXT, textHandler.toString());
                         }
                     } catch (Exception e) {
                         // Needs better logging of what went wrong in order to
