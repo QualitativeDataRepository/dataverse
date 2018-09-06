@@ -27,6 +27,7 @@ public class SearchUtil {
             } else if (first.startsWith("hdl")) {
                 query = query.replaceAll("hdl:", "hdl\\\\:");
             } else if (first.startsWith("datasetPersistentIdentifier")) {
+            	complex=true;
                 query = query.replaceAll("datasetPersistentIdentifier:doi:", "datasetPersistentIdentifier:doi\\\\:");
                 query = query.replaceAll("datasetPersistentIdentifier:hdl:", "datasetPersistentIdentifier:hdl\\\\:");
             } else {
