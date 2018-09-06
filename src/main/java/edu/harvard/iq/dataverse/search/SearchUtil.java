@@ -18,6 +18,7 @@ public class SearchUtil {
         if (query == null) {
             return null;
         }
+        boolean complex = false;
         String[] colonParts = query.split(":");
         if (colonParts.length > 0) {
             String first = colonParts[0];
@@ -29,6 +30,7 @@ public class SearchUtil {
                 query = query.replaceAll("datasetPersistentIdentifier:doi:", "datasetPersistentIdentifier:doi\\\\:");
                 query = query.replaceAll("datasetPersistentIdentifier:hdl:", "datasetPersistentIdentifier:hdl\\\\:");
             } else {
+            	complex = true;
                 /**
                  * No-op, don't mutate the query.
                  *
@@ -40,7 +42,11 @@ public class SearchUtil {
                  */
             }
         }
+        if(complex) {
         return query;
+        } else {
+        	return ("_text_:" + query + " OR fulltext:" + query);
+        }
     }
 
     public static SolrInputDocument createSolrDoc(DvObjectSolrDoc dvObjectSolrDoc) {
