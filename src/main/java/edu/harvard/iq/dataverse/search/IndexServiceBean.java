@@ -24,6 +24,7 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccessRequest;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
+import edu.harvard.iq.dataverse.search.IndexableDataset.DatasetState;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -660,8 +661,8 @@ public class IndexServiceBean {
         solrInputDocument.addField(SearchFields.ENTITY_ID, dataset.getId());
         String dataverseVersion = systemConfig.getVersion();
         solrInputDocument.addField(SearchFields.DATAVERSE_VERSION_INDEXED_BY, dataverseVersion);
-        solrInputDocument.addField(SearchFields.IDENTIFIER, dataset.getGlobalIdString());
-        solrInputDocument.addField(SearchFields.DATASET_PERSISTENT_ID, dataset.getGlobalIdString());
+        solrInputDocument.addField(SearchFields.IDENTIFIER, dataset.getGlobalId().toString());
+        solrInputDocument.addField(SearchFields.DATASET_PERSISTENT_ID, dataset.getGlobalId().toString());
         solrInputDocument.addField(SearchFields.PERSISTENT_URL, dataset.getPersistentURL());
         solrInputDocument.addField(SearchFields.TYPE, "datasets");
 
@@ -695,11 +696,15 @@ public class IndexServiceBean {
         solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE, datasetSortByDate);
         solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE_SEARCHABLE_TEXT, convertToFriendlyDate(datasetSortByDate));
 
-        if (state.equals(indexableDataset.getDatasetState().PUBLISHED)) {
+        indexableDataset.getDatasetState();
+        if (state.equals(DatasetState.PUBLISHED)) {
             solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, PUBLISHED_STRING);
 //            solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE, dataset.getPublicationDate());
-        } else if (state.equals(indexableDataset.getDatasetState().WORKING_COPY)) {
-            solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, DRAFT_STRING);
+        } else {
+            indexableDataset.getDatasetState();
+            if (state.equals(DatasetState.WORKING_COPY)) {
+                solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, DRAFT_STRING);
+            }
         }
 
         addDatasetReleaseDateToSolrDoc(solrInputDocument, dataset);
@@ -826,7 +831,8 @@ public class IndexServiceBean {
         solrInputDocument.addField(SearchFields.PARENT_ID, dataset.getOwner().getId());
         solrInputDocument.addField(SearchFields.PARENT_NAME, dataset.getOwner().getName());
 
-        if (state.equals(indexableDataset.getDatasetState().DEACCESSIONED)) {
+        indexableDataset.getDatasetState();
+        if (state.equals(DatasetState.DEACCESSIONED)) {
             String deaccessionNote = datasetVersion.getVersionNote();
             if (deaccessionNote != null) {
                 solrInputDocument.addField(SearchFields.DATASET_DEACCESSION_REASON, deaccessionNote);
@@ -871,10 +877,11 @@ public class IndexServiceBean {
                     
                     StorageIO<DataFile> accessObject = null;
                     InputStream instream = null;
+                    ContentHandler textHandler =  null;
                     try {
                         AutoDetectParser autoParser = new AutoDetectParser();
 
-                        ContentHandler textHandler = new BodyContentHandler(-1);
+                        textHandler = new BodyContentHandler(-1);
                         Metadata metadata = new Metadata();
                         ParseContext context = new ParseContext();
                         accessObject = DataAccess.getStorageIO(fileMetadata.getDataFile(),
@@ -897,8 +904,13 @@ public class IndexServiceBean {
                                 fileMetadata.getDataFile().getDisplayName()));
                         e.printStackTrace();
                         continue;
-                    } finally {
-                    	IOUtils.closeQuietly(instream);
+                    } catch (OutOfMemoryError e) {
+                        textHandler = null;
+                        logger.warning(String.format("Full-text indexing for %s failed due to OutOfMemoryError",
+                                fileMetadata.getDataFile().getDisplayName()));
+                        continue;
+                    }finally {
+                        IOUtils.closeQuietly(instream);
                     }
 
                     
@@ -995,14 +1007,18 @@ public class IndexServiceBean {
                     }
 
                     String fileSolrDocId = solrDocIdentifierFile + fileEntityId;
-                    if (indexableDataset.getDatasetState().equals(indexableDataset.getDatasetState().PUBLISHED)) {
+                    indexableDataset.getDatasetState();
+                    if (indexableDataset.getDatasetState().equals(DatasetState.PUBLISHED)) {
                         fileSolrDocId = solrDocIdentifierFile + fileEntityId;
                         datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, PUBLISHED_STRING);
 //                    datafileSolrInputDocument.addField(SearchFields.PERMS, publicGroupString);
                         addDatasetReleaseDateToSolrDoc(datafileSolrInputDocument, dataset);
-                    } else if (indexableDataset.getDatasetState().equals(indexableDataset.getDatasetState().WORKING_COPY)) {
-                        fileSolrDocId = solrDocIdentifierFile + fileEntityId + indexableDataset.getDatasetState().getSuffix();
-                        datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, DRAFT_STRING);
+                    } else {
+                        indexableDataset.getDatasetState();
+                        if (indexableDataset.getDatasetState().equals(DatasetState.WORKING_COPY)) {
+                            fileSolrDocId = solrDocIdentifierFile + fileEntityId + indexableDataset.getDatasetState().getSuffix();
+                            datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, DRAFT_STRING);
+                        }
                     }
                     datafileSolrInputDocument.addField(SearchFields.ID, fileSolrDocId);
 
