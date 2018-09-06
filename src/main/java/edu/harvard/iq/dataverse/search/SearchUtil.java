@@ -45,7 +45,7 @@ public class SearchUtil {
         if(complex) {
         return query;
         } else {
-        	return ("_text_:" + query + " OR fulltext:" + query);
+        	return ("_text_:" + query + " OR full_text:" + query);
         }
     }
 
