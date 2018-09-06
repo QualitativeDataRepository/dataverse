@@ -874,7 +874,7 @@ public class IndexServiceBean {
                     try {
                         AutoDetectParser autoParser = new AutoDetectParser();
 
-                        ContentHandler textHandler = new BodyContentHandler();
+                        ContentHandler textHandler = new BodyContentHandler(-1);
                         Metadata metadata = new Metadata();
                         ParseContext context = new ParseContext();
                         accessObject = DataAccess.getStorageIO(fileMetadata.getDataFile(),
