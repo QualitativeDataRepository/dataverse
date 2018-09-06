@@ -233,5 +233,6 @@ public class SearchFields {
 
     public static final String VARIABLE_NAME = "variableName";
     public static final String VARIABLE_LABEL = "variableLabel";
+	public static final String TEXT_EN = "text_en";
 
 }

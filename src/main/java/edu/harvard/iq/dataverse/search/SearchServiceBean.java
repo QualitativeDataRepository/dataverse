@@ -195,6 +195,7 @@ public class SearchServiceBean {
          */      
         solrFieldsToHightlightOnMap.put(SearchFields.FILENAME_WITHOUT_EXTENSION, "Filename Without Extension");
         solrFieldsToHightlightOnMap.put(SearchFields.FILE_TAG_SEARCHABLE, "File Tag");
+        solrFieldsToHightlightOnMap.put(SearchFields.TEXT_EN, "Full Text");
         List<DatasetFieldType> datasetFields = datasetFieldService.findAllOrderedById();
         for (DatasetFieldType datasetFieldType : datasetFields) {
             String solrField = datasetFieldType.getSolrField().getNameSearchable();
