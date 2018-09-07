@@ -17,6 +17,7 @@ import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
+import edu.harvard.iq.dataverse.SettingsWrapper;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
@@ -25,6 +26,7 @@ import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
 import edu.harvard.iq.dataverse.search.IndexableDataset.DatasetState;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -105,6 +107,8 @@ public class IndexServiceBean {
     DatasetLinkingServiceBean dsLinkingService;
     @EJB
     DataverseLinkingServiceBean dvLinkingService;
+    @EJB
+    SettingsServiceBean settingsService;
 
     public static final String solrDocIdentifierDataverse = "dataverse_";
     public static final String solrDocIdentifierFile = "datafile_";
@@ -875,44 +879,45 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.PERSISTENT_URL, dataset.getPersistentURL());
                     datafileSolrInputDocument.addField(SearchFields.TYPE, "files");
                     
-                    StorageIO<DataFile> accessObject = null;
-                    InputStream instream = null;
-                    ContentHandler textHandler =  null;
-                    try {
-                        AutoDetectParser autoParser = new AutoDetectParser();
+                    /* Full-text indexing using Apache Tika */
+                    if (settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
+                        StorageIO<DataFile> accessObject = null;
+                        InputStream instream = null;
+                        ContentHandler textHandler = null;
+                        try {
+                            AutoDetectParser autoParser = new AutoDetectParser();
 
-                        textHandler = new BodyContentHandler(-1);
-                        Metadata metadata = new Metadata();
-                        ParseContext context = new ParseContext();
-                        accessObject = DataAccess.getStorageIO(fileMetadata.getDataFile(),
-                                new DataAccessRequest());
+                            textHandler = new BodyContentHandler(-1);
+                            Metadata metadata = new Metadata();
+                            ParseContext context = new ParseContext();
+                            accessObject = DataAccess.getStorageIO(fileMetadata.getDataFile(), new DataAccessRequest());
 
-                        if (accessObject != null) {
-                            accessObject.open();
-                            instream = accessObject.getInputStream();
+                            if (accessObject != null) {
+                                accessObject.open();
+                                instream = accessObject.getInputStream();
 
-                            // Try parsing the file. Note we haven't checked at all to
-                            // see whether this file is a good candidate.
+                                // Try parsing the file. Note we haven't checked at all to
+                                // see whether this file is a good candidate.
 
-                            autoParser.parse(instream, textHandler, metadata, context);
-                            datafileSolrInputDocument.addField(SearchFields.FULL_TEXT, textHandler.toString());
+                                autoParser.parse(instream, textHandler, metadata, context);
+                                datafileSolrInputDocument.addField(SearchFields.FULL_TEXT, textHandler.toString());
+                            }
+                        } catch (Exception e) {
+                            // Needs better logging of what went wrong in order to
+                            // track down "bad" documents.
+                            logger.warning(String.format("Full-text indexing for %s failed",
+                                    fileMetadata.getDataFile().getDisplayName()));
+                            e.printStackTrace();
+                            continue;
+                        } catch (OutOfMemoryError e) {
+                            textHandler = null;
+                            logger.warning(String.format("Full-text indexing for %s failed due to OutOfMemoryError",
+                                    fileMetadata.getDataFile().getDisplayName()));
+                            continue;
+                        } finally {
+                            IOUtils.closeQuietly(instream);
                         }
-                    } catch (Exception e) {
-                        // Needs better logging of what went wrong in order to
-                        // track down "bad" documents.
-                        logger.warning(String.format("Full-text indexing for %s failed",
-                                fileMetadata.getDataFile().getDisplayName()));
-                        e.printStackTrace();
-                        continue;
-                    } catch (OutOfMemoryError e) {
-                        textHandler = null;
-                        logger.warning(String.format("Full-text indexing for %s failed due to OutOfMemoryError",
-                                fileMetadata.getDataFile().getDisplayName()));
-                        continue;
-                    }finally {
-                        IOUtils.closeQuietly(instream);
                     }
-
                     
 
                     String filenameCompleteFinal = "";
