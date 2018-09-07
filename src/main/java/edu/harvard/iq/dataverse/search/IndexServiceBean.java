@@ -17,7 +17,6 @@ import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
-import edu.harvard.iq.dataverse.SettingsWrapper;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
@@ -700,15 +699,11 @@ public class IndexServiceBean {
         solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE, datasetSortByDate);
         solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE_SEARCHABLE_TEXT, convertToFriendlyDate(datasetSortByDate));
 
-        indexableDataset.getDatasetState();
         if (state.equals(DatasetState.PUBLISHED)) {
             solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, PUBLISHED_STRING);
 //            solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE, dataset.getPublicationDate());
-        } else {
-            indexableDataset.getDatasetState();
-            if (state.equals(DatasetState.WORKING_COPY)) {
+        } else if (state.equals(DatasetState.WORKING_COPY)) {
                 solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, DRAFT_STRING);
-            }
         }
 
         addDatasetReleaseDateToSolrDoc(solrInputDocument, dataset);
@@ -835,7 +830,6 @@ public class IndexServiceBean {
         solrInputDocument.addField(SearchFields.PARENT_ID, dataset.getOwner().getId());
         solrInputDocument.addField(SearchFields.PARENT_NAME, dataset.getOwner().getName());
 
-        indexableDataset.getDatasetState();
         if (state.equals(DatasetState.DEACCESSIONED)) {
             String deaccessionNote = datasetVersion.getVersionNote();
             if (deaccessionNote != null) {
@@ -1012,18 +1006,14 @@ public class IndexServiceBean {
                     }
 
                     String fileSolrDocId = solrDocIdentifierFile + fileEntityId;
-                    indexableDataset.getDatasetState();
                     if (indexableDataset.getDatasetState().equals(DatasetState.PUBLISHED)) {
                         fileSolrDocId = solrDocIdentifierFile + fileEntityId;
                         datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, PUBLISHED_STRING);
 //                    datafileSolrInputDocument.addField(SearchFields.PERMS, publicGroupString);
                         addDatasetReleaseDateToSolrDoc(datafileSolrInputDocument, dataset);
-                    } else {
-                        indexableDataset.getDatasetState();
-                        if (indexableDataset.getDatasetState().equals(DatasetState.WORKING_COPY)) {
+                    } else if (indexableDataset.getDatasetState().equals(DatasetState.WORKING_COPY)) {
                             fileSolrDocId = solrDocIdentifierFile + fileEntityId + indexableDataset.getDatasetState().getSuffix();
                             datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, DRAFT_STRING);
-                        }
                     }
                     datafileSolrInputDocument.addField(SearchFields.ID, fileSolrDocId);
 
