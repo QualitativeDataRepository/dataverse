@@ -94,7 +94,6 @@ public class SearchPermissionsServiceBean {
 
     public List<String> findDvObjectPerms(DvObject dvObject) {
         List<String> permStrings = new ArrayList<>();
-        if (dvObject instanceof DataFile)
 
         Set<RoleAssignment> roleAssignments = null;
         if (!((dvObject instanceof DataFile) && !((DataFile) dvObject).isRestricted())) {
