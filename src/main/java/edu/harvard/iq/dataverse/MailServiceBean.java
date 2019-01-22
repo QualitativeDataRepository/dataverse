@@ -88,10 +88,10 @@ public class MailServiceBean implements java.io.Serializable {
             String[] recipientStrings = to.split(",");
             InternetAddress[] recipients = new InternetAddress[recipientStrings.length];
             try {
-            	InternetAddress fromAddress=getSystemAddress();
-            	fromAddress.setPersonal(BundleUtil.getStringFromBundle("contact.delegation", Arrays.asList(
+                InternetAddress fromAddress=getSystemAddress();
+                fromAddress.setPersonal(BundleUtil.getStringFromBundle("contact.delegation", Arrays.asList(
                         fromAddress.getPersonal(), reply)), charset);
-            	msg.setFrom(fromAddress);
+                msg.setFrom(fromAddress);
                 msg.setReplyTo(new Address[] {new InternetAddress(reply, charset)});
                 for (int i = 0; i < recipients.length; i++) {
                     recipients[i] = new InternetAddress(recipientStrings[i], "", charset);
@@ -117,13 +117,13 @@ public class MailServiceBean implements java.io.Serializable {
 
         boolean sent = false;
 
-		// QDR - uses the institution name rather than a dataverse/collection name in
-		// email subject
+        // QDR - uses the institution name rather than a dataverse/collection name in
+        // email subject
         InternetAddress systemAddress = getSystemAddress();
-		String institutionName = ResourceBundle.getBundle("Bundle").getString("institution.acronym");
-		String body = messageText + BundleUtil.getStringFromBundle("notification.email.closing",
-				Arrays.asList(BrandingUtil.getSupportTeamEmailAddress(systemAddress),
-						BrandingUtil.getSupportTeamName(systemAddress, institutionName)));
+        String institutionName = ResourceBundle.getBundle("Bundle").getString("institution.acronym");
+        String body = messageText + BundleUtil.getStringFromBundle("notification.email.closing",
+                Arrays.asList(BrandingUtil.getSupportTeamEmailAddress(systemAddress),
+                        BrandingUtil.getSupportTeamName(systemAddress, institutionName)));
         logger.fine("Sending email to " + to + ". Subject: <<<" + subject + ">>>. Body: " + body);
         try {
             MimeMessage msg = new MimeMessage(session);
@@ -185,7 +185,7 @@ public class MailServiceBean implements java.io.Serializable {
             }
             msg.setFrom(fromAddress);
             if (EMailValidator.isEmailValid(reply, null)) {
-            	//But set the reply-to address to direct replies to the requested 'from' party if it is a valid email address	
+                //But set the reply-to address to direct replies to the requested 'from' party if it is a valid email address
                 msg.setReplyTo(new Address[] {new InternetAddress(reply)});
             } else {
                 //Otherwise include the invalid 'from' address in the message
@@ -214,16 +214,6 @@ public class MailServiceBean implements java.io.Serializable {
         }
     }
     
-    public Boolean sendNotificationEmail(UserNotification notification){  
-        return sendNotificationEmail(notification, "");
-    }
-    
-    
-    public Boolean sendNotificationEmail(UserNotification notification, String comment) {
-        return sendNotificationEmail(notification, comment, null);
-    }
-    
-    
     public Boolean sendNotificationEmail(UserNotification notification, String comment, AuthenticatedUser requestor){  
 
         boolean retval = false;
@@ -232,12 +222,12 @@ public class MailServiceBean implements java.io.Serializable {
            Object objectOfNotification =  getObjectOfNotification(notification);
            if (objectOfNotification != null){
                String messageText = getMessageTextBasedOnNotification(notification, objectOfNotification, comment, requestor);
-				// QDR - uses the institution name rather than a dataverse/collection name in
-				// email subject
-				String institutionName = ResourceBundle.getBundle("Bundle").getString("institution.acronym");
-				;
-				String subjectText = MailUtil.getSubjectTextBasedOnNotification(notification, institutionName,
-						objectOfNotification);
+                // QDR - uses the institution name rather than a dataverse/collection name in
+                // email subject
+                String institutionName = ResourceBundle.getBundle("Bundle").getString("institution.acronym");
+                ;
+                String subjectText = MailUtil.getSubjectTextBasedOnNotification(notification, institutionName,
+                        objectOfNotification);
                if (!(messageText.isEmpty() || subjectText.isEmpty())){
                     retval = sendSystemEmail(emailAddress, subjectText, messageText); 
                } else {
@@ -326,16 +316,6 @@ public class MailServiceBean implements java.io.Serializable {
         return "";
     }
     
-    public String getMessageTextBasedOnNotification(UserNotification userNotification, Object targetObject){
-        
-        return getMessageTextBasedOnNotification(userNotification, targetObject, "");
-            
-    }
-    
-    public String getMessageTextBasedOnNotification(UserNotification userNotification, Object targetObject, String comment) {
-        return getMessageTextBasedOnNotification(userNotification, targetObject, comment, null);
-
-    }
 
     public String getMessageTextBasedOnNotification(UserNotification userNotification, Object targetObject, String comment, AuthenticatedUser requestor) {      
         
@@ -493,16 +473,16 @@ public class MailServiceBean implements java.io.Serializable {
             case CREATEACC:
                 String rootDataverseName = dataverseService.findRootDataverse().getName();
                 InternetAddress systemAddress = getSystemAddress();
-			// QDR
-			String accountCreatedMessage = BundleUtil.getStringFromBundle("notification.email.welcome",
-					Arrays.asList(ResourceBundle.getBundle("Bundle").getString("institution.acronym"),
-							ResourceBundle.getBundle("Bundle").getString("header.guides.user"),
-							settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL, "") + "/deposit",
-							BrandingUtil.getSupportTeamName(systemAddress,
-									ResourceBundle.getBundle("Bundle").getString("institution.acronym")),
-							BrandingUtil.getSupportTeamEmailAddress(systemAddress)));
-			String optionalConfirmEmailAddon = confirmEmailService
-					.optionalConfirmEmailAddonMsg(userNotification.getUser());
+            // QDR
+            String accountCreatedMessage = BundleUtil.getStringFromBundle("notification.email.welcome",
+                    Arrays.asList(ResourceBundle.getBundle("Bundle").getString("institution.acronym"),
+                            ResourceBundle.getBundle("Bundle").getString("header.guides.user"),
+                            settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL, "") + "/deposit",
+                            BrandingUtil.getSupportTeamName(systemAddress,
+                                    ResourceBundle.getBundle("Bundle").getString("institution.acronym")),
+                            BrandingUtil.getSupportTeamEmailAddress(systemAddress)));
+            String optionalConfirmEmailAddon = confirmEmailService
+                    .optionalConfirmEmailAddonMsg(userNotification.getUser());
                 accountCreatedMessage += optionalConfirmEmailAddon;
                 logger.fine("accountCreatedMessage: " + accountCreatedMessage);
                 return messageText += accountCreatedMessage;
