@@ -2053,7 +2053,7 @@ public class DatasetPage implements java.io.Serializable {
         return returnToDatasetOnly();
     }
 
-    @deprecated
+    @Deprecated
     public String registerDataset() {
         try {
             UpdateDatasetVersionCommand cmd = new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest());
