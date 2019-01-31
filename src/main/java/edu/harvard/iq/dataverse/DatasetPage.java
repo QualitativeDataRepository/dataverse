@@ -19,6 +19,7 @@ import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreatePrivateUrlCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.CuratePublishedDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeaccessionDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeletePrivateUrlCommand;
@@ -504,7 +505,6 @@ public class DatasetPage implements java.io.Serializable {
                     1000000);
 
             for (SolrDocument solrDocument : solrDocs) {
-                logger.info("Found: " + (Long) solrDocument.getFieldValue(SearchFields.ENTITY_ID));
                 searchResultsIdSet.add((Long) solrDocument.getFieldValue(SearchFields.ENTITY_ID));
             }
         } catch (SearchException ex) {
@@ -1864,8 +1864,12 @@ public class DatasetPage implements java.io.Serializable {
     public String releaseDraft() {
         if (releaseRadio == 1) {
             return releaseDataset(true);
-        } else {
+        } else if(releaseRadio ==2) {
             return releaseDataset(false);
+        } else if(releaseRadio ==3) {
+            return updateCurrentVersion();
+        } else {
+            return "Invalid Choice";
         }
     }
 
@@ -2049,6 +2053,7 @@ public class DatasetPage implements java.io.Serializable {
         return returnToDatasetOnly();
     }
 
+    @deprecated
     public String registerDataset() {
         try {
             UpdateDatasetVersionCommand cmd = new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest());
@@ -2062,6 +2067,20 @@ public class DatasetPage implements java.io.Serializable {
         FacesContext.getCurrentInstance().addMessage(null, message);
         return returnToDatasetOnly();
     }
+    
+    public String updateCurrentVersion() {
+        try {
+            CuratePublishedDatasetVersionCommand cmd = new CuratePublishedDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest());
+            dataset = commandEngine.submit(cmd);
+        } catch (CommandException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,BundleUtil.getStringFromBundle( "dataset.registration.failed"), " - " + ex.toString()));
+            logger.severe(ex.getMessage());
+        }
+        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.registered"), BundleUtil.getStringFromBundle("dataset.registered.msg"));
+        FacesContext.getCurrentInstance().addMessage(null, message);
+        return returnToDatasetOnly();
+    }
+
 
     public void refresh(ActionEvent e) {
         refresh();
