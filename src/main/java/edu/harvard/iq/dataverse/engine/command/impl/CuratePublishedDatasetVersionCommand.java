@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.engine.command.impl;
 
 import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.authorization.Permission;
-import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
@@ -10,8 +9,8 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.export.ExportException;
 import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.workflows.WorkflowComment;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,6 +56,23 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         // Merge the new version into out JPA context
         ctxt.em().merge(updateVersion);
 
+
+        TermsOfUseAndAccess oldTerms = updateVersion.getTermsOfUseAndAccess();
+        TermsOfUseAndAccess newTerms = getDataset().getEditVersion().getTermsOfUseAndAccess();
+        newTerms.setDatasetVersion(updateVersion);
+        updateVersion.setTermsOfUseAndAccess(newTerms);
+        //Put old terms on version that will be deleted....
+        getDataset().getEditVersion().setTermsOfUseAndAccess(oldTerms);
+        
+        List<WorkflowComment> newComments = getDataset().getEditVersion().getWorkflowComments();
+        if (newComments!=null && newComments.size() >0) {
+            for(WorkflowComment wfc: newComments) {
+                wfc.setDatasetVersion(updateVersion);
+            }
+            updateVersion.getWorkflowComments().addAll(newComments);
+        }
+
+        
         // we have to merge to update the database but not flush because
         // we don't want to create two draft versions!
         Dataset tempDataset = ctxt.em().merge(getDataset());
