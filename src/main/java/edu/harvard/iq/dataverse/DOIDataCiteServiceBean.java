@@ -42,7 +42,7 @@ public class DOIDataCiteServiceBean extends AbstractGlobalIdServiceBean {
     @Override
     public boolean alreadyExists(GlobalId pid) {
         logger.log(Level.FINE,"alreadyExists");
-        if(pid==null) {
+        if(pid==null || pid.asString().isEmpty()) {
             logger.severe("No identifier sent.");
             return false;
         }
