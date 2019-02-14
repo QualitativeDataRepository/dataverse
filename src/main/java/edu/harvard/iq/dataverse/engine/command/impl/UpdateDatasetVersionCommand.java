@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -44,7 +45,7 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
                 break;
             }
         }
-    }    
+    }
 
     public boolean isValidateLenient() {
         return validateLenient;
