@@ -579,7 +579,6 @@ public class FileMetadata implements Serializable {
         public int compare(DataFileCategory o1, DataFileCategory o2) {
             if (categoryMap != null) {
                 //If one is in the map and one is not, the former is first, otherwise sort by name
-                long rank1 = Long.MAX_VALUE;
                 boolean o1InMap = categoryMap.containsKey(o1); 
                 boolean o2InMap = categoryMap.containsKey(o2);
                 if(o1InMap && !o2InMap) {
