@@ -539,7 +539,7 @@ public class FileMetadata implements Serializable {
        categoryMap=new HashMap<String, Long>();
        long i=1;
        for(String cat: categories.split(",\\s*")) {
-           categoryMap.put(cat, i);
+           categoryMap.put(cat.toUpperCase(), i);
            i++;
        }
     }
@@ -550,7 +550,7 @@ public class FileMetadata implements Serializable {
             if (categoryMap != null) {
                 long rank1 = Long.MAX_VALUE;
                 for (DataFileCategory c : o1.getCategories()) {
-                    Long rank = categoryMap.get(c.getName());
+                    Long rank = categoryMap.get(c.getName().toUpperCase());
                     if (rank != null) {
                         if (rank < rank1) {
                             rank1 = rank;
@@ -559,7 +559,7 @@ public class FileMetadata implements Serializable {
                 }
                 long rank2 = Long.MAX_VALUE;
                 for (DataFileCategory c : o2.getCategories()) {
-                    Long rank = categoryMap.get(c.getName());
+                    Long rank = categoryMap.get(c.getName().toUpperCase());
                     if (rank != null) {
                         if (rank < rank2) {
                             rank2 = rank;
@@ -581,8 +581,8 @@ public class FileMetadata implements Serializable {
         public int compare(DataFileCategory o1, DataFileCategory o2) {
             if (categoryMap != null) {
                 //If one is in the map and one is not, the former is first, otherwise sort by name
-                boolean o1InMap = categoryMap.containsKey(o1); 
-                boolean o2InMap = categoryMap.containsKey(o2);
+                boolean o1InMap = categoryMap.containsKey(o1.getName().toUpperCase()); 
+                boolean o2InMap = categoryMap.containsKey(o2.getName().toUpperCase());
                 if(o1InMap && !o2InMap) {
                     return (-1);
                 }
