@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -152,6 +153,23 @@ public class FileMetadata implements Serializable {
     private List<DataFileCategory> fileCategories;
     
     public List<DataFileCategory> getCategories() {
+        /*
+         * fileCategories can sometimes be an
+         * org.eclipse.persistence.indirection.IndirectList When that happens, the
+         * comparator in the Collections.sort below is not called, possibly due to
+         * https://bugs.eclipse.org/bugs/show_bug.cgi?id=446236 which is Java 1.8+
+         * specific Converting to an ArrayList solves the problem, but the longer term
+         * solution may be in avoiding the IndirectList or moving to a new version of
+         * the jar it is in.
+         */
+        if(!(fileCategories instanceof ArrayList)) {
+            List<DataFileCategory> newDFCs = new ArrayList<DataFileCategory>();
+            for(DataFileCategory fdc: fileCategories) {
+                newDFCs.add(fdc);
+            }
+            setCategories(newDFCs);
+        }
+        Collections.sort(fileCategories, FileMetadata.compareByNameWithSortCategories);
         return fileCategories;
     }
     
@@ -553,6 +571,25 @@ public class FileMetadata implements Serializable {
             //No categories or category score is equal, so compare labels
             return o1.getLabel().toUpperCase().compareTo(o2.getLabel().toUpperCase());
 
+        }
+    };
+    
+    public static final Comparator<DataFileCategory> compareByNameWithSortCategories = new Comparator<DataFileCategory>() {
+        @Override
+        public int compare(DataFileCategory o1, DataFileCategory o2) {
+            if (categoryMap != null) {
+                //If one is in the map and one is not, the former is first, otherwise sort by name
+                long rank1 = Long.MAX_VALUE;
+                boolean o1InMap = categoryMap.containsKey(o1); 
+                boolean o2InMap = categoryMap.containsKey(o2);
+                if(o1InMap && !o2InMap) {
+                    return (-1);
+                }
+                if(!o1InMap && o2InMap) {
+                    return 1;
+                }
+            }
+            return(o1.getName().toUpperCase().compareTo(o2.getName().toUpperCase()));
         }
     };
     
