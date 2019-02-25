@@ -153,23 +153,25 @@ public class FileMetadata implements Serializable {
     private List<DataFileCategory> fileCategories;
     
     public List<DataFileCategory> getCategories() {
-        /*
-         * fileCategories can sometimes be an
-         * org.eclipse.persistence.indirection.IndirectList When that happens, the
-         * comparator in the Collections.sort below is not called, possibly due to
-         * https://bugs.eclipse.org/bugs/show_bug.cgi?id=446236 which is Java 1.8+
-         * specific Converting to an ArrayList solves the problem, but the longer term
-         * solution may be in avoiding the IndirectList or moving to a new version of
-         * the jar it is in.
-         */
-        if(!(fileCategories instanceof ArrayList)) {
-            List<DataFileCategory> newDFCs = new ArrayList<DataFileCategory>();
-            for(DataFileCategory fdc: fileCategories) {
-                newDFCs.add(fdc);
+        if (fileCategories != null) {
+            /*
+             * fileCategories can sometimes be an
+             * org.eclipse.persistence.indirection.IndirectList When that happens, the
+             * comparator in the Collections.sort below is not called, possibly due to
+             * https://bugs.eclipse.org/bugs/show_bug.cgi?id=446236 which is Java 1.8+
+             * specific Converting to an ArrayList solves the problem, but the longer term
+             * solution may be in avoiding the IndirectList or moving to a new version of
+             * the jar it is in.
+             */
+            if (!(fileCategories instanceof ArrayList)) {
+                List<DataFileCategory> newDFCs = new ArrayList<DataFileCategory>();
+                for (DataFileCategory fdc : fileCategories) {
+                    newDFCs.add(fdc);
+                }
+                setCategories(newDFCs);
             }
-            setCategories(newDFCs);
+            Collections.sort(fileCategories, FileMetadata.compareByNameWithSortCategories);
         }
-        Collections.sort(fileCategories, FileMetadata.compareByNameWithSortCategories);
         return fileCategories;
     }
     
@@ -521,7 +523,7 @@ public class FileMetadata implements Serializable {
     
     @Override
     public String toString() {
-        return "edu.harvard.iq.dvn.core.study.FileMetadata[id=" + id + "]";
+        return "edu.harvard.iq.dataverse.FileMetadata[id=" + id + "]";
     }
     
     public static final Comparator<FileMetadata> compareByLabel = new Comparator<FileMetadata>() {
