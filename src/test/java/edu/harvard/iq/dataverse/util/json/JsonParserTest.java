@@ -555,7 +555,9 @@ public class JsonParserTest {
         Dataset dataset = new Dataset();
         dsv.setDataset(dataset);
         List<FileMetadata> fileMetadatas = new JsonParser().parseFiles(metadatasJson, dsv);
+        System.out.println("fileMetadata size: " + fileMetadatas.size());
         System.out.println("fileMetadatas: " + fileMetadatas);
+        System.out.flush();
         assertEquals("myLabel", fileMetadatas.get(0).getLabel());
         assertEquals("Documentation", fileMetadatas.get(0).getCategories().get(0).getName());
         assertEquals(null, fileMetadatas.get(1).getCategories());
