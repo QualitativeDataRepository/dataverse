@@ -7,7 +7,7 @@
     -->
     <groupId>edu.harvard.iq</groupId>
     <artifactId>dataverse</artifactId>
-    <version>4.11-qdr2</version>
+    <version>4.12-qdr</version>
     <packaging>war</packaging>
 
     <name>dataverse</name>
@@ -37,6 +37,7 @@
         <junit.vintage.version>5.3.1</junit.vintage.version>
         <junit.platform.version>1.3.1</junit.platform.version>
         <mockito.version>2.22.0</mockito.version>
+        <flyway.version>5.2.4</flyway.version>
         <!--
         Jacoco 0.8.2 seems to break Netbeans code coverage integration so we'll use 0.8.1 instead.
         See https://github.com/jacoco/jacoco/issues/772 for discussion of how the XML changed.
@@ -104,6 +105,13 @@
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponents.client.version}</version>
             </dependency>
+            <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>google-cloud-bom</artifactId>
+        <version>0.84.0-alpha</version>
+        <type>pom</type>
+        <scope>import</scope>
+       </dependency>
         </dependencies>
     </dependencyManagement>
     
@@ -133,6 +141,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
@@ -252,10 +266,14 @@
             <version>0.3m</version>
         </dependency>
         <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>16.0.1</version>
-            <type>jar</type>
+            <version>20.0</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId>
@@ -328,7 +346,7 @@
         <dependency>
             <groupId>net.handle</groupId>
             <artifactId>handle</artifactId>
-            <version>2006-06-16-generated</version>
+            <version>8.1.1</version>
         </dependency>
         <!-- UNF v5 (buggy), (temporarily) added for testing ingest against DVN v3  - L.A. -->
         <dependency>
@@ -600,6 +618,11 @@
             <artifactId>xmlunit-core</artifactId>
             <version>2.6.2</version>
         </dependency>
+        <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-storage</artifactId>
+      <version>1.67.0</version>
+    </dependency>
     </dependencies>
 
     <build>
@@ -631,6 +654,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
+                    <include>**/*.sql</include>
                     <include>**/*.xml</include>
                 </includes>
             </resource>
