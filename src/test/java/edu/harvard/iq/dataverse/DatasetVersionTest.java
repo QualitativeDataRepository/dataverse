@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.mocks.MocksFactory;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
 import java.io.StringReader;
 import java.sql.Timestamp;
@@ -10,7 +11,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.ResourceBundle;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -149,7 +149,7 @@ public class DatasetVersionTest {
         assertEquals("Organization", obj.getJsonObject("publisher").getString("@type"));
         assertEquals("Qualitative Data Repository", obj.getJsonObject("publisher").getString("name"));
         assertEquals("Organization", obj.getJsonObject("provider").getString("@type"));
-        String orgName = ResourceBundle.getBundle("Bundle").getString("institution.name"); 
+        String orgName = BundleUtil.getStringFromBundle("institution.name"); 
         assertEquals(orgName, obj.getJsonObject("provider").getString("name"));
         assertEquals("LibraScholar", obj.getJsonObject("includedInDataCatalog").getString("name"));
     }
@@ -206,7 +206,7 @@ public class DatasetVersionTest {
         assertEquals("Organization", obj.getJsonObject("publisher").getString("@type"));
         assertEquals("Qualitative Data Repository", obj.getJsonObject("publisher").getString("name"));
         assertEquals("Organization", obj.getJsonObject("provider").getString("@type"));
-        String orgName = ResourceBundle.getBundle("Bundle").getString("institution.name"); 
+        String orgName = BundleUtil.getStringFromBundle("institution.name"); 
         assertEquals(orgName, obj.getJsonObject("provider").getString("name"));
         assertEquals("LibraScholar", obj.getJsonObject("includedInDataCatalog").getString("name"));
     }

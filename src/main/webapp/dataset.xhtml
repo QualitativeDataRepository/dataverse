@@ -523,53 +523,12 @@
 
                             <p:remoteCommand name="refreshAllLocksCommand" process="@this" update=":#{p:resolveClientId('datasetForm:pageRefreshFragment', view)}" actionListener="#{DatasetPage.refreshAllLocks()}"/>
                             <p:remoteCommand name="refreshAllCommand" process="@this" update=":datasetForm:topDatasetBlockFragment,:datasetForm:tabView:filesTable,:messagePanel" actionListener="#{DatasetPage.refresh}"/>
-
-                            <!-- see the comment in the javascript below that explains what this button is for -->
-                            <p:commandButton id="refreshButton" process="@this" widgetVar="refreshButton" update=":datasetForm:topDatasetBlockFragment,:datasetForm:tabView:filesTable,:messagePanel" style="display:none"/>
-
+                            <p:remoteCommand name="reportEditContinues" process="@this" update=":datasetForm,:messagePanel" actionListener="#{DatasetPage.reportEditContinues}"/>
+                            
                             <script type="text/javascript">
                                 $(this).ready(function () {
                                     refreshIfStillLocked();
                                 });
-
-                                function refreshIfStillLocked() {
-                                    if ($('input[id$="datasetLockedForAnyReasonVariable"]').val() === 'true') {
-                                        // if dataset is locked, instruct the page to
-                                        // wait and check again:
-                                        waitAndCheckLockAgain();
-                                    } else {
-                                        // if not locked, has it just been unlocked?
-                                        if ($('input[id$="datasetStateChangedVariable"]').val() === 'true') {
-                                            // For whatever unknown PrimeFaces reason
-                                            // the page needs to be refreshed twice, for all
-                                            // the pull down menus to update properly:
-                                            refreshAllCommand();
-                                            // You can't just run 2 refreshAllCommand()s in a row
-                                            // either; because the command has an "update=@all" on it,
-                                            // so I guess if you try to execute the 2nd one right after
-                                            // the first one, this fragment is still going to be loading -
-                                            // so there would not yet be a command to run! (it needs to
-                                            // be rendered, before you can execute it, that is)
-                                            setTimeout(function () {
-                                                // this button doesn't do anything, but it has an update="@all"
-                                                // attribute:
-                                                $('button[id$="refreshButton"]').trigger('click');
-                                                //refreshAllCommand();
-                                            }, 1500);
-                                        }
-                                    }
-                                }
-
-                                function waitAndCheckLockAgain() {
-                                    setTimeout(function () {
-                                        // refresh the lock in the
-                                        // backing bean; i.e., check, if the ingest has
-                                        // already completed in the background:
-                                        //$('button[id$="refreshButton"]').trigger('click');
-                                        //refreshLockCommand();
-                                        refreshAllLocksCommand();
-                                    }, 10000);
-                                }
                             </script>
                         </p:fragment>
 
@@ -659,7 +618,7 @@
 
                     <!-- Create/Save Dataset Button Panel -->
                     <div class="button-block" jsf:rendered="#{!empty DatasetPage.editMode}">
-                        <p:commandButton tabindex="1000" id="save" value="#{DatasetPage.editMode == 'CREATE' ? bundle['file.addBtn'] : bundle.saveChanges}" onclick="checkNewlyRestricted();PF('blockDatasetForm').show();" />
+                        <p:commandButton tabindex="1000" id="save" value="#{DatasetPage.editMode == 'CREATE' ? bundle['file.addBtn'] : bundle.saveChanges}" onclick="checkNewlyRestricted();PF('blockDatasetForm').show();return false;" />
                         <p:commandButton tabindex="1000" id="cancel" value="#{bundle.cancel}" action="#{DatasetPage.cancel}" process="@this" update="@form" rendered="#{DatasetPage.editMode != 'CREATE'}" oncomplete="javascript:bind_bsui_components();">
                             <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="#{DatasetPage.editMode == 'METADATA' ? 1 : DatasetPage.selectedTabIndex}"/>
                         </p:commandButton>
@@ -667,6 +626,7 @@
                         <p:commandButton value="Direct" id="datasetSave"
                                          style="display:none"
                                          update=":datasetForm,:messagePanel"
+                                         onerror="javascript:editTimedOut(xhr);"
                                          oncomplete="javascript:bind_bsui_components();$(document).scrollTop(0);"
                                          action="#{DatasetPage.save}" />
                     </div>
@@ -1155,7 +1115,7 @@
                             </div>
                         </div>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" id="fileTagsPopupSaveButton" value="#{bundle.saveChanges}" oncomplete="PF('fileTagsPopup').hide()" update=":datasetForm:tabView:filesTable, :datasetForm" action="#{DatasetPage.saveFileTagsAndCategories()}"/>
+                            <p:commandButton styleClass="btn btn-default" id="fileTagsPopupSaveButton" value="#{bundle.saveChanges}" oncomplete="PF('fileTagsPopup').hide()" update=":datasetForm:tabView:filesTable, :datasetForm" onerror="javascript:editTimedOut(xhr);" action="#{DatasetPage.saveFileTagsAndCategories()}"/>
                             <p:commandButton styleClass="btn btn-default" id="fileTagsPopupCancelButton" value="#{bundle.cancel}" onclick="PF('fileTagsPopup').hide();PF('blockDatasetForm').hide();" actionListener="#{DatasetPage.clearFileMetadataSelectedForTagsPopup()}"/>
                         </div>
                     </p:dialog>
@@ -1204,7 +1164,7 @@
                             <ui:param name="fileDownloadService" value="#{DatasetPage.fileDownloadService}"/>
                         </ui:include>
                     </p:dialog>
-                    
+
                     <p:dialog id="requestAccessPopup" styleClass="largePopUp" header="#{bundle['file.requestAccess']}" widgetVar="requestAccessPopup" modal="true">
                         <o:importFunctions type="edu.harvard.iq.dataverse.util.MarkupChecker" />
                         <ui:include src="file-request-access-popup-fragment.xhtml">
@@ -1339,7 +1299,7 @@
                             </div>
                             <div class="button-block">
                                 <ui:fragment rendered="#{DatasetPage.editMode != 'CREATE'}">
-                                    <p:commandButton value="#{bundle.continue}" onclick="PF('accessPopup').hide()" update=":datasetForm,:messagePanel" action="#{DatasetPage.restrictSelectedFiles(true)}" />
+                                    <p:commandButton value="#{bundle.continue}" onclick="PF('accessPopup').hide()" update=":datasetForm,:messagePanel" onerror="javascript:editTimedOut(xhr);" action="#{DatasetPage.restrictSelectedFiles(true)}" />
                                 </ui:fragment>
                                 <ui:fragment rendered="#{DatasetPage.editMode == 'CREATE'}">
                                     <p:commandButton value="#{bundle.continue}" onclick="PF('accessPopup').hide()" update=":datasetForm,:messagePanel" action="#{DatasetPage.save()}" />
@@ -1583,6 +1543,37 @@
                     }
                     function updateHiddenReason(textArea) {
                         $('input[id$="hiddenReasonInput"]').val(textArea.value);
+                    }
+
+                    function editTimedOut(xhr) {
+                      if(xhr!=null) {
+                        if(xhr.status==500) {
+                          reportEditContinues();
+                        }
+                      }
+                    }
+
+                    function refreshIfStillLocked() {
+                      if ($('input[id$="datasetLockedForAnyReasonVariable"]').val() === 'true') {
+                        // if dataset is locked, instruct the page to
+                        // wait and check again:
+                        waitAndCheckLockAgain();
+                      } else {
+                        // if not locked, has it just been unlocked?
+                        if ($('input[id$="datasetStateChangedVariable"]').val() === 'true') {
+                          //Then refresh page
+                          refreshAllCommand();
+                        } 
+                      }
+                    }
+
+                    function waitAndCheckLockAgain() {
+                      setTimeout(function () {
+                        // refresh the lock in the
+                        // backing bean; i.e., check, if the ingest has
+                        // already completed in the background:
+                        refreshAllLocksCommand();
+                      }, 10000);
                     }
                 </script>
             </ui:define>

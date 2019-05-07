@@ -2,17 +2,16 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.util.MarkupChecker;
 import edu.harvard.iq.dataverse.DatasetFieldType.FieldType;
-import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.DateUtil;
 import edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
 import java.io.Serializable;
 import java.net.URL;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -147,7 +146,8 @@ public class DatasetVersion implements Serializable {
     
     @Size(min=0, max=ARCHIVE_NOTE_MAX_LENGTH)
     @Column(length = ARCHIVE_NOTE_MAX_LENGTH)
-    @ValidateURL()
+    //@ValidateURL() - this validation rule was making a bunch of older legacy datasets invalid;
+    // removed pending further investigation (v4.13)
     private String archiveNote;
     
     @Column(nullable=true, columnDefinition = "TEXT")
@@ -219,8 +219,15 @@ public class DatasetVersion implements Serializable {
             }
             setFileMetadatas(newFMDs);
         }
-        Collections.sort(fileMetadatas, FileMetadata.compareByCategoryAndLabel);
+        Collections.sort(fileMetadatas, FileMetadata.compareByCategoryAndLabelAndFolder);
         return fileMetadatas;
+    }
+    
+    public List<FileMetadata> getFileMetadatasSortedByLabelAndFolder() {
+        ArrayList<FileMetadata> fileMetadatasCopy = new ArrayList<>();
+        fileMetadatasCopy.addAll(fileMetadatas);
+        Collections.sort(fileMetadatasCopy, FileMetadata.compareByCategoryAndLabelAndFolder);
+        return fileMetadatasCopy;
     }
 
     public void setFileMetadatas(List<FileMetadata> fileMetadatas) {
@@ -1815,7 +1822,7 @@ public class DatasetVersion implements Serializable {
         );
         
         //QDR
-        String installationBrandName = ResourceBundle.getBundle("Bundle").getString("institution.name");
+        String installationBrandName = BundleUtil.getStringFromBundle("institution.name");
         /**
          * Both "publisher" and "provider" are included but they have the same
          * values. Some services seem to prefer one over the other.

@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.export.OAI_OREExporter;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.json.JsonLDNamespace;
 import edu.harvard.iq.dataverse.util.json.JsonLDTerm;
@@ -184,6 +185,8 @@ public class OREMap {
             addIfNotNull(aggRes, JsonLDTerm.restricted, fmd.isRestricted());
             addIfNotNull(aggRes, JsonLDTerm.directoryLabel, fmd.getDirectoryLabel());
             addIfNotNull(aggRes, JsonLDTerm.schemaOrg("version"), fmd.getVersion());
+            addIfNotNull(aggRes, JsonLDTerm.DVCore("provenance"), fmd.getProvFreeForm());
+
             addIfNotNull(aggRes, JsonLDTerm.datasetVersionId, fmd.getDatasetVersion().getId());
             JsonArray catArray = null;
             if (fmd != null) {
@@ -219,7 +222,10 @@ public class OREMap {
             addIfNotNull(aggRes, JsonLDTerm.originalFileFormat, df.getOriginalFileFormat());
             addIfNotNull(aggRes, JsonLDTerm.originalFormatLabel, df.getOriginalFormatLabel());
             addIfNotNull(aggRes, JsonLDTerm.UNF, df.getUnf());
-            addIfNotNull(aggRes, JsonLDTerm.rootDataFileId, df.getRootDataFileId());
+            //Suppress the default for files that have never been replaced
+            if(df.getRootDataFileId() != edu.harvard.iq.dataverse.DataFile.ROOT_DATAFILE_ID_DEFAULT) {
+              addIfNotNull(aggRes, JsonLDTerm.rootDataFileId, df.getRootDataFileId());
+            }
             addIfNotNull(aggRes, JsonLDTerm.previousDataFileId, df.getPreviousDataFileId());
             JsonObject checksum = null;
             // Add checksum. RDA recommends SHA-512
@@ -246,7 +252,7 @@ public class OREMap {
         JsonObject oremap = Json.createObjectBuilder()
                 .add(JsonLDTerm.dcTerms("modified").getLabel(), LocalDate.now().toString())
                 .add(JsonLDTerm.dcTerms("creator").getLabel(),
-                        ResourceBundle.getBundle("Bundle").getString("institution.name"))
+                        BundleUtil.getStringFromBundle("institution.name"))
                 .add("@type", JsonLDTerm.ore("ResourceMap").getLabel())
                 // Define an id for the map itself (separate from the @id of the dataset being
                 // described

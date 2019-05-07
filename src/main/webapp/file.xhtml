@@ -28,6 +28,7 @@
                     <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbsForFileMetadata(FilePage.fileMetadata)}"/>
                 </f:metadata>
                 <h:form id="fileForm">
+                  <p:fragment id="topDatasetBlockFragment">
                     <div id="topDatasetBlock" class="row">
                         <div id="actionButtonBlock" class="col-xs-12">
                             <!-- Metrics -->
@@ -108,6 +109,7 @@
                                         <button type="button" id="editFile" class="btn btn-default btn-access dropdown-toggle" data-toggle="dropdown">
                                             <span class="glyphicon glyphicon-pencil"/> #{bundle['dataset.editBtn']} <span class="caret"></span>
                                         </button>
+                                        <p:remoteCommand name="reportEditContinues" process="@this" update=":fileForm,:messagePanel" actionListener="#{FilePage.reportEditContinues}"/>
                                         <ul class="dropdown-menu pull-right text-left" role="menu">
                                             <ui:fragment rendered="#{systemConfig.provCollectionEnabled}">
                                             <!--  Should be FilePage.isLockedFromEdits() ? -->
@@ -135,7 +137,7 @@
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{!FilePage.fileMetadata.dataFile.filePackage and FilePage.fileMetadata.restricted}">
                                                     <li>
-                                                        <p:commandLink update="@form" actionListener="#{FilePage.restrictFile(false)}">
+                                                        <p:commandLink update="@form" onerror="javascript:editTimedOut(xhr);" actionListener="#{FilePage.restrictFile(false)}">
                                                             <h:outputText value="#{bundle['file.unrestrict']}"/>
                                                         </p:commandLink>
                                                     </li>
@@ -193,7 +195,23 @@
                             </div>
                         </div>
                     </div>
+                    </p:fragment>
                     <!-- END topDatasetBlock -->
+                    <p:fragment id="pageRefreshFragment"> 
+                        <h:inputHidden value="#{FilePage.lockedForAnyReason}" id="datasetLockedForAnyReasonVariable" />
+                        <h:inputHidden value="#{FilePage.stateChanged}" id="datasetStateChangedVariable" />
+
+                        <p:remoteCommand name="refreshAllLocksCommand" process="@this" update=":#{p:resolveClientId('fileForm:pageRefreshFragment', view)}" actionListener="#{FilePage.refreshAllLocks()}"/>
+                        <p:remoteCommand name="refreshAllCommand" process="@this" update=":fileForm:topDatasetBlockFragment,:fileForm:tabView,:messagePanel" actionListener="#{FilePage.refresh}"/>
+                        <p:remoteCommand name="reportEditContinues" process="@this" update=":fileForm,:messagePanel" actionListener="#{FilePage.reportEditContinues}"/>
+                            
+                        <script type="text/javascript">
+                            $(this).ready(function () {
+                                refreshIfStillLocked();
+                            });
+                        </script>
+                    </p:fragment>
+                    
                     <div id="fileImageTitle" class="row">
                         <div id="file-preview-icon-block" class="col-xs-4">
                             <div id="border-block">
@@ -356,6 +374,37 @@
                                                     console.log(e);
                                                 });
                                             });
+                                            
+                                            function editTimedOut(xhr) {
+                                              if(xhr!=null) {
+                                                if(xhr.status==500) {
+                                                  reportEditContinues();
+                                                }
+                                              }
+                                            }
+                                            //These functions mirror those in dataset.xhtml
+                                            function refreshIfStillLocked() {
+                                              if ($('input[id$="datasetLockedForAnyReasonVariable"]').val() === 'true') {
+                                                // if dataset is locked, instruct the page to
+                                                // wait and check again:
+                                                waitAndCheckLockAgain();
+                                              } else {
+                                                // if not locked, has it just been unlocked?
+                                                if ($('input[id$="datasetStateChangedVariable"]').val() === 'true') {
+                                                  //Then refresh page
+                                                  refreshAllCommand();
+                                                } 
+                                              }
+                                            }
+
+                                            function waitAndCheckLockAgain() {
+                                              setTimeout(function () {
+                                                // refresh the lock in the
+                                                // backing bean; i.e., check, if the ingest has
+                                                // already completed in the background:
+                                                refreshAllLocksCommand();
+                                              }, 10000);
+                                            }
                                         </script>
 
                                         </div>
@@ -661,7 +710,7 @@
                                 </div>
                             </div>
                             <div class="button-block">
-                                <p:commandButton value="#{bundle.continue}" onclick="PF('accessPopup').hide();" update=":messagePanel" action="#{FilePage.restrictFile(true)}" />
+                                <p:commandButton value="#{bundle.continue}" onclick="PF('accessPopup').hide();" update=":messagePanel" onerror="javascript:editTimedOut(xhr);" action="#{FilePage.restrictFile(true)}" />
                                 <p:commandButton value="#{bundle.cancel}" onclick="PF('accessPopup').hide();" type="button" />
                             </div>
                         </ui:fragment>
