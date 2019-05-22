@@ -7,7 +7,7 @@
     -->
     <groupId>edu.harvard.iq</groupId>
     <artifactId>dataverse</artifactId>
-    <version>4.13-qdr</version>
+    <version>4.14-qdr</version>
     <packaging>war</packaging>
 
     <name>dataverse</name>
@@ -657,6 +657,7 @@
                 <includes>
                     <include>**/*.sql</include>
                     <include>**/*.xml</include>
+                    <include>**/firstNames/*.*</include>
                 </includes>
             </resource>
         </resources>
