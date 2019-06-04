@@ -141,6 +141,20 @@
                                                             <h:outputText value="#{bundle['file.unrestrict']}"/>
                                                         </p:commandLink>
                                                     </li>
+                                                </ui:fragment>  
+                                                <ui:fragment rendered="#{dataverseSession.user.superuser and (FilePage.fileMetadata.dataFile.isTabularData() or FilePage.fileMetadata.dataFile.isIngestProblem())}">
+                                                    <li>
+                                                        <p:commandLink update="@form,:messagePanel,:fileForm:fileTitleFragment, :fileForm:topDatasetBlockFragment" action="#{FilePage.uningestFile()}">
+                                                            <h:outputText value="#{bundle['file.uningest']}"/>
+                                                        </p:commandLink>
+                                                    </li>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{dataverseSession.user.superuser and FilePage.isIngestable()}">
+                                                    <li>
+                                                        <p:commandLink update="@form,:messagePanel" actionListener="#{FilePage.ingestFile()}">
+                                                            <h:outputText value="#{bundle['file.ingest']}"/>
+                                                        </p:commandLink>
+                                                    </li>
                                                 </ui:fragment>     
                                             </ui:fragment>
                                             <ui:fragment rendered="#{FilePage.fileMetadata.dataFile.released and FilePage.draftReplacementFile == false and !FilePage.fileMetadata.dataFile.filePackage}">                                        
@@ -202,7 +216,7 @@
                         <h:inputHidden value="#{FilePage.stateChanged}" id="datasetStateChangedVariable" />
 
                         <p:remoteCommand name="refreshAllLocksCommand" process="@this" update=":#{p:resolveClientId('fileForm:pageRefreshFragment', view)}" actionListener="#{FilePage.refreshAllLocks()}"/>
-                        <p:remoteCommand name="refreshAllCommand" process="@this" update=":fileForm:topDatasetBlockFragment,:fileForm:tabView,:messagePanel" actionListener="#{FilePage.refresh}"/>
+                        <p:remoteCommand name="refreshAllCommand" process="@this" update=":fileForm:topDatasetBlockFragment,:fileForm:fileTitleFragment,:fileForm:tabView,:messagePanel" actionListener="#{FilePage.refresh}"/>
                         <p:remoteCommand name="reportEditContinues" process="@this" update=":fileForm,:messagePanel" actionListener="#{FilePage.reportEditContinues}"/>
                             
                         <script type="text/javascript">
@@ -211,8 +225,40 @@
                             });
                         </script>
                     </p:fragment>
-                    
-                    <div id="fileImageTitle" class="row">
+                    <script>
+                        function editTimedOut(xhr) {
+                          if(xhr!=null) {
+                            if(xhr.status==500) {
+                              reportEditContinues();
+                            }
+                          }
+                        }
+                        //These functions mirror those in dataset.xhtml
+                        function refreshIfStillLocked() {
+                          if ($('input[id$="datasetLockedForAnyReasonVariable"]').val() === 'true') {
+                            // if dataset is locked, instruct the page to
+                            // wait and check again:
+                                                waitAndCheckLockAgain();
+                          } else {
+                            // if not locked, has it just been unlocked?
+                            if ($('input[id$="datasetStateChangedVariable"]').val() === 'true') {
+                              //Then refresh page
+                              refreshAllCommand();
+                            } 
+                          }
+                        }
+
+                        function waitAndCheckLockAgain() {
+                          setTimeout(function () {
+                            // refresh the lock in the
+                            // backing bean; i.e., check, if the ingest has
+                            // already completed in the background:
+                            refreshAllLocksCommand();
+                          }, 10000);
+                        }
+                    </script>
+                    <p:fragment id="fileTitleFragment">
+                      <div id="fileImageTitle" class="row">
                         <div id="file-preview-icon-block" class="col-xs-4">
                             <div id="border-block">
                                 <div id="preview-square">
@@ -374,37 +420,6 @@
                                                     console.log(e);
                                                 });
                                             });
-                                            
-                                            function editTimedOut(xhr) {
-                                              if(xhr!=null) {
-                                                if(xhr.status==500) {
-                                                  reportEditContinues();
-                                                }
-                                              }
-                                            }
-                                            //These functions mirror those in dataset.xhtml
-                                            function refreshIfStillLocked() {
-                                              if ($('input[id$="datasetLockedForAnyReasonVariable"]').val() === 'true') {
-                                                // if dataset is locked, instruct the page to
-                                                // wait and check again:
-                                                waitAndCheckLockAgain();
-                                              } else {
-                                                // if not locked, has it just been unlocked?
-                                                if ($('input[id$="datasetStateChangedVariable"]').val() === 'true') {
-                                                  //Then refresh page
-                                                  refreshAllCommand();
-                                                } 
-                                              }
-                                            }
-
-                                            function waitAndCheckLockAgain() {
-                                              setTimeout(function () {
-                                                // refresh the lock in the
-                                                // backing bean; i.e., check, if the ingest has
-                                                // already completed in the background:
-                                                refreshAllLocksCommand();
-                                              }, 10000);
-                                            }
                                         </script>
 
                                         </div>
@@ -429,8 +444,8 @@
                         
                             </div>
                         </div>
-                    </div>
-
+                      </div>
+                    </p:fragment>
                     <div id="contentTabs">
                         <!-- Metadata -->
                         <p:tabView id="tabView" widgetVar="content" activeIndex="#{FilePage.selectedTabIndex}">
