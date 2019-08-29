@@ -3,15 +3,19 @@ package edu.harvard.iq.dataverse.engine.command.impl;
 import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.solr.client.solrj.SolrServerException;
 
 /**
  *
@@ -24,32 +28,36 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
     private final List<FileMetadata> filesToDelete;
     private boolean validateLenient = false;
     private final DatasetVersion clone;
+    private final FileMetadata fmVarMet;
 
     public UpdateDatasetVersionCommand(Dataset theDataset, DataverseRequest aRequest) {
         super(aRequest, theDataset);
         this.filesToDelete = new ArrayList<>();
         this.clone = null;
+        this.fmVarMet = null;
     }
 
     public UpdateDatasetVersionCommand(Dataset theDataset, DataverseRequest aRequest, List<FileMetadata> filesToDelete) {
         super(aRequest, theDataset);
         this.filesToDelete = filesToDelete;
         this.clone = null;
+        this.fmVarMet = null;
     }
 
     public UpdateDatasetVersionCommand(Dataset theDataset, DataverseRequest aRequest, List<FileMetadata> filesToDelete, DatasetVersion clone) {
         super(aRequest, theDataset);
         this.filesToDelete = filesToDelete;
         this.clone = clone;
+        this.fmVarMet = null;
     }
 
     public UpdateDatasetVersionCommand(Dataset theDataset, DataverseRequest aRequest, DataFile fileToDelete) {
         super(aRequest, theDataset);
 
-        // get the latest file metadata for the file; ensuring that it is a draft
-        // version
+        // get the latest file metadata for the file; ensuring that it is a draft version
         this.filesToDelete = new ArrayList<>();
         this.clone = null;
+        this.fmVarMet = null;
         for (FileMetadata fmd : theDataset.getEditVersion().getFileMetadatas()) {
             if (fmd.getDataFile().equals(fileToDelete)) {
                 filesToDelete.add(fmd);
@@ -62,6 +70,14 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
         super(aRequest, theDataset);
         this.filesToDelete = new ArrayList<>();
         this.clone = clone;
+        this.fmVarMet = null;
+    }
+
+    public UpdateDatasetVersionCommand(Dataset theDataset, DataverseRequest aRequest, FileMetadata fm) {
+        super(aRequest, theDataset);
+        this.filesToDelete = new ArrayList<>();
+        this.clone = null;
+        this.fmVarMet = fm;
     }
 
     public boolean isValidateLenient() {
@@ -78,22 +94,24 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
             throw new IllegalCommandException("Only authenticated users can update datasets", this);
         }
 
-        ctxt.permissions().checkEditDatasetLock(getDataset(), getRequest(), this);
-        Dataset currentDataset = null;
+        Dataset theDataset = getDataset();        
+        ctxt.permissions().checkEditDatasetLock(theDataset, getRequest(), this);
+        Dataset savedDataset = null;
         try {
-            currentDataset=getDataset();
             // Invariant: Dataset has no locks preventing the update
             String lockInfoMessage = "saving current edits";
             DatasetLock lock = ctxt.datasets().addDatasetLock(getDataset().getId(), DatasetLock.Reason.EditInProgress, ((AuthenticatedUser) getUser()).getId(), lockInfoMessage);
             if (lock != null) {
-                getDataset().addLock(lock);
+                theDataset.addLock(lock);
             } else {
                 logger.log(Level.WARNING, "Failed to lock the dataset (dataset id={0})", getDataset().getId());
             }
-            getDataset().getEditVersion().setDatasetFields(getDataset().getEditVersion().initDatasetFields());
-            validateOrDie(getDataset().getEditVersion(), isValidateLenient());
 
-            final DatasetVersion editVersion = getDataset().getEditVersion();
+            getDataset().getEditVersion(fmVarMet).setDatasetFields(getDataset().getEditVersion(fmVarMet).initDatasetFields());
+            validateOrDie(getDataset().getEditVersion(fmVarMet), isValidateLenient());
+
+            final DatasetVersion editVersion = getDataset().getEditVersion(fmVarMet);
+            
             tidyUpFields(editVersion);
 
             // Merge the new version into out JPA context, if needed.
@@ -103,7 +121,7 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
                 ctxt.em().merge(editVersion);
             }
 
-            for (DataFile dataFile : getDataset().getFiles()) {
+            for (DataFile dataFile : theDataset.getFiles()) {
                 if (dataFile.getCreateDate() == null) {
                     dataFile.setCreateDate(getTimestamp());
                     dataFile.setCreator((AuthenticatedUser) getUser());
@@ -126,9 +144,9 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
              */
             for (FileMetadata fmd : filesToDelete) {
                 // check if this file is being used as the default thumbnail
-                if (fmd.getDataFile().equals(getDataset().getThumbnailFile())) {
+                if (fmd.getDataFile().equals(theDataset.getThumbnailFile())) {
                     logger.fine("deleting the dataset thumbnail designation");
-                    getDataset().setThumbnailFile(null);
+                    theDataset.setThumbnailFile(null);
                 }
 
                 if (fmd.getDataFile().getUnf() != null) {
@@ -137,43 +155,49 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
             }
             // we have to merge to update the database but not flush because
             // we don't want to create two draft versions!
-            Dataset tempDataset = ctxt.em().merge(getDataset());
-            currentDataset=tempDataset;
+            // Dataset tempDataset = ctxt.em().merge(theDataset);
+            //SEK 5/30/2019
+            // This interim merge is causing:
+            // java.lang.IllegalArgumentException: Cannot merge an entity that has been removed: edu.harvard.iq.dvn.core.study.FileMetadata
+            // at the merge at line 177
+            //Is this merge needed to add the lock?  - seems to be 'no' so what is it needed for?
+            //See qqmyers comment on #5847 re possible need for merge 
+        //    theDataset = ctxt.em().merge(theDataset);
+
             for (FileMetadata fmd : filesToDelete) {
                 if (!fmd.getDataFile().isReleased()) {
                     // if file is draft (ie. new to this version, delete; otherwise just remove
                     // filemetadata object)
                     ctxt.engine().submit(new DeleteDataFileCommand(fmd.getDataFile(), getRequest()));
-                    tempDataset.getFiles().remove(fmd.getDataFile());
-                    tempDataset.getEditVersion().getFileMetadatas().remove(fmd);
-                    // added this check to handle issue where you could not deleter a file that
+                    theDataset.getFiles().remove(fmd.getDataFile());
+                    theDataset.getEditVersion().getFileMetadatas().remove(fmd);
+                    // added this check to handle issue where you could not delete a file that
                     // shared a category with a new file
                     // the relation ship does not seem to cascade, yet somehow it was trying to
                     // merge the filemetadata
                     // todo: clean this up some when we clean the create / update dataset methods
-                    for (DataFileCategory cat : tempDataset.getCategories()) {
+                    for (DataFileCategory cat : theDataset.getCategories()) {
                         cat.getFileMetadatas().remove(fmd);
                     }
                 } else {
                     FileMetadata mergedFmd = ctxt.em().merge(fmd);
                     ctxt.em().remove(mergedFmd);
-                    fmd.getDataFile().getFileMetadatas().remove(fmd);
-                    tempDataset.getEditVersion().getFileMetadatas().remove(fmd);
+                    fmd.getDataFile().getFileMetadatas().remove(mergedFmd);
+                    theDataset.getEditVersion().getFileMetadatas().remove(mergedFmd);
                 }
             }
 
             if (recalculateUNF) {
-                ctxt.ingest().recalculateDatasetVersionUNF(tempDataset.getEditVersion());
+                ctxt.ingest().recalculateDatasetVersionUNF(theDataset.getEditVersion());
             }
 
-            tempDataset.getEditVersion().setLastUpdateTime(getTimestamp());
-            tempDataset.setModificationTime(getTimestamp());
+            theDataset.getEditVersion().setLastUpdateTime(getTimestamp());
+            theDataset.setModificationTime(getTimestamp());
 
-            currentDataset = ctxt.em().merge(tempDataset);
+            savedDataset = ctxt.em().merge(theDataset);
             ctxt.em().flush();
 
             updateDatasetUser(ctxt);
-            ctxt.index().indexDataset(currentDataset, true);
             if (clone != null) {
                 DatasetVersionDifference dvd = new DatasetVersionDifference(editVersion, clone);
                 AuthenticatedUser au = (AuthenticatedUser) getUser();
@@ -181,9 +205,33 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
             }
         } finally {
             // We're done making changes - remove the lock...
-            ctxt.datasets().removeDatasetLocks(currentDataset, DatasetLock.Reason.EditInProgress);
+            //Failures above may occur before savedDataset is set, in which case we need to remove the lock on theDataset instead
+            if(savedDataset!=null) {
+            ctxt.datasets().removeDatasetLocks(savedDataset, DatasetLock.Reason.EditInProgress);
+            } else {
+                ctxt.datasets().removeDatasetLocks(theDataset, DatasetLock.Reason.EditInProgress);
+            }
         }
-        return currentDataset;
+        return savedDataset; 
+    }
+
+    @Override
+    public boolean onSuccess(CommandContext ctxt, Object r) {
+
+        boolean retVal = true;
+        Dataset dataset = (Dataset) r;
+
+        try {
+            Future<String> indexString = ctxt.index().indexDataset(dataset, true);
+        } catch (IOException | SolrServerException e) {
+            String failureLogText = "Post update dataset indexing failed. You can kickoff a re-index of this dataset with: \r\n curl http://localhost:8080/api/admin/index/datasets/" + dataset.getId().toString();
+            failureLogText += "\r\n" + e.getLocalizedMessage();
+            LoggingUtil.writeOnSuccessFailureLog(this, failureLogText, dataset);
+            retVal = false;
+        }
+
+        return retVal;
+
     }
 
 }

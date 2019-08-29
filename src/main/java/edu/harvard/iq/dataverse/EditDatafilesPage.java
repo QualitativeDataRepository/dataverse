@@ -5,6 +5,8 @@ import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
+import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.datasetutility.AddReplaceFileHelper;
 import edu.harvard.iq.dataverse.datasetutility.FileReplaceException;
 import edu.harvard.iq.dataverse.datasetutility.FileReplacePageHelper;
@@ -86,6 +88,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.primefaces.context.RequestContext;
 
 /**
@@ -107,6 +110,8 @@ public class EditDatafilesPage implements java.io.Serializable {
     
     @EJB
     DatasetServiceBean datasetService;
+    @EJB
+    DataverseServiceBean dataverseService;
     @EJB
     DatasetVersionServiceBean datasetVersionService;
     @EJB
@@ -1093,9 +1098,9 @@ public class EditDatafilesPage implements java.io.Serializable {
         if (dataset.getId() != null) {
             Dataset lockTest = datasetService.find(dataset.getId());
             if (dataset.isLockedFor(DatasetLock.Reason.EditInProgress) || lockTest.isLockedFor(DatasetLock.Reason.EditInProgress)) {
-                logger.log(Level.INFO, "Couldn''t save dataset: {0}", "It is locked."
-                        + "");
-                JH.addMessage(FacesMessage.SEVERITY_FATAL, getBundleString("dataset.locked.editInProgress.message"),getBundleString("dataset.locked.editInProgress.message.details"));
+                logger.log(Level.INFO, "Couldn''t save dataset: {0}", "It is locked.");
+                String rootDataverseName = dataverseService.findRootDataverse().getName();
+                JH.addMessage(FacesMessage.SEVERITY_FATAL, getBundleString("dataset.locked.editInProgress.message"),BundleUtil.getStringFromBundle("dataset.locked.editInProgress.message.details", Arrays.asList(BrandingUtil.getSupportTeamName(null, rootDataverseName))));
                 return null;
             }
         }
@@ -1176,7 +1181,6 @@ public class EditDatafilesPage implements java.io.Serializable {
             //This was the simplest way to work around this issue for prov. --MAD 4.8.6.
             datasetUpdateRequired = datasetUpdateRequired || provFreeChanges || provJsonChanges;
         }
-                
         if (workingVersion.getId() == null  || datasetUpdateRequired) {
             logger.fine("issuing the dataset update command");
             // We are creating a new draft version; 
@@ -1399,11 +1403,15 @@ public class EditDatafilesPage implements java.io.Serializable {
                         dataset = datasetService.find(dataset.getId());
                     }
                 }
+                indexService.indexDataset(dataset, true);
+            } catch (SolrServerException | IOException e) {
+                String failureLogText = "EditDataFile indexing failed. You can kickoff a re-index of this dataset with: \r\n curl http://localhost:8080/api/admin/index/datasets/" + dataset.getId().toString();
+                failureLogText += "\r\n" + e.getLocalizedMessage();
+                LoggingUtil.writeOnSuccessFailureLog(null, failureLogText, dataset);
             } finally {
                 datasetService.removeDatasetLocks(dataset, DatasetLock.Reason.EditInProgress);
             }
         }
-        
 
         if (newFiles.size() > 0) {
             logger.fine("clearing newfiles list.");
@@ -1456,7 +1464,6 @@ public class EditDatafilesPage implements java.io.Serializable {
         //if (newDraftVersion) {
         //    return returnToDraftVersionById();
         //}
-        indexService.indexDataset(dataset, true);
         logger.fine("Redirecting to the dataset page, from the edit/upload page.");
         return returnToDraftVersion();
     }
@@ -2906,18 +2913,6 @@ public class EditDatafilesPage implements java.io.Serializable {
         tabularDataTagsUpdated = true;
     }
     
-    public void handleDescriptionChange(final AjaxBehaviorEvent event) {        
-        datasetUpdateRequired = true;
-    }
-    
-    public void handleNameChange(final AjaxBehaviorEvent event) {        
-        datasetUpdateRequired = true;
-    }
-    
-    public void handleFileDirectoryChange(final ValueChangeEvent event) {  
-        datasetUpdateRequired = true;
-    }
-        
     /* 
      * Items for the "Advanced (Ingest) Options" popup. 
      * 

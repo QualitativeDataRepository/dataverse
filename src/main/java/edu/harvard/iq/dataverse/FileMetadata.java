@@ -28,17 +28,23 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.CascadeType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import edu.harvard.iq.dataverse.datavariable.CategoryMetadata;
+import edu.harvard.iq.dataverse.datavariable.DataVariable;
+import edu.harvard.iq.dataverse.datavariable.VarGroup;
+import edu.harvard.iq.dataverse.datavariable.VariableMetadata;
 import edu.harvard.iq.dataverse.util.DateUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import java.util.HashSet;
@@ -105,6 +111,9 @@ public class FileMetadata implements Serializable {
     @Expose
     @Column(columnDefinition = "TEXT", nullable = true, name="prov_freeform")
     private String provFreeForm;
+
+    @OneToMany (mappedBy="fileMetadata", cascade={ CascadeType.REMOVE, CascadeType.MERGE,CascadeType.PERSIST})
+    private Collection<VariableMetadata> variableMetadatas;
         
     /**
      * Creates a copy of {@code this}, with identical business logic fields.
@@ -130,6 +139,11 @@ public class FileMetadata implements Serializable {
     
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public FileMetadata() {
+        variableMetadatas = new ArrayList<VariableMetadata>();
+        varGroups = new ArrayList<VarGroup>();
     }
 
     public String getDirectoryLabel() {
@@ -162,9 +176,26 @@ public class FileMetadata implements Serializable {
         this.restricted = restricted;
     }
 
+    @OneToMany(mappedBy="fileMetadata", cascade={ CascadeType.REMOVE, CascadeType.MERGE,CascadeType.PERSIST})
+    private List<VarGroup> varGroups;
 
+    public Collection<VariableMetadata> getVariableMetadatas() {
+        return variableMetadatas;
+    }
 
-    /* 
+    public List<VarGroup> getVarGroups() {
+        return varGroups;
+    }
+
+    public void setVariableMetadatas(Collection<VariableMetadata> variableMetadatas) {
+        this.variableMetadatas = variableMetadatas;
+    }
+
+    public void setVarGroups(List<VarGroup> varGroups) {
+        this.varGroups = varGroups;
+    }
+
+    /*
      * File Categories to which this version of the DataFile belongs: 
      */
     @SerializedName("categories") //Used for OptionalFileParams serialization
@@ -537,6 +568,17 @@ public class FileMetadata implements Serializable {
         } else if (other.getDescription() != null) {
             return false;
         }
+        List<String> categoryNames =this.getCategoriesByName();
+        List<String> otherCategoryNames =other.getCategoriesByName();
+        if(!categoryNames.isEmpty()) {
+            categoryNames.sort(null);
+            otherCategoryNames.sort(null);
+            if (!categoryNames.equals(otherCategoryNames)) {
+                return false;
+            }
+        } else if(!otherCategoryNames.isEmpty()) {
+            return false;
+        }
         
         return true;
     }
@@ -554,7 +596,7 @@ public class FileMetadata implements Serializable {
         }
     };
     
-    static Map<String,Long> categoryMap;
+    static Map<String,Long> categoryMap=null;
     
     public static void setCategorySortOrder(String categories) {
        categoryMap=new HashMap<String, Long>();
@@ -565,56 +607,10 @@ public class FileMetadata implements Serializable {
        }
     }
     
-    public static final Comparator<FileMetadata> compareByCategoryAndLabelAndFolder = new Comparator<FileMetadata>() {
-        @Override
-        public int compare(FileMetadata o1, FileMetadata o2) {
-            //Compare folders first
-            String folder1 = o1.getDirectoryLabel() == null ? "" : o1.getDirectoryLabel().toUpperCase();
-            String folder2 = o2.getDirectoryLabel() == null ? "" : o2.getDirectoryLabel().toUpperCase();
-            
-            
-            if ("".equals(folder1) && !"".equals(folder2)) {
-                return -1;
-            }
-            
-            if ("".equals(folder2) && !"".equals(folder1)) {
-                return 1;
-            }
-            
-            int comp = folder1.compareTo(folder2); 
-            if (comp != 0) {
-                return comp;
-            }
-            //Then by category if set
-            if (categoryMap != null) {
-                long rank1 = Long.MAX_VALUE;
-                for (DataFileCategory c : o1.getCategories()) {
-                    Long rank = categoryMap.get(c.getName().toUpperCase());
-                    if (rank != null) {
-                        if (rank < rank1) {
-                            rank1 = rank;
-                        }
-                    }
-                }
-                long rank2 = Long.MAX_VALUE;
-                for (DataFileCategory c : o2.getCategories()) {
-                    Long rank = categoryMap.get(c.getName().toUpperCase());
-                    if (rank != null) {
-                        if (rank < rank2) {
-                            rank2 = rank;
-                        }
-                    }
-                }
-                if (rank1 != rank2) {
-                    return rank1 < rank2 ? -1 : 1;
-                }
-            }
-            //Folders are equal, no categories or category score is equal, so compare labels
-
-            return o1.getLabel().toUpperCase().compareTo(o2.getLabel().toUpperCase());
-
-        }
-    };
+    public static Map<String,Long> getCategorySortOrder() {
+        return categoryMap;
+    }
+    
     
     public static final Comparator<DataFileCategory> compareByNameWithSortCategories = new Comparator<DataFileCategory>() {
         @Override
@@ -704,6 +700,76 @@ public class FileMetadata implements Serializable {
 
     public void setProvFreeForm(String provFreeForm) {
         this.provFreeForm = provFreeForm;
+    }
+
+    public void copyVariableMetadata(Collection<VariableMetadata> vml) {
+
+        if (variableMetadatas == null) {
+            variableMetadatas = new ArrayList<VariableMetadata>();
+        }
+
+        for (VariableMetadata vm : vml) {
+            VariableMetadata vmNew = null;
+            boolean flagNew = true;
+            for (VariableMetadata vmThis: variableMetadatas) {
+                if (vmThis.getDataVariable().getId().equals(vm.getDataVariable().getId())) {
+                    vmNew = vmThis;
+                    flagNew = false;
+                    break;
+                }
+            }
+            if (flagNew) {
+                vmNew = new VariableMetadata(vm.getDataVariable(), this);
+            }
+            vmNew.setIsweightvar(vm.isIsweightvar());
+            vmNew.setWeighted(vm.isWeighted());
+            vmNew.setWeightvariable(vm.getWeightvariable());
+            vmNew.setInterviewinstruction(vm.getInterviewinstruction());
+            vmNew.setLabel(vm.getLabel());
+            vmNew.setLiteralquestion(vm.getLiteralquestion());
+            vmNew.setNotes(vm.getNotes());
+            vmNew.setUniverse(vm.getUniverse());
+            vmNew.setPostquestion(vm.getPostquestion());
+
+            Collection<CategoryMetadata> cms = vm.getCategoriesMetadata();
+            if (flagNew) {
+                for (CategoryMetadata cm : cms) {
+                    CategoryMetadata cmNew = new CategoryMetadata(vmNew, cm.getCategory());
+                    cmNew.setWfreq(cm.getWfreq());
+                    vmNew.getCategoriesMetadata().add(cmNew);
+                }
+                variableMetadatas.add(vmNew);
+            } else {
+                Collection<CategoryMetadata> cmlThis = vm.getCategoriesMetadata();
+                for (CategoryMetadata cm : cms) {
+                    for (CategoryMetadata cmThis : cmlThis) {
+                        if (cm.getCategory().getId().equals(cmThis.getCategory().getId())) {
+                            cmThis.setWfreq(cm.getWfreq());
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    public void copyVarGroups(Collection<VarGroup> vgl) {
+        if (varGroups != null) {
+            varGroups.clear();
+        }
+
+        for (VarGroup vg : vgl) {
+            VarGroup vgNew = new VarGroup(this);
+            for (DataVariable dv : vg.getVarsInGroup()) {
+                vgNew.getVarsInGroup().add(dv);
+            }
+            vgNew.setLabel(vg.getLabel());
+            if (varGroups == null) {
+                varGroups = new ArrayList<VarGroup>();
+            }
+            varGroups.add(vgNew);
+        }
+
     }
     
     public Set<ConstraintViolation> validate() {

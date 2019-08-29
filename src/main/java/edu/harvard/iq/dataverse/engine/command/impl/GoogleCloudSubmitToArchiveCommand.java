@@ -15,6 +15,7 @@ import edu.harvard.iq.dataverse.util.bagit.OREMap;
 import edu.harvard.iq.dataverse.workflow.step.Failure;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
