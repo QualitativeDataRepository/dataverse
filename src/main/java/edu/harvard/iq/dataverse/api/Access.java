@@ -257,6 +257,7 @@ public class Access extends AbstractApiBean {
             df = findDataFileOrDie(fileId);
         } catch (WrappedResponse ex) {
             logger.warning("Access: datafile service could not locate a DataFile object for id "+fileId+"!");
+            logger.warning(ex.getWrappedMessageWhenJson());
             throw new NotFoundException();
         }
          return df;
