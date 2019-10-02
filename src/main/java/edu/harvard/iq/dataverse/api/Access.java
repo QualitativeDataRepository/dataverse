@@ -270,6 +270,7 @@ public class Access extends AbstractApiBean {
     public DownloadInstance datafile(@PathParam("fileId") String fileId, @QueryParam("gbrecs") boolean gbrecs, @QueryParam("key") String apiToken, @Context UriInfo uriInfo, @Context HttpHeaders headers, @Context HttpServletResponse response) /*throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
 
         DataFile df = findDataFileOrDieWrapper(fileId);
+        logger.warning(df.getGlobalId().toString());
         GuestbookResponse gbr = null;
         
         if (df.isHarvested()) {
@@ -293,7 +294,7 @@ public class Access extends AbstractApiBean {
         
         DownloadInfo dInfo = new DownloadInfo(df);
 
-        logger.fine("checking if thumbnails are supported on this file.");
+        logger.warning("checking if thumbnails are supported on this file.");
         if (FileUtil.isThumbnailSupported(df)) {
             dInfo.addServiceAvailable(new OptionalAccessService("thumbnail", "image/png", "imageThumb=true", "Image Thumbnail (64x64)"));
         }
@@ -362,7 +363,7 @@ public class Access extends AbstractApiBean {
                     }
                 }
 
-                logger.fine("downloadInstance: "+downloadInstance.getConversionParam()+","+downloadInstance.getConversionParamValue());
+                logger.warning("downloadInstance: "+downloadInstance.getConversionParam()+","+downloadInstance.getConversionParamValue());
                 
                 break;
             } else {
@@ -372,8 +373,9 @@ public class Access extends AbstractApiBean {
                 // a NotFoundException.
                 throw new NotFoundException();
             }
+            
         }
-                
+        logger.warning("Returning download instance");        
         /* 
          * Provide some browser-friendly headers: (?)
          */
