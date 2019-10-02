@@ -255,10 +255,6 @@ public class Access extends AbstractApiBean {
         
         try {
             df = findDataFileOrDie(fileId);
-            logger.warning("SI: " + df.getStorageIdentifier());
-            if(df.getStorageIdentifier()==null) {
-                df = fileService.find(df);
-            }
         } catch (WrappedResponse ex) {
             logger.warning("Access: datafile service could not locate a DataFile object for id "+fileId+"!");
             logger.warning(ex.getWrappedMessageWhenJson());
@@ -274,7 +270,6 @@ public class Access extends AbstractApiBean {
     public DownloadInstance datafile(@PathParam("fileId") String fileId, @QueryParam("gbrecs") boolean gbrecs, @QueryParam("key") String apiToken, @Context UriInfo uriInfo, @Context HttpHeaders headers, @Context HttpServletResponse response) /*throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
 
         DataFile df = findDataFileOrDieWrapper(fileId);
-        logger.warning(df.getGlobalId().toString());
         GuestbookResponse gbr = null;
         
         if (df.isHarvested()) {
@@ -298,7 +293,7 @@ public class Access extends AbstractApiBean {
         
         DownloadInfo dInfo = new DownloadInfo(df);
 
-        logger.warning("checking if thumbnails are supported on this file.");
+        logger.fine("checking if thumbnails are supported on this file.");
         if (FileUtil.isThumbnailSupported(df)) {
             dInfo.addServiceAvailable(new OptionalAccessService("thumbnail", "image/png", "imageThumb=true", "Image Thumbnail (64x64)"));
         }
@@ -324,7 +319,7 @@ public class Access extends AbstractApiBean {
         boolean serviceFound = false;
         for (String key : uriInfo.getQueryParameters().keySet()) {
             String value = uriInfo.getQueryParameters().getFirst(key);
-            logger.warning("is download service supported? key=" + key + ", value=" + value);
+            logger.fine("is download service supported? key=" + key + ", value=" + value);
             if (key.equals("imageThumb") || key.equals("format") || key.equals("variables")) {
                 serviceRequested = true;
             }
@@ -372,12 +367,10 @@ public class Access extends AbstractApiBean {
                     }
                 }
 
-                logger.warning("downloadInstance: " + downloadInstance.getConversionParam() + "," + downloadInstance.getConversionParamValue());
+                logger.fine("downloadInstance: "+downloadInstance.getConversionParam()+","+downloadInstance.getConversionParamValue());
                 serviceFound = true;
                 break;
-            } else {
             }
-
         }
         if (serviceRequested && !serviceFound) {
             // Service unknown/not supported/bad arguments, etc.:
