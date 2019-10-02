@@ -320,16 +320,21 @@ public class Access extends AbstractApiBean {
             downloadInstance.setDataverseRequestService(dvRequestService);
             downloadInstance.setCommand(engineSvc);
         }
+        boolean serviceRequested = false;
+        boolean serviceFound = false;
         for (String key : uriInfo.getQueryParameters().keySet()) {
             String value = uriInfo.getQueryParameters().getFirst(key);
-            logger.fine("is download service supported? key="+key+", value="+value);
+            logger.warning("is download service supported? key=" + key + ", value=" + value);
+            if (key.equals("imageThumb") || key.equals("format") || key.equals("variables")) {
+                serviceRequested = true;
+            }
 
             if (downloadInstance.checkIfServiceSupportedAndSetConverter(key, value)) {
-                // this automatically sets the conversion parameters in 
+                // this automatically sets the conversion parameters in
                 // the download instance to key and value;
-                // TODO: I should probably set these explicitly instead. 
+                // TODO: I should probably set these explicitly instead.
                 logger.fine("yes!");
-                
+
                 if (downloadInstance.getConversionParam().equals("subset")) {
                     String subsetParam = downloadInstance.getConversionParamValue();
                     String variableIdParams[] = subsetParam.split(",");
@@ -352,12 +357,12 @@ public class Access extends AbstractApiBean {
                                         if (downloadInstance.getExtraArguments() == null) {
                                             downloadInstance.setExtraArguments(new ArrayList<Object>());
                                         }
-                                        logger.fine("putting variable id "+variable.getId()+" on the parameters list of the download instance.");
+                                        logger.fine("putting variable id " + variable.getId() + " on the parameters list of the download instance.");
                                         downloadInstance.getExtraArguments().add(variable);
-                                        
-                                        //if (!variable.getDataTable().getDataFile().getId().equals(sf.getId())) {
-                                        //variableList.add(variable);
-                                        //}
+
+                                        // if (!variable.getDataTable().getDataFile().getId().equals(sf.getId())) {
+                                        // variableList.add(variable);
+                                        // }
                                     }
                                 } else {
                                     logger.fine("variable service is null.");
@@ -367,17 +372,22 @@ public class Access extends AbstractApiBean {
                     }
                 }
 
-                logger.warning("downloadInstance: "+downloadInstance.getConversionParam()+","+downloadInstance.getConversionParamValue());
-                
+                logger.warning("downloadInstance: " + downloadInstance.getConversionParam() + "," + downloadInstance.getConversionParamValue());
+                serviceFound = true;
                 break;
             } else {
-                // Service unknown/not supported/bad arguments, etc.:
-                // checkIfServiceSupportedAndSetConverter checks that the query params set in match a service available for this file type, so one could return 
-                // a ServiceNotAvailableException. However, since the returns are all files of some sort, it seems reasonable, and more standard, to just return
-                // a NotFoundException.
-                throw new NotFoundException();
             }
-            
+
+        }
+        if (serviceRequested && !serviceFound) {
+            // Service unknown/not supported/bad arguments, etc.:
+            // checkIfServiceSupportedAndSetConverter checks that the query params set in
+            // match a service available for this file type, so one could return
+            // a ServiceNotAvailableException. However, since the returns are all files of
+            // some sort, it seems reasonable, and more standard, to just return
+            // a NotFoundException.
+            throw new NotFoundException();
+
         }
         logger.warning("Returning download instance");        
         /* 
