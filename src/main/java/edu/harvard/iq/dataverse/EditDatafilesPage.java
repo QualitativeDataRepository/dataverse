@@ -167,7 +167,6 @@ public class EditDatafilesPage implements java.io.Serializable {
     private String hypothesisGroupSelection = "";
     
     private String displayCitation;
-    private boolean datasetUpdateRequired = false; 
     private boolean tabularDataTagsUpdated = false; 
     
     private String persistentId;
@@ -1031,10 +1030,6 @@ public class EditDatafilesPage implements java.io.Serializable {
 
     public String saveWithTermsOfUse() {
         logger.fine("saving terms of use, and the dataset version");
-        //Set update required only if dataset already exists
-        if (dataset.getId() != null){
-             datasetUpdateRequired = true; 
-        }
         return save();
     }
     
@@ -1157,275 +1152,136 @@ public class EditDatafilesPage implements java.io.Serializable {
         //boolean newDraftVersion = false;    
 
         Boolean provJsonChanges = false;
+        Boolean provFreeChanges = false;
         
-        if(systemConfig.isProvCollectionEnabled()) {
-            Boolean provFreeChanges = provPopupFragmentBean.updatePageMetadatasWithProvFreeform(fileMetadatas);
+        if (systemConfig.isProvCollectionEnabled()) {
+            provFreeChanges = provPopupFragmentBean.updatePageMetadatasWithProvFreeform(fileMetadatas);
 
             try {
                 // Note that the user may have uploaded provenance metadata file(s)
-                // for some of the new files that have since failed to be permanently saved 
-                // in storage (in the ingestService.saveAndAddFilesToDataset() step, above); 
-                // these files have been dropped from the fileMetadatas list, and we 
-                // are not adding them to the dataset; but the 
+                // for some of the new files that have since failed to be permanently saved
+                // in storage (in the ingestService.saveAndAddFilesToDataset() step, above);
+                // these files have been dropped from the fileMetadatas list, and we
+                // are not adding them to the dataset; but the
                 // provenance update set still has entries for these failed files,
                 // so we are passing the fileMetadatas list to the saveStagedProvJson()
-                // method below - so that it doesn't attempt to save the entries 
-                // that are no longer valid. 
+                // method below - so that it doesn't attempt to save the entries
+                // that are no longer valid.
                 provJsonChanges = provPopupFragmentBean.saveStagedProvJson(false, fileMetadatas);
             } catch (AbstractApiBean.WrappedResponse ex) {
                 JsfHelper.addErrorMessage(getBundleString("file.metadataTab.provenance.error"));
                 Logger.getLogger(EditDatafilesPage.class.getName()).log(Level.SEVERE, null, ex);
             }
-            //Always update the whole dataset if updating prov
-            //The flow that happens when datasetUpdateRequired is false has problems with doing saving actions after its merge
-            //This was the simplest way to work around this issue for prov. --MAD 4.8.6.
-            datasetUpdateRequired = datasetUpdateRequired || provFreeChanges || provJsonChanges;
         }
-        if (workingVersion.getId() == null  || datasetUpdateRequired) {
-            logger.fine("issuing the dataset update command");
-            // We are creating a new draft version; 
-            // (OR, a full update of the dataset has been explicitly requested, 
-            // because of the nature of the updates the user has made).
-            // We'll use an Update command for this: 
-            
-            //newDraftVersion = true;
-            
-            if (datasetUpdateRequired) {
-                for (int i = 0; i < workingVersion.getFileMetadatas().size(); i++) {
-                    for (FileMetadata fileMetadata : fileMetadatas) {
-                        if (fileMetadata.getDataFile().getStorageIdentifier() != null) {
-                            if (fileMetadata.getDataFile().getStorageIdentifier().equals(workingVersion.getFileMetadatas().get(i).getDataFile().getStorageIdentifier())) {
-                                workingVersion.getFileMetadatas().set(i, fileMetadata);
-                            }
-                        }
-                    }
-                }
-                
-                
-                //Moves DataFile updates from popupFragment to page for saving
-                //This does not seem to collide with the tags updating below
-                if(systemConfig.isProvCollectionEnabled() && provJsonChanges) {
-                    HashMap<String,ProvPopupFragmentBean.UpdatesEntry> provenanceUpdates = provPopupFragmentBean.getProvenanceUpdates();
-                    for (int i = 0; i < dataset.getFiles().size(); i++) {
-                        for (ProvPopupFragmentBean.UpdatesEntry ue : provenanceUpdates.values()) { 
-                            if (ue.dataFile.getStorageIdentifier() != null ) {
-                                if (ue.dataFile.getStorageIdentifier().equals(dataset.getFiles().get(i).getStorageIdentifier())) {
-                                    dataset.getFiles().set(i, ue.dataFile);
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Tabular data tags are assigned to datafiles, not to  
-                // version-specfic filemetadatas!
-                // So if tabular tags have been modified, we also need to 
-                // refresh the list of datafiles, as found in dataset.getFiles(),
-                // similarly to what we've just done, above, for the filemetadatas.
-                // Otherwise, when we call UpdateDatasetCommand, it's not going 
-                // to update the tags in the database (issue #2798). 
-                // TODO: Is the above still true/is this still necessary?
-                // (and why?...)
-                
-                if (tabularDataTagsUpdated) {
-                    for (int i = 0; i < dataset.getFiles().size(); i++) {
-                        for (FileMetadata fileMetadata : fileMetadatas) {
-                            if (fileMetadata.getDataFile().getStorageIdentifier() != null) {
-                                if (fileMetadata.getDataFile().getStorageIdentifier().equals(dataset.getFiles().get(i).getStorageIdentifier())) {
-                                    dataset.getFiles().set(i, fileMetadata.getDataFile());
-                                }
-                            }
-                        }
-                    }
-                    tabularDataTagsUpdated = false;
-                }
-            }
-            
-            Map<Long, String> deleteStorageLocations = null;
-            
-            if (!filesToBeDeleted.isEmpty()) {
-                deleteStorageLocations = datafileService.getPhysicalFilesToDelete(filesToBeDeleted);
-            }
-
-            Command<Dataset> cmd;
-            try {
-                cmd = new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest(), filesToBeDeleted, clone);
-                ((UpdateDatasetVersionCommand) cmd).setValidateLenient(true);
-                dataset = commandEngine.submit(cmd);
-            
-            } catch (EJBException ex) {
-                StringBuilder error = new StringBuilder();
-                error.append(ex).append(" ");
-                error.append(ex.getMessage()).append(" ");
-                Throwable cause = ex;
-                while (cause.getCause()!= null) {
-                    cause = cause.getCause();
-                    error.append(cause).append(" ");
-                    error.append(cause.getMessage()).append(" ");
-                }
-                logger.log(Level.INFO, "Couldn''t save dataset: {0}", error.toString());
-                populateDatasetUpdateFailureMessage();
-                return null;
-            } catch (CommandException ex) {
-                //FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Dataset Save Failed", " - " + ex.toString()));
-                logger.log(Level.INFO, "Couldn''t save dataset: {0}", ex.getMessage());
-                populateDatasetUpdateFailureMessage();
-                return null;
-            } 
-            
-            // Have we just deleted some draft datafiles (successfully)? 
-            // finalize the physical file deletes:
-            // (DataFileService will double-check that the datafiles no 
-            // longer exist in the database, before attempting to delete 
-            // the physical files)
-            if (deleteStorageLocations != null) {
-                datafileService.finalizeFileDeletes(deleteStorageLocations);
-            }
-
-            datasetUpdateRequired = false;
-            saveEnabled = false; 
-        } else {
-            String lockInfoMessage = "saving current edits";
-            DatasetLock lock = datasetService.addDatasetLock(getDataset().getId(), DatasetLock.Reason.EditInProgress, session.getUser() != null ? ((AuthenticatedUser)session.getUser()).getId() : null, lockInfoMessage);
-            if (lock != null) {
-                getDataset().addLock(lock);
-            } else {
-                logger.log(Level.WARNING, "Failed to lock the dataset (dataset id={0})", getDataset().getId());
-            }
-            try {
-                // This is an existing Draft version (and nobody has explicitly
-                // requested that the entire dataset is updated). So we'll try to update
-                // only the filemetadatas and/or files affected, and not the
-                // entire version.
-                Timestamp updateTime = new Timestamp(new Date().getTime());
-
-                workingVersion.setLastUpdateTime(updateTime);
-                dataset.setModificationTime(updateTime);
-
-                StringBuilder saveError = new StringBuilder();
-
+        logger.fine("issuing the dataset update command");
+        // We are creating a new draft version or updating an existing draft;
+        // We'll use an Update command for this:
+        if (workingVersion.getId() != null) {
+            for (int i = 0; i < workingVersion.getFileMetadatas().size(); i++) {
                 for (FileMetadata fileMetadata : fileMetadatas) {
-
-                    if (fileMetadata.getDataFile().getCreateDate() == null) {
-                        fileMetadata.getDataFile().setCreateDate(updateTime);
-                        fileMetadata.getDataFile().setCreator((AuthenticatedUser) session.getUser());
-                    }
-                    fileMetadata.getDataFile().setModificationTime(updateTime);
-                    try {
-                        // DataFile savedDatafile = datafileService.save(fileMetadata.getDataFile());
-                        fileMetadata = datafileService.mergeFileMetadata(fileMetadata);
-                        logger.fine("Successfully saved DataFile " + fileMetadata.getLabel() + " in the database.");
-                    } catch (EJBException ex) {
-                        saveError.append(ex).append(" ");
-                        saveError.append(ex.getMessage()).append(" ");
-                        Throwable cause = ex;
-                        while (cause.getCause() != null) {
-                            cause = cause.getCause();
-                            saveError.append(cause).append(" ");
-                            saveError.append(cause.getMessage()).append(" ");
+                    if (fileMetadata.getDataFile().getStorageIdentifier() != null) {
+                        if (fileMetadata.getDataFile().getStorageIdentifier().equals(workingVersion.getFileMetadatas().get(i).getDataFile().getStorageIdentifier())) {
+                            workingVersion.getFileMetadatas().set(i, fileMetadata);
                         }
                     }
                 }
-
-                // Remove / delete any files that were removed
-                for (FileMetadata fmd : filesToBeDeleted) {
-                    // check if this file is being used as the default thumbnail
-                    if (fmd.getDataFile().equals(dataset.getThumbnailFile())) {
-                        logger.fine("deleting the dataset thumbnail designation");
-                        dataset.setThumbnailFile(null);
-                    }
-
-                    if (!fmd.getDataFile().isReleased()) {
-                        // if file is draft (ie. new to this version, delete; otherwise just remove
-                        // filemetadata object)
-                        boolean deleteCommandSuccess = false;
-                        Long dataFileId = fmd.getDataFile().getId();
-                        String deleteStorageLocation = null;
-
-                        if (dataFileId != null) { // is this check necessary?
-
-                            deleteStorageLocation = datafileService.getPhysicalFileToDelete(fmd.getDataFile());
-
-                            try {
-                                commandEngine.submit(new DeleteDataFileCommand(fmd.getDataFile(), dvRequestService.getDataverseRequest()));
-                                dataset.getFiles().remove(fmd.getDataFile());
-                                workingVersion.getFileMetadatas().remove(fmd);
-                                // added this check to handle an issue where you could not delete a file that
-                                // shared a category with a new file
-                                // the relationship does not seem to cascade, yet somehow it was trying to merge
-                                // the filemetadata
-                                // todo: clean this up some when we clean the create / update dataset methods
-                                for (DataFileCategory cat : dataset.getCategories()) {
-                                    cat.getFileMetadatas().remove(fmd);
-                                }
-                                deleteCommandSuccess = true;
-                            } catch (CommandException cmde) {
-                                // TODO:
-                                // add diagnostics reporting for individual data files that
-                                // we failed to delete.
-                                logger.warning("Failed to delete DataFile id=" + dataFileId + " from the database; " + cmde.getMessage());
-                            }
-                            if (deleteCommandSuccess) {
-                                if (deleteStorageLocation != null) {
-                                    // Finalize the delete of the physical file
-                                    // (File service will double-check that the datafile no
-                                    // longer exists in the database, before proceeding to
-                                    // delete the physical file)
-                                    try {
-                                        datafileService.finalizeFileDelete(dataFileId, deleteStorageLocation);
-                                    } catch (IOException ioex) {
-                                        logger.warning("Failed to delete the physical file associated with the deleted datafile id="
-                                                + dataFileId + ", storage location: " + deleteStorageLocation);
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        datafileService.removeFileMetadata(fmd);
-                        fmd.getDataFile().getFileMetadatas().remove(fmd);
-                        workingVersion.getFileMetadatas().remove(fmd);
-                    }
-                }
-
-                String saveErrorString = saveError.toString();
-                if (saveErrorString != null && !saveErrorString.isEmpty()) {
-                    logger.log(Level.INFO, "Couldn''t save dataset: {0}", saveErrorString);
-                    populateDatasetUpdateFailureMessage();
-                    return null;
-                }
-
-                // Refresh the instance of the dataset object:
-                // (being in the UPLOAD mode more or less guarantees that the
-                // dataset object already exists in the database, but we'll check
-                // the id for null, just in case)
-                if (mode == FileEditMode.UPLOAD) {
-                    if (dataset.getId() != null) {
-                        dataset = datasetService.find(dataset.getId());
-                    }
-                }
-                indexService.indexDataset(dataset, true);
-            } catch (SolrServerException | IOException e) {
-                String failureLogText = "EditDataFile indexing failed. You can kickoff a re-index of this dataset with: \r\n curl http://localhost:8080/api/admin/index/datasets/" + dataset.getId().toString();
-                failureLogText += "\r\n" + e.getLocalizedMessage();
-                LoggingUtil.writeOnSuccessFailureLog(null, failureLogText, dataset);
-            } finally {
-                datasetService.removeDatasetLocks(dataset, DatasetLock.Reason.EditInProgress);
             }
         }
+        // Moves DataFile updates from popupFragment to page for saving
+        // This does not seem to collide with the tags updating below
+        if (systemConfig.isProvCollectionEnabled() && provJsonChanges) {
+            HashMap<String, ProvPopupFragmentBean.UpdatesEntry> provenanceUpdates = provPopupFragmentBean.getProvenanceUpdates();
+            for (int i = 0; i < dataset.getFiles().size(); i++) {
+                for (ProvPopupFragmentBean.UpdatesEntry ue : provenanceUpdates.values()) {
+                    if (ue.dataFile.getStorageIdentifier() != null) {
+                        if (ue.dataFile.getStorageIdentifier().equals(dataset.getFiles().get(i).getStorageIdentifier())) {
+                            dataset.getFiles().set(i, ue.dataFile);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Tabular data tags are assigned to datafiles, not to
+        // version-specfic filemetadatas!
+        // So if tabular tags have been modified, we also need to
+        // refresh the list of datafiles, as found in dataset.getFiles(),
+        // similarly to what we've just done, above, for the filemetadatas.
+        // Otherwise, when we call UpdateDatasetCommand, it's not going
+        // to update the tags in the database (issue #2798).
+        // TODO: Is the above still true/is this still necessary?
+        // (and why?...)
+
+        if (tabularDataTagsUpdated) {
+            for (int i = 0; i < dataset.getFiles().size(); i++) {
+                for (FileMetadata fileMetadata : fileMetadatas) {
+                    if (fileMetadata.getDataFile().getStorageIdentifier() != null) {
+                        if (fileMetadata.getDataFile().getStorageIdentifier().equals(dataset.getFiles().get(i).getStorageIdentifier())) {
+                            dataset.getFiles().set(i, fileMetadata.getDataFile());
+                        }
+                    }
+                }
+            }
+            tabularDataTagsUpdated = false;
+        }
+
+        Map<Long, String> deleteStorageLocations = null;
+
+        if (!filesToBeDeleted.isEmpty()) {
+            deleteStorageLocations = datafileService.getPhysicalFilesToDelete(filesToBeDeleted);
+        }
+
+        Command<Dataset> cmd;
+        try {
+            cmd = new UpdateDatasetVersionCommand(dataset, dvRequestService.getDataverseRequest(), filesToBeDeleted, clone);
+            ((UpdateDatasetVersionCommand) cmd).setValidateLenient(true);
+            dataset = commandEngine.submit(cmd);
+
+        } catch (EJBException ex) {
+            StringBuilder error = new StringBuilder();
+            error.append(ex).append(" ");
+            error.append(ex.getMessage()).append(" ");
+            Throwable cause = ex;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+                error.append(cause).append(" ");
+                error.append(cause.getMessage()).append(" ");
+            }
+            logger.log(Level.INFO, "Couldn''t save dataset: {0}", error.toString());
+            populateDatasetUpdateFailureMessage();
+            return null;
+        } catch (CommandException ex) {
+            // FacesContext.getCurrentInstance().addMessage(null, new
+            // FacesMessage(FacesMessage.SEVERITY_ERROR, "Dataset Save Failed", " - " +
+            // ex.toString()));
+            logger.log(Level.INFO, "Couldn''t save dataset: {0}", ex.getMessage());
+            populateDatasetUpdateFailureMessage();
+            return null;
+        }
+
+        // Have we just deleted some draft datafiles (successfully)?
+        // finalize the physical file deletes:
+        // (DataFileService will double-check that the datafiles no
+        // longer exist in the database, before attempting to delete
+        // the physical files)
+        if (deleteStorageLocations != null) {
+            datafileService.finalizeFileDeletes(deleteStorageLocations);
+        }
+        saveEnabled = false;
 
         if (newFiles.size() > 0) {
             logger.fine("clearing newfiles list.");
             newFiles.clear();
             /*
-             - We decided not to bother obtaining persistent ids for new files 
-             as they are uploaded and created. The identifiers will be assigned 
-             later, when the version is published. 
-             
-            logger.info("starting async job for obtaining persistent ids for files.");
-            datasetService.obtainPersistentIdentifiersForDatafiles(dataset);
-            */
+             * - We decided not to bother obtaining persistent ids for new files as they are
+             * uploaded and created. The identifiers will be assigned later, when the
+             * version is published.
+             * 
+             * logger.info("starting async job for obtaining persistent ids for files.");
+             * datasetService.obtainPersistentIdentifiersForDatafiles(dataset);
+             */
         }
-                
+               
         workingVersion = dataset.getEditVersion();
         logger.fine("working version id: "+workingVersion.getId());
        
@@ -2642,8 +2498,6 @@ public class EditDatafilesPage implements java.io.Serializable {
             logger.fine(successMessage);
             successMessage = successMessage.replace("{0}", fileMetadataSelectedForThumbnailPopup.getLabel());
             JsfHelper.addFlashMessage(successMessage);
-
-            datasetUpdateRequired = true;
         }
 
         // And reset the selected fileMetadata:
@@ -2895,8 +2749,6 @@ public class EditDatafilesPage implements java.io.Serializable {
                     // ignore 
                 }
             }
-
-            datasetUpdateRequired = true;
         }
         
         fileMetadataSelectedForTagsPopup = null;
