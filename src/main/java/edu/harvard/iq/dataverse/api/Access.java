@@ -255,6 +255,10 @@ public class Access extends AbstractApiBean {
         
         try {
             df = findDataFileOrDie(fileId);
+            logger.warning("SI: " + df.getStorageIdentifier());
+            if(df.getStorageIdentifier()==null) {
+                df = fileService.find(df);
+            }
         } catch (WrappedResponse ex) {
             logger.warning("Access: datafile service could not locate a DataFile object for id "+fileId+"!");
             logger.warning(ex.getWrappedMessageWhenJson());
