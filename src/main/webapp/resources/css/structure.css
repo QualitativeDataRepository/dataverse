@@ -224,6 +224,10 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
 #dataverseHeader .label.status {display:block; float:left; margin-top:16px; font-size:14px; font-weight:normal; white-space:normal; text-align:left; line-height:1.2;}
 
 
+/* -------- FOOTER -------- */
+#dataverseFooter {margin-top:15px;}
+#dataverseFooter .dataverseFooterLogo img {max-width:940px; max-height:120px;}
+
 /* -------- BREADCRUMBS -------- */
 #breadcrumbNavBlock {margin-top:.5em;}
 #breadcrumbNavBlock .breadcrumbBlock {float:left; position:relative;}
