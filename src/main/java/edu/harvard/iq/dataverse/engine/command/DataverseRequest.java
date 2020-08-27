@@ -19,9 +19,8 @@ import javax.servlet.http.HttpServletRequest;
  * @author michael
  */
 
-
 public class DataverseRequest {
-    
+
     private final User user;
     private final IpAddress sourceAddress;
     
