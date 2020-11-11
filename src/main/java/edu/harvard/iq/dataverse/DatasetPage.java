@@ -2056,7 +2056,11 @@ public class DatasetPage implements java.io.Serializable {
         datasetExploreTools = externalToolService.findDatasetToolsByType(ExternalTool.Type.EXPLORE);
         rowsPerPage = 10;
       
-        
+        // As of v5.x (PF8?), having the variables initially set to true in their
+        // declarations doesn't result in them being true when a page is first viewed -
+        // need to set them here.
+        this.setFolderPresort(true);
+        this.setTagPresort(true);
         
         return null;
     }
