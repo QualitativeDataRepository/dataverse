@@ -119,6 +119,7 @@ function updatePeopleInputs() {
              }
              var query = {
                q: term,
+               //Could ask for more results and then filter for ~10. This might improve finding recently used ORCIDs (any in the top ~100 results would be sorted into the top ten to be shown).
                rows: 10
              }
              return query;
