@@ -1920,6 +1920,7 @@ public class DatasetPage implements java.io.Serializable {
                 
                 // This will default to all the files in the version, if the search term
                 // parameter hasn't been specified yet:
+                
                 fileMetadatasSearch = selectFileMetadatasForDisplay();
 
                 ownerId = dataset.getOwner().getId();
