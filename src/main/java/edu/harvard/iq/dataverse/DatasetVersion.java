@@ -1542,16 +1542,7 @@ public class DatasetVersion implements Serializable {
         }
         return serverName + "/dataset.xhtml?id=" + dset.getId() + "&versionId=" + this.getId();
     } 
-    
-    /*
-    Per #3511 we  are returning all users to the File Landing page
-    If we in the future we are going to return them to the referring page we will need the 
-    getReturnToDatasetURL method and add something to the call to the api to
-    pass the referring page and some kind of decision point in  the getWorldMapDatafileInfo method in 
-    WorldMapRelatedData
-    SEK 3/24/2017
-    */
-    
+
     public String getReturnToFilePageURL (String serverName, Dataset dset, DataFile dataFile){
         if (serverName == null || dataFile == null) {
             return null;
@@ -1888,7 +1879,7 @@ public class DatasetVersion implements Serializable {
             JsonObjectBuilder license = Json.createObjectBuilder().add("@type", "Dataset");
             
             if (TermsOfUseAndAccess.License.CC0.equals(terms.getLicense())) {
-                license.add("text", "CC0").add("url", "https://creativecommons.org/publicdomain/zero/1.0/");
+                license.add("text", "CC0").add("url", TermsOfUseAndAccess.CC0_URI);
             } else {
                 String termsOfUse = terms.getTermsOfUse();
                 // Terms of use can be null if you create the dataset with JSON.
