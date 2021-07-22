@@ -16,7 +16,6 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -316,5 +315,15 @@ public class SettingsWrapper implements java.io.Serializable {
         return anonymizedFieldTypes.contains(df.getDatasetFieldType().getName());
     }
 
+    List<String> allowedExternalStatuses = null;
+
+    public List<String> getAllowedExternalStatuses() {
+        String names = get(SettingsServiceBean.Key.AllowedCurationLabels.toString(), "");
+        if (names != null && allowedExternalStatuses == null) {
+            allowedExternalStatuses = new ArrayList<String>();
+            allowedExternalStatuses.addAll(Arrays.asList(names.split("\\s*,\\s*")));
+        }
+        return allowedExternalStatuses;
+    }
 }
 

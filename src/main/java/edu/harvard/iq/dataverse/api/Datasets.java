@@ -69,6 +69,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.RemoveLockCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RequestRsyncScriptCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.ReturnDatasetToAuthorCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.SetDatasetCitationDateCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.SetExternalStatusCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.SubmitDatasetForReviewCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetTargetURLCommand;
@@ -85,6 +86,7 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import edu.harvard.iq.dataverse.dataaccess.S3AccessIO;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
+import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.UnforcedCommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.GetDatasetStorageSizeCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeRoleCommand;
@@ -1763,6 +1765,34 @@ public class Datasets extends AbstractApiBean {
         }
     }
 
+    @PUT
+    @Path("{id}/setExternalStatus")
+    public Response setExternalStatus(@PathParam("id") String idSupplied, @QueryParam("label") String label) {
+        logger.info("Label is " + label);
+        try {
+            execCommand(new SetExternalStatusCommand(createDataverseRequest(findUserOrDie()), findDatasetOrDie(idSupplied), label));
+            return ok("External Status updated");
+        } catch (WrappedResponse wr) {
+            //Just change to Bad Request and send
+            //ToDo - check in api call
+            return Response.fromResponse(wr.getResponse()).status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+    
+    @DELETE
+    @Path("{id}/setExternalStatus")
+    public Response deleteExternalStatus(@PathParam("id") String idSupplied) {
+
+        try {
+            execCommand(new SetExternalStatusCommand(createDataverseRequest(findUserOrDie()), findDatasetOrDie(idSupplied), null));
+            return ok("External Status deleted");
+        } catch (WrappedResponse wr) {
+            //Just change to Bad Request and send
+            //ToDo - check in api call
+            return Response.fromResponse(wr.getResponse()).status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+    
 @GET
 @Path("{id}/uploadsid")
 @Deprecated

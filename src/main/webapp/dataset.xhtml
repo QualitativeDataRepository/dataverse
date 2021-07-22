@@ -116,6 +116,7 @@
                                             <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="label label-success" rendered="#{DatasetPage.workingVersion.inReview}"/>
                                             <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{!DatasetPage.dataset.released}"/>
                                             <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="label label-danger" rendered="#{DatasetPage.workingVersion.deaccessioned}"/>
+                                            <h:outputText value="#{DatasetPage.workingVersion.externalStatusLabel}" styleClass="label external-status" rendered="#{DatasetPage.workingVersion.externalStatusLabel!=null}"/>
                                             <!-- DATASET VERSION NUMBER -->
                                             <h:outputText styleClass="label label-default" rendered="#{DatasetPage.workingVersion.released and !(DatasetPage.workingVersion.draft or DatasetPage.workingVersion.inReview or DatasetPage.workingVersion.deaccessioned)}"
                                                           value="#{bundle['file.DatasetVersion']} #{DatasetPage.workingVersion.versionNumber}.#{DatasetPage.workingVersion.minorVersionNumber}"/>
@@ -287,17 +288,17 @@
                                             <div class="btn-group">
                                                 <!-- Publish BTN -->
                                                 <h:outputLink value="#" disabled="#{DatasetPage.lockedFromPublishing}">
-                                                    <c:if test="#{!((showSubmitForReviewLink and showPublishLink) or showReturnToAuthorLink)}">
+                                                    <c:if test="#{!((showSubmitForReviewLink and showPublishLink) or showReturnToAuthorLink) and empty settingsWrapper.allowedExternalStatuses}">
                                                         <f:passThroughAttribute name="class" value="btn btn-default btn-access btn-publish #{DatasetPage.lockedFromPublishing ? 'disabled' : ''}"/>
                                                         <f:passThroughAttribute name="onclick" value="$(this).parent().find( 'li > a' ).trigger( 'click' );"/>
                                                     </c:if>
-                                                    <c:if test="#{(showSubmitForReviewLink and showPublishLink) or showReturnToAuthorLink}">
+                                                    <c:if test="#{(showSubmitForReviewLink and showPublishLink) or showReturnToAuthorLink or not empty settingsWrapper.allowedExternalStatuses}">
                                                         <f:passThroughAttribute name="class" value="btn btn-default btn-access btn-publish dropdown-toggle #{DatasetPage.lockedFromPublishing ? 'disabled' : ''}"/>
                                                         <f:passThroughAttribute name="data-toggle" value="dropdown"/>
                                                         <f:passThroughAttribute name="aria-haspopup" value="true"/>
                                                         <f:passThroughAttribute name="aria-expanded" value="false"/>
                                                     </c:if>
-                                                    #{showPublishLink ? bundle['dataset.publishBtn'] : (DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitBtn'])} <span jsf:rendered="#{(showSubmitForReviewLink and showPublishLink) or showReturnToAuthorLink}" class="caret"></span>
+                                                    #{showPublishLink ? bundle['dataset.publishBtn'] : (DatasetPage.dataset.latestVersion.inReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitBtn'])} <span jsf:rendered="#{(showSubmitForReviewLink and showPublishLink) or showReturnToAuthorLink  or not empty settingsWrapper.allowedExternalStatuses}" class="caret"></span>
                                                 </h:outputLink>
                                                 <!-- Publish BTN DROPDOWN-MENU OPTIONS -->
                                                 <ul class="dropdown-menu pull-right text-left">
@@ -325,6 +326,26 @@
                                                             #{bundle['dataset.rejectBtn']}
                                                         </p:commandLink>
                                                     </li>
+                                                    <ui:fragment rendered="#{not empty settingsWrapper.allowedExternalStatuses}">
+                                                        <li class="dropdown-submenu pull-left">
+                                                            <a tabindex="-1" href="#">#{bundle['dataset.changestatus']}</a>
+                                                            <ul class="dropdown-menu">
+                                                                <ui:repeat value="#{settingsWrapper.allowedExternalStatuses}" var="status">
+                                                                    <li>
+                                                                        <p:commandLink action="#{DatasetPage.setExternalStatus(status)}" update=":datasetForm:topDatasetBlockFragment,:messagePanel">
+                                                                          #{status}
+                                                                        </p:commandLink>
+                                                                    </li>
+                                                                </ui:repeat>
+                                                                <p:separator/>
+                                                                <li>
+                                                                    <p:commandLink action="#{DatasetPage.setExternalStatus(null)}" update=":datasetForm:topDatasetBlockFragment,:messagePanel">
+                                                                        #{bundle['dataset.removestatus']}
+                                                                    </p:commandLink>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                    </ui:fragment>
                                                 </ul>
                                             </div>
                                         </div>
@@ -988,7 +1009,7 @@
                             </div>
                             <div class="button-block">
                                 <p:commandButton styleClass="btn btn-default" value="#{bundle['dataset.privateurl.createPrivateUrl']}" action="#{DatasetPage.createPrivateUrl(false)}" update="privateUrlPanel,:messagePanel" rendered="#{empty(DatasetPage.privateUrl)}"/>
-                                <p:commandButton styleClass="btn btn-default" value="#{bundle['dataset.privateurl.createPrivateUrl.anonymized']}" action="#{DatasetPage.createPrivateUrl(true)}" update="privateUrlPanel,:messagePanel" rendered="#{empty(DatasetPage.privateUrl)}"/>
+                                <p:commandButton styleClass="btn btn-default disabledTitle" value="#{bundle['dataset.privateurl.createPrivateUrl.anonymized']}" action="#{DatasetPage.createPrivateUrl(true)}" update="privateUrlPanel,:messagePanel" rendered="#{empty(DatasetPage.privateUrl)}" disabled="#{DatasetPage.dataset.released}" title="#{DatasetPage.dataset.released ? bundle['dataset.privateurl.createPrivateUrl.anonymized.unavailable']:'' }"/>
                                 <button class="btn btn-default btn-copy" data-clipboard-text="#{DatasetPage.getPrivateUrlLink(DatasetPage.privateUrl)}" jsf:rendered="#{!empty(DatasetPage.privateUrl)}" type="button">
                                     #{bundle['copyClipboard']}
                                 </button>
