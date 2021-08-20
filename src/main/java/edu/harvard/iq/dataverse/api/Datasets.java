@@ -2768,7 +2768,7 @@ public Response completeMPUpload(String partETagBody, @QueryParam("globalid") St
     
     /** QDR
      * 
-     * API to find curation assignements and statuses
+     * API to find/list curation assignments and statuses
      * 
      * @return
      * @throws WrappedResponse
@@ -2787,14 +2787,20 @@ public Response completeMPUpload(String partETagBody, @QueryParam("globalid") St
             return wr.getResponse();
         }
         
-        StringBuilder csvSB = new StringBuilder(String.join(",", "Data Project", "Creation Date", "Last Modified", "Assignee", "Status"));
+        StringBuilder csvSB = new StringBuilder(String.join(",", "Data Project", "Creation Date", "Last Modified", "Assignee", "Curators", "Status"));
         for (Dataset dataset : datasetSvc.findAllUnpublished()) {
                 List<RoleAssignment> ras = permissionService.assignmentsOn(dataset);
                 String assignee = null;
+                Set<String> curators = new HashSet<String>();
                 for (RoleAssignment ra : ras) {
                     if (ra.getRole().getName().equals("Assignee")) {
+                        if(assignee!=null) {
+                            logger.warning("Dataset: " + dataset.getGlobalId().toString() + "has multiple 'Assignees': " + ra.getAssigneeIdentifier());
+                        }
                         assignee = ra.getAssigneeIdentifier();
-                        break;
+                    }
+                    if (ra.getRole().getName().equals("Curator") && ra.getDefinitionPoint().equals(dataset)) {
+                        curators.add(ra.getAssigneeIdentifier());
                     }
                 }
                 String name = dataset.getCurrentName().replace("\"","\"\"");
@@ -2803,7 +2809,7 @@ public Response completeMPUpload(String partETagBody, @QueryParam("globalid") St
                 String date = new SimpleDateFormat("yyyy-MM-dd").format(dataset.getCreateDate());
                 String modDate = new SimpleDateFormat("yyyy-MM-dd").format(dataset.getModificationTime());
                 String hyperlink = "\"=HYPERLINK(\"\"" + url + "\"\",\"\"" + name + "\"\")\"";
-                csvSB.append("\n").append(String.join(",", hyperlink, date, modDate, assignee==null ? "":assignee, status==null ? "": status));
+                csvSB.append("\n").append(String.join(",", hyperlink, date, modDate, assignee==null ? "":assignee, curators.isEmpty() ? "":String.join(";",curators), status==null ? "": status));
         }
         csvSB.append("\n");
     return ok(csvSB.toString(), MediaType.valueOf(FileUtil.MIME_TYPE_CSV), "dataproject.status.csv");
