@@ -450,14 +450,14 @@ div.panelSearchForm input.search-input {
   padding: 4px;
   vertical-align: middle;
   display: block;
-  color: rgba(0, 0, 0, 0.5);
+  color: #666666;
   display: block;
   font-size: 25px;
   background: transparent;
   width: 550px;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2), inset 0 1px 3px 0 rgba(0, 0, 0, 0.2);
 }
-div.panelSearchForm input.search-input::placeholder {color: rgba(0, 0, 0, 0.3);}
+div.panelSearchForm input.search-input::placeholder {color: #666666;}
 div.panelSearchForm .button-block {
 	float: right;
 	margin-top: -35px;
@@ -1366,3 +1366,12 @@ progress::-webkit-progress-value {
 .external-status {
   background-color: #EA4CED
 }
+
+/*Accessibility*/
+.text-muted {
+  color: #424242;
+}
+.label-warning {
+  background-color: #a5660e;
+}
+
