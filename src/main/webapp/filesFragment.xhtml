@@ -42,6 +42,9 @@
 
     <!-- Files Table -->
     <!-- TABLESTYLE + WIDTH:AUTO FIX COL WIDTH OVERFLOW HIDDEN, MIN-WIDTH 100% ADDED FOR TABLE CONTENT LESS THAN 100% https://stackoverflow.com/a/38582318 -->
+    <ui:remove>
+        <!--TODO - consider moving the validateFilesOutcome param here/ other refactoring to simplify managing selection state - see issue #8180/PR #8182 -->
+    </ui:remove>
     <p:dataTable id="filesTable" 
                  rows="10" paginator="#{DatasetPage.fileMetadatasSearch.size() gt 10}" paginatorPosition="bottom"
                  paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} #{bundle['file.dynamicCounter.filesPerPage']} {RowsPerPageDropdown}"
@@ -54,12 +57,12 @@
                  emptyMessage="#{DatasetPage.workingVersion.fileMetadatas.size() == 0 ? bundle['file.notFound.tip'] : bundle['file.notFound.search']}"
                  ariaRowLabel="#{bundle['file.select.action']} #{fileMetadata.label}">
         <p:ajax event="page" listener="#{DatasetPage.fileListingPaginatorListener}" update="filesTable" process="@this"  oncomplete="refreshPaginator(),rebindCommand()"  immediate="true"/>
-        <p:ajax event="toggleSelect" listener="#{DatasetPage.toggleAllSelected()}" update="filesTable"  process="@this" oncomplete="rebindCommand()"  /> 
-        <p:ajax event="rowUnselectCheckbox" listener="#{DatasetPage.setSelectAllFiles(false)}" update="filesTable" process="@this" oncomplete="rebindCommand()"  />
-        <p:ajax event="rowSelect" listener="#{DatasetPage.setSelectAllFiles(false)}" update="filesTable" process="@this" oncomplete="rebindCommand()" />
-        <p:ajax event="rowSelectCheckbox" listener="#{DatasetPage.setSelectAllFiles(false)}" update="filesTable" process="@this" oncomplete="rebindCommand()"  />
-        <p:ajax event="rowUnselect" listener="#{DatasetPage.setSelectAllFiles(false)}" update="filesTable" process="@this" oncomplete="rebindCommand()" />
-        <p:ajax event="rowDblselect" listener="#{DatasetPage.setSelectAllFiles(false)}" update="filesTable" process="@this" oncomplete="rebindCommand()" />
+        <p:ajax event="toggleSelect" listener="#{DatasetPage.toggleAllSelected()}" update="@form:validateFilesOutcome, filesTable"  process="@this" oncomplete="rebindCommand()"  /> 
+        <p:ajax event="rowUnselectCheckbox" listener="#{DatasetPage.setSelectAllFiles(false)}" update="@form:validateFilesOutcome, filesTable" process="@this" oncomplete="rebindCommand()"  />
+        <p:ajax event="rowSelect" listener="#{DatasetPage.setSelectAllFiles(false)}" update="@form:validateFilesOutcome, filesTable" process="@this" oncomplete="rebindCommand()" />
+        <p:ajax event="rowSelectCheckbox" listener="#{DatasetPage.setSelectAllFiles(false)}" update="@form:validateFilesOutcome, filesTable" process="@this" oncomplete="rebindCommand()"  />
+        <p:ajax event="rowUnselect" listener="#{DatasetPage.setSelectAllFiles(false)}" update="@form:validateFilesOutcome, filesTable" process="@this" oncomplete="rebindCommand()" />
+        <p:ajax event="rowDblselect" listener="#{DatasetPage.setSelectAllFiles(false)}" update="@form:validateFilesOutcome, filesTable" process="@this" oncomplete="rebindCommand()" />
 
         <f:facet name="header">
             <div class="row form-inline" jsf:id="cloudStorageBlock" jsf:rendered="#{DatasetPage.showComputeButton()}">
@@ -413,7 +416,7 @@
                             disabled="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
                         <span class="glyphicon glyphicon-pencil"/> #{bundle['file.editFiles']} <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu multi-level pull-right text-left" role="menu">
+                    <ul class="dropdown-menu multi-level pull-right text-left">
                         <ui:include src="file-edit-button-fragment.xhtml">
                             <ui:param name="datasetVersion" value="#{DatasetPage.workingVersion}"/>
                             <ui:param name="fileMetadataForAction" value="#{DatasetPage.fileMetadataForAction}"/>
@@ -452,7 +455,7 @@
                     <button type="button" class="btn btn-default btn-download dropdown-toggle" data-toggle="dropdown">  
                         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download} <span class="caret"></span>
                     </button>
-                    <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level pull-right text-left" role="menu">
+                    <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level pull-right text-left">
                         <li >
                             <p:commandLink
                                            disabled="#{false and DatasetPage.lockedFromDownload}"
