@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationResponse;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.CredentialsAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.exceptions.AuthenticationFailedException;
+import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
@@ -97,6 +98,9 @@ public class LoginPage implements java.io.Serializable {
     @Inject
     DataverseRequestServiceBean dvRequestService;
     
+    @Inject
+    SettingsWrapper settingsWrapper;
+    
     private String credentialsAuthProviderId;
     
     private List<FilledCredential> filledCredentials;
@@ -166,6 +170,7 @@ public class LoginPage implements java.io.Serializable {
         for ( FilledCredential fc : filledCredentialsList ) {       
             authReq.putCredential(fc.getCredential().getKey(), fc.getValue());
         }
+
         authReq.setIpAddress( dvRequestService.getDataverseRequest().getSourceAddress() );
         try {
             AuthenticatedUser r = authSvc.getUpdateAuthenticatedUser(credentialsAuthProviderId, authReq);
@@ -205,6 +210,7 @@ public class LoginPage implements java.io.Serializable {
                     logger.log( Level.WARNING, "Error logging in: " + response.getMessage(), response.getError() );
                     return null;
                 case BREAKOUT:
+                    FacesContext.getCurrentInstance().getExternalContext().getFlash().put("silentUpgradePasswd",authReq.getCredential(BuiltinAuthenticationProvider.KEY_PASSWORD));
                     return response.getMessage();
                 default:
                     JsfHelper.addErrorMessage("INTERNAL ERROR");
@@ -215,7 +221,7 @@ public class LoginPage implements java.io.Serializable {
     }
     
     private String redirectToRoot(){
-        return "dataverse.xhtml?alias=" + dataverseService.findRootDataverse().getAlias();
+        return "dataverse.xhtml?alias=" + settingsWrapper.getRootDataverse().getAlias();
     }
 
     public String getCredentialsAuthProviderId() {
