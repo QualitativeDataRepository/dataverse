@@ -53,6 +53,9 @@ public enum ExternalIdentifier {
     }
 
     public String format(String idValue) {
+        if(idValue.startsWith(template.substring(0,template.indexOf("%s")))) {
+            return idValue; 
+        }
         return String.format(template, idValue);
     }
 }
