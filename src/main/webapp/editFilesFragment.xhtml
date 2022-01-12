@@ -138,7 +138,9 @@
                                   fileLimit="#{EditDatafilesPage.getMaxNumberOfFiles()}" 
                                   invalidSizeMessage="#{bundle['file.edit.error.file_exceeds_limit']}" 
                                   sequential="true"
-                                  widgetVar="fileUploadWidget"/>
+                                  widgetVar="fileUploadWidget">
+                        <f:passThroughAttribute name="aria-label" value="#{bundle['file.uploadFiles']}"/>
+                    </p:fileUpload>
                                 
                                 <div jsf:id="dropboxBlock" jsf:rendered="#{settingsWrapper.isHasDropBoxKey() and !lockedFromEdits }"  class="margin-top">
                                     <!-- Dropbox upload widget -->
@@ -153,7 +155,7 @@
                                     <!-- Hypothesis upload widget -->
                                     <p class="help-block"><span class="glyphicon glyphicon-info-sign"/> #{bundle['file.fromHypothesis.tip']}</p>
                                     <div>
-                                      <label for="hypothesisUrlSelection" class="col-sm-1 control-label">
+                                      <label for="datasetForm:hypothesisUrlInput" class="col-sm-1 control-label">
                                         <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['dataset.hypothesis.url.tip']}">
                                           #{bundle['dataset.hypothesis.url']}
                                         </span>
@@ -161,7 +163,7 @@
                                       <h:inputText id="hypothesisUrlInput"  value="#{EditDatafilesPage.hypothesisUrlSelection}"/>
                                     </div>
                                     <div>
-                                      <label for="hypothesisGroupSelection" class="col-sm-1 control-label">
+                                      <label for="datasetForm:hypothesisGroupInput" class="col-sm-1 control-label">
                                         <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['dataset.hypothesis.group.tip']}">
                                           #{bundle['dataset.hypothesis.group']}
                                         </span>
@@ -623,18 +625,18 @@
         </p>        
         <div class="form-horizontal">
             <div class="form-group">
-                <label for="metadata_TermsAccess" class="col-sm-3 control-label">
+                <label jsf:for="popup_TermsAccess" class="col-sm-3 control-label">
                     #{bundle['file.dataFilesTab.terms.list.termsOfAccess.termsOfsAccess']}
                     <span class="glyphicon glyphicon-question-sign tooltip-icon"
                           data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['file.dataFilesTab.terms.list.termsOfAccess.termsOfsAccess.title']}"></span>
                 </label>
                 <div class="col-sm-9">
-                    <p:inputTextarea styleClass="form-control"
+                    <p:inputTextarea id="popup_TermsAccess" styleClass="form-control"
                                      value="#{EditDatafilesPage.termsOfAccess}" autoResize="false" rows="5"/>
                 </div>
             </div>
             <div class="form-group">
-                <label for="metadata_RequestAccess" class="col-sm-3 control-label">
+                <label class="col-sm-3 control-label">
                     #{bundle['file.dataFilesTab.terms.list.termsOfAccess.requestAccess']}
                     <span class="glyphicon glyphicon-question-sign tooltip-icon"
                           data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['file.dataFilesTab.terms.list.termsOfAccess.requestAccess.title']}"></span>
@@ -843,7 +845,7 @@
         <p:focus context="fileSetThumbnail"/>
         <div class="form-horizontal">
             <div class="form-group">
-                <label for="datasetThumbnailImage" class="col-sm-4 control-label">
+                <label jsf:for="datasetThumbnailImage_input" class="col-sm-4 control-label">
                     #{bundle['file.datasetThumbnail']}
                 </label>
                 <div class="col-sm-8">
