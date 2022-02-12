@@ -179,7 +179,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                         } else {
                             redirectSupported = false;
                         }
-                    } else if(di.getConversionParam().equals("zipentry")) {
+                    } else if("zipentry".equals(di.getConversionParam())) {
                         redirectSupported=false;
                     }
 
