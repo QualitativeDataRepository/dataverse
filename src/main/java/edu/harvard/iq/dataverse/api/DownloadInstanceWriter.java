@@ -40,6 +40,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
@@ -176,6 +179,8 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                         } else {
                             redirectSupported = false;
                         }
+                    } else if(di.getConversionParam().equals("zipentry")) {
+                        redirectSupported=false;
                     }
 
                     if (redirectSupported) {
@@ -357,6 +362,15 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                                 logger.fine("empty list of extra arguments.");
                             }
                         }
+                    } else if(di.getConversionParam().equals("zipentry")) {
+                        ZipInputStream zfis = new ZipInputStream(storageIO.getInputStream());
+                        ZipEntry ze = zfis.getNextEntry();
+                        while (ze !=null) {
+                            if(ze.getName().equals(di.getConversionParamValue())) {
+                                storageIO=new InputStreamIO(zfis, ze.getSize());
+                            }
+                        };
+                        
                     }
 
                     if (storageIO == null) {

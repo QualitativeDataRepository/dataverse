@@ -332,6 +332,9 @@ public class Access extends AbstractApiBean {
             dInfo.addServiceAvailable(new OptionalAccessService("preprocessed", "application/json", "format=prep", "Preprocessed data in JSON"));
             dInfo.addServiceAvailable(new OptionalAccessService("subset", "text/tab-separated-values", "variables=&lt;LIST&gt;", "Column-wise Subsetting"));
         }
+        if (FileUtil.MIME_TYPE_ZIP.equals(df.getContentType())) {
+            dInfo.addServiceAvailable(new OptionalAccessService("zipentry", FileUtil.MIME_TYPE_ZIP, "zipentry", "Individual File Access"));
+        }
         DownloadInstance downloadInstance = new DownloadInstance(dInfo);
         downloadInstance.setRequestUriInfo(uriInfo);
         downloadInstance.setRequestHttpHeaders(headers);
@@ -349,7 +352,7 @@ public class Access extends AbstractApiBean {
             logger.fine("is download service supported? key=" + key + ", value=" + value);
             // The loop goes through all query params (e.g. including key, gbrecs, persistentId, etc. )
             // So we need to identify when a service is being called and then let checkIfServiceSupportedAndSetConverter see if the required one exists
-            if (key.equals("imageThumb") || key.equals("format") || key.equals("variables") || key.equals("noVarHeader")) {
+            if (key.equals("imageThumb") || key.equals("format") || key.equals("variables") || key.equals("noVarHeader") || key.equals("zipentry")) {
                 serviceRequested = true;
                 //In the dataset file table context a user is allowed to select original as the format
                 //for download

@@ -121,6 +121,7 @@ public class DownloadInstance {
         List<OptionalAccessService> servicesAvailable = downloadInfo.getServicesAvailable();
 
         for (OptionalAccessService dataService : servicesAvailable) {
+            //Can it be null in this for loop?
             if (dataService != null) {
                 if (serviceArg.equals("variables")) {
                     // Special case for the subsetting parameter (variables=<LIST>):
@@ -148,6 +149,7 @@ public class DownloadInstance {
                     }
                     return true;
                 }
+                //This handles the cases where format=x as well as zipentry
                 String argValuePair = serviceArg + "=" + serviceArgValue;
                 if (argValuePair.startsWith(dataService.getServiceArguments())) {
                     conversionParam = serviceArg;

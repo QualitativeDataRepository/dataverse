@@ -24,6 +24,12 @@ public class InputStreamIO extends StorageIO<DataFile> {
 
     private static final Logger logger = Logger.getLogger("edu.harvard.iq.dataverse.dataaccess.InputStreamIO");
 
+    public InputStreamIO(InputStream inputStream, long size, String fileName, String mimetype) throws IOException {
+        this(inputStream, size);
+        this.setFileName(fileName);
+        this.setMimeType(mimetype);
+    }
+    
     public InputStreamIO(InputStream inputStream, long size) throws IOException {
         super();
 
