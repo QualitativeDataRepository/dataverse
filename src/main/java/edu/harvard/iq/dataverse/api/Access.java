@@ -333,6 +333,7 @@ public class Access extends AbstractApiBean {
             dInfo.addServiceAvailable(new OptionalAccessService("subset", "text/tab-separated-values", "variables=&lt;LIST&gt;", "Column-wise Subsetting"));
         }
         if (FileUtil.MIME_TYPE_ZIP.equals(df.getContentType())) {
+            logger.info("Adding zipentry service");
             dInfo.addServiceAvailable(new OptionalAccessService("zipentry", FileUtil.MIME_TYPE_ZIP, "zipentry", "Individual File Access"));
         }
         DownloadInstance downloadInstance = new DownloadInstance(dInfo);

@@ -11,6 +11,8 @@ import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.GuestbookResponse;
 import java.util.List;
+import java.util.logging.Logger;
+
 import edu.harvard.iq.dataverse.dataaccess.OptionalAccessService;
 import javax.faces.context.FacesContext;
 import javax.ws.rs.core.HttpHeaders;
@@ -22,6 +24,7 @@ import javax.ws.rs.core.UriInfo;
  */
 public class DownloadInstance {
     
+    private static final Logger logger = Logger.getLogger(DownloadInstance.class.getCanonicalName());
      /*
      private ByteArrayOutputStream outStream = null;
 
@@ -121,6 +124,7 @@ public class DownloadInstance {
         List<OptionalAccessService> servicesAvailable = downloadInfo.getServicesAvailable();
 
         for (OptionalAccessService dataService : servicesAvailable) {
+            logger.info(dataService.getServiceName());
             //Can it be null in this for loop?
             if (dataService != null) {
                 if (serviceArg.equals("variables")) {
@@ -151,6 +155,8 @@ public class DownloadInstance {
                 }
                 //This handles the cases where format=x as well as zipentry
                 String argValuePair = serviceArg + "=" + serviceArgValue;
+                logger.info("avp: " + argValuePair);
+                logger.info(dataService.getServiceArguments());
                 if (argValuePair.startsWith(dataService.getServiceArguments())) {
                     conversionParam = serviceArg;
                     conversionParamValue = serviceArgValue;
