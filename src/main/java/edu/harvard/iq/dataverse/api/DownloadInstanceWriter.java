@@ -368,7 +368,9 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                         while (ze !=null) {
                             if(ze.getName().equals(di.getConversionParamValue())) {
                                 storageIO=new InputStreamIO(zfis, ze.getSize());
+                                break;
                             }
+                            ze = zfis.getNextEntry();
                         };
                         
                     }
