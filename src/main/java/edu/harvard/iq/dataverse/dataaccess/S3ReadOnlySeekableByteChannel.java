@@ -27,6 +27,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     private ExtBufferedInputStream bufferedStream;
     private ReadableByteChannel rbc;
     private long position = 0;
+    private long cumPos = 0;
     private S3Object s3Object=null;
 
     /**
@@ -47,6 +48,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         if (rbc != null) {
             close();
         }
+        cumPos+=position;
         GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(position);
         s3Object = s3client
             .getObject(rangeObjectRequest);
@@ -69,11 +71,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     public SeekableByteChannel position(long targetPosition)
         throws IOException
     {
-        logger.info("Pos: " + position);
-        logger.info("TargetPos: " + targetPosition);
-        int avail=0;
+        //logger.info(position + " going to " +targetPosition);
         try {
-            avail = bufferedStream.getBytesInBufferAvailable();
+            bufferedStream.getBytesInBufferAvailable();
         } catch(IOException io) {
             logger.info(io.getMessage());
             //Do nothing - 0 triggers reopening stream
@@ -90,7 +90,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                     bufferedStream.getBytesInBufferAvailable();
                 }
                 if(skipped+secondSkip != offset) {
-                logger.info("skipped: " + skipped+secondSkip);
+                logger.info("SKIP TOO SMALL: " + skipped+secondSkip);
                 openStreamAt(targetPosition);
                 }
                 // shouldn't happen since we are within the buffer
@@ -106,6 +106,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             position += offset;
             logger.info("Now positioned at " + position);
         } else if (offset != 0) {
+            logger.info("Offset" + offset + " - reopening stream");
             openStreamAt(targetPosition);
         }
         return this;
@@ -134,6 +135,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     }
 
     public void close() throws IOException {
+        logger.info("Close called. cumPos: " + cumPos);
         if(s3Object!=null && position<length) {
             logger.info("Abort to avoid transfer of (" + (length-position) + ") bytes (or warning).");
             s3Object.getObjectContent().abort();

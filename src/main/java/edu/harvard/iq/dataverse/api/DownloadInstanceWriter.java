@@ -88,6 +88,9 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
             DataFile dataFile = di.getDownloadInfo().getDataFile();
             StorageIO<DataFile> storageIO = DataAccess.getStorageIO(dataFile, daReq);
             StorageIO<DataFile> initialStorageIO = storageIO;
+            ZipEntry ze= null;
+            ZipFile zf=null;
+            ZipInputStream zfis = null;
             if (storageIO != null) {
                 try {
                     storageIO.open();
@@ -366,17 +369,16 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                             }
                         }
                     } else if(di.getConversionParam().equals("zipentry")) {
-                        ZipEntry ze= null;
                         if (storageIO instanceof S3AccessIO) {
                             logger.info("S3 store - using ZipFile");
-                            ZipFile zf = new ZipFile(((S3AccessIO<DataFile>) storageIO).getSeekableReadChannel());
+                            zf = new ZipFile(((S3AccessIO<DataFile>) storageIO).getSeekableReadChannel());
                             ze = zf.getEntry(di.getConversionParamValue());
                             if(ze!=null) {
                                 logger.info("Found: " + di.getConversionParamValue() + " - using Seekable Stream");
                                 storageIO = new InputStreamIO(zf.getInputStream((ZipArchiveEntry) ze), ze.getSize(), ze.getName(), FileUtil.determineFileTypeByExtension(ze.getName()));
                             }
                         } else {
-                            ZipInputStream zfis = new ZipInputStream(storageIO.getInputStream());
+                            zfis = new ZipInputStream(storageIO.getInputStream());
                             ze = zfis.getNextEntry();
                             while (ze != null) {
                                 if (ze.getName().equals(di.getConversionParamValue())) {
@@ -587,7 +589,18 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
 
                         outstream.close();
                         if(initialStorageIO!=null) {
+                            logger.info("Calling close on initial storageIO");
                             initialStorageIO.closeInputStream();
+                        }
+                        try {
+                        if(zf!=null) {
+                            zf.close();
+                        }
+                        if(zfis!=null) {
+                            zfis.close();
+                        }
+                        } catch (Exception e) {
+                            logger.info("Already closed Zip source");
                         }
                         return;
                     }
