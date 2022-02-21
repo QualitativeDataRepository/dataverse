@@ -87,7 +87,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
 
             DataFile dataFile = di.getDownloadInfo().getDataFile();
             StorageIO<DataFile> storageIO = DataAccess.getStorageIO(dataFile, daReq);
-
+            StorageIO<DataFile> initialStorageIO = storageIO;
             if (storageIO != null) {
                 try {
                     storageIO.open();
@@ -586,6 +586,9 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                         }
 
                         outstream.close();
+                        if(initialStorageIO!=null) {
+                            initialStorageIO.closeInputStream();
+                        }
                         return;
                     }
                 }

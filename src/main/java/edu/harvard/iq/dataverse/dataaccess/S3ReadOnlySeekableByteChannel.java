@@ -27,6 +27,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     private ExtBufferedInputStream bufferedStream;
     private ReadableByteChannel rbc;
     private long position = 0;
+    private S3Object s3Object=null;
 
     /**
      * Open or creates a file, returning a seekable byte channel
@@ -47,7 +48,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             rbc.close();
         }
         GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(position);
-        S3Object s3Object = s3client
+        s3Object = s3client
             .getObject(rangeObjectRequest);
         if(s3Object==null) {
             logger.info("GetObjectRequest failed, pos: " + position);
@@ -79,8 +80,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                 long secondSkip = 0;
                 if(skipped<offset) {
                     logger.info("Trying second skip of : " + (offset-skipped));
-                
+                    bufferedStream.getBytesInBufferAvailable();
                     secondSkip = bufferedStream.skip(offset-skipped);
+                    bufferedStream.getBytesInBufferAvailable();
                 }
                 if(skipped+secondSkip != offset) {
                 logger.info("skipped: " + skipped);
@@ -97,6 +99,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             */
             }
             position += offset;
+            logger.info("Now positioned at " + position);
         } else if (offset != 0) {
             openStreamAt(targetPosition);
         }
@@ -126,6 +129,10 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     }
 
     public void close() throws IOException {
+        if(s3Object!=null && position<length) {
+            logger.info("Abort to avoid transfer of (" + (length-position) + ") bytes (or warning).");
+            s3Object.getObjectContent().abort();
+        }
         rbc.close();
     }
 
