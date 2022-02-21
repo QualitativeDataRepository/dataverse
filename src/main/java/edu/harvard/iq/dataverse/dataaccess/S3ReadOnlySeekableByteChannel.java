@@ -77,8 +77,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             long skipped = bufferedStream.skip(offset);
             if (skipped != offset) {
                 logger.info("skipped: " + skipped);
+                openStreamAt(targetPosition);
                 // shouldn't happen since we are within the buffer
-                throw new IOException("Could not seek to " + targetPosition);
+                // throw new IOException("Could not seek to " + targetPosition);
             }
             position += offset;
         } else if (offset != 0) {
@@ -120,6 +121,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
 
         /** Returns the number of bytes that can be read from the buffer without reading more into the buffer. */
         int getBytesInBufferAvailable() {
+            logger.info("Count: " + this.count);
+            logger.info("Pos: " + this.pos);
+            logger.info("Len: " + this.buf.length);
             if (this.count == this.pos) return 0;
             else return this.buf.length - this.pos;
         }
