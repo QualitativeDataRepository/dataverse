@@ -11,11 +11,13 @@ import java.nio.channels.Channels;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
+import java.util.logging.Logger;
 
 //Modified from https://github.com/tomwhite/Amazon-S3-FileSystem-NIO2 (MIT license)
 
 public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
 
+    private static final Logger logger = Logger.getLogger(S3ReadOnlySeekableByteChannel.class.getCanonicalName());
     private static final int DEFAULT_BUFFER_SIZE = 64000;
 
     private AmazonS3 s3client;
@@ -47,6 +49,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(position);
         S3Object s3Object = s3client
             .getObject(rangeObjectRequest);
+        if(s3Object==null) {
+            logger.info("GetObjectRequest failed, pos: " + position);
+        }
         bufferedStream = new ExtBufferedInputStream(s3Object.getObjectContent(), DEFAULT_BUFFER_SIZE);
         rbc = Channels.newChannel(bufferedStream);
         this.position = position;
@@ -63,10 +68,15 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     public SeekableByteChannel position(long targetPosition)
         throws IOException
     {
+        logger.info("Pos: " + position);
+        logger.info("TargetPos: " + targetPosition);
+        
         long offset = targetPosition - position();
         if (offset > 0 && offset < bufferedStream.getBytesInBufferAvailable()) {
+            logger.info("offset: " + offset);
             long skipped = bufferedStream.skip(offset);
             if (skipped != offset) {
+                logger.info("skipped: " + skipped);
                 // shouldn't happen since we are within the buffer
                 throw new IOException("Could not seek to " + targetPosition);
             }
