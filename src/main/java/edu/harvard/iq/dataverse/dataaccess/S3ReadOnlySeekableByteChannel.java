@@ -139,8 +139,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             logger.info("Count: " + this.count);
             logger.info("Pos: " + this.pos);
             logger.info("Len: " + this.buf.length);
-            if (this.count == this.pos) return 0;
-            else return this.buf.length - this.pos;
+            return this.buf.length - this.pos;
+//            if (this.count == this.pos) return 0;
+//            else return this.buf.length - this.pos;
         }
     }
 }
