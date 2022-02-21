@@ -45,7 +45,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
 
     private void openStreamAt(long position) throws IOException {
         if (rbc != null) {
-            rbc.close();
+            close();
         }
         GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(position);
         s3Object = s3client
@@ -71,21 +71,26 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     {
         logger.info("Pos: " + position);
         logger.info("TargetPos: " + targetPosition);
-        
+        int avail=0;
+        try {
+            avail = bufferedStream.getBytesInBufferAvailable();
+        } catch(IOException io) {
+            logger.info(io.getMessage());
+            //Do nothing - 0 triggers reopening stream
+        }
         long offset = targetPosition - position();
+        logger.info("offset: " + offset);
         if (offset > 0 && offset < bufferedStream.getBytesInBufferAvailable()) {
-            logger.info("offset: " + offset);
             long skipped = bufferedStream.skip(offset);
             if (skipped != offset) {
                 long secondSkip = 0;
                 if(skipped<offset) {
                     logger.info("Trying second skip of : " + (offset-skipped));
-                    bufferedStream.getBytesInBufferAvailable();
                     secondSkip = bufferedStream.skip(offset-skipped);
                     bufferedStream.getBytesInBufferAvailable();
                 }
                 if(skipped+secondSkip != offset) {
-                logger.info("skipped: " + skipped);
+                logger.info("skipped: " + skipped+secondSkip);
                 openStreamAt(targetPosition);
                 }
                 // shouldn't happen since we are within the buffer
@@ -141,12 +146,16 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             super(inputStream, i);
         }
 
-        /** Returns the number of bytes that can be read from the buffer without reading more into the buffer. */
-        int getBytesInBufferAvailable() {
-            logger.info("Count: " + this.count);
-            logger.info("Pos: " + this.pos);
-            logger.info("Len: " + this.buf.length);
-            return this.buf.length - this.pos;
+        /** Returns the number of bytes that can be read from the buffer without reading more into the buffer. 
+         * @throws IOException */
+        int getBytesInBufferAvailable() throws IOException {
+            int avail = available();
+            logger.info("Avail: " + avail);
+            return avail;
+//            logger.info("Count: " + this.count);
+//            logger.info("Pos: " + this.pos);
+//            logger.info("Len: " + this.buf.length);
+//            return this.buf.length - this.pos;
 //            if (this.count == this.pos) return 0;
 //            else return this.buf.length - this.pos;
         }
