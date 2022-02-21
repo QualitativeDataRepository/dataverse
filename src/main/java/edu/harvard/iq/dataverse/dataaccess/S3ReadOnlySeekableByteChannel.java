@@ -95,7 +95,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                 openStreamAt(targetPosition);
             }
             */
-                
+            }
             position += offset;
         } else if (offset != 0) {
             openStreamAt(targetPosition);
