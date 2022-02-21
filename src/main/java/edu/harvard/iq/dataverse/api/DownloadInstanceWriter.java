@@ -49,6 +49,9 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.HttpHeaders;
+
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -363,15 +366,29 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                             }
                         }
                     } else if(di.getConversionParam().equals("zipentry")) {
-                        ZipInputStream zfis = new ZipInputStream(storageIO.getInputStream());
-                        ZipEntry ze = zfis.getNextEntry();
-                        while (ze !=null) {
-                            if(ze.getName().equals(di.getConversionParamValue())) {
-                                storageIO=new InputStreamIO(zfis, ze.getSize(), ze.getName(), FileUtil.determineFileTypeByExtension(ze.getName()));
-                                break;
+                        ZipEntry ze= null;
+                        if (storageIO instanceof S3AccessIO) {
+                            logger.info("S3 store - using ZipFile");
+                            ZipFile zf = new ZipFile(((S3AccessIO<DataFile>) storageIO).getSeekableReadChannel());
+                            ze = zf.getEntry(di.getConversionParamValue());
+                            if(ze!=null) {
+                                logger.info("Found: " + di.getConversionParamValue() + " - using Seekable Stream");
+                                storageIO = new InputStreamIO(zf.getInputStream((ZipArchiveEntry) ze), ze.getSize(), ze.getName(), FileUtil.determineFileTypeByExtension(ze.getName()));
                             }
+                        } else {
+                            ZipInputStream zfis = new ZipInputStream(storageIO.getInputStream());
                             ze = zfis.getNextEntry();
-                        };
+                            while (ze != null) {
+                                if (ze.getName().equals(di.getConversionParamValue())) {
+                                    logger.info("Found: " + di.getConversionParamValue() + " - using normal Stream");
+                                    
+                                    storageIO = new InputStreamIO(zfis, ze.getSize(), ze.getName(), FileUtil.determineFileTypeByExtension(ze.getName()));
+                                    break;
+                                }
+                                ze = zfis.getNextEntry();
+                            }
+                            ;
+                        }
                         
                     }
 

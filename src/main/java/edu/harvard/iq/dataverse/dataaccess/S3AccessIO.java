@@ -52,6 +52,7 @@ import java.net.URLEncoder;
 import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -305,6 +306,12 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         //Make sure StorageIO.channel variable exists
         getChannel();
         return super.getReadChannel();
+    }
+    
+    
+    public SeekableByteChannel getSeekableReadChannel() throws IOException {
+        S3ReadOnlySeekableByteChannel sbc = new S3ReadOnlySeekableByteChannel(s3, key, bucketName, getSize());
+        return sbc;
     }
 
     // StorageIO method for copying a local Path (for ex., a temp file), into this DataAccess location:
