@@ -105,7 +105,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             */
             }
             position += offset;
-            logger.info("Now positioned at " + position);
+            if(offset>100) {
+               logger.info("Now positioned at " + position);
+            }
         } else if (offset != 0) {
             logger.info("Offset" + offset + " - reopening stream");
             openStreamAt(targetPosition);
@@ -153,7 +155,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
          * @throws IOException */
         int getBytesInBufferAvailable() throws IOException {
             int avail = available();
-            logger.info("Avail: " + avail);
+            //logger.info("Avail: " + avail);
             return avail;
 //            logger.info("Count: " + this.count);
 //            logger.info("Pos: " + this.pos);
