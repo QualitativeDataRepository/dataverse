@@ -76,11 +76,26 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             logger.info("offset: " + offset);
             long skipped = bufferedStream.skip(offset);
             if (skipped != offset) {
+                long secondSkip = 0;
+                if(skipped<offset) {
+                    logger.info("Trying second skip of : " + (offset-skipped));
+                
+                    secondSkip = bufferedStream.skip(offset-skipped);
+                }
+                if(skipped+secondSkip != offset) {
                 logger.info("skipped: " + skipped);
                 openStreamAt(targetPosition);
+                }
                 // shouldn't happen since we are within the buffer
                 // throw new IOException("Could not seek to " + targetPosition);
+/*Java 12+
+                bufferedStream.skipNBytes(offset);
+            } catch (Exception e) {
+                logger.warning("Exception while skipping: " + e.getMessage());
+                openStreamAt(targetPosition);
             }
+            */
+                
             position += offset;
         } else if (offset != 0) {
             openStreamAt(targetPosition);
