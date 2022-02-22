@@ -81,6 +81,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             logger.info(io.getMessage());
             //Do nothing - 0 triggers reopening stream
         }
+        if(length - targetPosition < DEFAULT_BUFFER_SIZE) {
+            logger.info("TP: " + targetPosition + " is within the buffer size of the file end");
+        }
         long offset = targetPosition - position();
         //logger.info("offset: " + offset);
         if (offset > 0 && offset < Math.min(length-posAtOpen,DEFAULT_BUFFER_SIZE - (position - posAtOpen))) {
@@ -89,8 +92,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                 long secondSkip = 0;
                 if(skipped<offset) {
                     logger.info("Trying second skip of : " + (offset-skipped));
+                    bufferedStream.getBytesInBufferAvailable();
                     secondSkip = bufferedStream.skip(offset-skipped);
-                    //bufferedStream.getBytesInBufferAvailable();
+                    
                 }
                 if(skipped+secondSkip != offset) {
                 logger.info("SKIP TOO SMALL: " + skipped+secondSkip);
@@ -158,9 +162,10 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
          * @throws IOException */
         int getBytesInBufferAvailable() throws IOException {
             int avail = available();
+            logger.info("Count: " + this.count + " Pos: " + this.pos);
             //logger.info("Avail: " + avail);
             return avail;
-//            logger.info("Count: " + this.count);
+
 //            logger.info("Pos: " + this.pos);
 //            logger.info("Len: " + this.buf.length);
 //            return this.buf.length - this.pos;
