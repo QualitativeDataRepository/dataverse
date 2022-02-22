@@ -69,7 +69,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         if(position!=openAt) {
             long skip=0;
             while((position-openAt)-skip >0) {
-                skip+=bufferedStream.skip(position-openAt);
+                skip+=bufferedStream.skip(position-openAt-skip);
             }
         }
         this.position = position;
@@ -112,7 +112,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             long skipped = 0;
             try {
                 while (skipped < offset) {
-                    skipped += bufferedStream.skip(offset);
+                    skipped += bufferedStream.skip(offset-skipped);
                 }
             } catch (IOException io) {
                 logger.info("SKIP Failed: " + io.getLocalizedMessage());
