@@ -49,7 +49,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         if (rbc != null) {
             close();
         }
-        cumPos+=(this.position-posAtOpen);
+        //cumPos+=(this.position-posAtOpen);
         logger.info("Reopening to go from " + this.position + " to " + position);
         GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(position);
         s3Object = s3client
@@ -90,7 +90,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                 if(skipped<offset) {
                     logger.info("Trying second skip of : " + (offset-skipped));
                     secondSkip = bufferedStream.skip(offset-skipped);
-                    bufferedStream.getBytesInBufferAvailable();
+                    //bufferedStream.getBytesInBufferAvailable();
                 }
                 if(skipped+secondSkip != offset) {
                 logger.info("SKIP TOO SMALL: " + skipped+secondSkip);
@@ -111,7 +111,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                logger.info("Now positioned at " + position);
             }
         } else if (offset != 0) {
-            logger.info("Offset" + offset + " - reopening stream");
+            logger.info("Offset " + offset + " - reopening stream");
             openStreamAt(targetPosition);
         }
         return this;
@@ -122,6 +122,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         if (n > 0) {
             position += n;
         }
+        cumPos+=n;
         return n;
     }
 
