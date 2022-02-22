@@ -52,7 +52,11 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         }
         //cumPos+=(this.position-posAtOpen);
         logger.info("Reopening to go from " + this.position + " to " + position);
-        GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(position);
+        long openAt = position;
+        if(length - position < DEFAULT_BUFFER_SIZE) {
+            openAt=length-DEFAULT_BUFFER_SIZE;
+        }
+        GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt);
         s3Object = s3client
             .getObject(rangeObjectRequest);
         if(s3Object==null) {
@@ -60,8 +64,12 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         }
         bufferedStream = new ExtBufferedInputStream(s3Object.getObjectContent(), DEFAULT_BUFFER_SIZE);
         rbc = Channels.newChannel(bufferedStream);
+        posAtOpen=openAt;
+        bufferedStream.mark(DEFAULT_BUFFER_SIZE);
+        if(position!=openAt) {
+            bufferedStream.skip(position-openAt);
+        }
         this.position = position;
-        posAtOpen=position;
     }
 
     public boolean isOpen() {
@@ -76,18 +84,34 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         throws IOException
     {
 
-        if(length - targetPosition < DEFAULT_BUFFER_SIZE) {
-            logger.info("TP: " + targetPosition + " is within the buffer size of the file end");
-        }
         long offset = targetPosition - position();
-        //logger.info("offset: " + offset);
-        if (offset > 0 && offset < Math.min(length-posAtOpen,DEFAULT_BUFFER_SIZE - (position - posAtOpen))) {
+        if(offset<0) {
+            //Can go backward as far as postAtOpen if that is still within the markLimit 
+            if((offset> -(position-posAtOpen)) &&((position - posAtOpen) < DEFAULT_BUFFER_SIZE)) {
+                try {
+                bufferedStream.reset();
+                
+                bufferedStream.skip((position-posAtOpen)+offset);
+                position += offset;
+                logger.info("Skipped back : " + offset);
+                //Count backward offsets in total
+                cumOffsets-=offset;
+                } catch (IOException io) {
+                    logger.info("Couldn't reset: Offset " + offset + " - reopening stream");
+                    openStreamAt(targetPosition);
+                }
+
+            } else {
+                logger.info("Offset " + offset + " - reopening stream");
+                openStreamAt(targetPosition);
+            }
+        } else if (offset > 0 && offset < Math.min(length-posAtOpen,DEFAULT_BUFFER_SIZE)) {
             long skipped = bufferedStream.skip(offset);
             if (skipped != offset) {
                 long secondSkip = 0;
                 if(skipped<offset) {
-                    logger.info("Trying second skip of : " + (offset-skipped));
-                    bufferedStream.getBytesInBufferAvailable();
+//                    logger.info("Trying second skip of : " + (offset-skipped));
+//                    bufferedStream.getBytesInBufferAvailable();
                     secondSkip = bufferedStream.skip(offset-skipped);
                     
                 }
