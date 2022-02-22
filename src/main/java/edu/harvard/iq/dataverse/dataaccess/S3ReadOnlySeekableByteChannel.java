@@ -15,12 +15,13 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.util.logging.Logger;
 
-//Modified from https://github.com/tomwhite/Amazon-S3-FileSystem-NIO2 (MIT license)
+//Significantly modified from https://github.com/tomwhite/Amazon-S3-FileSystem-NIO2 (MIT license)
 
 public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
 
     private static final Logger logger = Logger.getLogger(S3ReadOnlySeekableByteChannel.class.getCanonicalName());
     private static final int DEFAULT_BUFFER_SIZE = 64000;
+    private static final int MINIMUM_LOOK_BACK = DEFAULT_BUFFER_SIZE/4;
 
     private AmazonS3 s3client;
     private String bucketName;
@@ -54,31 +55,22 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         if (rbc != null) {
             close();
         }
-        // cumPos+=(this.position-posAtOpen);
-
-        long openAt = position;
-        if (position - 1000 > 0) {
-            openAt = Math.max(0, position - 1000);
-        }
-        if (length - position < DEFAULT_BUFFER_SIZE) {
-            openAt = Math.max(0, length - DEFAULT_BUFFER_SIZE);
-        }
-        logger.info((this.position == -1 ? "Opening" : "Reopening") + " at " + openAt + " to get to new position " + position);
+        long openAt = Math.max(0, position - MINIMUM_LOOK_BACK);
+        
+        logger.fine((this.position == -1 ? "Opening" : "Reopening") + " at " + openAt + " to get to new position " + position);
         GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt);
         s3Object = s3client
                 .getObject(rangeObjectRequest);
         if (s3Object == null) {
-            logger.info("GetObjectRequest failed, pos: " + position);
+            logger.warning("Unabled to get object " + key + " in bucket " + bucketName + "starting at position " + openAt);
+            throw new IOException("Unabled to get object " + key + " in bucket " + bucketName + "starting at position " + openAt);
         }
         bufferedStream = new ExtBufferedInputStream(s3Object.getObjectContent(), DEFAULT_BUFFER_SIZE);
         rbc = Channels.newChannel(bufferedStream);
         posAtOpen = openAt;
         bufferedStream.mark(DEFAULT_BUFFER_SIZE);
         if (position != openAt) {
-            long skip = 0;
-            while ((position - openAt) - skip > 0) {
-                skip += bufferedStream.skip(position - openAt - skip);
-            }
+            bufferedStream.loopUntilSkipped(position - openAt);
         }
         cumMgmtBytes += position - openAt;
         this.position = position;
@@ -102,52 +94,45 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                 // Can go backward as far as postAtOpen if that is still within the markLimit
                 if ((offset > -(position - posAtOpen)) && ((position - posAtOpen) < DEFAULT_BUFFER_SIZE)) {
                     try {
+                        //To go back, reset and go forward from posAtOpen
                         bufferedStream.reset();
-
-                        bufferedStream.skip((position - posAtOpen) + offset);
+                        if (bufferedStream.loopUntilSkipped((position - posAtOpen) + offset)) {
+                            //Since the bytes are guaranteed to be in the buffer, it should never block - warn if it ever does
+                            logger.warning("Skipped less than expected when seeking backward through BufferedInputStream");
+                        }
                         position += offset;
-                        logger.info("Skipped back : " + offset);
+                        logger.fine("Skipped back : " + offset);
                         // Lower total when backing up since that doesn't add to bytes streamed
                         cumOffsets += offset;
                     } catch (IOException io) {
-                        logger.info("Couldn't reset: Offset " + offset + " from " + position + " - need to reopen stream");
+                        logger.warning("Couldn't reset: Offset " + offset + " from " + position + " - need to reopen stream");
                         openStreamAt(targetPosition);
                     }
-
                 } else {
-                    logger.info("Offset " + offset + " from " + position + " - need to reopen stream");
+                    logger.fine("Offset " + offset + " from " + position + " - need to reopen stream");
                     openStreamAt(targetPosition);
                 }
             } else if (offset > 0 && offset < DEFAULT_BUFFER_SIZE) {
-                long skipped = 0;
                 try {
-                    while (skipped < offset) {
-                        skipped += bufferedStream.skip(offset - skipped);
+                        bufferedStream.loopUntilSkipped(offset);
+                        position += offset;
+                        cumOffsets += offset;
+                        if (offset > 100) {
+                            logger.fine("Now positioned at " + position);
+                        }
                     }
-                } catch (IOException io) {
-                    logger.info("SKIP Failed: " + io.getLocalizedMessage());
+                catch (IOException io) {
+                    logger.warning("Skip Failed, reopening stream: " + io.getLocalizedMessage());
                     openStreamAt(targetPosition);
                 }
-                // shouldn't happen since we are within the buffer
-                // throw new IOException("Could not seek to " + targetPosition);
-                /*
-                 * Java 12+ bufferedStream.skipNBytes(offset); } catch (Exception e) {
-                 * logger.warning("Exception while skipping: " + e.getMessage());
-                 * openStreamAt(targetPosition); }
-                 */
-
-                position += offset;
-                cumOffsets += offset;
-                if (offset > 100) {
-                    logger.info("Now positioned at " + position);
-                }
             } else if (offset != 0) {
-                logger.info("Offset " + offset + " from " + position + " - need to reopen stream");
+                logger.fine("Offset " + offset + " from " + position + " - need to reopen stream");
                 openStreamAt(targetPosition);
             }
         }
         return this;
     }
+
 
     public int read(ByteBuffer dst) throws IOException {
         int n = rbc.read(dst);
@@ -174,15 +159,15 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     public void close() throws IOException {
         if (s3Object != null && position < length) {
             if (length - position < DEFAULT_BUFFER_SIZE) {
-                logger.info("Draining " + (length - position) + " bytes to avoid warning.");
+                logger.fine("Draining " + (length - position) + " bytes to avoid warning.");
                 cumMgmtBytes += length - position;
                 IOUtils.drainInputStream(s3Object.getObjectContent());
             } else {
-                logger.info("Abort to avoid transfer of (" + (length - position) + ") bytes (or warning).");
+                logger.fine("Abort to avoid transfer of (" + (length - position) + ") bytes (or warning).");
                 s3Object.getObjectContent().abort();
             }
         }
-        logger.info("Close called. cumPos: " + cumPos + ", cum. offsets: " + cumOffsets + ", overhead: " + cumMgmtBytes);
+        logger.fine("Close called. cumPos: " + cumPos + ", cum. offsets: " + cumOffsets + ", overhead: " + cumMgmtBytes);
 
         rbc.close();
     }
@@ -192,23 +177,17 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             super(inputStream, i);
         }
 
-        /**
-         * Returns the number of bytes that can be read from the buffer without reading
-         * more into the buffer.
-         * 
-         * @throws IOException
-         */
-        int getBytesInBufferAvailable() throws IOException {
-            int avail = available();
-            // logger.info("Count: " + this.count + " Pos: " + this.pos);
-            // logger.info("Avail: " + avail);
-            return avail;
-
-            // logger.info("Pos: " + this.pos);
-            // logger.info("Len: " + this.buf.length);
-            // return this.buf.length - this.pos;
-            // if (this.count == this.pos) return 0;
-            // else return this.buf.length - this.pos;
+        //~Emulates  Java 12+ bufferedStream.skipNBytes(offset);
+        private boolean loopUntilSkipped(long offset) throws IOException {
+            long skipped = 0;
+            boolean hadToRepeat = false;
+            while (skipped < offset) {
+                skipped += this.skip(offset - skipped);
+                if (skipped < offset) {
+                    hadToRepeat = true;
+                }
+            }
+            return hadToRepeat;
         }
     }
 }
