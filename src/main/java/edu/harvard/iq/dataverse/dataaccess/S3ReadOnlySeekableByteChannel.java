@@ -27,6 +27,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     private ExtBufferedInputStream bufferedStream;
     private ReadableByteChannel rbc;
     private long position = 0;
+    private long posAtOpen = 0;
     private long cumPos = 0;
     private S3Object s3Object=null;
 
@@ -48,7 +49,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         if (rbc != null) {
             close();
         }
-        cumPos+=this.position;
+        cumPos+=(this.position-posAtOpen);
         logger.info("Reopening to go from " + this.position + " to " + position);
         GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(position);
         s3Object = s3client
@@ -59,6 +60,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         bufferedStream = new ExtBufferedInputStream(s3Object.getObjectContent(), DEFAULT_BUFFER_SIZE);
         rbc = Channels.newChannel(bufferedStream);
         this.position = position;
+        posAtOpen=position;
     }
 
     public boolean isOpen() {
@@ -81,7 +83,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         }
         long offset = targetPosition - position();
         //logger.info("offset: " + offset);
-        if (offset > 0 && offset < bufferedStream.getBytesInBufferAvailable()) {
+        if (offset > 0 && offset < Math.min(length-posAtOpen,DEFAULT_BUFFER_SIZE - (position - posAtOpen))) {
             long skipped = bufferedStream.skip(offset);
             if (skipped != offset) {
                 long secondSkip = 0;
