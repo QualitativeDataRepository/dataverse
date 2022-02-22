@@ -3,6 +3,8 @@ package edu.harvard.iq.dataverse.dataaccess;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.util.IOUtils;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -166,8 +168,13 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     public void close() throws IOException {
         logger.info("Close called. cumPos: " + cumPos + ", cum. offsets: " + cumOffsets);
         if(s3Object!=null && position<length) {
+            if(length-position<DEFAULT_BUFFER_SIZE) {
+                logger.info("Draining " + (length-position) + " bytes to avoid warning.");
+                IOUtils.drainInputStream(s3Object.getObjectContent());
+            } else {
             logger.info("Abort to avoid transfer of (" + (length-position) + ") bytes (or warning).");
             s3Object.getObjectContent().abort();
+            }
         }
         rbc.close();
     }
