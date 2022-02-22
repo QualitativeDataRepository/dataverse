@@ -29,6 +29,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     private long position = 0;
     private long posAtOpen = 0;
     private long cumPos = 0;
+    private long cumOffsets = 0;
     private S3Object s3Object=null;
 
     /**
@@ -74,13 +75,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     public SeekableByteChannel position(long targetPosition)
         throws IOException
     {
-        //logger.info(position + " going to " +targetPosition);
-        try {
-            bufferedStream.getBytesInBufferAvailable();
-        } catch(IOException io) {
-            logger.info(io.getMessage());
-            //Do nothing - 0 triggers reopening stream
-        }
+
         if(length - targetPosition < DEFAULT_BUFFER_SIZE) {
             logger.info("TP: " + targetPosition + " is within the buffer size of the file end");
         }
@@ -111,6 +106,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             */
             }
             position += offset;
+            cumOffsets+=offset;
             if(offset>100) {
                logger.info("Now positioned at " + position);
             }
@@ -145,7 +141,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     }
 
     public void close() throws IOException {
-        logger.info("Close called. cumPos: " + cumPos);
+        logger.info("Close called. cumPos: " + cumPos + ", cum. offsets: " + cumOffsets);
         if(s3Object!=null && position<length) {
             logger.info("Abort to avoid transfer of (" + (length-position) + ") bytes (or warning).");
             s3Object.getObjectContent().abort();
