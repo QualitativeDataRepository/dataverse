@@ -67,7 +67,10 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         posAtOpen=openAt;
         bufferedStream.mark(DEFAULT_BUFFER_SIZE);
         if(position!=openAt) {
-            bufferedStream.skip(position-openAt);
+            long skip=0;
+            while((position-openAt)-skip >0) {
+                skip+=bufferedStream.skip(position-openAt);
+            }
         }
         this.position = position;
     }
@@ -106,20 +109,16 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                 openStreamAt(targetPosition);
             }
         } else if (offset > 0 && offset < Math.min(length-posAtOpen,DEFAULT_BUFFER_SIZE)) {
-            long skipped = bufferedStream.skip(offset);
-            if (skipped != offset) {
-                long secondSkip = 0;
-                if(skipped<offset) {
-//                    logger.info("Trying second skip of : " + (offset-skipped));
-//                    bufferedStream.getBytesInBufferAvailable();
-                    secondSkip = bufferedStream.skip(offset-skipped);
-                    
+            long skipped = 0;
+            try {
+                while (skipped < offset) {
+                    skipped += bufferedStream.skip(offset);
                 }
-                if(skipped+secondSkip != offset) {
-                logger.info("SKIP TOO SMALL: " + skipped+secondSkip);
+            } catch (IOException io) {
+                logger.info("SKIP Failed: " + io.getLocalizedMessage());
                 openStreamAt(targetPosition);
-                }
-                // shouldn't happen since we are within the buffer
+            }
+            // shouldn't happen since we are within the buffer
                 // throw new IOException("Could not seek to " + targetPosition);
 /*Java 12+
                 bufferedStream.skipNBytes(offset);
@@ -128,7 +127,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                 openStreamAt(targetPosition);
             }
             */
-            }
+            
             position += offset;
             cumOffsets+=offset;
             if(offset>100) {
