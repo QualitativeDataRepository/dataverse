@@ -61,7 +61,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             openAt = Math.max(0, position - 1000);
         }
         if (length - position < DEFAULT_BUFFER_SIZE) {
-            openAt = Math.max(0, openAt - DEFAULT_BUFFER_SIZE);
+            openAt = Math.max(0, length - DEFAULT_BUFFER_SIZE);
         }
         logger.info((this.position == -1 ? "Opening" : "Reopening") + " at " + openAt + " to get to new position " + position);
         GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt);
