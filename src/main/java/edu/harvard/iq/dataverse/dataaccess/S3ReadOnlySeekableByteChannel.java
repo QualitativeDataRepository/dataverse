@@ -52,13 +52,13 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         // openStreamAt(0);
     }
 
-    private void openStreamAt(long position, boolean sequentialAccess) throws IOException {
+    private void openStreamAt(long targetPosition, boolean sequentialAccess) throws IOException {
         if (rbc != null) {
             close();
         }
-        long openAt = Math.max(0, Math.min(length - DEFAULT_BUFFER_SIZE, position - MINIMUM_LOOK_BACK));
+        long openAt = Math.max(0, (sequentialAccess ? targetPosition: Math.min(length - DEFAULT_BUFFER_SIZE, targetPosition - MINIMUM_LOOK_BACK)));
 
-        logger.fine((this.position == -1 ? "Opening" : "Reopening") + " at " + openAt + " to get to new position " + position + " for " + (sequentialAccess ? "seq access" : " random access"));
+        logger.fine((this.position == -1 ? "Opening" : "Reopening") + " at " + openAt + " to get to new position " + targetPosition + " for " + (sequentialAccess ? "seq access" : " random access"));
         GetObjectRequest rangeObjectRequest = null;
         if (!sequentialAccess) {
             rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt, openAt + DEFAULT_BUFFER_SIZE);
@@ -76,12 +76,12 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         rbc = Channels.newChannel(bufferedStream);
         posAtOpen = openAt;
         bufferedStream.mark(DEFAULT_BUFFER_SIZE);
-        if (position != openAt) {
-            bufferedStream.loopUntilSkipped(position - openAt);
+        if (targetPosition != openAt) {
+            bufferedStream.loopUntilSkipped(targetPosition - openAt);
         }
         seq = sequentialAccess;
-        cumMgmtBytes += position - openAt;
-        this.position = position;
+        cumMgmtBytes += targetPosition - openAt;
+        this.position = targetPosition;
     }
 
     public boolean isOpen() {
@@ -149,12 +149,15 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             position += n;
             // Pre-emptive reopen if read all bytes
             if (!seq && position == posAtOpen + DEFAULT_BUFFER_SIZE) {
+                logger.fine("Read existing bytes, reopening at " + position);
                 openStreamAt(position, true);
             }
         } else if (n == -1 && !seq && !(position == length)) {
             // skip has used all bytes
+            logger.fine("Read all bytes at " + position);
             openStreamAt(position, true);
-            n = 0;
+            n = read(dst);
+            
         }
         cumPos += n;
         return n;
@@ -175,8 +178,8 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
 
     public void close() throws IOException {
         if (s3Object != null && position < length) {
-            if (length - position < DEFAULT_BUFFER_SIZE) {
-                logger.fine("Draining " + (length - position) + " bytes to avoid warning.");
+            if (!seq || (length - position < DEFAULT_BUFFER_SIZE)) {
+                logger.fine("Draining " + ((seq ? length : posAtOpen + DEFAULT_BUFFER_SIZE) - position) + " bytes to avoid warning.");
                 cumMgmtBytes += length - position;
                 IOUtils.drainInputStream(s3Object.getObjectContent());
             } else {
