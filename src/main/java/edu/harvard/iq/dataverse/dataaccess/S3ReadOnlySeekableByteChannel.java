@@ -20,8 +20,8 @@ import java.util.logging.Logger;
 public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
 
     private static final Logger logger = Logger.getLogger(S3ReadOnlySeekableByteChannel.class.getCanonicalName());
-    private static final int DEFAULT_BUFFER_SIZE = 8192;
-    private static final int MINIMUM_LOOK_BACK = 512;
+    private static final int DEFAULT_BUFFER_SIZE = 512;
+    private static final int MINIMUM_LOOK_BACK = 0;
 
     private AmazonS3 s3client;
     private String bucketName;
@@ -180,7 +180,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         if (s3Object != null && position < length) {
             if (!seq || (length - position < DEFAULT_BUFFER_SIZE)) {
                 logger.fine("Draining " + ((seq ? length : posAtOpen + DEFAULT_BUFFER_SIZE) - position) + " bytes to avoid warning.");
-                cumMgmtBytes += length - position;
+                cumMgmtBytes += (seq ? length : posAtOpen + DEFAULT_BUFFER_SIZE) - position;
                 IOUtils.drainInputStream(s3Object.getObjectContent());
             } else {
                 logger.fine("Abort to avoid transfer of (" + (length - position) + ") bytes (or warning).");
