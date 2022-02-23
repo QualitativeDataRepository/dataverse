@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
 
     private static final Logger logger = Logger.getLogger(S3ReadOnlySeekableByteChannel.class.getCanonicalName());
-    private static final int DEFAULT_BUFFER_SIZE = 32000;
+    private static final int DEFAULT_BUFFER_SIZE = 8192;
     private static final int MINIMUM_LOOK_BACK = 512;
 
     private AmazonS3 s3client;
@@ -34,6 +34,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     private long cumPos = 0;
     private long cumOffsets = 0;
     private long cumMgmtBytes = 0;
+    private boolean seq = false;
     private S3Object s3Object = null;
 
     /**
@@ -51,14 +52,20 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         // openStreamAt(0);
     }
 
-    private void openStreamAt(long position) throws IOException {
+    private void openStreamAt(long position, boolean sequentialAccess) throws IOException {
         if (rbc != null) {
             close();
         }
-        long openAt = Math.max(0, position - MINIMUM_LOOK_BACK);
-        
-        logger.fine((this.position == -1 ? "Opening" : "Reopening") + " at " + openAt + " to get to new position " + position);
-        GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt);
+        long openAt = Math.max(0, Math.min(length - DEFAULT_BUFFER_SIZE, position - MINIMUM_LOOK_BACK));
+
+        logger.fine((this.position == -1 ? "Opening" : "Reopening") + " at " + openAt + " to get to new position " + position + " for " + (sequentialAccess ? "seq access" : " random access"));
+        GetObjectRequest rangeObjectRequest = null;
+        if (!sequentialAccess) {
+            rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt, openAt + DEFAULT_BUFFER_SIZE);
+        } else {
+            rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt);
+        }
+
         s3Object = s3client
                 .getObject(rangeObjectRequest);
         if (s3Object == null) {
@@ -72,6 +79,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
         if (position != openAt) {
             bufferedStream.loopUntilSkipped(position - openAt);
         }
+        seq = sequentialAccess;
         cumMgmtBytes += position - openAt;
         this.position = position;
     }
@@ -87,17 +95,19 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
     public SeekableByteChannel position(long targetPosition)
             throws IOException {
         if (position == -1) {
-            openStreamAt(targetPosition);
+            //When first opening assume seq access if starting at 0 (not true for Zip files)
+            openStreamAt(targetPosition, ((targetPosition == 0) ? true : false));
         } else {
             long offset = targetPosition - position();
             if (offset < 0) {
                 // Can go backward as far as postAtOpen if that is still within the markLimit
                 if ((offset > -(position - posAtOpen)) && ((position - posAtOpen) < DEFAULT_BUFFER_SIZE)) {
                     try {
-                        //To go back, reset and go forward from posAtOpen
+                        // To go back, reset and go forward from posAtOpen
                         bufferedStream.reset();
                         if (bufferedStream.loopUntilSkipped((position - posAtOpen) + offset)) {
-                            //Since the bytes are guaranteed to be in the buffer, it should never block - warn if it ever does
+                            // Since the bytes are guaranteed to be in the buffer, it should never block -
+                            // warn if it ever does
                             logger.warning("Skipped less than expected when seeking backward through BufferedInputStream");
                         }
                         position += offset;
@@ -106,38 +116,45 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                         cumOffsets += offset;
                     } catch (IOException io) {
                         logger.warning("Couldn't reset: Offset " + offset + " from " + position + " - need to reopen stream");
-                        openStreamAt(targetPosition);
+                        openStreamAt(targetPosition, false);
                     }
                 } else {
                     logger.fine("Offset " + offset + " from " + position + " - need to reopen stream");
-                    openStreamAt(targetPosition);
+                    openStreamAt(targetPosition, false);
                 }
-            } else if (offset > 0 && offset < DEFAULT_BUFFER_SIZE) {
+            } else if (offset > 0 && offset < DEFAULT_BUFFER_SIZE - (position - posAtOpen)) {
                 try {
-                        bufferedStream.loopUntilSkipped(offset);
-                        position += offset;
-                        cumOffsets += offset;
-                        if (offset > 100) {
-                            logger.fine("Now positioned at " + position);
-                        }
+                    bufferedStream.loopUntilSkipped(offset);
+                    position += offset;
+                    cumOffsets += offset;
+                    if (offset > 100) {
+                        logger.fine("Now positioned at " + position);
                     }
-                catch (IOException io) {
+                } catch (IOException io) {
                     logger.warning("Skip Failed, reopening stream: " + io.getLocalizedMessage());
-                    openStreamAt(targetPosition);
+                    openStreamAt(targetPosition, false);
                 }
             } else if (offset != 0) {
+                // Could decide to allow skipping in seq access case for offset > buffer size
                 logger.fine("Offset " + offset + " from " + position + " - need to reopen stream");
-                openStreamAt(targetPosition);
+                openStreamAt(targetPosition, false);
             }
         }
         return this;
     }
 
-
     public int read(ByteBuffer dst) throws IOException {
         int n = rbc.read(dst);
         if (n > 0) {
             position += n;
+            // Pre-emptive reopen if read all bytes
+            if (!seq && position == posAtOpen + DEFAULT_BUFFER_SIZE) {
+                openStreamAt(position, true);
+            }
+        } else if (n == -1 && !seq && !(position == length)) {
+            // skip has used all bytes
+            openStreamAt(position, true);
+            n = 0;
         }
         cumPos += n;
         return n;
@@ -177,7 +194,7 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
             super(inputStream, i);
         }
 
-        //~Emulates  Java 12+ bufferedStream.skipNBytes(offset);
+        // ~Emulates Java 12+ bufferedStream.skipNBytes(offset);
         private boolean loopUntilSkipped(long offset) throws IOException {
             long skipped = 0;
             boolean hadToRepeat = false;
@@ -185,6 +202,9 @@ public class S3ReadOnlySeekableByteChannel implements SeekableByteChannel {
                 skipped += this.skip(offset - skipped);
                 if (skipped < offset) {
                     hadToRepeat = true;
+                }
+                if (skipped == 0) {
+                    throw new IOException("Can't skip far enough");
                 }
             }
             return hadToRepeat;
