@@ -695,6 +695,11 @@
         </dependency>
         <!--  Full text indexing -->
         <dependency>
+  <groupId>org.apache.tika</groupId>
+  <artifactId>tika-core</artifactId>
+  <version>2.3.0</version>
+</dependency>
+        <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers-standard-package</artifactId>
             <version>2.3.0</version>
