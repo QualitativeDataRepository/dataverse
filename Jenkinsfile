@@ -12,7 +12,7 @@ node {
     */
     checkout scm
     ARTIFACT_ID = readMavenPom().getArtifactId()
-    VERSION = readMavenPom('modules/dataverse-parent/pom.xml').getVersion()
+    VERSION = readMavenPom(file: 'modules/dataverse-parent/pom.xml').getVersion()
     currentBuild.result = 'SUCCESS'
   }
 
