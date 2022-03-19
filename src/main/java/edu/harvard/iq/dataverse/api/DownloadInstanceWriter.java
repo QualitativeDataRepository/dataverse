@@ -40,8 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+
 
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
@@ -51,6 +50,7 @@ import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
@@ -88,9 +88,9 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
             DataFile dataFile = di.getDownloadInfo().getDataFile();
             StorageIO<DataFile> storageIO = DataAccess.getStorageIO(dataFile, daReq);
             StorageIO<DataFile> initialStorageIO = storageIO;
-            ZipEntry ze= null;
+            ZipArchiveEntry ze= null;
             ZipFile zf=null;
-            ZipInputStream zfis = null;
+            ZipArchiveInputStream zfis = null;
             if (storageIO != null) {
                 try {
                     storageIO.open();
@@ -375,11 +375,11 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                             ze = zf.getEntry(di.getConversionParamValue());
                             if(ze!=null) {
                                 logger.info("Found: " + di.getConversionParamValue() + " - using Seekable Stream");
-                                storageIO = new InputStreamIO(zf.getInputStream((ZipArchiveEntry) ze), ze.getSize(), ze.getName(), FileUtil.determineFileTypeByExtension(ze.getName()));
+                                storageIO = new InputStreamIO(zf.getInputStream(ze), ze.getSize(), ze.getName(), FileUtil.determineFileTypeByExtension(ze.getName()));
                             }
                         } else {
-                            zfis = new ZipInputStream(storageIO.getInputStream());
-                            ze = zfis.getNextEntry();
+                            zfis = new ZipArchiveInputStream(storageIO.getInputStream());
+                            ze = zfis.getNextZipEntry();
                             while (ze != null) {
                                 if (ze.getName().equals(di.getConversionParamValue())) {
                                     logger.info("Found: " + di.getConversionParamValue() + " - using normal Stream");
@@ -387,7 +387,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                                     storageIO = new InputStreamIO(zfis, ze.getSize(), ze.getName(), FileUtil.determineFileTypeByExtension(ze.getName()));
                                     break;
                                 }
-                                ze = zfis.getNextEntry();
+                                ze = zfis.getNextZipEntry();
                             }
                             ;
                         }
