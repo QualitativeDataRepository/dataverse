@@ -6,7 +6,7 @@
     <parent>
         <groupId>edu.harvard.iq</groupId>
         <artifactId>dataverse-parent</artifactId>
-        <version>5.10-qdr-dev</version>
+        <version>5.10.1-qdr-dev</version>
         <relativePath>modules/dataverse-parent</relativePath>
     </parent>
     
@@ -503,10 +503,10 @@
         </dependency>
         <!--  Full text indexing -->
         <dependency>
-  <groupId>org.apache.tika</groupId>
-  <artifactId>tika-core</artifactId>
-  <version>2.3.0</version>
-</dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>2.3.0</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers-standard-package</artifactId>
