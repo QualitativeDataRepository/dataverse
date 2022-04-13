@@ -13,6 +13,8 @@ Allow: /$
 Allow: /dataset.xhtml
 Allow: /dataverse/
 Allow: /sitemap/
+#Non-google indexers may look for /sitemap.xml so allow access
+Allow: /sitemap.xml
 # The following lines are for the facebook, twitter and linkedin preview bots:
 Allow: /api/datasets/:persistentId/thumbnail
 Allow: /javax.faces.resource/images/
