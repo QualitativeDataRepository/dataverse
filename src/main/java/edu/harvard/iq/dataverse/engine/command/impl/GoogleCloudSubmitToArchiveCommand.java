@@ -131,6 +131,7 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                             if (bag.getSize() == 0) {
                                 throw new IOException("Empty Bag");
                             }
+                            
                             bagThread.join();
 
                             checksum = bag.getMd5ToHexString();

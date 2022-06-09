@@ -442,7 +442,7 @@ public class Index extends AbstractApiBean {
         StringBuilder sb = new StringBuilder();
 
         for (DatasetFieldType datasetField : datasetFieldService.findAllOrderedByName()) {
-            //ToDo - calling getSolrField() recalculates everything for that class - do it once and save the field.
+            //ToDo - getSolrField() creates/returns a new object - just get it once and re-use
             String nameSearchable = datasetField.getSolrField().getNameSearchable();
             SolrField.SolrType solrType = datasetField.getSolrField().getSolrType();
             String type = solrType.getType();
@@ -491,7 +491,7 @@ public class Index extends AbstractApiBean {
         }
 
         sb.append("---\n");
-        //ToDo - this is the same loop as above - combine, using a separate string buffer and then append those?
+        //ToDo - this is the same for loop as above - could combine into one by using a second string buffer and appending the latter one after the loop. 
         for (DatasetFieldType datasetField : datasetFieldService.findAllOrderedByName()) {
             String nameSearchable = datasetField.getSolrField().getNameSearchable();
             String nameFacetable = datasetField.getSolrField().getNameFacetable();
