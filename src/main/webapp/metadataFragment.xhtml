@@ -25,7 +25,7 @@
         <ui:repeat value="#{metadataBlocks}"
                    var="metadataBlockVal" varStatus="block">
             <div class="panel panel-default">
-                <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info">
+                <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info #{(block.first and block.last) ? 'hidden':''}">
                     #{metadataBlockVal.key.localeDisplayName} &#160;<span class="glyphicon #{block.first?'glyphicon-chevron-up':'glyphicon-chevron-down'}"/>
                 </div>
                 <div id="panelCollapse#{block.index}" class="collapse #{block.first?'in':''}">
@@ -159,7 +159,7 @@
         <div class="panel-group">
                 <p>
                     <h:outputFormat
-                        rendered="#{(mdLangCode!='undefined') and ((editMode == 'CREATE') or (editMode == 'METADATA'))}"
+                        rendered="#{(!empty(mdLang) and mdLangCode!='undefined') and ((editMode == 'CREATE') or (editMode == 'METADATA'))}"
                         value="#{bundle['dataset.metadatalanguage.create.guidance']}"
                         escape="false">
                         <f:param value="#{mdLang}" />
@@ -194,7 +194,7 @@
                 <div class="panel panel-default" jsf:rendered="#{(editMode == 'METADATA' or metadataBlockVal.key.displayOnCreate or !metadataBlockVal.key.isEmpty()
                                                                  or metadataBlockVal.key.isHasRequired())
                                                                  or (!datasetPage)}">
-                    <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info">
+                    <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info #{(block.first and block.last) ? 'hidden':''}">
                         #{metadataBlockVal.key.localeDisplayName} <span class="glyphicon #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
                     </div>
                     <div id="panelCollapse#{block.index}" class="collapse #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'in' : ''}">
@@ -229,16 +229,14 @@
                                                             <p:commandLink title="#{bundle.add}"
                                                                            styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                            actionListener="#{dsf.addDatasetFieldValue(valCount.index + 1)}"
-                                                                           update=":#{p:resolveClientIds('@id(editPrimitiveValueFragment)', view)}"
-                                                                           oncomplete="javascript:bind_bsui_components();">
+                                                                           update=":#{p:resolveClientIds('@id(editPrimitiveValueFragment)', view)}">
                                                                 <span class="glyphicon glyphicon-plus no-text"/>
                                                             </p:commandLink>
                                                             <p:commandLink title="#{bundle.delete}"
                                                                            styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                            rendered="#{dsf.datasetFieldValues.size() > 1}"
                                                                            actionListener="#{dsf.removeDatasetFieldValue(valCount.index)}"
-                                                                           update=":#{p:resolveClientIds('@id(editPrimitiveValueFragment)', view)}"
-                                                                           oncomplete="javascript:bind_bsui_components();">
+                                                                           update=":#{p:resolveClientIds('@id(editPrimitiveValueFragment)', view)}">
                                                                 <span class="glyphicon glyphicon-minus no-text"/>
                                                             </p:commandLink>
                                                         </div>
@@ -350,16 +348,14 @@
                                                     <p:commandLink title="#{bundle.add}"
                                                                    styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                    actionListener="#{dsf.addDatasetFieldCompoundValue(valCount.index + 1)}"   
-                                                                   update=":#{p:resolveClientIds('@id(editCompoundValueFragment)', view)}"
-                                                                   oncomplete="javascript:bind_bsui_components();">
+                                                                   update=":#{p:resolveClientIds('@id(editCompoundValueFragment)', view)}">
                                                         <span class="glyphicon glyphicon-plus no-text"/>
                                                     </p:commandLink>
                                                     <p:commandLink title="#{bundle.delete}"
                                                                    styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                    rendered="#{dsf.datasetFieldCompoundValues.size() > 1}"
                                                                    actionListener="#{dsf.removeDatasetFieldCompoundValue(valCount.index)}"
-                                                                   update=":#{p:resolveClientIds('@id(editCompoundValueFragment)', view)}"
-                                                                   oncomplete="javascript:bind_bsui_components();">
+                                                                   update=":#{p:resolveClientIds('@id(editCompoundValueFragment)', view)}">
                                                         <span class="glyphicon glyphicon-minus no-text"/>
                                                     </p:commandLink>
                                                 </div>
