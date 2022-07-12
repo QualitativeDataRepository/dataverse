@@ -37,6 +37,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -372,6 +373,11 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                         if (storageIO instanceof S3AccessIO) {
                             logger.info("S3 store - using ZipFile");
                             zf = new ZipFile(((S3AccessIO<DataFile>) storageIO).getSeekableReadChannel());
+                            Enumeration<ZipArchiveEntry> zes = zf.getEntries();
+                            while (zes.hasMoreElements()) {
+                                logger.info("Found entry: " + zes.nextElement().getName());
+                                
+                            }
                             ze = zf.getEntry(di.getConversionParamValue());
                             if(ze!=null) {
                                 logger.info("Found: " + di.getConversionParamValue() + " - using Seekable Stream");
