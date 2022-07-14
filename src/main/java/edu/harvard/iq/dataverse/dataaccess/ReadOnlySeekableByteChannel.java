@@ -143,11 +143,12 @@ public abstract class ReadOnlySeekableByteChannel implements SeekableByteChannel
                 openStreamAt(position, true);
             }
         } else if (n == -1 && !seq && !(position == length)) {
-            // skip has used all bytes
-            logger.fine("Read all bytes at " + position);
+            n= (int)(posAtOpen + DEFAULT_BUFFER_SIZE-position);
+            // skip has used all bytes in the range, but not all in the file
+            //So return the partial read and open for more reading
+            logger.fine("Read all " + n + " bytes at " + position);
+            position += n;
             openStreamAt(position, true);
-            n = read(dst);
-            
         }
         cumPos += n;
         return n;
