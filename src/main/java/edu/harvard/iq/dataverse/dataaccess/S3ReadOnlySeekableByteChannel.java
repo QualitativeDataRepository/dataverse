@@ -57,7 +57,7 @@ public class S3ReadOnlySeekableByteChannel extends ReadOnlySeekableByteChannel i
     }
 
     @Override
-    protected InputStream getStreamWithRangeWithRange(long openAt) throws IOException {
+    protected InputStream getStreamWithRange(long openAt) throws IOException {
         GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt);
         return getRequest(rangeObjectRequest);
     }
@@ -73,8 +73,8 @@ public class S3ReadOnlySeekableByteChannel extends ReadOnlySeekableByteChannel i
     }
 
     @Override
-    protected InputStream getStreamWithRange(long openAt, long length) throws IOException {
-        GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt, length);
+    protected InputStream getStreamWithRange(long openAt, long end) throws IOException {
+        GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName, key).withRange(openAt, end);
         return getRequest(rangeObjectRequest);
     }
 }

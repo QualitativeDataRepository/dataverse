@@ -40,7 +40,7 @@ public abstract class ReadOnlySeekableByteChannel implements SeekableByteChannel
         // openStreamAt(0);
     }
 
-    private void openStreamAt(long targetPosition, boolean sequentialAccess) throws IOException {
+    protected void openStreamAt(long targetPosition, boolean sequentialAccess) throws IOException {
         if (rbc != null) {
             close();
         }
@@ -51,7 +51,7 @@ public abstract class ReadOnlySeekableByteChannel implements SeekableByteChannel
         if (!sequentialAccess) {
             newStream = getStreamWithRange(openAt, openAt + DEFAULT_BUFFER_SIZE);
         } else {
-            newStream = getStreamWithRangeWithRange(openAt);
+            newStream = getStreamWithRange(openAt);
         }
 
         if (newStream == null) {
@@ -70,9 +70,9 @@ public abstract class ReadOnlySeekableByteChannel implements SeekableByteChannel
         this.position = targetPosition;
     }
 
-    abstract protected InputStream getStreamWithRangeWithRange(long openAt) throws IOException;
+    abstract protected InputStream getStreamWithRange(long openAt) throws IOException;
 
-    abstract protected InputStream getStreamWithRange(long openAt, long length) throws IOException;
+    abstract protected InputStream getStreamWithRange(long openAt, long end) throws IOException;
 
     public boolean isOpen() {
         return rbc.isOpen();
