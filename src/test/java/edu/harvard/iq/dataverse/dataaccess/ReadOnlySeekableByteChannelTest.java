@@ -36,52 +36,35 @@ public class ReadOnlySeekableByteChannelTest {
         }
     }
 
+
+
     @Test
-    void testReadRange() {
+    void testLongerRead() {
         long offset = 5000;
         try (FileInputStream fis = new FileInputStream(file)) {
             //The first 500 bytes
-            byte[] orig1 = fis.readNBytes(500);
             long skipped = 0;
-            while (skipped < (offset-500)) {
-                skipped += fis.skip((offset-500) - skipped);
+            while (skipped < offset) {
+                skipped += fis.skip(offset - skipped);
             }
-            //5000-5499
-            byte[] orig2 = fis.readNBytes(500);
-            //5500-5999
-            byte[] orig3 = fis.readNBytes(500);
+            //5000-5999
+            byte[] origBytes = fis.readNBytes(1000);
             
             channel.openStreamAt(offset, false);
 
             
-            ByteBuffer b = ByteBuffer.allocate(500);
-            //5000-5499
-            channel.read(b);
+            ByteBuffer b = ByteBuffer.allocate(1000);
+            //5000-5999
+            skipped = 0;
+            while (skipped < b.capacity()) {
+                skipped += channel.read(b);
+            }
+
             byte[] fromStream = b.array();
 
-            String orig = new String(orig2, StandardCharsets.UTF_8);
+            String orig = new String(origBytes, StandardCharsets.UTF_8);
             String chan = new String(fromStream, StandardCharsets.UTF_8);
             assertEquals(orig, chan);
-            
-            //First 500
-            channel.openStreamAt(0, false);
-            b = ByteBuffer.allocate(500);
-            channel.read(b);
-            fromStream = b.array();
-            orig = new String(orig1, StandardCharsets.UTF_8);
-            chan = new String(fromStream, StandardCharsets.UTF_8);
-            assertEquals(orig, chan);
-
-            //5500-5999
-            channel.position(offset+500);
-            b = ByteBuffer.allocate(500);
-            channel.read(b);
-            fromStream = b.array();
-            orig = new String(orig3, StandardCharsets.UTF_8);
-            chan = new String(fromStream, StandardCharsets.UTF_8);
-            assertEquals(orig, chan);
-            
-
         } catch (IOException e) {
             Assert.fail("IOException in test: " + e.getLocalizedMessage());
         }
