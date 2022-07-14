@@ -134,7 +134,11 @@ public abstract class ReadOnlySeekableByteChannel implements SeekableByteChannel
     }
 
     public int read(ByteBuffer dst) throws IOException {
+        logger.fine("Trying to read " + dst.remaining() + " bytes from position: " + position);
+        
         int n = rbc.read(dst);
+        logger.fine("Read " + n + " bytes, " + dst.remaining() + " remain to be read");
+        
         if (n > 0) {
             position += n;
             // Pre-emptive reopen if read all bytes
@@ -142,15 +146,12 @@ public abstract class ReadOnlySeekableByteChannel implements SeekableByteChannel
                 logger.fine("Read existing bytes, reopening at " + position);
                 openStreamAt(position, true);
             }
+            cumPos += n;
         } else if (n == -1 && !seq && !(position == length)) {
-            n= (int)(posAtOpen + DEFAULT_BUFFER_SIZE-position);
-            // skip has used all bytes in the range, but not all in the file
-            //So return the partial read and open for more reading
-            logger.fine("Read all " + n + " bytes at " + position);
-            position += n;
+            logger.fine("Out of bytes in current channel");
             openStreamAt(position, true);
+            n = read(dst);
         }
-        cumPos += n;
         return n;
     }
 
