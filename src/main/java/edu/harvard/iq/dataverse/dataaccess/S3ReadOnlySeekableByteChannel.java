@@ -20,8 +20,6 @@ import java.util.logging.Logger;
 public class S3ReadOnlySeekableByteChannel extends ReadOnlySeekableByteChannel implements SeekableByteChannel {
 
     private static final Logger logger = Logger.getLogger(S3ReadOnlySeekableByteChannel.class.getCanonicalName());
-    private static final int DEFAULT_BUFFER_SIZE = 512;
-    private static final int MINIMUM_LOOK_BACK = 0;
 
     private AmazonS3 s3client;
     private String bucketName;

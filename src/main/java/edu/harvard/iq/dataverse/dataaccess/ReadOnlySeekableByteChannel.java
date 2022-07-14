@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public abstract class ReadOnlySeekableByteChannel implements SeekableByteChannel {
 
     private static final Logger logger = Logger.getLogger(ReadOnlySeekableByteChannel.class.getCanonicalName());
-    private static final int DEFAULT_BUFFER_SIZE = 512;
+    protected static final int DEFAULT_BUFFER_SIZE = 2048;
     private static final int MINIMUM_LOOK_BACK = 0;
 
     protected long length;
