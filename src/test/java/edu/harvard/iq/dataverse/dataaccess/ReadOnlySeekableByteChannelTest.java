@@ -8,9 +8,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,6 +70,78 @@ public class ReadOnlySeekableByteChannelTest {
         } catch (IOException e) {
             Assert.fail("IOException in test: " + e.getLocalizedMessage());
         }
+    }
+    
+    @Test
+    void testIOUtils() {
+        //Detects whether https://issues.apache.org/jira/projects/COMPRESS/issues/COMPRESS-585 has bee fixed or not
+        UtilTestSBC channel = new UtilTestSBC();
+        byte[] result;
+        try {
+            result = IOUtils.readRange(channel, 12);
+        
+        logger.info("Result length is: " + result.length);
+        assertEquals(12, result.length);
+        } catch (IOException e) {
+            Assert.fail("IOException in test: " + e.getLocalizedMessage());
+        }
+    }
+    
+    class UtilTestSBC implements SeekableByteChannel {
+
+        @Override
+        public boolean isOpen() {
+            // TODO Auto-generated method stub
+            return true;
+        }
+
+        @Override
+        public void close() throws IOException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public int read(ByteBuffer dst) throws IOException {
+            int n = Math.min(dst.remaining(), 10);
+            byte[] filler = new byte[n];
+            for(int i=0;i<n;i++) {
+                filler[i]=(byte) i;
+            }
+            dst.put(filler);
+            return n;
+        }
+
+        @Override
+        public int write(ByteBuffer src) throws IOException {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public long position() throws IOException {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public SeekableByteChannel position(long newPosition) throws IOException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public long size() throws IOException {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public SeekableByteChannel truncate(long size) throws IOException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+        
     }
     
     class LocalROSBC extends ReadOnlySeekableByteChannel {
