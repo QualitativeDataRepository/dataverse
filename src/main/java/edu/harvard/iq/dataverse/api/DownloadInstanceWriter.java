@@ -218,11 +218,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                         }
                     }
                 }
-<<<<<<< HEAD
                 if (redirect_url_str != null) {
-=======
-                    if (redirect_url_str!=null) {
->>>>>>> branch 'v5.12-qdr' of https://github.com/QualitativeDataRepository/dataverse.git
 
                     logger.fine("Data Access API: redirect url: " + redirect_url_str);
                     URI redirect_uri;
@@ -586,7 +582,7 @@ public class DownloadInstanceWriter implements MessageBodyWriter<DownloadInstanc
                     }
                 }
             }
-       
+        }
 
         throw new NotFoundException();
 
