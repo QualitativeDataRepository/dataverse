@@ -110,7 +110,7 @@ public class MailUtilTest {
     @Test
     public void testSubjectPublishedDS() {
         userNotification.setType(UserNotification.Type.PUBLISHEDDS);
-        assertEquals("LibraScholar: DataProject \"\" has been published", MailUtil.getSubjectTextBasedOnNotification(userNotification, null));
+        assertEquals("LibraScholar: Data Project \"\" has been published", MailUtil.getSubjectTextBasedOnNotification(userNotification, null));
     }
     
     @Test
