@@ -2498,7 +2498,7 @@ public class DatasetPage implements java.io.Serializable {
             updateDatasetFieldInputLevels();
 
             // QDR: set pre-populated fields during edit
-            for (DatasetField dsf : dataset.getEditVersion().getDatasetFields()) {
+            for (DatasetField dsf : workingVersion.getDatasetFields()) {
                 if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.otherIdAgency) && dsf.isEmpty()) {
                     dsf.getDatasetFieldValues().get(0).setValue("Qualitative Data Repository");
                 } else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.author)) {
