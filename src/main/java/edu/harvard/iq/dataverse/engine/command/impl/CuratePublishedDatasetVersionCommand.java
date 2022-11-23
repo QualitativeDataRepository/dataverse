@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
 import edu.harvard.iq.dataverse.authorization.Permission;
+import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
 import edu.harvard.iq.dataverse.datavariable.VarGroup;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -20,10 +21,14 @@ import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.DataFileCategory;
 import edu.harvard.iq.dataverse.DatasetVersionDifference;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.solr.client.solrj.SolrServerException;
 
 /**
  *
@@ -172,26 +177,38 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         // And update metadata at PID provider
         ctxt.engine().submit(
                 new UpdateDvObjectPIDMetadataCommand(savedDataset, getRequest()));
-        
-        //And the exported metadata files
-        try {
-            ExportService instance = ExportService.getInstance();
-            instance.exportAllFormats(getDataset());
-        } catch (ExportException ex) {
-            // Just like with indexing, a failure to export is not a fatal condition.
-            logger.log(Level.WARNING, "Curate Published DatasetVersion: exception while exporting metadata files:{0}", ex.getMessage());
-        }
-        
 
         // Update so that getDataset() in updateDatasetUser will get the up-to-date copy
         // (with no draft version)
         setDataset(savedDataset);
         updateDatasetUser(ctxt);
         
-
-
-
         return savedDataset;
     }
 
+    @Override
+    public boolean onSuccess(CommandContext ctxt, Object r) {
+        boolean retVal = true;
+        Dataset d = (Dataset) r;
+        
+        try {
+            Future<String> indexString = ctxt.index().indexDataset(d, true);
+        } catch (IOException | SolrServerException e) {
+            String failureLogText = "Indexing failed after update current version command. You can kick off a re-index of this dataset with: \r\n curl http://localhost:8080/api/admin/index/datasets/" + d.getId().toString();
+            failureLogText += "\r\n" + e.getLocalizedMessage();
+            LoggingUtil.writeOnSuccessFailureLog(this, failureLogText,  d);
+            retVal = false;
+        }
+        
+        // And the exported metadata files
+        try {
+            ExportService instance = ExportService.getInstance();
+            instance.exportAllFormats(d);
+        } catch (ExportException ex) {
+            // Just like with indexing, a failure to export is not a fatal condition.
+            retVal = false;
+            logger.log(Level.WARNING, "Curate Published DatasetVersion: exception while exporting metadata files:{0}", ex.getMessage());
+        }
+        return retVal;
+    }
 }
