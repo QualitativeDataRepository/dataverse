@@ -80,6 +80,7 @@ public class DataCiteRESTfullClient implements Closeable {
      */
     public String getUrl(String doi) {
         HttpGet httpGet = new HttpGet(this.url + "/doi/" + doi);
+        logger.info("Calling " + httpGet.toString());
         try {
             HttpResponse response = httpClient.execute(httpGet,context);
             String data = EntityUtils.toString(response.getEntity(), encoding);
