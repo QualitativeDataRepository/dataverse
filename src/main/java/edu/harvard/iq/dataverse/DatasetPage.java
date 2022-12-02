@@ -502,6 +502,14 @@ public class DatasetPage implements java.io.Serializable {
     private String fileSortOrder;
     private boolean tagPresort = true;
     private boolean folderPresort = true;
+    // Due to what may be a bug in PrimeFaces, the call to select a new page of
+    // files appears to reset the two presort booleans to false. The following
+    // values are a flag and duplicate booleans to remember what the new values were
+    // so that they can be set only in real checkbox changes. Further comments where
+    // these are used.
+    boolean isPageFlip = false;
+    private boolean newTagPresort = true;
+    private boolean newFolderPresort = true;
 
     public List<Entry<String,String>> getCartList() {
         if (session.getUser() instanceof AuthenticatedUser) {
@@ -2034,7 +2042,7 @@ public class DatasetPage implements java.io.Serializable {
                 }
                 //Initalize with the default if there is one 
                 dataset.setTemplate(selectedTemplate);
-                workingVersion = dataset.getEditVersion(selectedTemplate, null);
+                workingVersion = dataset.getOrCreateEditVersion(selectedTemplate, null);
                 updateDatasetFieldInputLevels();
             } else {
                 workingVersion = dataset.getCreateVersion(licenseServiceBean.getDefault());
@@ -2371,7 +2379,7 @@ public class DatasetPage implements java.io.Serializable {
             AuthenticatedUser au = (AuthenticatedUser) session.getUser();
 
             //On create set pre-populated fields
-            for (DatasetField dsf : dataset.getEditVersion().getDatasetFields()) {
+            for (DatasetField dsf : dataset.getOrCreateEditVersion().getDatasetFields()) {
                 if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.depositor) && dsf.isEmpty()) {
                     dsf.getDatasetFieldValues().get(0).setValue(au.getLastName() + ", " + au.getFirstName());
                 }
@@ -2428,7 +2436,7 @@ public class DatasetPage implements java.io.Serializable {
         }
         String termsOfAccess = workingVersion.getTermsOfUseAndAccess().getTermsOfAccess();
         boolean requestAccess = workingVersion.getTermsOfUseAndAccess().isFileAccessRequest();
-        workingVersion = dataset.getEditVersion();
+        workingVersion = dataset.getOrCreateEditVersion();
         workingVersion.getTermsOfUseAndAccess().setTermsOfAccess(termsOfAccess);
         workingVersion.getTermsOfUseAndAccess().setFileAccessRequest(requestAccess);
         List <FileMetadata> newSelectedFiles = new ArrayList<>();
@@ -2491,14 +2499,14 @@ public class DatasetPage implements java.io.Serializable {
         if (this.readOnly) {
             dataset = datasetService.find(dataset.getId());
         }
-        workingVersion = dataset.getEditVersion();
+        workingVersion = dataset.getOrCreateEditVersion();
         clone = workingVersion.cloneDatasetVersion();
         if (editMode.equals(EditMode.METADATA)) {
             datasetVersionUI = datasetVersionUI.initDatasetVersionUI(workingVersion, true);
             updateDatasetFieldInputLevels();
 
             // QDR: set pre-populated fields during edit
-            for (DatasetField dsf : dataset.getEditVersion().getDatasetFields()) {
+            for (DatasetField dsf : workingVersion.getDatasetFields()) {
                 if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.otherIdAgency) && dsf.isEmpty()) {
                     dsf.getDatasetFieldValues().get(0).setValue("Qualitative Data Repository");
                 } else if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.author)) {
@@ -2828,6 +2836,18 @@ public class DatasetPage implements java.io.Serializable {
 
 
     public void sort() {
+        // This is called as the presort checkboxes' listener when the user is actually
+        // clicking in the checkbox. It does appear to happen after the setTagPresort
+        // and setFolderPresort calls.
+        // So -we know this isn't a pageflip and at this point can update to use the new
+        // values.
+        isPageFlip = false;
+        if (!newTagPresort == tagPresort) {
+            tagPresort = newTagPresort;
+        }
+        if (!newFolderPresort == folderPresort) {
+            folderPresort = newFolderPresort;
+        }
         sortFileMetadatas(fileMetadatasSearch);
         JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("file.results.presort.change.success"));
     }
@@ -3539,7 +3559,7 @@ public class DatasetPage implements java.io.Serializable {
             if (markedForDelete.getId() != null) {
                 // This FileMetadata has an id, i.e., it exists in the database.
                 // We are going to remove this filemetadata from the version:
-                dataset.getEditVersion().getFileMetadatas().remove(markedForDelete);
+                dataset.getOrCreateEditVersion().getFileMetadatas().remove(markedForDelete);
                 // But the actual delete will be handled inside the UpdateDatasetCommand
                 // (called later on). The list "filesToBeDeleted" is passed to the
                 // command as a parameter:
@@ -3765,7 +3785,7 @@ public class DatasetPage implements java.io.Serializable {
                     // have been created in the dataset.
                     dataset = datasetService.find(dataset.getId());
 
-                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getEditVersion(), newFiles, null, true);
+                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getOrCreateEditVersion(), newFiles, null, true);
                     newFiles.clear();
 
                     // and another update command:
@@ -5608,6 +5628,10 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public void fileListingPaginatorListener(PageEvent event) {
+        // Changing to a new page of files - set this so we can ignore changes to the
+        // presort checkboxes. (This gets called before the set calls for the presorts
+        // get called.)
+        isPageFlip=true;
         setFilePaginatorPage(event.getPage());
     }
 
@@ -5620,10 +5644,7 @@ public class DatasetPage implements java.io.Serializable {
 
     /**
      * This method can be called from *.xhtml files to allow archiving of a dataset
-     * version from the user interface. It is not currently (11/18) used in the IQSS/develop
-     * branch, but is used by QDR and is kept here in anticipation of including a
-     * GUI option to archive (already published) versions after other dataset page
-     * changes have been completed.
+     * version from the user interface.
      *
      * @param id - the id of the datasetversion to archive.
      */
@@ -5728,16 +5749,28 @@ public class DatasetPage implements java.io.Serializable {
        return this.tagPresort;
     }
 
-    public void setTagPresort(boolean tagPresort) {
-        this.tagPresort = tagPresort && (null != getSortOrder());
-    }
+        public void setTagPresort(boolean tagPresort) {
+            // Record the new value
+            newTagPresort = tagPresort && (null != getSortOrder());
+            // If this is not a page flip, it should be a real change to the presort
+            // boolean that we should use.
+            if (!isPageFlip) {
+                this.tagPresort = tagPresort && (null != getSortOrder());
+            }
+        }
 
     public boolean isFolderPresort() {
         return this.folderPresort;
      }
 
-     public void setFolderPresort(boolean folderPresort) {
-         this.folderPresort = folderPresort;
+        public void setFolderPresort(boolean folderPresort) {
+            //Record the new value
+            newFolderPresort = folderPresort;
+            // If this is not a page flip, it should be a real change to the presort
+            // boolean that we should use.
+            if (!isPageFlip) {
+                this.folderPresort = folderPresort;
+            }
      }
 
 

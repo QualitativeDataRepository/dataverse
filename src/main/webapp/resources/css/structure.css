@@ -1132,21 +1132,6 @@ span.ui-autocomplete input.ui-autocomplete-input {width:100%;}
 	background: url("/resources/images/hypothesisIcon.svg") no-repeat;
 }
 
-#datasetForm .qdr-sort {
-	max-width: 255px;
-	float: right;
-	padding-right:21px;
-}
-
-#datasetForm .qdr-sort .btn-group {
-	padding-top: 4px;
-}
-
-#datasetForm .qdr-group-by {
-	min-width: 130px;
-	padding: 0px;
-}
-
 #datasetForm\3AhypothesisButton {
 	margin-bottom: 5px;
 	margin-left: 15px;
@@ -1533,4 +1518,19 @@ div:has(> input[placeholder='1) FamilyName, GivenName or 2) Organization']):has(
 }
 div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
     width:100%;
+}
+/*File sorting*/
+#datasetForm .file-sort {
+	max-width: 255px;
+	float: right;
+	padding-right:21px;
+}
+
+#datasetForm .file-sort .btn-group {
+	padding-top: 4px;
+}
+
+#datasetForm .file-group-by {
+	min-width: 130px;
+	padding: 0px;
 }
