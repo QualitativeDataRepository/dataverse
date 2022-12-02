@@ -580,8 +580,7 @@ Optionally, you may provide static credentials for each S3 storage using MicroPr
 - ``dataverse.files.<id>.access-key`` for this storage's "access key ID"
 - ``dataverse.files.<id>.secret-key`` for this storage's "secret access key"
 
-You may provide the values for these via any of the
-`supported config sources <https://docs.payara.fish/community/docs/documentation/microprofile/config/README.html>`_.
+You may provide the values for these via any `supported MicroProfile Config API source`_.
 
 **WARNING:**
 
@@ -1092,6 +1091,29 @@ Disabling Custom Dataset Terms
 
 See :ref:`:AllowCustomTermsOfUse` for how to disable the "Custom Dataset Terms" option.
 
+.. _ChangeLicenseSortOrder:
+
+Sorting licenses
+----------------
+
+The default order of licenses in the dropdown in the user interface is as follows:
+
+* The default license is shown first
+* Followed by the remaining installed licenses in the order of installation
+* The custom license is at the end
+
+Only the order of the installed licenses can be changed with the API calls. The default license always remains first and the custom license last.
+
+The order of licenses can be changed by setting the ``sortOrder`` property of a license. For the purpose of making sorting easier and to allow grouping of the licenses, ``sortOrder`` property does not have to be unique. Licenses with the same ``sortOrder`` are sorted by their ID, i.e., first by the sortOrder, then by the ID. Nevertheless, you can set a unique ``sortOrder`` for every license in order to sort them fully manually.
+
+The ``sortOrder`` is an whole number and is used to sort licenses in ascending fashion.
+
+Changing the sorting order of a license specified by the license ``$ID`` is done by superusers using the following API call:
+
+.. code-block:: bash
+
+  export SORT_ORDER=100
+  curl -X PUT -H 'Content-Type: application/json' -H X-Dataverse-key:$API_TOKEN $SERVER_URL/api/licenses/$ID/:sortOrder/$SORT_ORDER
 .. _BagIt File Handler:
 
 BagIt File Handler
@@ -1669,6 +1691,39 @@ This setting is useful in cases such as running your Dataverse installation behi
 	"HTTP_FORWARDED",
 	"HTTP_VIA",
 	"REMOTE_ADDR"
+
+
+.. _dataverse.api.signature-secret:
+
+dataverse.api.signature-secret
+++++++++++++++++++++++++++++++
+
+Context: Dataverse has the ability to create "Signed URLs" for it's API calls. Using a signed URLs is more secure than
+providing API tokens, which are long-lived and give the holder all of the permissions of the user. In contrast, signed URLs
+are time limited and only allow the action of the API call in the URL. See :ref:`api-exttools-auth` and
+:ref:`api-native-signed-url` for more details. 
+
+The key used to sign a URL is created from the API token of the creating user plus a signature-secret provided by an administrator.
+**Using a signature-secret is highly recommended.** This setting defaults to an empty string. Using a non-empty 
+signature-secret makes it impossible for someone who knows an API token from forging signed URLs and provides extra security by 
+making the overall signing key longer.
+
+Since the signature-secret is sensitive, you should treat it like a password. Here is an example how to set your shared secret 
+with the secure method "password alias":
+
+.. code-block:: shell
+
+  echo "AS_ADMIN_ALIASPASSWORD=change-me-super-secret" > /tmp/password.txt
+  asadmin create-password-alias --passwordfile /tmp/password.txt dataverse.api.signature-secret
+  rm /tmp/password.txt
+
+Can also be set via any `supported MicroProfile Config API source`_, e.g. the environment variable
+``DATAVERSE_API_SIGNATURE_SECRET``.
+
+**WARNING:** For security, do not use the sources "environment variable" or "system property" (JVM option) in a
+production context! Rely on password alias, secrets directory or cloud based sources instead!
+
+
 
 .. _:ApplicationServerSettings:
 
@@ -3067,3 +3122,7 @@ The interval in seconds between Dataverse calls to Globus to check on upload pro
 +++++++++++++++++++++++++
 
 A true/false option to add a Globus transfer option to the file download menu which is not yet fully supported in the dataverse-globus app. See :ref:`globus-support` for details.
+
+
+
+.. _supported MicroProfile Config API source: https://docs.payara.fish/community/docs/Technical%20Documentation/MicroProfile/Config/Overview.html

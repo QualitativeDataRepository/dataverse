@@ -103,7 +103,7 @@ public class SearchServiceBean {
      * @throws SearchException
      */
     public SolrQueryResponse search(DataverseRequest dataverseRequest, List<Dataverse> dataverses, String query, List<String> filterQueries, String sortField, String sortOrder, int paginationStart, boolean onlyDatatRelatedToMe, int numResultsPerPage) throws SearchException {
-        return search(dataverseRequest, dataverses, query, filterQueries, sortField, sortOrder, paginationStart, onlyDatatRelatedToMe, numResultsPerPage, true);
+        return search(dataverseRequest, dataverses, query, filterQueries, sortField, sortOrder, paginationStart, onlyDatatRelatedToMe, numResultsPerPage, true, null, null);
     }
     
     /**
@@ -123,11 +123,25 @@ public class SearchServiceBean {
      * @param paginationStart
      * @param onlyDatatRelatedToMe
      * @param numResultsPerPage
-     * @param retrieveEntities - look up dvobject entities with .find() (potentially expensive!) 
+     * @param retrieveEntities - look up dvobject entities with .find() (potentially expensive!)
+     * @param geoPoint e.g. "35,15"
+     * @param geoRadius e.g. "5"
      * @return
      * @throws SearchException
      */
-    public SolrQueryResponse search(DataverseRequest dataverseRequest, List<Dataverse> dataverses, String query, List<String> filterQueries, String sortField, String sortOrder, int paginationStart, boolean onlyDatatRelatedToMe, int numResultsPerPage, boolean retrieveEntities) throws SearchException {
+    public SolrQueryResponse search(
+            DataverseRequest dataverseRequest,
+            List<Dataverse> dataverses,
+            String query,
+            List<String> filterQueries,
+            String sortField, String sortOrder,
+            int paginationStart,
+            boolean onlyDatatRelatedToMe,
+            int numResultsPerPage,
+            boolean retrieveEntities,
+            String geoPoint,
+            String geoRadius
+    ) throws SearchException {
 
         if (paginationStart < 0) {
             throw new IllegalArgumentException("paginationStart must be 0 or greater");
@@ -194,7 +208,7 @@ public class SearchServiceBean {
         /**
          * @todo: show highlight on file card?
          * https://redmine.hmdc.harvard.edu/issues/3848
-         */      
+         */
         solrFieldsToHightlightOnMap.put(SearchFields.FILENAME_WITHOUT_EXTENSION, "Filename Without Extension");
         solrFieldsToHightlightOnMap.put(SearchFields.FILE_TAG_SEARCHABLE, "File Tag");
         List<DatasetFieldType> datasetFields = datasetFieldService.findAllOrderedById();
@@ -217,6 +231,12 @@ public class SearchServiceBean {
         solrQuery.setParam("facet.query", "*");
         for (String filterQuery : filterQueries) {
             solrQuery.addFilterQuery(filterQuery);
+        }
+        if (geoPoint != null && !geoPoint.isBlank() && geoRadius != null && !geoRadius.isBlank()) {
+            solrQuery.setParam("pt", geoPoint);
+            solrQuery.setParam("d", geoRadius);
+            // See https://solr.apache.org/guide/8_11/spatial-search.html#bbox
+            solrQuery.addFilterQuery("{!bbox sfield=" + SearchFields.GEOLOCATION + "}");
         }
 
         // -----------------------------------
@@ -314,7 +334,7 @@ public class SearchServiceBean {
         solrQuery.setRows(numResultsPerPage);
         logger.fine("Solr query:" + solrQuery);
 
-        // -----------------------------------  
+        // -----------------------------------
         // Make the solr query
         // -----------------------------------
         QueryResponse queryResponse = null;
@@ -489,7 +509,7 @@ public class SearchServiceBean {
                 solrSearchResult.setHtmlUrl(baseUrl + SystemConfig.DATAVERSE_PATH + identifier);
                 // Do not set the ImageUrl, let the search include fragment fill in
                 // the thumbnail, similarly to how the dataset and datafile cards
-                // are handled. 
+                // are handled.
                 //solrSearchResult.setImageUrl(baseUrl + "/api/access/dvCardImage/" + entityid);
                 /**
                  * @todo Expose this API URL after "dvs" is changed to
@@ -502,11 +522,11 @@ public class SearchServiceBean {
                 solrSearchResult.setApiUrl(baseUrl + "/api/datasets/" + entityid);
                 //Image url now set via thumbnail api
                 //solrSearchResult.setImageUrl(baseUrl + "/api/access/dsCardImage/" + datasetVersionId);
-                // No, we don't want to set the base64 thumbnails here. 
-                // We want to do it inside SearchIncludeFragment, AND ONLY once the rest of the 
+                // No, we don't want to set the base64 thumbnails here.
+                // We want to do it inside SearchIncludeFragment, AND ONLY once the rest of the
                 // page has already loaded.
                 //DatasetVersion datasetVersion = datasetVersionService.find(datasetVersionId);
-                //if (datasetVersion != null){                    
+                //if (datasetVersion != null){
                 //    solrSearchResult.setDatasetThumbnail(datasetVersion.getDataset().getDatasetThumbnail(datasetVersion));
                 //}
                 /**
@@ -1000,9 +1020,9 @@ public class SearchServiceBean {
         solrQuery.addFacetField(SearchFields.PUBLICATION_STATUS);
 
         // ----------------------------------------------------
-        // (3) Is this a Super User?  
+        // (3) Is this a Super User?
         //      Yes, give back everything
-        // ----------------------------------------------------        
+        // ----------------------------------------------------
         if (au.isSuperuser()) {
             // Somewhat dangerous because this user (a superuser) will be able
             // to see everything in Solr with no regard to permissions. But it's
@@ -1015,7 +1035,7 @@ public class SearchServiceBean {
         // (4) User is logged in AND onlyDatatRelatedToMe == true
         // Yes, give back everything -> the settings will be in
         //          the filterqueries given to search
-        // ----------------------------------------------------    
+        // ----------------------------------------------------
         if (onlyDatatRelatedToMe == true) {
             if (systemConfig.myDataDoesNotUsePermissionDocs()) {
                 logger.fine("old 4.2 behavior: MyData is not using Solr permission docs");
