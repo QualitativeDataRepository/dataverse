@@ -130,7 +130,9 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
                 publishedFmd.setDescription(draftFmd.getDescription());
                 publishedFmd.setCategories(draftFmd.getCategories());
                 publishedFmd.setRestricted(draftFmd.isRestricted());
+                logger.info("Setting file " + dataFile.getId() + " to " + draftFmd.isRestricted());
                 dataFile.setRestricted(draftFmd.isRestricted());
+                logger.info("Restricted: " + dataFile.isRestricted());
                 publishedFmd.setProvFreeForm(draftFmd.getProvFreeForm());
                 publishedFmd.copyVariableMetadata(draftFmd.getVariableMetadatas());
                 publishedFmd.copyVarGroups(draftFmd.getVarGroups());
@@ -153,6 +155,9 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
             if(publishedFmd.getDataFile().getId()==thumbId) {
                 tempDataset.setThumbnailFile(publishedFmd.getDataFile());
             }
+        }
+        for (FileMetadata publishedFmd : updateVersion.getFileMetadatas()) {
+            logger.info("file " + publishedFmd.getDataFile().getId() + " is restricted: " + publishedFmd.getDataFile().isRestricted());
         }
         if(logger.isLoggable(Level.FINE)) {
             for(FileMetadata fmd: updateVersion.getFileMetadatas()) {
