@@ -3270,7 +3270,7 @@ public class DatasetPage implements java.io.Serializable {
         }
         return someFiles;
     }
-
+//QDRADA - still needed?
     public void validateFilesForRequestAccess(){
         this.filterSelectedFiles();
 
