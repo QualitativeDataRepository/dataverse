@@ -484,7 +484,6 @@
                                styleClass="btn btn-default btn-request"                                   
                                action="#{DatasetPage.requestAccessMultipleFiles()}"
                                update="@form, @([id$=messagePanel])" 
-                               action="#{DatasetPage.validateFilesForRequestAccess()}"
                                disabled="#{DatasetPage.locked or !DatasetPage.fileAccessRequestMultiButtonEnabled}">
                     <f:actionListener binding="#{DatasetPage.setTermsGuestbookPopupAction(bundle['file.requestAccess'])}"/>
                     <span class="glyphicon glyphicon-bullhorn"/> #{bundle['file.requestAccess']}
