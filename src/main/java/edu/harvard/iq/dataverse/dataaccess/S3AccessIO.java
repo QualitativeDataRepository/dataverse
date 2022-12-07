@@ -111,6 +111,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                 }
             } catch (SdkClientException sce) {
                 logger.warning(sce.getMessage());
+                logger.warning(sce.getCause().getLocalizedMessage());
                 throw new IOException("ERROR: S3AccessIO - Failed to look up bucket "+bucketName+" (is AWS properly configured?): " + sce.getMessage());
             }
         } catch (Exception e) {
