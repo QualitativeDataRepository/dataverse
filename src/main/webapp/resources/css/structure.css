@@ -68,7 +68,7 @@ footer {width:100%; z-index:498; height:60px; color:#666666;position:relative;}
 .dropdown-menu>li>a {
 	font-family:AntoniaH2;
 }
-.dropdown-menu>div>a {
+.dropdown-menu>div>a, .dropdown-menu>div>span {
     font-family:AntoniaH2;
     font-size:21px !important;
 }
