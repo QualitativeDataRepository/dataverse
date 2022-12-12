@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.privateurl;
 
+import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.DvObject;
@@ -101,13 +102,14 @@ public class PrivateUrlUtil {
 
     /**
      * @param roleAssignment
+     * @param dataFile 
      * @return PrivateUrlRedirectData or null.
      *
      * @todo Show the Exception to the user?
      */
-    public static PrivateUrlRedirectData getPrivateUrlRedirectData(RoleAssignment roleAssignment) {
+    public static PrivateUrlRedirectData getPrivateUrlRedirectData(RoleAssignment roleAssignment, DataFile dataFile) {
         PrivateUrlUser privateUrlUser = PrivateUrlUtil.getPrivateUrlUserFromRoleAssignment(roleAssignment);
-        String draftDatasetPageToBeRedirectedTo = PrivateUrlUtil.getDraftDatasetPageToBeRedirectedTo(roleAssignment);
+        String draftDatasetPageToBeRedirectedTo = PrivateUrlUtil.getDraftDatasetPageToBeRedirectedTo(roleAssignment, dataFile);
         try {
             return new PrivateUrlRedirectData(privateUrlUser, draftDatasetPageToBeRedirectedTo);
         } catch (Exception ex) {
@@ -118,9 +120,13 @@ public class PrivateUrlUtil {
 
     /**
      * Returns a relative URL or "UNKNOWN."
+     * @param dataFile 
      */
-    static String getDraftDatasetPageToBeRedirectedTo(RoleAssignment roleAssignment) {
+    static String getDraftDatasetPageToBeRedirectedTo(RoleAssignment roleAssignment, DataFile dataFile) {
         DatasetVersion datasetVersion = getDraftDatasetVersionFromRoleAssignment(roleAssignment);
+        if(dataFile!=null && datasetVersion.getFileMetadatas().stream().anyMatch(fmd -> fmd.getDataFile().equals(dataFile))) {
+            return getDraftUrl(dataFile);
+        }
         return getDraftUrl(datasetVersion);
     }
 
@@ -135,6 +141,19 @@ public class PrivateUrlUtil {
                     String relativeUrl = "/dataset.xhtml?persistentId=" + dataset.getGlobalId().toString() + "&version=DRAFT";
                     return relativeUrl;
                 }
+            }
+        }
+        return "UNKNOWN";
+    }
+    
+    /**
+     * Returns a relative file page URL or "UNKNOWN."
+     */
+    static String getDraftUrl(DataFile dataFile) {
+        if (dataFile != null) {
+            if (dataFile.getGlobalId().isComplete()) {
+                String relativeUrl = "/file.xhtml?persistentId=" + dataFile.getGlobalId().toString() + "&version=DRAFT";
+                return relativeUrl;
             }
         }
         return "UNKNOWN";

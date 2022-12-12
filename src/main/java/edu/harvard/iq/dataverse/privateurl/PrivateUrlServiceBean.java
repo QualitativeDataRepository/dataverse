@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.privateurl;
 
+import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.RoleAssignment;
@@ -34,6 +35,9 @@ public class PrivateUrlServiceBean implements Serializable {
 
     @EJB
     DatasetServiceBean datasetServiceBean;
+    
+    @EJB
+    DataFileServiceBean dataFileServiceBean;
 
     @EJB
     SystemConfig systemConfig;
@@ -54,11 +58,12 @@ public class PrivateUrlServiceBean implements Serializable {
     }
 
     /**
+     * @param file 
      * @return PrivateUrlRedirectData if it can be found using the token or
      * null.
      */
-    public PrivateUrlRedirectData getPrivateUrlRedirectDataFromToken(String token) {
-        return PrivateUrlUtil.getPrivateUrlRedirectData(getRoleAssignmentFromPrivateUrlToken(token));
+    public PrivateUrlRedirectData getPrivateUrlRedirectDataFromToken(String token, String file) {
+        return PrivateUrlUtil.getPrivateUrlRedirectData(getRoleAssignmentFromPrivateUrlToken(token), dataFileServiceBean.findByGlobalId(file));
     }
 
     /**
