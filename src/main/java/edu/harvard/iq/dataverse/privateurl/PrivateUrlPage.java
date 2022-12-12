@@ -28,10 +28,11 @@ public class PrivateUrlPage implements Serializable {
      * draft dataset version to redirect the user to.
      */
     String token;
+    String file;
 
     public String init() {
         try {
-            PrivateUrlRedirectData privateUrlRedirectData = privateUrlService.getPrivateUrlRedirectDataFromToken(token);
+            PrivateUrlRedirectData privateUrlRedirectData = privateUrlService.getPrivateUrlRedirectDataFromToken(token, file);
             String draftDatasetPageToBeRedirectedTo = privateUrlRedirectData.getDraftDatasetPageToBeRedirectedTo() + "&faces-redirect=true";
             PrivateUrlUser privateUrlUser = privateUrlRedirectData.getPrivateUrlUser();
             session.setUser(privateUrlUser);
@@ -49,6 +50,14 @@ public class PrivateUrlPage implements Serializable {
 
     public void setToken(String token) {
         this.token = token;
+    }
+    
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
     }
 
 }
