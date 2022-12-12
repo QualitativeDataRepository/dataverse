@@ -170,7 +170,7 @@ public class PrivateUrlUtilTest {
 
         ra.setDefinitionPoint(null);
         PrivateUrlRedirectData privateUrlRedirectData = null;
-        privateUrlRedirectData = PrivateUrlUtil.getPrivateUrlRedirectData(ra);
+        privateUrlRedirectData = PrivateUrlUtil.getPrivateUrlRedirectData(ra, null);
         assertNull(privateUrlRedirectData);
     }
 
@@ -187,7 +187,7 @@ public class PrivateUrlUtilTest {
         dataset.setId(datasetId);
         String privateUrlToken = null;
         RoleAssignment ra = new RoleAssignment(aRole, anAssignee, dataset, privateUrlToken);
-        PrivateUrlRedirectData privateUrlRedirectData = PrivateUrlUtil.getPrivateUrlRedirectData(ra);
+        PrivateUrlRedirectData privateUrlRedirectData = PrivateUrlUtil.getPrivateUrlRedirectData(ra, null);
         assertNotNull(privateUrlRedirectData);
         assertEquals("/dataset.xhtml?persistentId=doi:10.5072/FK2/3L33T&version=DRAFT", privateUrlRedirectData.getDraftDatasetPageToBeRedirectedTo());
         assertEquals(privateUrlUser.getIdentifier(), privateUrlRedirectData.getPrivateUrlUser().getIdentifier());
@@ -195,7 +195,7 @@ public class PrivateUrlUtilTest {
 
     @Test
     public void testGetDraftUrlDraftNull() {
-        assertEquals("UNKNOWN", PrivateUrlUtil.getDraftUrl(null));
+        assertEquals("UNKNOWN", PrivateUrlUtil.getDraftUrl((DatasetVersion) null));
     }
 
     @Test
