@@ -87,6 +87,8 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     
     private boolean mainDriver = true;
 
+    private static int errCount=0;
+    
     private static HashMap<String, AmazonS3> driverClientMap = new HashMap<String,AmazonS3>();
     private static HashMap<String, TransferManager> driverTMMap = new HashMap<String,TransferManager>();
 
@@ -111,6 +113,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                 }
             } catch (SdkClientException sce) {
                 logger.warning(sce.getMessage());
+                logger.warning(sce.getCause().getLocalizedMessage());
+                errCount=(errCount+1)%100;
+                if(errCount==1) {
+                  sce.printStackTrace();
+                }
                 throw new IOException("ERROR: S3AccessIO - Failed to look up bucket "+bucketName+" (is AWS properly configured?): " + sce.getMessage());
             }
         } catch (Exception e) {

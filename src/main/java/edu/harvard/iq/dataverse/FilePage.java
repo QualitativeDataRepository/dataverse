@@ -253,6 +253,14 @@ public class FilePage implements java.io.Serializable {
                 JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.locked.editInProgress.message"),
                         BundleUtil.getStringFromBundle("dataset.locked.editInProgress.message.details"));
             }
+            if (session.getUser() instanceof PrivateUrlUser) {
+                PrivateUrlUser privateUrlUser = (PrivateUrlUser) session.getUser();
+                logger.fine("Anon: " + privateUrlUser.hasAnonymizedAccess());
+                if (dataset != null && dataset.getId().equals(privateUrlUser.getDatasetId())) {
+                    JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.privateurl.header"),
+                            BundleUtil.getStringFromBundle("dataset.privateurl.infoMessageReviewer"));
+                }
+            }
         } else {
 
             return permissionsWrapper.notFound();
