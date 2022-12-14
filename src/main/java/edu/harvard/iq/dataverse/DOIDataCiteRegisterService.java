@@ -517,7 +517,7 @@ class DataCiteMetadataTemplate {
         if (authors!= null && !authors.isEmpty()) {
             for (DatasetAuthor author : authors) {
                 creatorsElement.append("<creator><creatorName>");
-                creatorsElement.append(author.getName().getDisplayValue());
+                creatorsElement.append(StringEscapeUtils.escapeXml10(author.getName().getDisplayValue()));
                 creatorsElement.append("</creatorName>");
 
                 if (author.getIdType() != null && author.getIdValue() != null && !author.getIdType().isEmpty() && !author.getIdValue().isEmpty() && author.getAffiliation() != null && !author.getAffiliation().getDisplayValue().isEmpty()) {
@@ -533,7 +533,7 @@ class DataCiteMetadataTemplate {
                     }
                 }
                 if (author.getAffiliation() != null && !author.getAffiliation().getDisplayValue().isEmpty()) {
-                    creatorsElement.append("<affiliation>" + author.getAffiliation().getDisplayValue() + "</affiliation>");
+                    creatorsElement.append("<affiliation>" + StringEscapeUtils.escapeXml10(author.getAffiliation().getDisplayValue()) + "</affiliation>");
                 }
                 creatorsElement.append("</creator>");
             }
@@ -548,9 +548,9 @@ class DataCiteMetadataTemplate {
         if (this.getContacts() != null) {
             for (String[] contact : this.getContacts()) {
                 if (!contact[0].isEmpty()) {
-                    contributorsElement.append("<contributor contributorType=\"ContactPerson\"><contributorName>" + contact[0] + "</contributorName>");
+                    contributorsElement.append("<contributor contributorType=\"ContactPerson\"><contributorName>" + StringEscapeUtils.escapeXml10(contact[0]) + "</contributorName>");
                     if (!contact[1].isEmpty()) {
-                        contributorsElement.append("<affiliation>" + contact[1] + "</affiliation>");
+                        contributorsElement.append("<affiliation>" + StringEscapeUtils.escapeXml10(contact[1]) + "</affiliation>");
                     }
                     contributorsElement.append("</contributor>");
                 }
@@ -559,9 +559,9 @@ class DataCiteMetadataTemplate {
 
         if (this.getProducers() != null) {
             for (String[] producer : this.getProducers()) {
-                contributorsElement.append("<contributor contributorType=\"Producer\"><contributorName>" + producer[0] + "</contributorName>");
+                contributorsElement.append("<contributor contributorType=\"Producer\"><contributorName>" + StringEscapeUtils.escapeXml10(producer[0]) + "</contributorName>");
                 if (!producer[1].isEmpty()) {
-                    contributorsElement.append("<affiliation>" + producer[1] + "</affiliation>");
+                    contributorsElement.append("<affiliation>" + StringEscapeUtils.escapeXml10(producer[1]) + "</affiliation>");
                 }
                 contributorsElement.append("</contributor>");
             }
