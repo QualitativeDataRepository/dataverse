@@ -30,6 +30,7 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
@@ -1314,5 +1315,18 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         return true;
     }
     
+    
+    public void closeInputStream() {
+        try {
+            S3ObjectInputStream sois = (S3ObjectInputStream) getInputStream();
+            if(sois.available()>0) {
+                sois.abort();
+            }
+        } catch (Exception e) {
+            logger.warning(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+        super.closeInputStream();
+    }
 
 }
