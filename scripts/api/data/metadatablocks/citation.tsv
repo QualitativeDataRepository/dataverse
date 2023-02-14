@@ -74,7 +74,7 @@
 	producerURL	URL	The URL of the producer's website	https://	url	70	<a href="#VALUE" target="_blank" rel="noopener">#VALUE</a>	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	producer	citation	
 	producerLogoURL	Logo URL	The URL of the producer's logo	https://	url	71	<img src="#VALUE" alt="#NAME" class="metadata-logo"/><br/>	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	producer	citation	
 	productionDate	Production Date	The date when the data were produced (not distributed, published, or archived)	YYYY-MM-DD	date	72		TRUE	FALSE	FALSE	TRUE	FALSE	FALSE		citation	
-	productionPlace	Production Location	The location where the data and any related materials were produced or collected		text	73		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		citation	
+	productionPlace	Production Location	The location where the data and any related materials were produced or collected		text	73		TRUE	FALSE	TRUE	TRUE	FALSE	FALSE		citation	
 	topicClassification	Topic Classification	Indicates a broad, important topic or subject that the Data Project covers and information about any controlled vocabulary used		none	74		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		citation	
 	topicClassValue	Term	A topic or subject term		text	75	#VALUE	TRUE	FALSE	FALSE	TRUE	FALSE	FALSE	topicClassification	citation	
 	topicClassVocab	Controlled Vocabulary Name	The controlled vocabulary used for the keyword term (e.g. LCSH, MeSH)		text	76	(#VALUE)	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	topicClassification	citation	

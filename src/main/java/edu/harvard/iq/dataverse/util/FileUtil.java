@@ -41,6 +41,7 @@ import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.ingest.IngestServiceShapefileHelper;
 import edu.harvard.iq.dataverse.ingest.IngestableDataChecker;
 import edu.harvard.iq.dataverse.license.License;
+import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.file.BagItFileHandler;
 import edu.harvard.iq.dataverse.util.file.CreateDataFileResult;
 import edu.harvard.iq.dataverse.util.file.BagItFileHandlerFactory;
@@ -1453,11 +1454,8 @@ public class FileUtil implements java.io.Serializable  {
     }
 
     public static String getFilesTempDirectory() {
-        String filesRootDirectory = System.getProperty("dataverse.files.directory");
-        if (filesRootDirectory == null || filesRootDirectory.equals("")) {
-            filesRootDirectory = "/tmp/files";
-        }
-
+        
+        String filesRootDirectory = JvmSettings.FILES_DIRECTORY.lookup();
         String filesTempDirectory = filesRootDirectory + "/temp";
 
         if (!Files.exists(Paths.get(filesTempDirectory))) {
@@ -2223,7 +2221,9 @@ public class FileUtil implements java.io.Serializable  {
             JsonObject jo = (JsonObject) jv;
             String[] values = new String[headers.length];
             for (int i = 0; i < headers.length; i++) {
-                values[i] = jo.get(headers[i]).toString();
+                if(jo.containsKey(headers[i])) {
+                    values[i] = jo.get(headers[i]).toString();
+                }
             }
             csvSB.append("\n").append(String.join(",", values));
         });
