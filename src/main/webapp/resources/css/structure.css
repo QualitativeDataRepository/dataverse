@@ -68,6 +68,10 @@ footer {width:100%; z-index:498; height:60px; color:#666666;position:relative;}
 .dropdown-menu>li>a {
 	font-family:AntoniaH2;
 }
+.dropdown-menu>div>a, .dropdown-menu>div>span {
+    font-family:AntoniaH2;
+    font-size:21px !important;
+}
 
 .highlightBold, a.highlightBold, .dropdown-menu > li > a.highlightBold {font-weight:bold;}
 tr.ui-state-highlight, .ui-widget-content tr.ui-state-highlight, .ui-widget-header tr.ui-state-highlight {background-color: #ffffcc; background-image: none; color: #333333;}
@@ -961,7 +965,6 @@ div.panel-body.read-terms{max-height:220px; overflow-y:scroll; width:100%; backg
 .dropin-btn-status.ui-icon {background: url("https://www.dropbox.com/static/images/widgets/dbx-saver-status.png") no-repeat;}
 .globus-btn.ui-icon {background: url("https://docs.globus.org/images/home/transfer.png") no-repeat;background-size:contain;display:inline-block;}
 
-
 /* VERSIONS */
 div[id$="versionsTable"] th.col-select-width * {display:none;}
 #version-details-block > div {width:35%; padding:4px 10px; border: 1px solid #DDDDDD;}
@@ -1017,6 +1020,9 @@ thead.ui-datatable-scrollable-theadclone {display:none}
 #file-title-block span.glyphicon-lock, #file-title-block span.icon-unlock {top:1px;}
 #file-title-block span.ingest-warning {vertical-align:text-bottom;font-size:30px;}
 #fileCategoriesBlock span.label {margin-right: 0.5em;}
+#file-tags .label {
+    display:inline-block;
+}
 
 /* BLOCK UI */
 .ui-blockui.ui-widget-overlay {background:#fff; opacity:.6;}
@@ -1130,21 +1136,6 @@ span.ui-autocomplete input.ui-autocomplete-input {width:100%;}
 
 .hypothesis-btn-status.ui-icon {
 	background: url("/resources/images/hypothesisIcon.svg") no-repeat;
-}
-
-#datasetForm .qdr-sort {
-	max-width: 255px;
-	float: right;
-	padding-right:21px;
-}
-
-#datasetForm .qdr-sort .btn-group {
-	padding-top: 4px;
-}
-
-#datasetForm .qdr-group-by {
-	min-width: 130px;
-	padding: 0px;
 }
 
 #datasetForm\3AhypothesisButton {
@@ -1533,4 +1524,19 @@ div:has(> input[placeholder='1) FamilyName, GivenName or 2) Organization']):has(
 }
 div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
     width:100%;
+}
+/*File sorting*/
+#datasetForm .file-sort {
+	max-width: 255px;
+	float: right;
+	padding-right:21px;
+}
+
+#datasetForm .file-sort .btn-group {
+	padding-top: 4px;
+}
+
+#datasetForm .file-group-by {
+	min-width: 130px;
+	padding: 0px;
 }
