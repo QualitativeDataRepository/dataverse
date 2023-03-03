@@ -8,6 +8,7 @@ node {
 
   withCredentials([
     string(credentialsId: 'dataverse-deploy-user ', variable: 'DATAVERSE_DEPLOY_USER'),
+    string(credentialsId: 'GRAPHITE_URL ', variable: 'GRAPHITE_URL'),
     ]) {
 
     stage('Init') {
@@ -72,12 +73,11 @@ node {
       unstash 'dataverse-war'
       try {
         sh """
-          ssh ${DATAVERSE_DEPLOY_USER}@${DEPLOY_TARGET} \"sudo mkdir -p /srv/dataverse-releases; sudo chown qdradmin /srv/dataverse-releases\"
           rsync -av target/${ARTIFACT_ID}-${VERSION}.war ${DATAVERSE_DEPLOY_USER}@${DEPLOY_TARGET}:/srv/dataverse-releases
-          ssh ${DATAVERSE_DEPLOY_USER}@${DEPLOY_TARGET} 'sudo chmod 644 /srv/dataverse-releases/${ARTIFACT_ID}-${VERSION}.war; sudo su - glassfish -c \"dv-deploy /srv/dataverse-releases/${ARTIFACT_ID}-${VERSION}.war\"'
+          ssh ${DATAVERSE_DEPLOY_USER}@${DEPLOY_TARGET} "dataverse-deploy ${ARTIFACT_ID} ${VERSION}"
         """
         notifyBuild("Success", "good")
-        sh "curl -sX POST http://graphite.int.qdr.org:81/events/ -d '{\"what\": \"${ARTIFACT_ID}-${VERSION} to ${DEPLOY_TARGET}\", \"tags\" : \"deployment\"}'"
+        sh "curl -sX POST ${GRAPHITE_URL}/events/ -d '{\"what\": \"${ARTIFACT_ID}-${VERSION} to ${DEPLOY_TARGET}\", \"tags\" : \"deployment\"}'"
       }
       catch (e) {
         currentBuild.result = "FAILURE"
