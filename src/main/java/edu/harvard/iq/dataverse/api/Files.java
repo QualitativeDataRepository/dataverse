@@ -763,4 +763,10 @@ public class Files extends AbstractApiBean {
             return wr.getResponse();
         }
     }
+    
+    @GET
+    @Path("fixityAlgorithm")
+    public Response getFixityAlgorithm() {
+        return ok(systemConfig.getFileFixityChecksumAlgorithm().toString());
+    }
 }
