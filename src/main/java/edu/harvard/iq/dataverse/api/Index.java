@@ -513,7 +513,7 @@ public class Index extends AbstractApiBean {
             }
 
             // <copyField source="*_i" dest="_text_" maxChars="3000"/>
-            sb.append("    <copyField source=\"").append(nameSearchable).append("\" dest=\""+ SearchFields.FULL_TEXT + "\" maxChars=\"3000\"/>\n");
+            sb.append("    <copyField source=\"").append(nameSearchable).append("\" dest=\""+ SearchFields.SIMPLE_SEARCH_FIELD + "\" maxChars=\"3000\"/>\n");
         }
 
         return sb.toString();
