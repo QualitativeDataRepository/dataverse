@@ -266,7 +266,8 @@ public class SearchFields {
     public static final String VARIABLE_NOTES = "variableNotes";
 
 
-	public static final String FULL_TEXT = "fulltext";
+    public static final String SIMPLE_SEARCH_FIELD = "_text_";
+    public static final String FULL_TEXT = "fulltext";
     public static final String EMBARGO_END_DATE = "embargoEndDate";
 
     // SpatialRecursivePrefixTreeFieldType: https://solr.apache.org/guide/8_11/spatial-search.html#rpt
