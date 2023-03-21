@@ -1012,7 +1012,7 @@ public class DatasetPage implements java.io.Serializable {
                 return (SwiftAccessIO)storageIO;
             } else {
                 logger.fine("DatasetPage: Failed to cast storageIO as SwiftAccessIO (most likely because storageIO is a FileAccessIO)");
-            } 
+            }
         } catch (IOException e) {
             logger.fine("DatasetPage: Failed to get storageIO");
 
@@ -2024,7 +2024,7 @@ public class DatasetPage implements java.io.Serializable {
             if ( isEmpty(dataset.getIdentifier()) && systemConfig.directUploadEnabled(dataset) ) {
                 CommandContext ctxt = commandEngine.getContext();
                 GlobalIdServiceBean idServiceBean = GlobalIdServiceBean.getBean(ctxt);
-                dataset.setIdentifier(ctxt.datasets().generateDatasetIdentifier(dataset, idServiceBean));
+                dataset.setIdentifier(idServiceBean.generateDatasetIdentifier(dataset));
             }
             dataverseTemplates.addAll(dataverseService.find(ownerId).getTemplates());
             if (!dataverseService.find(ownerId).isTemplateRoot()) {
@@ -2916,9 +2916,9 @@ public class DatasetPage implements java.io.Serializable {
             //SEK 12/20/2019 - since we are ingesting a file we know that there is a current draft version
             lockedDueToIngestVar = null;
             if (canViewUnpublishedDataset()) {
-                return "/dataset.xhtml?persistentId=" + dataset.getGlobalIdString() + "&showIngestSuccess=true&version=DRAFT&faces-redirect=true";
+                return "/dataset.xhtml?persistentId=" + dataset.getGlobalId().asString() + "&showIngestSuccess=true&version=DRAFT&faces-redirect=true";
             } else {
-                return "/dataset.xhtml?persistentId=" + dataset.getGlobalIdString() + "&showIngestSuccess=true&faces-redirect=true";
+                return "/dataset.xhtml?persistentId=" + dataset.getGlobalId().asString() + "&showIngestSuccess=true&faces-redirect=true";
             }
         }
 
@@ -3158,7 +3158,7 @@ public class DatasetPage implements java.io.Serializable {
     //A string that is used to determine step(s) taken after files are requested for download
     /*
     Values of "Pass"; "FailSize"; "FailEmpty"; "FailRestricted"; "Mixed"; "GuestbookRequired"
-     */
+    */
     private String validateFilesOutcome;
 
     public String getValidateFilesOutcome() {
@@ -3187,7 +3187,7 @@ public class DatasetPage implements java.io.Serializable {
                 DataFile dataFile = fmd.getDataFile();
                 if (downloadOriginal && dataFile.isTabularData()) {
                     bytes += dataFile.getOriginalFileSize() == null ? 0 : dataFile.getOriginalFileSize();
-            } else {
+                } else {
                     bytes += dataFile.getFilesize();
                 }
             } else {
@@ -3202,13 +3202,14 @@ public class DatasetPage implements java.io.Serializable {
             return false;
         }
 
-        // If some of the files were restricted and we had to drop them off the 
+        // If some of the files were restricted and we had to drop them off the
         // list, and NONE of the files are left on the downloadable list
-        // - we show them a "you're out of luck" popup: 
-        if(getSelectedDownloadableFiles().isEmpty() && !getSelectedNonDownloadableFiles().isEmpty()){
+        // - we show them a "you're out of luck" popup:
+        if (getSelectedDownloadableFiles().isEmpty() && !getSelectedNonDownloadableFiles().isEmpty()) {
             setValidateFilesOutcome("FailRestricted");
             return false;
         }
+
         if (!getSelectedDownloadableFiles().isEmpty() && !getSelectedNonDownloadableFiles().isEmpty()) {
             setValidateFilesOutcome("Mixed");
             return true;
@@ -3915,7 +3916,7 @@ public class DatasetPage implements java.io.Serializable {
          setReleasedVersionTabList(resetReleasedVersionTabList());
          newFiles.clear();
          editMode = null;
-         return "/dataset.xhtml?persistentId=" + dataset.getGlobalIdString() + "&version="+ workingVersion.getFriendlyVersionNumber() +  "&faces-redirect=true";
+         return "/dataset.xhtml?persistentId=" + dataset.getGlobalId().asString() + "&version="+ workingVersion.getFriendlyVersionNumber() +  "&faces-redirect=true";
     }
 
     private String returnToDatasetOnly(){
@@ -3925,7 +3926,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private String returnToDraftVersion(){
-         return "/dataset.xhtml?persistentId=" + dataset.getGlobalIdString() + "&version=DRAFT" + "&faces-redirect=true";
+         return "/dataset.xhtml?persistentId=" + dataset.getGlobalId().asString() + "&version=DRAFT" + "&faces-redirect=true";
     }
 
     public String cancel() {
@@ -4393,11 +4394,7 @@ public class DatasetPage implements java.io.Serializable {
     private List<DatasetVersion> resetVersionTabList() {
         //if (true)return null;
         List<DatasetVersion> retList = new ArrayList<>();
-        logger.info("At reset list: Dataset has " + dataset.getVersions().size() + " versions.");
-        for(DatasetVersion dv: dataset.getVersions()) {
-            logger.info("Version id: " + dv.getId());
-        }
-        
+
         if (permissionService.on(dataset).has(Permission.ViewUnpublishedDataset)) {
             for (DatasetVersion version : dataset.getVersions()) {
                 Collection<FileMetadata> fml = version.getFileMetadatas();
@@ -4505,7 +4502,7 @@ public class DatasetPage implements java.io.Serializable {
 
                 String[] temp = new String[2];
                 temp[0] = formatDisplayName;
-                temp[1] = myHostURL + "/api/datasets/export?exporter=" + formatName + "&persistentId=" + dataset.getGlobalIdString();
+                temp[1] = myHostURL + "/api/datasets/export?exporter=" + formatName + "&persistentId=" + dataset.getGlobalId().asString();
                 retList.add(temp);
             }
         }

@@ -369,7 +369,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         GlobalIdServiceBean idServiceBean = GlobalIdServiceBean.getBean(protocol, ctxt);
  
         if (idServiceBean != null) {
-            List<String> args = idServiceBean.getProviderInformation();
+            
             try {
                 String currentGlobalIdProtocol = ctxt.settings().getValueForKey(SettingsServiceBean.Key.Protocol, "");
                 String currentGlobalAuthority = ctxt.settings().getValueForKey(SettingsServiceBean.Key.Authority, "");
@@ -412,7 +412,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
                 notifyUsersDatasetPublishStatus(ctxt, dataset, UserNotification.Type.PUBLISHFAILED_PIDREG);
                 
                 ctxt.datasets().removeDatasetLocks(dataset, DatasetLock.Reason.finalizePublication);
-                throw new CommandException(BundleUtil.getStringFromBundle("dataset.publish.error", args), this);
+                throw new CommandException(BundleUtil.getStringFromBundle("dataset.publish.error", idServiceBean.getProviderInformation()), this);
             }
         }
     }

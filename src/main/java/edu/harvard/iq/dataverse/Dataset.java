@@ -258,7 +258,7 @@ public class Dataset extends DvObjectContainer {
     }
 
     public String getPersistentURL() {
-        return new GlobalId(this).toURL().toString();
+        return this.getGlobalId().asURL();
     }
     
     public List<DataFile> getFiles() {
@@ -924,4 +924,8 @@ public class Dataset extends DvObjectContainer {
         return DatasetUtil.getThumbnail(this, datasetVersion, size);
     }
 
+    @Override
+    public String getTargetUrl() {
+        return Dataset.TARGET_URL;
+    }
 }

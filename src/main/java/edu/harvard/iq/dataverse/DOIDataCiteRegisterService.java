@@ -640,8 +640,8 @@ class DataCiteMetadataTemplate {
 
                 datafileIdentifiers = new ArrayList<>();
                 for (DataFile dataFile : dataset.getFiles()) {
-                    if (!dataFile.getGlobalId().asString().isEmpty()) {
-                        appendIdentifier(sb, "DOI", "HasPart", dataFile.getGlobalId().toString());
+                    if (dataFile.getGlobalId() != null) {
+                        appendIdentifier(sb, "DOI", "HasPart", dataFile.getGlobalId().asString());
                     }
                 }
 
@@ -651,7 +651,7 @@ class DataCiteMetadataTemplate {
             }
         } else if (dvObject.isInstanceofDataFile()) {
             DataFile df = (DataFile) dvObject;
-            appendIdentifier(sb, "DOI", "IsPartOf", df.getOwner().getGlobalId().toString());
+            appendIdentifier(sb, "DOI", "IsPartOf", df.getOwner().getGlobalId().asString());
             if (sb.length() != 0) {
                 sb.append("</relatedIdentifiers>");
             }
