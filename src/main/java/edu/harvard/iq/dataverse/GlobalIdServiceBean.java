@@ -43,6 +43,8 @@ public interface GlobalIdServiceBean {
     
     boolean publicizeIdentifier(DvObject studyIn);
     
+    boolean updateIdentifier(DvObject dvObject);
+    
     String generateDatasetIdentifier(Dataset dataset);
     String generateDataFileIdentifier(DataFile datafile);
     boolean isGlobalIdUnique(GlobalId globalId);

@@ -257,7 +257,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                         int attempts = 0;
                         if (retry) {
                             do {
-                                dataFile.setIdentifier(ctxt.files().generateDataFileIdentifier(dataFile, globalIdServiceBean));
+                                dataFile.setIdentifier(globalIdServiceBean.generateDataFileIdentifier(dataFile));
                                 logger.log(Level.INFO, "Attempting to register external identifier for datafile {0} (trying: {1}).",
                                         new Object[] { dataFile.getId(), dataFile.getIdentifier() });
                                 attempts++;

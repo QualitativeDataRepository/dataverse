@@ -2410,13 +2410,7 @@ public class Datasets extends AbstractApiBean {
         // (1) Get the user from the ContainerRequestContext
         // -------------------------------------
         User authUser;
-        try {
-            authUser = getRequestUser(crc);
-        } catch (WrappedResponse ex) {
-            return error(Response.Status.FORBIDDEN,
-                    BundleUtil.getStringFromBundle("file.addreplace.error.auth")
-                    );
-        }
+        authUser = getRequestUser(crc);
 
         // -------------------------------------
         // (2) Get the Dataset Id

@@ -294,7 +294,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             return retVal;
         } else {
             // try to find with alternative PID
-            retVal = (Dataset) dvObjectService.findByAltGlobalId(globalId, DvObject.DType.Dataset, true);
+            retVal = (Dataset) dvObjectService.findByAltGlobalId(globalId, DvObject.DType.Dataset);
             if (retVal == null) {
                 try {
 

@@ -480,7 +480,7 @@ public class MailServiceBean implements java.io.Serializable {
                 version =  (DatasetVersion) targetObject;
                 pattern = BundleUtil.getStringFromBundle("notification.email.wasPublished");
                 String[] paramArrayPublishedDataset = {version.getDataset().getDisplayName(), getDatasetLink(version.getDataset()), 
-                    version.getDataset().getOwner().getDisplayName(),  getDataverseLink(version.getDataset().getOwner()), version.getDataset().getGlobalId().toURL().toString(), version.getCitation(isHtmlContent)};
+                    version.getDataset().getOwner().getDisplayName(),  getDataverseLink(version.getDataset().getOwner()), version.getDataset().getGlobalId().asURL().toString(), version.getCitation(isHtmlContent)};
                 messageText += MessageFormat.format(pattern, paramArrayPublishedDataset);
                 return messageText;
             case PUBLISHFAILED_PIDREG:
