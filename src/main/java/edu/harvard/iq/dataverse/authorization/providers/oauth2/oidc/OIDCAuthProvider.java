@@ -23,6 +23,7 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
+import com.nimbusds.openid.connect.sdk.Prompt;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
@@ -59,7 +60,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
     OIDCProviderMetadata idpMetadata;
     
     public OIDCAuthProvider(String aClientId, String aClientSecret, String issuerEndpointURL) throws AuthorizationSetupException {
-        this.clientSecret = aClientSecret; // nedded for state creation
+        this.clientSecret = aClientSecret; // needed for state creation
         this.clientAuth = new ClientSecretBasic(new ClientID(aClientId), new Secret(aClientSecret));
         this.issuer = new Issuer(issuerEndpointURL);
         getMetadata();
@@ -73,6 +74,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @see <a href="https://github.com/eclipse-ee4j/el-ri/issues/43">Jakarta EE Bug 43</a>
      * @return false
      */
+    
+    //ToDo: Should be fixed - don't need this now
     @Override
     public boolean isDisplayIdentifier() { return false; }
     
@@ -153,13 +156,15 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             .endpointURI(idpMetadata.getAuthorizationEndpointURI())
             .state(stateObject)
             .nonce(nonce)
+//            .prompt(new Prompt(Prompt.Type.NONE))
+//            .maxAge(100)
             .build();
         
         return req.toURI().toString();
     }
     
     /**
-     * Receive user data from OIDC provider after authn/z has been successfull. (Callback view uses this)
+     * Receive user data from OIDC provider after authn/z has been successful. (Callback view uses this)
      * Request a token and access the resource, parse output and return user details.
      * @param code The authz code sent from the provider
      * @param redirectUrl The redirect URL (some providers require this when fetching the access token, e. g. Google)

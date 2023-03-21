@@ -225,7 +225,7 @@ public class OAuth2LoginBackingBean implements Serializable {
     }
     
     /**
-     * Create a randomized unique state string to be used while crafting the autorization request
+     * Create a randomized unique state string to be used while crafting the authorization request
      * @param idp
      * @param redirectPage
      * @return Random state string, composed from system time, random numbers and redirectPage parameter
