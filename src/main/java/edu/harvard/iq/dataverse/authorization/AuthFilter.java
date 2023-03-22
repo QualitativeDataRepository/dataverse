@@ -37,12 +37,12 @@ public class AuthFilter implements Filter {
 
     @EJB
     SystemConfig systemConfig;
-    
+
     @Inject
     DataverseSession session;
-    @Inject 
+    @Inject
     AuthenticationServiceBean authenticationSvc;
-    
+
     @Inject
     @ClockUtil.LocalTime
     Clock clock;
@@ -70,20 +70,17 @@ public class AuthFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
 
-        if(!session.getUser().isAuthenticated()) {
+        if (!session.getUser().isAuthenticated()) {
             logger.info("check OIDC");
-            FacesContext context = FacesContext.getCurrentInstance();
-            if (context != null) {
-                HttpSession httpSession = (HttpSession) context.getExternalContext().getSession(false);
-                if (httpSession.getAttribute("passiveChecked") == null) {
-                    AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
-                    String state = createState(idp, toOption("https://dv.dev-aws.qdr.org/"));
-                    logger.info(idp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl()));
-                }
+            HttpSession httpSession = httpServletRequest.getSession();
+            if (httpSession.getAttribute("passiveChecked") == null) {
+                AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
+                String state = createState(idp, toOption("https://dv.dev-aws.qdr.org/"));
+                logger.info(idp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl()));
             }
         }
         String username = session.getUser().getIdentifier();
-        
+
         String remoteAddr = httpServletRequest.getRemoteAddr();
         String requestUri = httpServletRequest.getRequestURI();
         String userAgent = httpServletRequest.getHeader("User-Agent");
@@ -95,7 +92,7 @@ public class AuthFilter implements Filter {
             sb.append(string + separator);
         }
 
-        //logger.info(sb.toString());
+        // logger.info(sb.toString());
 
         filterChain.doFilter(servletRequest, response);
     }
@@ -104,22 +101,25 @@ public class AuthFilter implements Filter {
     public void destroy() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     /**
-     * Create a randomized unique state string to be used while crafting the authorization request
+     * Create a randomized unique state string to be used while crafting the
+     * authorization request
+     * 
      * @param idp
      * @param redirectPage
-     * @return Random state string, composed from system time, random numbers and redirectPage parameter
+     * @return Random state string, composed from system time, random numbers and
+     *         redirectPage parameter
      */
     private String createState(AbstractOAuth2AuthenticationProvider idp, Optional<String> redirectPage) {
         if (idp == null) {
             throw new IllegalArgumentException("idp cannot be null");
         }
         SecureRandom rand = new SecureRandom();
-        
+
         String base = idp.getId() + "~" + this.clock.millis()
-                                  + "~" + rand.nextInt(1000)
-                                  + redirectPage.map( page -> "~"+page).orElse("");
+                + "~" + rand.nextInt(1000)
+                + redirectPage.map(page -> "~" + page).orElse("");
 
         String encrypted = StringUtil.encrypt(base, idp.getClientSecret());
         final String state = idp.getId() + "~" + encrypted;
