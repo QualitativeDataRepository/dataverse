@@ -24,6 +24,7 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import com.nimbusds.openid.connect.sdk.Prompt;
+import com.nimbusds.openid.connect.sdk.Prompt.Type;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
@@ -145,6 +146,11 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      */
     @Override
     public String buildAuthzUrl(String state, String callbackUrl) {
+        return buildAuthzUrl(state, callbackUrl, null, 0);
+    }
+
+    public String buildAuthzUrl(String state, String callbackUrl, Type promptType, int maxAge) {
+
         State stateObject = new State(state);
         URI callback = URI.create(callbackUrl);
         Nonce nonce = new Nonce();
@@ -155,9 +161,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
                                                                       callback)
             .endpointURI(idpMetadata.getAuthorizationEndpointURI())
             .state(stateObject)
-            .nonce(nonce)
-//            .prompt(new Prompt(Prompt.Type.NONE))
-//            .maxAge(100)
+            .nonce(nonce).prompt(promptType==null ? null : new Prompt(promptType))
+            .maxAge(maxAge)
             .build();
         
         return req.toURI().toString();

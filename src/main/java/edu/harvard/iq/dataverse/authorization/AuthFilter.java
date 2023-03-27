@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.authorization;
 
-import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.AbstractOAuth2AuthenticationProvider;
+import edu.harvard.iq.dataverse.authorization.providers.oauth2.oidc.OIDCAuthProvider;
 import edu.harvard.iq.dataverse.util.ClockUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import javax.ejb.EJB;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -29,7 +28,10 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import com.nimbusds.openid.connect.sdk.Prompt;
 
 public class AuthFilter implements Filter {
 
@@ -38,8 +40,6 @@ public class AuthFilter implements Filter {
     @EJB
     SystemConfig systemConfig;
 
-    @Inject
-    DataverseSession session;
     @Inject
     AuthenticationServiceBean authenticationSvc;
 
@@ -69,30 +69,47 @@ public class AuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+        HttpSession httpSession = httpServletRequest.getSession(false);
+        String path = httpServletRequest.getRequestURI();
+        if (path != null) {
+            logger.info("Path: " + path);
+        }
 
-        if (!session.getUser().isAuthenticated()) {
-            logger.info("check OIDC");
-            HttpSession httpSession = httpServletRequest.getSession();
-            if (httpSession.getAttribute("passiveChecked") == null) {
-                AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
-                String state = createState(idp, toOption("https://dv.dev-aws.qdr.org/"));
-                logger.info(idp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl()));
+        if (path.equals("/") || path.endsWith(".xhtml") && !(path.contains("javax.faces.resource") || path.contains("/oauth2/callback"))) {
+
+            if ((httpSession != null)) {
+                logger.info("check OIDC: " + httpSession.getAttribute("passiveChecked"));
+                synchronized (this) {
+                    if (httpSession.getAttribute("passiveChecked") == null) {
+                        logger.info("really check OIDC");
+                        AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
+                        OIDCAuthProvider oidcidp = (OIDCAuthProvider) idp;
+                        String state = createState(oidcidp, toOption("https://dv.dev-aws.qdr.org/"));
+                        String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
+                        logger.info(redirectUrl);
+                        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+                        httpSession.setAttribute("passiveChecked", true);
+
+                        String remoteAddr = httpServletRequest.getRemoteAddr();
+                        String requestUri = httpServletRequest.getRequestURI();
+                        String userAgent = httpServletRequest.getHeader("User-Agent");
+
+                        String separator = "|";
+
+                        StringBuilder sb = new StringBuilder();
+                        for (String string : Arrays.asList(remoteAddr, requestUri, userAgent)) {
+                            sb.append(string + separator);
+                        }
+
+                        logger.info(sb.toString());
+
+                        httpServletResponse.sendRedirect(redirectUrl);
+                        return;
+
+                    }
+                }
             }
         }
-        String username = session.getUser().getIdentifier();
-
-        String remoteAddr = httpServletRequest.getRemoteAddr();
-        String requestUri = httpServletRequest.getRequestURI();
-        String userAgent = httpServletRequest.getHeader("User-Agent");
-
-        String separator = "|";
-
-        StringBuilder sb = new StringBuilder();
-        for (String string : Arrays.asList(username, remoteAddr, requestUri, userAgent)) {
-            sb.append(string + separator);
-        }
-
-        // logger.info(sb.toString());
 
         filterChain.doFilter(servletRequest, response);
     }
