@@ -117,7 +117,9 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                 }
             } catch (SdkClientException sce) {
                 logger.warning(sce.getMessage());
-                logger.warning(sce.getCause().getLocalizedMessage());
+                if(sce.getCause()!=null) {
+                    logger.warning("Cause: " + sce.getCause().getLocalizedMessage());
+                }
                 errCount=(errCount+1)%100;
                 if(errCount==1) {
                   sce.printStackTrace();
@@ -126,7 +128,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             }
         } catch (Exception e) {
             throw new AmazonClientException(
-                        "Cannot instantiate a S3 client; check your AWS credentials and region",
+                        "Cannot instantiate a S3 client for " + bucketName + "; check your AWS credentials and region",
                         e);
         }
     }
