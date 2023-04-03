@@ -75,7 +75,7 @@ public class AuthFilter implements Filter {
             logger.info("Path: " + path);
         }
 
-        if (path.equals("/") || path.endsWith(".xhtml") && !(path.contains("javax.faces.resource") || path.contains("/oauth2/callback"))) {
+        if (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback"))) {
 
             if ((httpSession != null)) {
                 logger.info("check OIDC: " + httpSession.getAttribute("passiveChecked"));
