@@ -174,7 +174,7 @@ public class ExportService {
                 inputStream.close();
                 return sb.toString();
             }
-        } catch (ExportException | IOException ex) {
+        } catch (ExportException | IOException | RuntimeException ex) {
             //ex.printStackTrace();
             return null;
         } finally {

@@ -5,7 +5,6 @@
  */
 package edu.harvard.iq.dataverse;
 
-import com.amazonaws.AmazonClientException;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
@@ -208,7 +207,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
         try{
             dataAccess = DataAccess.getStorageIO(dataset);
         }
-        catch(IOException | AmazonClientException ex){
+        catch(IOException | RuntimeException ex){
           // ignore
         }
         
