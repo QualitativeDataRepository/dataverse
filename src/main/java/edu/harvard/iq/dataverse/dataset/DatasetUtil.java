@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.dataset;
 
+import com.amazonaws.AmazonClientException;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetField;
@@ -126,8 +127,8 @@ public class DatasetUtil {
         try{
             dataAccess = DataAccess.getStorageIO(dataset);
         }
-        catch(IOException ioex){
-            logger.warning("getThumbnail(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier() + " (" + ioex.getMessage() + ")");
+        catch(IOException | AmazonClientException ex){
+            logger.warning("getThumbnail(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier() + " (" + ex.getMessage() + ")");
         }
         
         InputStream in = null;
