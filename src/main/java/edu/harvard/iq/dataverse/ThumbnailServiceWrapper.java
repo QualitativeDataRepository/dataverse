@@ -213,7 +213,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
         try{
             dataAccess = DataAccess.getStorageIO(dataset);
         }
-        catch(IOException ioex){
+        catch(Exception ioex){
           // ignore
         }
         
