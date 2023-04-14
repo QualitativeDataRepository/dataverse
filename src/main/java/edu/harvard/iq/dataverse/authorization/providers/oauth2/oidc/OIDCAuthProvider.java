@@ -209,12 +209,16 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @return the usable user record for processing ing {@link edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean}
      */
     OAuth2UserRecord getUserRecord(UserInfo userInfo) {
+        String role = userInfo.getStringClaim("role");
+        role = role == null ? "" : role;
+        String affiliation = userInfo.getStringClaim("organization");
+        affiliation = affiliation == null ? "" : affiliation;
         return new OAuth2UserRecord(
             this.getId(),
             userInfo.getSubject().getValue(),
             userInfo.getPreferredUsername(),
             null,
-            new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), "", ""),
+            new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), role, affiliation),
             null
         );
     }
