@@ -1484,7 +1484,7 @@ a {
   color: #0039f5;
 }
 
-.label-warning a, .bg-citation a {
+.label-warning a, .bg-citation a, .terms .help-block a {
   text-decoration: underline;
 }
 
