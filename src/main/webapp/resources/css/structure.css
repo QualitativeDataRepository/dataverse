@@ -1483,6 +1483,11 @@ padding-right:0px;
 a {
   color: #0039f5;
 }
+
+.label-warning a, .bg-citation a {
+  text-decoration: underline;
+}
+
 .pagination>.disabled>a {
     color:#767676;
 }
