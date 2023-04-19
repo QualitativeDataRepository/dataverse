@@ -118,6 +118,7 @@ public class MetricsServiceBean implements Serializable {
                 + "select cvv.strvalue, count(dataverse_id) from dataversesubjects\n"
                 + "join controlledvocabularyvalue cvv ON cvv.id = controlledvocabularyvalue_id \n"
                 //+ "where dataverse_id != ( select id from dvobject where owner_id is null) \n" //removes root, we decided to do this in the homepage js instead
+                //Note that without the where commented out above, this is a 'join on x and y' rather than a 'join on x where y' query. Seems to work the same and perhaps the former is more efficient? 
                 + ((d == null) ? "" : "and dataverse_id in (" + getCommaSeparatedIdStringForSubtree(d, "Dataverse") + ")\n")
                 + "group by cvv.strvalue\n"
                 + "order by count desc;"
