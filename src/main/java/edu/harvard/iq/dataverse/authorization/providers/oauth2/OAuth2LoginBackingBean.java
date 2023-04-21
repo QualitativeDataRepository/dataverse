@@ -109,10 +109,8 @@ public class OAuth2LoginBackingBean implements Serializable {
                 Optional<String> code = parseCodeFromRequest(req);
 
                 if (oIdp.isPresent() && code.isPresent()) {
-logger.info("Got code");
                     AbstractOAuth2AuthenticationProvider idp = oIdp.get();
                     oauthUser = idp.getUserRecord(code.get(), systemConfig.getOAuth2CallbackUrl());
-logger.info("Got record");
                     // Throw an error if this authentication method is disabled:
                     // (it's not clear if it's possible at all, for somebody to get here with
                     // the provider really disabled; but, shouldn't hurt either).
@@ -132,10 +130,13 @@ logger.info("Got record");
                             signUpDisabled = true;
                             throw new OAuth2Exception(-1, "", MessageFormat.format(BundleUtil.getStringFromBundle("oauth2.callback.error.signupDisabledForProvider"), idp.getId()));
                         } else {
-logger.info("New user: " + oauthUser.getUsername());
-
+                            // newAccountPage.setNewUser(oauthUser);
+                            // Faces.redirect("/oauth2/firstLogin.xhtml");
+                            //Auto-create new account (since at QDR it has all required info already)
                             newAccountPage.setNewUser(oauthUser);
-                            Faces.redirect("/oauth2/firstLogin.xhtml");
+                            newAccountPage.setUsername(oauthUser.getUsername());
+                            newAccountPage.createNewAccount();
+                            Faces.redirect(redirectPage.orElse("/"));
                         }
 
                     } else {
