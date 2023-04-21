@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.authorization.providers.oauth2;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.authorization.UserIdentifier;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.util.BundleUtil;
@@ -123,23 +124,30 @@ public class OAuth2LoginBackingBean implements Serializable {
                     AuthenticatedUser dvUser = authenticationSvc.lookupUser(idtf);
 
                     if (dvUser == null) {
-                        // Need to create a new user - unless signups are disabled
-                        // for this authentication method; in which case, throw
-                        // an error:
-                        if (systemConfig.isSignupDisabledForRemoteAuthProvider(idp.getId())) {
-                            signUpDisabled = true;
-                            throw new OAuth2Exception(-1, "", MessageFormat.format(BundleUtil.getStringFromBundle("oauth2.callback.error.signupDisabledForProvider"), idp.getId()));
+                        dvUser = authenticationSvc.getAuthenticatedUserByEmail(oauthUser.getUsername());
+                        if (dvUser != null) {
+                            logger.info("cli_id " + idp.getClientId());
+                            logger.info("id " + idp.getId());
+                            authenticationSvc.convertBuiltInUserToRemoteUser(dvUser, idp.getId(), new UserIdentifier(oauthUser.getIdInService(), null));
                         } else {
-                            // newAccountPage.setNewUser(oauthUser);
-                            // Faces.redirect("/oauth2/firstLogin.xhtml");
-                            //Auto-create new account (since at QDR it has all required info already)
-                            newAccountPage.setNewUser(oauthUser);
-                            newAccountPage.setUsername(oauthUser.getUsername());
-                            newAccountPage.createNewAccount();
-                            Faces.redirect(redirectPage.orElse("/"));
+                            // Need to create a new user - unless signups are disabled
+                            // for this authentication method; in which case, throw
+                            // an error:
+                            if (systemConfig.isSignupDisabledForRemoteAuthProvider(idp.getId())) {
+                                signUpDisabled = true;
+                                throw new OAuth2Exception(-1, "", MessageFormat.format(BundleUtil.getStringFromBundle("oauth2.callback.error.signupDisabledForProvider"), idp.getId()));
+                            } else {
+                                // newAccountPage.setNewUser(oauthUser);
+                                // Faces.redirect("/oauth2/firstLogin.xhtml");
+                                // Auto-create new account (since at QDR it has all required info already)
+                                newAccountPage.setNewUser(oauthUser);
+                                newAccountPage.setUsername(oauthUser.getUsername());
+                                newAccountPage.createNewAccount();
+                                Faces.redirect(redirectPage.orElse("/"));
+                            }
                         }
-
-                    } else {
+                        dvUser = authenticationSvc.lookupUser(idtf);
+                    } 
                         // login the user and redirect to HOME of intended page (if any).
                         // setUser checks for deactivated users.
                         session.setUser(dvUser);
@@ -152,7 +160,7 @@ public class OAuth2LoginBackingBean implements Serializable {
 logger.info("Found user: " + dvUser.getEmail());
 
                         Faces.redirect(redirectPage.orElse("/"));
-                    }
+                    
                 }
             }
         } catch (OAuth2Exception ex) {
