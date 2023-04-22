@@ -98,8 +98,10 @@ public class OAuth2LoginBackingBean implements Serializable {
         
         try {
             HttpSession httpSession = req.getSession(false);
-            logger.info("Passive checked?: " + httpSession.getAttribute("passiveChecked"));
-            httpSession.setAttribute("passiveChecked", true);
+            if(httpSession!=null) {
+                logger.info("Passive checked?: " + httpSession.getAttribute("passiveChecked"));
+                httpSession.setAttribute("passiveChecked", true);
+            }
             // Passive Login attempt check
             if (isPassiveLoginFailure(req)) {
                 
