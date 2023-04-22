@@ -119,6 +119,7 @@ class OAuth2LoginBackingBeanTest {
             lenient().when(externalContextMock.getFlash()).thenReturn(flashMock);
             lenient().when(requestMock.getReader()).thenReturn(reader);
             doReturn(loginBackingBean.createState(testIdp, this.redirect)).when(requestMock).getParameter("state");
+            doReturn(null).when(requestMock).getParameter("error");
             // travel in time at least 10 milliseconds (remote calls & redirects are much likely longer)
             // (if not doing this tests become flaky on fast machinas)
             loginBackingBean.clock = Clock.offset(constantClock, Duration.ofMillis(10));
