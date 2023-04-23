@@ -142,6 +142,7 @@ class OAuth2LoginBackingBeanTest {
             when(requestMock.getParameter("code")).thenReturn(code);
             // let's deep-fake the result of getUserRecord()
             doReturn(userRecord).when(testIdp).getUserRecord(code, null);
+            doReturn(null).when(requestMock).getParameter("error");
     
             // WHEN (& then)
             // capture the redirect target from the faces context
