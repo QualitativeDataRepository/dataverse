@@ -159,7 +159,9 @@ public class OAuth2LoginBackingBean implements Serializable {
                             tokenData.setOauthProviderId(idp.getId());
                             oauth2Tokens.store(tokenData);
                         }
-logger.info("Found user: " + dvUser.getEmail());
+                        if(dvUser!=null) {
+                           logger.info("Found user: " + dvUser.getEmail());
+                        }
 
                         Faces.redirect(redirectPage.orElse("/"));
                     

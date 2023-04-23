@@ -142,7 +142,7 @@ class OAuth2LoginBackingBeanTest {
             when(requestMock.getParameter("code")).thenReturn(code);
             // let's deep-fake the result of getUserRecord()
             doReturn(userRecord).when(testIdp).getUserRecord(code, null);
-            doReturn(null).when(requestMock).getParameter("error");
+            
     
             // WHEN (& then)
             // capture the redirect target from the faces context
@@ -155,7 +155,8 @@ class OAuth2LoginBackingBeanTest {
             // verify that the user object is passed on to the first login page
             verify(newAccountPage, times(1)).setNewUser(userRecord);
             // verify that the user is redirected to the first login page
-            assertThat(redirectUrlCaptor.getValue(), equalTo(newUserRedirect));
+            //QDR - we autocreate user and continue to redirect
+            assertThat(redirectUrlCaptor.getValue(), equalTo(redirect));
         }
     
         @Test
