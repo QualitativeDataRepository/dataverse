@@ -156,7 +156,7 @@ class OAuth2LoginBackingBeanTest {
             verify(newAccountPage, times(1)).setNewUser(userRecord);
             // verify that the user is redirected to the first login page
             //QDR - we autocreate user and continue to redirect
-            assertThat(redirectUrlCaptor.getValue(), equalTo(redirect));
+            assertThat(redirectUrlCaptor.getValue(), equalTo(redirect.get()));
         }
     
         @Test
