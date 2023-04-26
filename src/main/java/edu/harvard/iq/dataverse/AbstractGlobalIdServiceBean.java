@@ -32,7 +32,7 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
     @Inject
     SystemConfig systemConfig;
 
-    protected boolean configured = false;
+    protected Boolean configured = null;
     
     public static String UNAVAILABLE = ":unav";
 
@@ -224,7 +224,7 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
      */
     @Override
     public GlobalId parsePersistentId(String fullIdentifierString) {
-        if(!configured) {
+        if(!isConfigured()) {
             return null;
         }
         int index1 = fullIdentifierString.indexOf(':');
@@ -238,7 +238,7 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
     }
 
     protected GlobalId parsePersistentId(String protocol, String identifierString) {
-        if(!configured) {
+        if(!isConfigured()) {
             return null;
         }
         String authority;
@@ -269,7 +269,7 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
     }
     
     public GlobalId parsePersistentId(String protocol, String authority, String identifier) {
-        if(!configured) {
+        if(!isConfigured()) {
             return null;
         }
         logger.fine("Parsing: " + protocol + ":" + authority + getSeparator() + identifier + " in " + getProviderInformation().get(0));
@@ -704,6 +704,10 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
     
     @Override
     public boolean isConfigured() {
-        return configured;
+        if(configured==null) {
+            return false;
+        } else {
+            return configured.booleanValue();
+        }
     }
 }
