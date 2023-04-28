@@ -1891,6 +1891,7 @@ public class UtilIT {
     }
     
     static Response search(String query, String apiToken, String parameterString) {
+        sleepForDatasetIndex(query, apiToken);
         RequestSpecification requestSpecification = given();
         if (apiToken != null) {
             requestSpecification = given()
@@ -1899,11 +1900,24 @@ public class UtilIT {
         return requestSpecification.get("/api/search?q=" + query + parameterString);
     }
 
+    private static void sleepForDatasetIndex(String query, String apiToken) {
+        if (query.contains("id:dataset") || query.contains("id:datafile")) {
+            String[] splitted = query.split("_");
+            if (splitted.length >= 2) {
+                boolean ok = UtilIT.sleepForReindex(String.valueOf(splitted[1]), apiToken, 5);
+                if (!ok) {
+                    logger.info("Still indexing after 5 seconds");
+                }
+            }
+        }
+    }
+
     static Response search(String query, String apiToken) {
         return search(query, apiToken, "");
     }
 
     static Response searchAndShowFacets(String query, String apiToken) {
+        sleepForDatasetIndex(query, apiToken);
         RequestSpecification requestSpecification = given();
         if (apiToken != null) {
             requestSpecification = given()
@@ -2478,11 +2492,15 @@ public class UtilIT {
         int repeats = durationInSeconds * (1000 / sleepStep);
         boolean stale=true;
         do {
-            timestampResponse = UtilIT.getDatasetTimestamps(idOrPersistentId, apiToken);
-            System.out.println(timestampResponse.body().asString());
-            String hasStaleIndex = timestampResponse.body().jsonPath().getString("data.hasStaleIndex");
-            System.out.println(hasStaleIndex);
-            stale = Boolean.parseBoolean(hasStaleIndex);
+            try {
+                timestampResponse = UtilIT.getDatasetTimestamps(idOrPersistentId, apiToken);
+                System.out.println(timestampResponse.body().asString());
+                String hasStaleIndex = timestampResponse.body().jsonPath().getString("data.hasStaleIndex");
+                System.out.println(hasStaleIndex);
+                stale = Boolean.parseBoolean(hasStaleIndex);
+            } catch (Exception e) {
+                stale = false;
+            }
             
             try {
                 Thread.sleep(sleepStep);
@@ -2628,10 +2646,12 @@ public class UtilIT {
             queryParams = "?persistentId=" + idOrPersistentId;
         }
         
-        Response response = given()
-            .header(API_TOKEN_HTTP_HEADER, apiToken)
-            .get("api/datasets/" + idInPath + "/timestamps" + queryParams);
-        return response;
+        RequestSpecification requestSpecification = given();
+        if (apiToken != null) {
+            requestSpecification = given()
+                    .header(UtilIT.API_TOKEN_HTTP_HEADER, apiToken);
+        }
+        return requestSpecification.get("api/datasets/" + idInPath + "/timestamps" + queryParams);
     }
     
     static Response exportOaiSet(String setName) {
