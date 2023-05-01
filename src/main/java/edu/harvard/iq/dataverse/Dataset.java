@@ -263,8 +263,8 @@ public class Dataset extends DvObjectContainer {
 
     public String getPersistentURL() {
         GlobalId gid = this.getGlobalId();
-        if(gid != null && gid.toUrl() != null) {
-        return gid.toURL().toString();
+        if(gid != null && gid.asURL()!=null) {
+            return gid.asURL().toString();
         } else {
             logger.warning("Dataset " + this.getId() + "doesn't have a valid PID");
             return "Unavailable!";
