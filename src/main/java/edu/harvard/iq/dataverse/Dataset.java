@@ -17,6 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Logger;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Index;
@@ -87,6 +89,8 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
     @Index(columnList = "guestbook_id"),
     @Index(columnList = "thumbnailfile_id")})
 public class Dataset extends DvObjectContainer {
+
+    private static final Logger logger = Logger.getLogger(DatasetFieldServiceBean.class.getCanonicalName());
 
     public static final String TARGET_URL = "/citation?persistentId=";
     private static final long serialVersionUID = 1L;
@@ -258,7 +262,13 @@ public class Dataset extends DvObjectContainer {
     }
 
     public String getPersistentURL() {
-        return this.getGlobalId().asURL();
+        GlobalId gid = this.getGlobalId();
+        if(gid != null && gid.toUrl() != null) {
+        return gid.toURL().toString();
+        } else {
+            logger.warning("Dataset " + this.getId() + "doesn't have a valid PID");
+            return "Unavailable!";
+        }
     }
     
     public List<DataFile> getFiles() {
