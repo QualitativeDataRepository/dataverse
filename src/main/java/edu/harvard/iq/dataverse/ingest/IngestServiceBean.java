@@ -520,7 +520,7 @@ public class IngestServiceBean {
         if (count > 0) {
             String info = "Ingest of " + count + " tabular data file(s) is in progress.";
             logger.info(info);
-            DatasetLock lock = datasetService.addDatasetLock(scheduledFiles.get(0).getOwner().getId(),
+            datasetService.addDatasetLock(scheduledFiles.get(0).getOwner().getId(),
                     DatasetLock.Reason.Ingest,
                     (user != null) ? user.getId() : null,
                     info);
@@ -542,7 +542,7 @@ public class IngestServiceBean {
             for (int i = 0; i < count; i++) {
                 ingestMessage.addFileId(scheduledFilesArray[i].getId());
             }
-            ingestMessage.setLockId(lock.getId());
+            ingestMessage.setInfo(info);
 
             QueueConnection conn = null;
             QueueSession session = null;
