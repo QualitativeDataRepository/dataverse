@@ -1112,7 +1112,6 @@ public class IndexServiceBean {
                     }
                     
                     /* Full-text indexing using Apache Tika */
-                    try {
                     if (doFullTextIndexing) {
                         if (!dataset.isHarvested() && !fileMetadata.getDataFile().isFilePackage()&& fileMetadata.getDataFile().getFilesize()!=0) {
                             StorageIO<DataFile> accessObject = null;
@@ -1163,11 +1162,6 @@ public class IndexServiceBean {
                                 accessObject.closeInputStream();
                             }
                         }
-                    }
-                    } catch (Throwable e) {
-                            logger.warning(String.format("Throwable Full-text indexing for %s failed",
-                                fileMetadata.getDataFile().getDisplayName()));
-                        e.printStackTrace();
                     }
                     logger.fine("Continuing with file: " + fileMetadata.getDataFile().getId());
                     String filenameCompleteFinal = "";
