@@ -104,6 +104,7 @@
                         <f:param name="sort" value="#{SearchIncludeFragment.sortField}"/>
                         <f:param name="order" value="#{SearchIncludeFragment.sortOrder}"/>
                         <f:param name="page" value="1"/>
+                        <f:passThroughAttribute name="aria-label" value="#{bundle['facet.collection.label']}"/>
                         <p:selectBooleanCheckbox value="#{SearchIncludeFragment.selectedTypesList.contains('dataverses') ? true : false}" disabled="#{SearchIncludeFragment.getNewSelectedTypes('dataverses') == null ? true : false}" ariaLabel="#{bundle['facet.collection.label']}"/>
                     </h:outputLink>
                     <!--DATAVERSES ONLY-->
@@ -135,6 +136,7 @@
                         <f:param name="sort" value="#{SearchIncludeFragment.sortField}"/>
                         <f:param name="order" value="#{SearchIncludeFragment.sortOrder}"/>
                         <f:param name="page" value="1"/>
+                        <f:passThroughAttribute name="aria-label" value="#{bundle['facet.dataset.label']}"/>
                         <p:selectBooleanCheckbox value="#{SearchIncludeFragment.selectedTypesList.contains('datasets') ? true : false}" disabled="#{SearchIncludeFragment.getNewSelectedTypes('datasets') == null ? true : false}" ariaLabel="#{bundle['facet.dataset.label']}"/>
                     </h:outputLink>
                     <!--DATASETS ONLY-->
@@ -166,6 +168,7 @@
                         <f:param name="sort" value="#{SearchIncludeFragment.sortField}"/>
                         <f:param name="order" value="#{SearchIncludeFragment.sortOrder}"/>
                         <f:param name="page" value="1"/>
+                        <f:passThroughAttribute name="aria-label" value="#{bundle['facet.datafile.label']}"/>
                         <p:selectBooleanCheckbox value="#{SearchIncludeFragment.selectedTypesList.contains('files') ? true : false}" disabled="#{SearchIncludeFragment.getNewSelectedTypes('files') == null ? true : false}" ariaLabel="#{bundle['facet.datafile.label']}"/>
                     </h:outputLink>
                     <!--FILES ONLY-->
