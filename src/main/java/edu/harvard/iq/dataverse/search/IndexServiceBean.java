@@ -1151,6 +1151,7 @@ public class IndexServiceBean {
                     }
                     
                     /* Full-text indexing using Apache Tika */
+                    try {
                     if (doFullTextIndexing) {
                         if (!dataset.isHarvested() && !fileMetadata.getDataFile().isFilePackage()&& fileMetadata.getDataFile().getFilesize()!=0) {
                             StorageIO<DataFile> accessObject = null;
@@ -1190,7 +1191,6 @@ public class IndexServiceBean {
                                 e.printStackTrace();
                                 continue;
                             } catch (OutOfMemoryError e) {
-                                textHandler = null;
                                 logger.warning(String.format("Full-text indexing for %s failed due to OutOfMemoryError",
                                         fileMetadata.getDataFile().getDisplayName()));
                                 continue;
@@ -1201,11 +1201,17 @@ public class IndexServiceBean {
                                         fileMetadata.getDataFile().getDisplayName(),e.getClass().getCanonicalName(), e.getLocalizedMessage()));
                                 continue;
                             } finally {
+                                textHandler = null;
                                 accessObject.closeInputStream();
                             }
                         }
                     }
-
+                    } catch (Throwable e) {
+                            logger.warning(String.format("Throwable Full-text indexing for %s failed",
+                                fileMetadata.getDataFile().getDisplayName()));
+                        e.printStackTrace();
+                    }
+                    logger.fine("Continuing with file: " + fileMetadata.getDataFile().getId());
                     String filenameCompleteFinal = "";
                     if (fileMetadata != null) {
                         String filenameComplete = fileMetadata.getLabel();
