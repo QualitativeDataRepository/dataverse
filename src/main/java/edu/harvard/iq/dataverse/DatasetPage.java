@@ -1852,7 +1852,7 @@ public class DatasetPage implements java.io.Serializable {
             }
             if (this.getId() != null) {
                 // Set Working Version and Dataset by Datasaet Id and Version
-                dataset = datasetService.find(this.getId());
+                dataset = datasetService.findDeep(this.getId());
                 if (dataset == null) {
                     logger.warning("No such dataset: "+dataset);
                     return permissionsWrapper.notFound();
@@ -1949,8 +1949,8 @@ public class DatasetPage implements java.io.Serializable {
                 } else {
                     // an attempt to retreive both the filemetadatas and datafiles early on, so that
                     // we don't have to do so later (possibly, many more times than necessary):
-                    AuthenticatedUser au = session.getUser() instanceof AuthenticatedUser ? (AuthenticatedUser) session.getUser() : null;
-                    datafileService.findFileMetadataOptimizedExperimental(dataset, workingVersion, au);
+                    //AuthenticatedUser au = session.getUser() instanceof AuthenticatedUser ? (AuthenticatedUser) session.getUser() : null;
+                    //datafileService.findFileMetadataOptimizedExperimental(dataset, workingVersion, au);
                 }
                 // As of v5.x (PF8?), having the variables initially set to true in their
                 // declarations doesn't result in them being true when a page is first viewed -
@@ -2866,7 +2866,7 @@ public class DatasetPage implements java.io.Serializable {
         }
         if (dataset.getId() != null) {
             //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionById(dataset.getId(), version);
-            dataset = datasetService.find(dataset.getId());
+            dataset = datasetService.findDeep(dataset.getId());
             retrieveDatasetVersionResponse = datasetVersionService.selectRequestedVersion(dataset.getVersions(), version);
         } else if (versionId != null) {
             retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionByVersionId(versionId);
@@ -2895,8 +2895,8 @@ public class DatasetPage implements java.io.Serializable {
         }
 
         if (readOnly) {
-            AuthenticatedUser au = session.getUser() instanceof AuthenticatedUser ? (AuthenticatedUser) session.getUser() : null;
-            datafileService.findFileMetadataOptimizedExperimental(dataset, workingVersion, au);
+            //AuthenticatedUser au = session.getUser() instanceof AuthenticatedUser ? (AuthenticatedUser) session.getUser() : null;
+            //datafileService.findFileMetadataOptimizedExperimental(dataset, workingVersion, au);
         }
 
         fileMetadatasSearch = selectFileMetadatasForDisplay();
