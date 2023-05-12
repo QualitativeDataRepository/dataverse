@@ -291,7 +291,9 @@ public class IngestServiceBean {
 
 								} catch (IOException ioex) {
 									logger.warning("Failed to save generated file " + generated.toString());
-								}
+									//Shouldn't mark this file as having a preview after this.
+									dataFile.setPreviewImageAvailable(false);
+                                }
 							}
 
 							// ... but we definitely want to delete it:
