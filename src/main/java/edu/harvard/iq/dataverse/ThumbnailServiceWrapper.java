@@ -43,6 +43,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
     
     private Map<Long, String> dvobjectThumbnailsMap = new HashMap<>();
     private Map<Long, DvObject> dvobjectViewMap = new HashMap<>();
+    private Map<Long, Boolean> hasThumbMap = new HashMap<>();
 
     private String getAssignedDatasetImage(Dataset dataset, int size) {
         if (dataset == null) {
@@ -127,7 +128,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
 
             if ((!((DataFile)result.getEntity()).isRestricted()
                         || permissionsWrapper.hasDownloadFilePermission(result.getEntity()))
-                    && dataFileService.isThumbnailAvailable((DataFile) result.getEntity())) {
+                    && isThumbnailAvailable((DataFile) result.getEntity())) {
                 
                 cardImageUrl = ImageThumbConverter.getImageThumbnailAsBase64(
                         (DataFile) result.getEntity(),
@@ -151,6 +152,13 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
             }
         }
         return null;
+    }
+
+    public boolean isThumbnailAvailable(DataFile entity) {
+        if(!hasThumbMap.containsKey(entity.getId())) {
+            hasThumbMap.put(entity.getId(), dataFileService.isThumbnailAvailable(entity));
+        }
+        return hasThumbMap.get(entity.getId());
     }
 
     // it's the responsibility of the user - to make sure the search result
@@ -289,7 +297,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
                 }
             }
 
-            if (dataFileService.isThumbnailAvailable(thumbnailImageFile)) {
+            if (isThumbnailAvailable(thumbnailImageFile)) {
                 cardImageUrl = ImageThumbConverter.getImageThumbnailAsBase64(
                         thumbnailImageFile,
                         size);
@@ -317,6 +325,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
     public void resetObjectMaps() {
         dvobjectThumbnailsMap = new HashMap<>();
         dvobjectViewMap = new HashMap<>();
+        hasThumbMap = new HashMap<>();
     }
 
     
