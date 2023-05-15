@@ -1128,7 +1128,7 @@ public class DataFileServiceBean implements java.io.Serializable {
         }
         
         // If thumbnails are not even supported for this class of files, 
-        // there's notthing to talk about:      
+        // there's nothing to talk about:      
         if (!FileUtil.isThumbnailSupported(file)) {
             return false;
         }
@@ -1150,6 +1150,9 @@ public class DataFileServiceBean implements java.io.Serializable {
            file.setPreviewImageAvailable(true);
            this.save(file); 
            return true;
+       } else {
+           file.setPreviewsHaveFailed(true);
+           this.save(file);
        }
 
        return false;
