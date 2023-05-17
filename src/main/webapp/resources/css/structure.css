@@ -1327,6 +1327,14 @@ th {background: none !important;}
   position: relative;
 }
 
+.btn-default.focus, .btn-default:focus {
+    outline-color: white!important;
+    outline-offset: -3px!important;
+    outline-width:2px!important;
+    outline-style:solid;
+}
+
+
 .btn-qdr-explore {
   margin-top: 6px;
   max-height: 37px;
