@@ -304,8 +304,6 @@ public class IngestServiceBean {
 							}
 						}
 					}
-					// Any necessary post-processing:
-					// performPostProcessingTasks(dataFile);
 				} else {
 					try {
 						StorageIO<DvObject> dataAccess = DataAccess.getStorageIO(dataFile);
@@ -1637,26 +1635,6 @@ public class IngestServiceBean {
         }
     }
     
-    public void performPostProcessingTasks(DataFile dataFile) {
-        /*
-         * At this point (4.0 beta) the only ingest "post-processing task" performed 
-         * is pre-generation of image thumbnails in a couple of popular sizes. 
-         * -- L.A. 
-         */
-        if (dataFile != null && dataFile.isImage()) {
-            try {
-                StorageIO<DataFile> dataAccess = dataFile.getStorageIO();
-                if (dataAccess != null) { // && storageIO.isLocalFile()) {
-
-                    if (ImageThumbConverter.isThumbnailAvailable(dataFile, ImageThumbConverter.DEFAULT_PREVIEW_SIZE)) {
-                        dataFile.setPreviewImageAvailable(true);
-                    }
-                }
-            } catch (IOException ioEx) {
-            }
-        }
-    }
- 
     private Set<Integer> selectContinuousVariableColumns(DataFile dataFile) {
         Set<Integer> contVarFields = new LinkedHashSet<Integer>();
 
