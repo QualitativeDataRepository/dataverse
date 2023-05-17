@@ -1511,6 +1511,11 @@ span.label-danger { background-color: #D3413C }
 .login-container h1 { font-size:30px; }
 #embargoInputs label { font-weight: normal; }
 
+.ui-message-error {
+        color:#AA4241;
+        background-color:#F7EDED;
+}
+
 /*Template Instructions Editing*/
 .ui-inplace .ui-inputfield {
     width:60%
