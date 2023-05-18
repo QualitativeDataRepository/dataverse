@@ -115,7 +115,7 @@ public abstract class AbstractOAuth2AuthenticationProvider implements Authentica
     public String buildAuthzUrl(String state, String callbackUrl) {
         OAuth20Service svc = this.getService(callbackUrl);
         
-        AuthorizationUrlBuilder aub = svc.createAuthorizationUrlBuilder().state(state);
+        AuthorizationUrlBuilder aub = svc.createAuthorizationUrlBuilder().state(state).additionalParams(null);
         // Do not include scope if empty string (necessary for GitHub)
         if (!this.getSpacedScope().isEmpty()) { aub.scope(this.getSpacedScope()); }
         

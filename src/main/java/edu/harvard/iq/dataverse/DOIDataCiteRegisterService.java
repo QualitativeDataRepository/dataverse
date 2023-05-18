@@ -7,6 +7,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.AbstractGlobalIdServiceBean.GlobalIdMetadataTemplate;
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
+import edu.harvard.iq.dataverse.settings.JvmSettings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,6 +29,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.xml.transform.Source;
+
+
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -63,7 +66,11 @@ public class DOIDataCiteRegisterService {
     
     private DataCiteRESTfullClient getClient() throws IOException {
         if (client == null) {
-            client = new DataCiteRESTfullClient(System.getProperty("doi.baseurlstring"), System.getProperty("doi.username"), System.getProperty("doi.password"));
+            client = new DataCiteRESTfullClient(
+                JvmSettings.DATACITE_MDS_API_URL.lookup(),
+                JvmSettings.DATACITE_USERNAME.lookup(),
+                JvmSettings.DATACITE_PASSWORD.lookup()
+            );
         }
         return client;
     }
@@ -640,8 +647,8 @@ class DataCiteMetadataTemplate {
 
                 datafileIdentifiers = new ArrayList<>();
                 for (DataFile dataFile : dataset.getFiles()) {
-                    if (!dataFile.getGlobalId().asString().isEmpty()) {
-                        appendIdentifier(sb, "DOI", "HasPart", dataFile.getGlobalId().toString());
+                    if (dataFile.getGlobalId() != null) {
+                        appendIdentifier(sb, "DOI", "HasPart", dataFile.getGlobalId().asString());
                     }
                 }
 
@@ -651,7 +658,7 @@ class DataCiteMetadataTemplate {
             }
         } else if (dvObject.isInstanceofDataFile()) {
             DataFile df = (DataFile) dvObject;
-            appendIdentifier(sb, "DOI", "IsPartOf", df.getOwner().getGlobalId().toString());
+            appendIdentifier(sb, "DOI", "IsPartOf", df.getOwner().getGlobalId().asString());
             if (sb.length() != 0) {
                 sb.append("</relatedIdentifiers>");
             }

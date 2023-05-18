@@ -20,6 +20,7 @@ import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.Embargo;
 import edu.harvard.iq.dataverse.FileMetadata;
+import edu.harvard.iq.dataverse.GlobalId;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
@@ -365,9 +366,47 @@ public class IndexServiceBean {
         return ret;
     }
 
+    // The following two variables are only used in the synchronized getNextToIndex method and do not need to be synchronized themselves
+    
+    // nextToIndex contains datasets mapped by dataset id that were added for future indexing while the indexing was already ongoing for a given dataset
+    // (if there already was a dataset scheduled for indexing, it is overwritten and only the most recently requested version is kept in the map)
+    private Map<Long, Dataset> nextToIndex = new HashMap<>();
+    // indexingNow is a set of dataset ids of datasets being indexed asynchronously right now
+    private Set<Long> indexingNow = new HashSet<>();
+
+    // When you pass null as Dataset parameter to this method, it indicates that the indexing of the dataset with "id" has finished
+    // Pass non-null Dataset to schedule it for indexing
+    synchronized private Dataset getNextToIndex(Long id, Dataset d) {
+        if (d == null) { // -> indexing of the dataset with id has finished
+            Dataset next = nextToIndex.remove(id);
+            if (next == null) { // -> no new indexing jobs were requested while indexing was ongoing
+                // the job can be stopped now
+                indexingNow.remove(id);
+            }
+            return next;
+        }
+        // index job is requested for a non-null dataset
+        if (indexingNow.contains(id)) { // -> indexing job is already ongoing, and a new job should not be started by the current thread -> return null
+            nextToIndex.put(id, d);
+            return null;
+        }
+        // otherwise, start a new job
+        indexingNow.add(id);
+        return d;
+    }
+
     @Asynchronous
-    public Future<String> asyncIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
-        return indexDataset(dataset, doNormalSolrDocCleanUp);
+    public void asyncIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUpe) {
+        Long id = dataset.getId();
+        Dataset next = getNextToIndex(id, dataset); // if there is an ongoing index job for this dataset, next is null (ongoing index job will reindex the newest version after current indexing finishes)
+        while (next != null) {
+            try {
+                indexDataset(next, doNormalSolrDocCleanUpe);
+            } catch (SolrServerException | IOException e) {
+                logger.warning("unable to index datasat " + id + ": " + e);
+            }
+            next = getNextToIndex(id, null); // if dataset was not changed during the indexing (and no new job was requested), next is null and loop can be stopped
+        }
     }
     
     @Asynchronous
@@ -827,7 +866,7 @@ public class IndexServiceBean {
             }
 
             Set<String> langs = settingsService.getConfiguredLanguages();
-            Map<Long, JsonObject> cvocMap = datasetFieldService.getCVocConf(false);
+            Map<Long, JsonObject> cvocMap = datasetFieldService.getCVocConf(true);
             Set<String> metadataBlocksWithValue = new HashSet<>();
             for (DatasetField dsf : datasetVersion.getFlatDatasetFields()) {
 
@@ -1149,24 +1188,21 @@ public class IndexServiceBean {
                                 logger.warning(String.format("Full-text indexing for %s failed",
                                         fileMetadata.getDataFile().getDisplayName()));
                                 e.printStackTrace();
-                                continue;
                             } catch (OutOfMemoryError e) {
-                                textHandler = null;
                                 logger.warning(String.format("Full-text indexing for %s failed due to OutOfMemoryError",
                                         fileMetadata.getDataFile().getDisplayName()));
-                                continue;
                             } catch(Error e) {
                                 //Catch everything - full-text indexing is complex enough (and using enough 3rd party components) that it can fail
                                 // and we don't want problems here to break other Dataverse functionality (e.g. edits)
                                 logger.severe(String.format("Full-text indexing for %s failed due to Error: %s : %s",
                                         fileMetadata.getDataFile().getDisplayName(),e.getClass().getCanonicalName(), e.getLocalizedMessage()));
-                                continue;
                             } finally {
+                                textHandler = null;
                                 accessObject.closeInputStream();
                             }
                         }
                     }
-
+                    logger.fine("Continuing with file: " + fileMetadata.getDataFile().getId());
                     String filenameCompleteFinal = "";
                     if (fileMetadata != null) {
                         String filenameComplete = fileMetadata.getLabel();
@@ -1303,7 +1339,9 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.FILE_CHECKSUM_VALUE, fileMetadata.getDataFile().getChecksumValue());
                     datafileSolrInputDocument.addField(SearchFields.DESCRIPTION, fileMetadata.getDescription());
                     datafileSolrInputDocument.addField(SearchFields.FILE_DESCRIPTION, fileMetadata.getDescription());
-                    datafileSolrInputDocument.addField(SearchFields.FILE_PERSISTENT_ID, fileMetadata.getDataFile().getGlobalId().toString());
+                    GlobalId filePid = fileMetadata.getDataFile().getGlobalId();
+                    datafileSolrInputDocument.addField(SearchFields.FILE_PERSISTENT_ID,
+                            (filePid != null) ? filePid.toString() : null);
                     datafileSolrInputDocument.addField(SearchFields.UNF, fileMetadata.getDataFile().getUnf());
                     datafileSolrInputDocument.addField(SearchFields.SUBTREE, dataversePaths);
                     // datafileSolrInputDocument.addField(SearchFields.HOST_DATAVERSE,

@@ -102,6 +102,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.io.FileUtils;
 
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FilenameUtils;
@@ -110,6 +111,7 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccessOption;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.datasetutility.FileSizeChecker;
 import java.util.Arrays;
+import java.util.Enumeration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import ucar.nc2.NetcdfFile;
@@ -480,7 +482,7 @@ public class FileUtil implements java.io.Serializable  {
                 }
         }
 
-        // step 2.5: Check if NetCDF or HDF5
+        // step 3a: Check if NetCDF or HDF5
         if (fileType == null) {
             fileType = checkNetcdfOrHdf5(f);
         }
@@ -563,6 +565,9 @@ public class FileUtil implements java.io.Serializable  {
              }
         } 
 
+        if(fileType==null) {
+            fileType = MIME_TYPE_UNDETERMINED_DEFAULT;
+        }
         logger.fine("returning fileType "+fileType);
         return fileType;
     }
@@ -608,12 +613,11 @@ public class FileUtil implements java.io.Serializable  {
      * -- L.A. 4.0 alpha
      */
     private static boolean isFITSFile(File file) {
-        BufferedInputStream ins = null;
 
-        try {
-            ins = new BufferedInputStream(new FileInputStream(file));
+        try (BufferedInputStream ins = new BufferedInputStream(new FileInputStream(file))) {
             return isFITSFile(ins);
         } catch (IOException ex) {
+            logger.fine("IOException: "+ ex.getMessage());
         } 
 
         return false;
@@ -654,8 +658,9 @@ public class FileUtil implements java.io.Serializable  {
     private static boolean isGraphMLFile(File file) {
         boolean isGraphML = false;
         logger.fine("begin isGraphMLFile()");
+        FileReader fileReader = null;
         try{
-            FileReader fileReader = new FileReader(file);
+            fileReader = new FileReader(file);
             javax.xml.stream.XMLInputFactory xmlif = javax.xml.stream.XMLInputFactory.newInstance();
             xmlif.setProperty("javax.xml.stream.isCoalescing", java.lang.Boolean.TRUE);
 
@@ -678,6 +683,14 @@ public class FileUtil implements java.io.Serializable  {
             isGraphML = false;
         } catch(IOException e) {
             throw new EJBException(e);
+        } finally {
+            if (fileReader != null) {
+                try {
+                    fileReader.close();
+                } catch (IOException ioex) {
+                    logger.warning("IOException closing file reader in GraphML type checker");
+                }
+            }
         }
         logger.fine("end isGraphML()");
         return isGraphML;
@@ -896,7 +909,6 @@ public class FileUtil implements java.io.Serializable  {
             // a regular FITS file:
             if (finalType.equals("application/fits-gzipped")) {
 
-                InputStream uncompressedIn = null;
                 String finalFileName = fileName;
                 // if the file name had the ".gz" extension, remove it,
                 // since we are going to uncompress it:
@@ -905,20 +917,12 @@ public class FileUtil implements java.io.Serializable  {
                 }
 
                 DataFile datafile = null;
-                try {
-                    uncompressedIn = new GZIPInputStream(new FileInputStream(tempFile.toFile()));
+                try (InputStream uncompressedIn = new GZIPInputStream(new FileInputStream(tempFile.toFile()))){
                     File unZippedTempFile = saveInputStreamInTempFile(uncompressedIn, fileSizeLimit);
                     datafile = createSingleDataFile(version, unZippedTempFile, finalFileName, MIME_TYPE_UNDETERMINED_DEFAULT, systemConfig.getFileFixityChecksumAlgorithm());
                 } catch (IOException | FileExceedsMaxSizeException ioex) {
                     datafile = null;
-                } finally {
-                    if (uncompressedIn != null) {
-                        try {
-                            uncompressedIn.close();
-                        } catch (IOException e) {
-                        }
-                    }
-                }
+                } 
 
                 // If we were able to produce an uncompressed file, we'll use it
                 // to create and return a final DataFile; if not, we're not going
@@ -941,6 +945,7 @@ public class FileUtil implements java.io.Serializable  {
                 // DataFile objects from its contents:
             } else if (finalType.equals("application/zip")) {
 
+                ZipFile zipFile = null;
                 ZipInputStream unZippedIn = null;
                 ZipEntry zipEntry = null;
 
@@ -970,6 +975,71 @@ public class FileUtil implements java.io.Serializable  {
                      }
                      */
 
+                    /** 
+                     * Perform a quick check for how many individual files are 
+                     * inside this zip archive. If it's above the limit, we can 
+                     * give up right away, without doing any unpacking. 
+                     * This should be a fairly inexpensive operation, we just need
+                     * to read the directory at the end of the file. 
+                     */
+                    
+                    if (charset != null) {
+                        zipFile = new ZipFile(tempFile.toFile(), charset);
+                    } else {
+                        zipFile = new ZipFile(tempFile.toFile());
+                    }
+                    /**
+                     * The ZipFile constructors above will throw ZipException - 
+                     * a type of IOException - if there's something wrong 
+                     * with this file as a zip. There's no need to intercept it
+                     * here, it will be caught further below, with other IOExceptions,
+                     * at which point we'll give up on trying to unpack it and
+                     * then attempt to save it as is.
+                     */
+
+                    int numberOfUnpackableFiles = 0; 
+                    /**
+                     * Note that we can't just use zipFile.size(),
+                     * unfortunately, since that's the total number of entries,
+                     * some of which can be directories. So we need to go
+                     * through all the individual zipEntries and count the ones
+                     * that are files.
+                     */
+
+                    for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
+                        ZipEntry entry = entries.nextElement();
+                        logger.fine("inside first zip pass; this entry: "+entry.getName());
+                        if (!entry.isDirectory()) {
+                            String shortName = entry.getName().replaceFirst("^.*[\\/]", "");
+                            // ... and, finally, check if it's a "fake" file - a zip archive entry
+                            // created for a MacOS X filesystem element: (these
+                            // start with "._") 
+                            if (!shortName.startsWith("._") && !shortName.startsWith(".DS_Store") && !"".equals(shortName)) {
+                                numberOfUnpackableFiles++;
+                                if (numberOfUnpackableFiles > fileNumberLimit) {
+                                    logger.warning("Zip upload - too many files in the zip to process individually.");
+                                    warningMessage = "The number of files in the zip archive is over the limit (" + fileNumberLimit
+                                            + "); please upload a zip archive with fewer files, if you want them to be ingested "
+                                            + "as individual DataFiles.";
+                                    throw new IOException();
+                                }
+                                // In addition to counting the files, we can
+                                // also check the file size while we're here, 
+                                // provided the size limit is defined; if a single 
+                                // file is above the individual size limit, unzipped,
+                                // we give up on unpacking this zip archive as well: 
+                                if (fileSizeLimit != null && entry.getSize() > fileSizeLimit) {
+                                    throw new FileExceedsMaxSizeException(MessageFormat.format(BundleUtil.getStringFromBundle("file.addreplace.error.file_exceeds_limit"), bytesToHumanReadable(entry.getSize()), bytesToHumanReadable(fileSizeLimit)));
+                                }
+                            }
+                        }
+                    }
+                    
+                    // OK we're still here - that means we can proceed unzipping. 
+                    
+                    // Close the ZipFile, re-open as ZipInputStream: 
+                    zipFile.close(); 
+                    
                     if (charset != null) {
                         unZippedIn = new ZipInputStream(new FileInputStream(tempFile.toFile()), charset);
                     } else {
@@ -990,7 +1060,7 @@ public class FileUtil implements java.io.Serializable  {
                             logger.warning(warningMessage);
                             throw new IOException();
                         } 
-
+                        
                         if (zipEntry == null) {
                             break;
                         }
@@ -1000,9 +1070,9 @@ public class FileUtil implements java.io.Serializable  {
                         if (!zipEntry.isDirectory()) {
                             if (datafiles.size() > fileNumberLimit) {
                                 logger.warning("Zip upload - too many files.");
-                                warningMessage = "The number of files in the zip archive is over the limit (" + fileNumberLimit + 
-                                        "); please upload a zip archive with fewer files, if you want them to be ingested " +
-                                        "as individual DataFiles.";
+                                warningMessage = "The number of files in the zip archive is over the limit (" + fileNumberLimit
+                                        + "); please upload a zip archive with fewer files, if you want them to be ingested "
+                                        + "as individual DataFiles.";
                                 throw new IOException();
                             }
 
@@ -1020,8 +1090,13 @@ public class FileUtil implements java.io.Serializable  {
                                     // OK, this seems like an OK file entry - we'll try 
                                     // to read it and create a DataFile with it:
 
-                                    File unZippedTempFile = saveInputStreamInTempFile(unZippedIn, fileSizeLimit);
-                                    DataFile datafile = createSingleDataFile(version, unZippedTempFile, null, shortName,
+                                    String storageIdentifier = generateStorageIdentifier();
+                                    File unzippedFile = new File(getFilesTempDirectory() + "/" + storageIdentifier);
+                                    Files.copy(unZippedIn, unzippedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                    // No need to check the size of this unpacked file against the size limit, 
+                                    // since we've already checked for that in the first pass.
+                                    
+                                    DataFile datafile = createSingleDataFile(version, null, storageIdentifier, shortName,
                                             MIME_TYPE_UNDETERMINED_DEFAULT,
                                             systemConfig.getFileFixityChecksumAlgorithm(), null, false);
 
@@ -1044,10 +1119,10 @@ public class FileUtil implements java.io.Serializable  {
                                         // Now that we have it saved in a temporary location, 
                                         // let's try and determine its real type:
 
-                                        String tempFileName = getFilesTempDirectory() + "/" + datafile.getStorageIdentifier();
-
                                         try {
-                                            recognizedType = determineFileType(new File(tempFileName), shortName);
+                                            recognizedType = determineFileType(unzippedFile, shortName);
+                                            // null the File explicitly, to release any open FDs:
+                                            unzippedFile = null; 
                                             logger.fine("File utility recognized unzipped file as " + recognizedType);
                                             if (recognizedType != null && !recognizedType.equals("")) {
                                                 datafile.setContentType(recognizedType);
@@ -1080,29 +1155,19 @@ public class FileUtil implements java.io.Serializable  {
                     warningMessage =  BundleUtil.getStringFromBundle("file.addreplace.warning.unzip.failed.size", Arrays.asList(FileSizeChecker.bytesToHumanReadable(fileSizeLimit)));
                     datafiles.clear();
                 } finally {
+                    if (zipFile != null) {
+                        try {
+                            zipFile.close();
+                        } catch (Exception zEx) {}
+                    }
                     if (unZippedIn != null) {
                         try {
                             unZippedIn.close();
-                        } catch (Exception zEx) {
-                        }
+                        } catch (Exception zEx) {}
                     }
                 }
-                if (datafiles.size() > 0) {
-                    // link the data files to the dataset/version: 
-                    // (except we no longer want to do this! -- 4.6)
-                    /*Iterator<DataFile> itf = datafiles.iterator();
-                while (itf.hasNext()) {
-                    DataFile datafile = itf.next();
-                    datafile.setOwner(version.getDataset());
-                    if (version.getFileMetadatas() == null) {
-                        version.setFileMetadatas(new ArrayList());
-                    }
-                    version.getFileMetadatas().add(datafile.getFileMetadata());
-                    datafile.getFileMetadata().setDatasetVersion(version);
-
-                    version.getDataset().getFiles().add(datafile);
-                } */
-                    // remove the uploaded zip file: 
+                if (!datafiles.isEmpty()) {
+                    // remove the uploaded zip file:
                     try {
                         Files.delete(tempFile);
                     } catch (IOException ioex) {
@@ -1358,7 +1423,7 @@ public class FileUtil implements java.io.Serializable  {
             fmd.setDatasetVersion(version);
             version.getDataset().getFiles().add(datafile);
         }
-        if(storageIdentifier==null) {
+        if (storageIdentifier == null) {
             generateStorageIdentifier(datafile);
             if (!tempFile.renameTo(new File(getFilesTempDirectory() + "/" + datafile.getStorageIdentifier()))) {
                 return null;
@@ -1745,32 +1810,33 @@ public class FileUtil implements java.io.Serializable  {
      */
     public static String getFileDownloadUrlPath(String downloadType, Long fileId, boolean gbRecordsWritten, Long fileMetadataId) {
         String fileDownloadUrl = "/api/access/datafile/" + fileId;
-        if (downloadType != null && downloadType.equals("bundle")) {
-            if (fileMetadataId == null) {
-                fileDownloadUrl = "/api/access/datafile/bundle/" + fileId;
-            } else {
-                fileDownloadUrl = "/api/access/datafile/bundle/" + fileId + "?fileMetadataId=" + fileMetadataId;
+        if (downloadType != null) {
+            switch (downloadType) {
+            case "original":
+            case "RData":
+            case "tab":
+            case "GlobusTransfer":
+                fileDownloadUrl = "/api/access/datafile/" + fileId + "?format=" + downloadType;
+                break;
+            case "bundle":
+                if (fileMetadataId == null) {
+                    fileDownloadUrl = "/api/access/datafile/bundle/" + fileId;
+                } else {
+                    fileDownloadUrl = "/api/access/datafile/bundle/" + fileId + "?fileMetadataId=" + fileMetadataId;
+                }
+                break;
+            case "var":
+                if (fileMetadataId == null) {
+                    fileDownloadUrl = "/api/access/datafile/" + fileId + "/metadata";
+                } else {
+                    fileDownloadUrl = "/api/access/datafile/" + fileId + "/metadata?fileMetadataId=" + fileMetadataId;
+                }
+                break;
             }
-        }
-        if (downloadType != null && downloadType.equals("original")) {
-            fileDownloadUrl = "/api/access/datafile/" + fileId + "?format=original";
-        }
-        if (downloadType != null && downloadType.equals("RData")) {
-            fileDownloadUrl = "/api/access/datafile/" + fileId + "?format=RData";
-        }
-        if (downloadType != null && downloadType.equals("var")) {
-            if (fileMetadataId == null) {
-                fileDownloadUrl = "/api/access/datafile/" + fileId + "/metadata";
-            } else {
-                fileDownloadUrl = "/api/access/datafile/" + fileId + "/metadata?fileMetadataId=" + fileMetadataId;
-            }
-        }
-        if (downloadType != null && downloadType.equals("tab")) {
-            fileDownloadUrl = "/api/access/datafile/" + fileId + "?format=tab";
+
         }
         if (gbRecordsWritten) {
-            if (downloadType != null && ((downloadType.equals("original") || downloadType.equals("RData") || downloadType.equals("tab")) ||
-                    ((downloadType.equals("var") || downloadType.equals("bundle") ) && fileMetadataId != null))) {
+            if (fileDownloadUrl.contains("?")) {
                 fileDownloadUrl += "&gbrecs=true";
             } else {
                 fileDownloadUrl += "?gbrecs=true";

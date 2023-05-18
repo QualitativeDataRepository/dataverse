@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.authorization.providers.oauth2;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.authorization.UserIdentifier;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.util.BundleUtil;
@@ -25,6 +26,7 @@ import javax.inject.Named;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 
 import static edu.harvard.iq.dataverse.util.StringUtil.toOption;
@@ -95,48 +97,74 @@ public class OAuth2LoginBackingBean implements Serializable {
         HttpServletRequest req = Faces.getRequest();
         
         try {
-            Optional<AbstractOAuth2AuthenticationProvider> oIdp = parseStateFromRequest(req.getParameter("state"));
-            Optional<String> code = parseCodeFromRequest(req);
+            HttpSession httpSession = req.getSession(false);
+            if(httpSession!=null) {
+                logger.info("Passive checked?: " + httpSession.getAttribute("passiveChecked"));
+                httpSession.setAttribute("passiveChecked", true);
+            }
+            // Passive Login attempt check
+            if (isPassiveLoginFailure(req)) {
+                
+                logger.info("Failed passive");
+                Faces.redirect(redirectPage.orElse("/"));
+            } else {
+                Optional<AbstractOAuth2AuthenticationProvider> oIdp = parseStateFromRequest(req.getParameter("state"));
+                Optional<String> code = parseCodeFromRequest(req);
 
-            if (oIdp.isPresent() && code.isPresent()) {
-                AbstractOAuth2AuthenticationProvider idp = oIdp.get();
-                oauthUser = idp.getUserRecord(code.get(), systemConfig.getOAuth2CallbackUrl());
-                
-                // Throw an error if this authentication method is disabled:
-                // (it's not clear if it's possible at all, for somebody to get here with 
-                // the provider really disabled; but, shouldn't hurt either).
-                if (isProviderDisabled(idp.getId())) {
-                    disabled = true; 
-                    throw new OAuth2Exception(-1, "", MessageFormat.format(BundleUtil.getStringFromBundle("oauth2.callback.error.providerDisabled"), idp.getId()));
-                }
-                
-                UserRecordIdentifier idtf = oauthUser.getUserRecordIdentifier();
-                AuthenticatedUser dvUser = authenticationSvc.lookupUser(idtf);
-    
-                if (dvUser == null) {
-                    // Need to create a new user - unless signups are disabled 
-                    // for this authentication method; in which case, throw 
-                    // an error:
-                    if (systemConfig.isSignupDisabledForRemoteAuthProvider(idp.getId())) {
-                        signUpDisabled = true; 
-                        throw new OAuth2Exception(-1, "", MessageFormat.format(BundleUtil.getStringFromBundle("oauth2.callback.error.signupDisabledForProvider"), idp.getId())); 
-                    } else {
-                        newAccountPage.setNewUser(oauthUser);
-                        Faces.redirect("/oauth2/firstLogin.xhtml");
+                if (oIdp.isPresent() && code.isPresent()) {
+                    AbstractOAuth2AuthenticationProvider idp = oIdp.get();
+                    oauthUser = idp.getUserRecord(code.get(), systemConfig.getOAuth2CallbackUrl());
+                    // Throw an error if this authentication method is disabled:
+                    // (it's not clear if it's possible at all, for somebody to get here with
+                    // the provider really disabled; but, shouldn't hurt either).
+                    if (isProviderDisabled(idp.getId())) {
+                        disabled = true;
+                        throw new OAuth2Exception(-1, "", MessageFormat.format(BundleUtil.getStringFromBundle("oauth2.callback.error.providerDisabled"), idp.getId()));
                     }
-        
-                } else {
-                    // login the user and redirect to HOME of intended page (if any).
-                    // setUser checks for deactivated users.
-                    session.setUser(dvUser);
-                    final OAuth2TokenData tokenData = oauthUser.getTokenData();
-                    if (tokenData != null) {
-                        tokenData.setUser(dvUser);
-                        tokenData.setOauthProviderId(idp.getId());
-                        oauth2Tokens.store(tokenData);
-                    }
+
+                    UserRecordIdentifier idtf = oauthUser.getUserRecordIdentifier();
+                    AuthenticatedUser dvUser = authenticationSvc.lookupUser(idtf);
+
+                    if (dvUser == null) {
+                        dvUser = authenticationSvc.getAuthenticatedUserByEmail(oauthUser.getUsername());
+                        if (dvUser != null) {
+                            logger.info("cli_id " + idp.getClientId());
+                            logger.info("id " + idp.getId());
+                            authenticationSvc.convertBuiltInUserToRemoteUser(dvUser, idp.getId(), new UserIdentifier(oauthUser.getIdInService(), null));
+                        } else {
+                            // Need to create a new user - unless signups are disabled
+                            // for this authentication method; in which case, throw
+                            // an error:
+                            if (systemConfig.isSignupDisabledForRemoteAuthProvider(idp.getId())) {
+                                signUpDisabled = true;
+                                throw new OAuth2Exception(-1, "", MessageFormat.format(BundleUtil.getStringFromBundle("oauth2.callback.error.signupDisabledForProvider"), idp.getId()));
+                            } else {
+                                // newAccountPage.setNewUser(oauthUser);
+                                // Faces.redirect("/oauth2/firstLogin.xhtml");
+                                // Auto-create new account (since at QDR it has all required info already)
+                                newAccountPage.setNewUser(oauthUser);
+                                newAccountPage.setUsername(oauthUser.getUsername());
+                                newAccountPage.createNewAccount();
+                                Faces.redirect(redirectPage.orElse("/"));
+                            }
+                        }
+                        dvUser = authenticationSvc.lookupUser(idtf);
+                    } 
+                        // login the user and redirect to HOME of intended page (if any).
+                        // setUser checks for deactivated users.
+                        session.setUser(dvUser);
+                        final OAuth2TokenData tokenData = oauthUser.getTokenData();
+                        if (tokenData != null) {
+                            tokenData.setUser(dvUser);
+                            tokenData.setOauthProviderId(idp.getId());
+                            oauth2Tokens.store(tokenData);
+                        }
+                        if(dvUser!=null) {
+                           logger.info("Found user: " + dvUser.getEmail());
+                        }
+
+                        Faces.redirect(redirectPage.orElse("/"));
                     
-                    Faces.redirect(redirectPage.orElse("/"));
                 }
             }
         } catch (OAuth2Exception ex) {
@@ -149,6 +177,15 @@ public class OAuth2LoginBackingBean implements Serializable {
         }
     }
     
+    private boolean isPassiveLoginFailure(HttpServletRequest req) {
+        String errorCode = req.getParameter("error");
+        //ToDo - trigger on any error? 
+        if ((errorCode != null) && errorCode.equals("login_required")) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * TODO: Refactor this to be included in calling method.
      * TODO: Use org.apache.commons.io.IOUtils.toString(req.getReader()) instead of overcomplicated code below.
@@ -225,7 +262,7 @@ public class OAuth2LoginBackingBean implements Serializable {
     }
     
     /**
-     * Create a randomized unique state string to be used while crafting the autorization request
+     * Create a randomized unique state string to be used while crafting the authorization request
      * @param idp
      * @param redirectPage
      * @return Random state string, composed from system time, random numbers and redirectPage parameter

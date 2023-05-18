@@ -195,7 +195,7 @@ public class DataCitation {
         // QDRCustom: Show persistentID after distributor name
         if (persistentId != null) {
         	// always show url format
-            citationList.add(formatURL(persistentId.toURL().toString(), persistentId.toURL().toString(), html)); 
+            citationList.add(formatURL(persistentId.asURL(), persistentId.asURL(), html)); 
         }
         citationList.add(formatString(publisher, html));
         citationList.add(version);
@@ -277,7 +277,7 @@ public class DataCitation {
         out.write(persistentId.getIdentifier());
         out.write("},\r\n");
         out.write("url = {");
-        out.write(persistentId.toURL().toString());
+        out.write(persistentId.asURL());
         out.write("}\r\n");
         out.write("}\r\n");
         out.flush();
@@ -366,7 +366,7 @@ public class DataCitation {
         
         out.write("SE  - " + date + "\r\n");
 
-        out.write("UR  - " + persistentId.toURL().toString() + "\r\n");
+        out.write("UR  - " + persistentId.asURL() + "\r\n");
         out.write("PB  - " + publisher + "\r\n");
 
         // a DataFile citation also includes filename, if applicable:
@@ -560,7 +560,7 @@ public class DataCitation {
         xmlw.writeStartElement("urls");
         xmlw.writeStartElement("related-urls");
         xmlw.writeStartElement("url");
-        xmlw.writeCharacters(getPersistentId().toURL().toString());
+        xmlw.writeCharacters(getPersistentId().asURL());
         xmlw.writeEndElement(); // url
         xmlw.writeEndElement(); // related-urls
         xmlw.writeEndElement(); // urls
@@ -753,18 +753,13 @@ public class DataCitation {
                 || HarvestingClient.HARVEST_STYLE_ICPSR.equals(dsv.getDataset().getHarvestedFrom().getHarvestStyle())
                 || HarvestingClient.HARVEST_STYLE_DATAVERSE
                         .equals(dsv.getDataset().getHarvestedFrom().getHarvestStyle())) {
-                // creating a global id like this:
-                // persistentId = new GlobalId(dv.getGlobalId());
-                // you end up doing new GlobalId((New GlobalId(dv)).toString())
-                // - doing an extra formatting-and-parsing-again
-                // This achieves the same thing:
                 if(!isDirect()) {
                 if (!StringUtils.isEmpty(dsv.getDataset().getIdentifier())) {
-                    return new GlobalId(dsv.getDataset());
+                    return dsv.getDataset().getGlobalId();
                 }
                 } else {
                 if (!StringUtils.isEmpty(dv.getIdentifier())) {
-                    return new GlobalId(dv);
+                    return dv.getGlobalId();
                 }
             }
         }

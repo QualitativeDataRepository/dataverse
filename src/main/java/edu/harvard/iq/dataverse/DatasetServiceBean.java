@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.DatasetVersion.VersionState;
 import edu.harvard.iq.dataverse.api.util.FailedPIDResolutionLoggingServiceBean;
 import edu.harvard.iq.dataverse.api.util.FailedPIDResolutionLoggingServiceBean.FailedPIDResolutionEntry;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
@@ -208,8 +209,10 @@ public class DatasetServiceBean implements java.io.Serializable {
     }
 
     //Used in datasets listcurationstatus API
-    public List<Dataset> findAllUnpublished() {
-        return em.createQuery("SELECT object(o) FROM Dataset o, DvObject d WHERE d.id=o.id and d.publicationDate IS null ORDER BY o.id ASC", Dataset.class).getResultList();
+    public List<Dataset> findAllWithDraftVersion() {
+        TypedQuery<Dataset> query = em.createQuery("SELECT object(d) FROM Dataset d, DatasetVersion v WHERE d.id=v.dataset.id and v.versionState=:state ORDER BY d.id ASC", Dataset.class);
+        query.setParameter("state", VersionState.DRAFT);
+        return query.getResultList();
     }
 
     /**
@@ -289,12 +292,12 @@ public class DatasetServiceBean implements java.io.Serializable {
     }
 
     public Dataset findByGlobalId(String globalId) {
-        Dataset retVal = (Dataset) dvObjectService.findByGlobalId(globalId, "Dataset");
+        Dataset retVal = (Dataset) dvObjectService.findByGlobalId(globalId, DvObject.DType.Dataset);
         if (retVal != null){
             return retVal;
         } else {
             // try to find with alternative PID
-            retVal = (Dataset) dvObjectService.findByGlobalId(globalId, "Dataset", true);
+            retVal = (Dataset) dvObjectService.findByAltGlobalId(globalId, DvObject.DType.Dataset);
             if (retVal == null) {
                 try {
 
@@ -336,85 +339,11 @@ public class DatasetServiceBean implements java.io.Serializable {
         }
     }
 
-    public String generateDatasetIdentifier(Dataset dataset, GlobalIdServiceBean idServiceBean) {
-        String identifierType = settingsService.getValueForKey(SettingsServiceBean.Key.IdentifierGenerationStyle, "randomString");
-        String shoulder = settingsService.getValueForKey(SettingsServiceBean.Key.Shoulder, "");
 
-        switch (identifierType) {
-            case "randomString":
-                return generateIdentifierAsRandomString(dataset, idServiceBean, shoulder);
-            case "storedProcGenerated":
-                return generateIdentifierFromStoredProcedure(dataset, idServiceBean, shoulder);
-            default:
-                /* Should we throw an exception instead?? -- L.A. 4.6.2 */
-                return generateIdentifierAsRandomString(dataset, idServiceBean, shoulder);
-        }
-    }
-
-    private String generateIdentifierAsRandomString(Dataset dataset, GlobalIdServiceBean idServiceBean, String shoulder) {
-        String identifier = null;
-        do {
-            identifier = shoulder + RandomStringUtils.randomAlphanumeric(6).toUpperCase();
-        } while (!isIdentifierLocallyUnique(identifier, dataset));
-
-        return identifier;
-    }
-
-    private String generateIdentifierFromStoredProcedure(Dataset dataset, GlobalIdServiceBean idServiceBean, String shoulder) {
-
-        String identifier;
-        do {
-            StoredProcedureQuery query = this.em.createNamedStoredProcedureQuery("Dataset.generateIdentifierFromStoredProcedure");
-            query.execute();
-            String identifierFromStoredProcedure = (String) query.getOutputParameterValue(1);
-            // some diagnostics here maybe - is it possible to determine that it's failing
-            // because the stored procedure hasn't been created in the database?
-            if (identifierFromStoredProcedure == null) {
-                return null;
-            }
-            identifier = shoulder + identifierFromStoredProcedure;
-        } while (!isIdentifierLocallyUnique(identifier, dataset));
-
-        return identifier;
-    }
-
-    /**
-     * Check that a identifier entered by the user is unique (not currently used
-     * for any other study in this Dataverse Network) also check for duplicate
-     * in EZID if needed
-     * @param userIdentifier
-     * @param dataset
-     * @param persistentIdSvc
-     * @return {@code true} if the identifier is unique, {@code false} otherwise.
-     */
-    public boolean isIdentifierUnique(String userIdentifier, Dataset dataset, GlobalIdServiceBean persistentIdSvc) {
-        if ( ! isIdentifierLocallyUnique(userIdentifier, dataset) ) return false; // duplication found in local database
-
-        // not in local DB, look in the persistent identifier service
-        try {
-            return ! persistentIdSvc.alreadyExists(dataset);
-        } catch (Exception e){
-            //we can live with failure - means identifier not found remotely
-        }
-
-        return true;
-    }
-
-    public boolean isIdentifierLocallyUnique(Dataset dataset) {
-        return isIdentifierLocallyUnique(dataset.getIdentifier(), dataset);
-    }
-
-    public boolean isIdentifierLocallyUnique(String identifier, Dataset dataset) {
-        return em.createNamedQuery("Dataset.findByIdentifierAuthorityProtocol")
-            .setParameter("identifier", identifier)
-            .setParameter("authority", dataset.getAuthority())
-            .setParameter("protocol", dataset.getProtocol())
-            .getResultList().isEmpty();
-    }
 
     public Long getMaximumExistingDatafileIdentifier(Dataset dataset) {
         //Cannot rely on the largest table id having the greatest identifier counter
-        long zeroFiles = new Long(0);
+        long zeroFiles = 0L;
         Long retVal = zeroFiles;
         Long testVal;
         List<Object> idResults;
@@ -431,7 +360,7 @@ public class DatasetServiceBean implements java.io.Serializable {
                 for (Object raw: idResults){
                     String identifier = (String) raw;
                     identifier =  identifier.substring(identifier.lastIndexOf("/") + 1);
-                    testVal = new Long(identifier) ;
+                    testVal = Long.valueOf(identifier) ;
                     if (testVal > retVal){
                         retVal = testVal;
                     }
@@ -801,10 +730,10 @@ public class DatasetServiceBean implements java.io.Serializable {
                         countAll++;
                         try {
                             recordService.exportAllFormatsInNewTransaction(dataset);
-                            exportLogger.info("Success exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalIdString());
+                            exportLogger.info("Success exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalId().asString());
                             countSuccess++;
                         } catch (Exception ex) {
-                            exportLogger.info("Error exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalIdString() + "; " + ex.getMessage());
+                            exportLogger.info("Error exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalId().asString() + "; " + ex.getMessage());
                             countError++;
                         }
                     }
@@ -841,9 +770,9 @@ public class DatasetServiceBean implements java.io.Serializable {
                         || dataset.getLastExportTime().before(publicationDate)))) {
                     try {
                         recordService.exportAllFormatsInNewTransaction(dataset);
-                        logger.info("Success exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalIdString());
+                        logger.info("Success exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalId().asString());
                     } catch (Exception ex) {
-                        logger.info("Error exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalIdString() + "; " + ex.getMessage());
+                        logger.info("Error exporting dataset: " + dataset.getDisplayName() + " " + dataset.getGlobalId().asString() + "; " + ex.getMessage());
                     }
                 }
             }
@@ -1039,7 +968,7 @@ public class DatasetServiceBean implements java.io.Serializable {
                     maxIdentifier++;
                     datafile.setIdentifier(datasetIdentifier + "/" + maxIdentifier.toString());
                 } else {
-                    datafile.setIdentifier(fileService.generateDataFileIdentifier(datafile, idServiceBean));
+                    datafile.setIdentifier(idServiceBean.generateDataFileIdentifier(datafile));
                 }
 
                 if (datafile.getProtocol() == null) {

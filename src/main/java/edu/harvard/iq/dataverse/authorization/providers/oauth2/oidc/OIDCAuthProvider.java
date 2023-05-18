@@ -23,6 +23,8 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
+import com.nimbusds.openid.connect.sdk.Prompt;
+import com.nimbusds.openid.connect.sdk.Prompt.Type;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
@@ -59,7 +61,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
     OIDCProviderMetadata idpMetadata;
     
     public OIDCAuthProvider(String aClientId, String aClientSecret, String issuerEndpointURL) throws AuthorizationSetupException {
-        this.clientSecret = aClientSecret; // nedded for state creation
+        this.clientSecret = aClientSecret; // needed for state creation
         this.clientAuth = new ClientSecretBasic(new ClientID(aClientId), new Secret(aClientSecret));
         this.issuer = new Issuer(issuerEndpointURL);
         getMetadata();
@@ -73,6 +75,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @see <a href="https://github.com/eclipse-ee4j/el-ri/issues/43">Jakarta EE Bug 43</a>
      * @return false
      */
+    
+    //ToDo: Should be fixed - don't need this now
     @Override
     public boolean isDisplayIdentifier() { return false; }
     
@@ -142,6 +146,11 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      */
     @Override
     public String buildAuthzUrl(String state, String callbackUrl) {
+        return buildAuthzUrl(state, callbackUrl, null, 0);
+    }
+
+    public String buildAuthzUrl(String state, String callbackUrl, Type promptType, int maxAge) {
+
         State stateObject = new State(state);
         URI callback = URI.create(callbackUrl);
         Nonce nonce = new Nonce();
@@ -152,14 +161,15 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
                                                                       callback)
             .endpointURI(idpMetadata.getAuthorizationEndpointURI())
             .state(stateObject)
-            .nonce(nonce)
+            .nonce(nonce).prompt(promptType==null ? null : new Prompt(promptType))
+            .maxAge(maxAge)
             .build();
         
         return req.toURI().toString();
     }
     
     /**
-     * Receive user data from OIDC provider after authn/z has been successfull. (Callback view uses this)
+     * Receive user data from OIDC provider after authn/z has been successful. (Callback view uses this)
      * Request a token and access the resource, parse output and return user details.
      * @param code The authz code sent from the provider
      * @param redirectUrl The redirect URL (some providers require this when fetching the access token, e. g. Google)
@@ -199,12 +209,16 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @return the usable user record for processing ing {@link edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean}
      */
     OAuth2UserRecord getUserRecord(UserInfo userInfo) {
+        String role = userInfo.getStringClaim("role");
+        role = role == null ? "" : role;
+        String affiliation = userInfo.getStringClaim("organization");
+        affiliation = affiliation == null ? "" : affiliation;
         return new OAuth2UserRecord(
             this.getId(),
             userInfo.getSubject().getValue(),
             userInfo.getPreferredUsername(),
             null,
-            new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), "", ""),
+            new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), role, affiliation),
             null
         );
     }

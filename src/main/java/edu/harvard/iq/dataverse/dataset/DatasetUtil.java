@@ -126,8 +126,8 @@ public class DatasetUtil {
         try{
             dataAccess = DataAccess.getStorageIO(dataset);
         }
-        catch(IOException ioex){
-            logger.warning("getThumbnail(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier() + " (" + ioex.getMessage() + ")");
+        catch(IOException | RuntimeException ex){
+            logger.warning("getThumbnail(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier() + " (" + ex.getMessage() + ")");
         }
         
         InputStream in = null;

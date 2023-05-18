@@ -174,7 +174,7 @@ public class ExportService {
                 inputStream.close();
                 return sb.toString();
             }
-        } catch (ExportException | IOException ex) {
+        } catch (ExportException | IOException | RuntimeException ex) {
             //ex.printStackTrace();
             return null;
         } finally {
@@ -253,7 +253,7 @@ public class ExportService {
                 if (e.getProviderName().equals(formatName)) {
                     DatasetVersion releasedVersion = dataset.getReleasedVersion();
                     if (releasedVersion == null) {
-                        throw new IllegalStateException("No Released Version");
+                        throw new ExportException("No published version found during export. " + dataset.getGlobalId().toString());
                     }
                     final JsonObjectBuilder datasetAsJsonBuilder = JsonPrinter.jsonAsDatasetDto(releasedVersion);
                     cacheExport(releasedVersion, formatName, datasetAsJsonBuilder.build(), e);
@@ -262,7 +262,18 @@ public class ExportService {
         } catch (ServiceConfigurationError serviceError) {
             throw new ExportException("Service configuration error during export. " + serviceError.getMessage());
         } catch (IllegalStateException e) {
-            throw new ExportException("No published version found during export. " + dataset.getGlobalId().toString());
+            // IllegalStateException can potentially mean very different, and 
+            // unexpected things. An exporter attempting to get a single primitive
+            // value from a fieldDTO that is in fact a Multiple and contains a 
+            // json vector (this has happened, for example, when the code in the
+            // DDI exporter was not updated following a metadata fieldtype change), 
+            // will result in IllegalStateException.
+            throw new ExportException("IllegalStateException caught when exporting " 
+                    + formatName 
+                    + " for dataset "
+                    + dataset.getGlobalId().toString()
+                    + "; may or may not be due to a mismatch between an exporter code and a metadata block update. "
+                    + e.getMessage());
         }
         
         //As with exportAll, we should update the lastexporttime for the dataset
