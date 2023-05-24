@@ -197,14 +197,7 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         boolean retVal = true;
         Dataset d = (Dataset) r;
         
-        try {
-            Future<String> indexString = ctxt.index().indexDataset(d, true);
-        } catch (IOException | SolrServerException e) {
-            String failureLogText = "Indexing failed after update current version command. You can kick off a re-index of this dataset with: \r\n curl http://localhost:8080/api/admin/index/datasets/" + d.getId().toString();
-            failureLogText += "\r\n" + e.getLocalizedMessage();
-            LoggingUtil.writeOnSuccessFailureLog(this, failureLogText,  d);
-            retVal = false;
-        }
+        ctxt.index().asyncIndexDataset(d, true);
         
         // And the exported metadata files
         try {
