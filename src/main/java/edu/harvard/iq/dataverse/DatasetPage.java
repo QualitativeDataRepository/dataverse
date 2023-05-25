@@ -1816,7 +1816,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private void setIdByPersistentId() {
-        GlobalId gid = PidUtil.parseAsGlobalID(persistentId);
+        GlobalId gid = new GlobalId(persistentId);
         Long id = dvObjectService.findIdByGlobalId(gid, DvObject.DType.Dataset);
         if (id == null) {
             id = dvObjectService.findIdByAltGlobalId(gid, DvObject.DType.Dataset);
