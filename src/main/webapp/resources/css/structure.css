@@ -1302,6 +1302,7 @@ ul > li:not(.ui-selectonemenu-item) {
         font-family: 'AntoniaH2';
 }
 
+/*TODO: Causes/allows lines in dataset page files table header to appear. Removing it messes up versions table*/
 th {background: none !important;}
 
 .ui-tabs.ui-tabs-top {border-width: 0;}
