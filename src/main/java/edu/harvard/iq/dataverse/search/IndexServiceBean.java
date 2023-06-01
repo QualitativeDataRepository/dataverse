@@ -352,8 +352,11 @@ public class IndexServiceBean {
     public void indexDatasetInNewTransaction(Long datasetId) { //Dataset dataset) {
         boolean doNormalSolrDocCleanUp = false;
         Dataset dataset = em.find(Dataset.class, datasetId);
-        asyncIndexDataset(dataset, doNormalSolrDocCleanUp);
-        dataset = null;
+        if(dataset != null) {
+            asyncIndexDataset(dataset, doNormalSolrDocCleanUp);
+        } else {
+            logger.warning("Unable to index dataset with id: " + datasetId);
+        }
     }
     
     // The following two variables are only used in the synchronized getNextToIndex method and do not need to be synchronized themselves
