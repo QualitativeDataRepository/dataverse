@@ -1331,9 +1331,9 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             if(sois.available()>0) {
                 sois.abort();
             }
-        } catch (Exception e) {
-            logger.warning(e.getLocalizedMessage());
-            e.printStackTrace();
+        } catch (IOException e) {
+            //Could have already been closed
+            errorMessage = e.getLocalizedMessage();
         }
         super.closeInputStream();
     }
