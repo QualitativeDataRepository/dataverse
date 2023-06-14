@@ -5,17 +5,22 @@
  */
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.api.Datasets;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
 import static edu.harvard.iq.dataverse.dataset.DatasetUtil.datasetLogoThumbnail;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;
 import edu.harvard.iq.dataverse.util.FileUtil;
+import edu.harvard.iq.dataverse.util.SystemConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
+
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -30,6 +35,9 @@ import org.apache.commons.io.IOUtils;
 @RequestScoped
 @Named
 public class ThumbnailServiceWrapper implements java.io.Serializable  {
+    
+    private static final Logger logger = Logger.getLogger(ThumbnailServiceWrapper.class.getCanonicalName());
+    
     @Inject
     PermissionsWrapper permissionsWrapper;
     @EJB
@@ -208,7 +216,13 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
             this.dvobjectThumbnailsMap.put(datasetId, "");
             return null; 
         }
+
+        String url = SystemConfig.getDataverseSiteUrlStatic() + "/datasets/" + dataset.getId() + "/logo";
+        logger.fine("getDatasetCardImageAsBase64Url: " + url);
+        this.dvobjectThumbnailsMap.put(datasetId,url);
+        return url;
         
+/*        
         String cardImageUrl = null;
         StorageIO<Dataset> dataAccess = null;
                 
@@ -314,6 +328,7 @@ public class ThumbnailServiceWrapper implements java.io.Serializable  {
         //logger.info("dataset id " + result.getEntityId() + ", returning " + cardImageUrl);
 
         return cardImageUrl;
+        */
     }
     
     // it's the responsibility of the user - to make sure the search result
