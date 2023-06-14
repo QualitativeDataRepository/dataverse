@@ -210,7 +210,6 @@ public class SendFeedbackDialog implements java.io.Serializable {
     }
 
     public String sendMessage() {
-        try {
         String installationBrandName = BrandingUtil.getInstallationBrandName();
         String supportTeamName = BrandingUtil.getSupportTeamName(systemAddress);
 
@@ -222,10 +221,6 @@ public class SendFeedbackDialog implements java.io.Serializable {
             logger.fine("sending feedback: " + feedback);
             mailService.sendMail(feedback.getFromEmail(), feedback.getToEmail(), feedback.getCcEmail(), feedback.getSubject(), feedback.getBody(), null);
         return null;
-        } catch (Exception e) {
-         e.printStackTrace();
-            return null;
-        }
     }
     
     private boolean ccSupport() {
