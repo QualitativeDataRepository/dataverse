@@ -88,6 +88,10 @@ public class PersonOrOrgUtilTest {
             verifyIsPerson("Cadili", null, null);
             //Verify override works
             verifyIsPerson("IBM", null, null, true);
+            
+            verifyIsPerson("kcjim11, kcjim11", "kcjim11", "kcjim11");
+            
+            verifyIsPerson("Bartholomew 3, James", "James", "Bartholomew 3");
         }
         
         private void verifyIsOrganization(String fullName) {
