@@ -6137,7 +6137,7 @@ public class DatasetPage implements java.io.Serializable {
      * @return String
      */
     public String getSignpostingLinkHeader() {
-        if (!workingVersion.isReleased()) {
+        if (workingVersion==null || !workingVersion.isReleased()) {
             return null;
         }
         SignpostingResources sr = new SignpostingResources(systemConfig, workingVersion,
