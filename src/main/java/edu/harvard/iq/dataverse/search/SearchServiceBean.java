@@ -429,6 +429,7 @@ public class SearchServiceBean {
             String identifierOfDataverse = (String) solrDocument.getFieldValue(SearchFields.IDENTIFIER_OF_DATAVERSE);
             String nameOfDataverse = (String) solrDocument.getFieldValue(SearchFields.DATAVERSE_NAME);
             Long embargoEndDate = (Long) solrDocument.getFieldValue(SearchFields.EMBARGO_END_DATE);
+            Boolean datasetValid = (Boolean) solrDocument.getFieldValue(SearchFields.DATASET_VALID);
             
             List<String> matchedFields = new ArrayList<>();
             List<Highlight> highlights = new ArrayList<>();
@@ -493,6 +494,7 @@ public class SearchServiceBean {
             solrSearchResult.setDescriptionNoSnippet(description);
             solrSearchResult.setDeaccessionReason(deaccessionReason);
             solrSearchResult.setDvTree(dvTree);
+            solrSearchResult.setDatasetValid(datasetValid);
             
             String originSource = (String) solrDocument.getFieldValue(SearchFields.METADATA_SOURCE);
             if (IndexServiceBean.HARVESTED.equals(originSource)) {
@@ -746,14 +748,14 @@ public class SearchServiceBean {
                     if(friendlyName != null && friendlyName.length() > 0) {
                         facetCategory.setFriendlyName(friendlyName);
                     } else {
-                    String[] parts = name.split("_");
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (String part : parts) {
-                        stringBuilder.append(getCapitalizedName(part.toLowerCase()) + " ");
-                    }
-                    String friendlyNameWithTrailingSpace = stringBuilder.toString();
+                        String[] parts = name.split("_");
+                        StringBuilder stringBuilder = new StringBuilder();
+                        for (String part : parts) {
+                            stringBuilder.append(getCapitalizedName(part.toLowerCase()) + " ");
+                        }
+                        String friendlyNameWithTrailingSpace = stringBuilder.toString();
                         friendlyName = friendlyNameWithTrailingSpace.replaceAll(" $", "");
-                    facetCategory.setFriendlyName(friendlyName);
+                        facetCategory.setFriendlyName(friendlyName);
                     }
 
 //                    logger.info("adding <<<" + staticSearchField + ":" + friendlyName + ">>>");

@@ -61,7 +61,7 @@
 	eastLongitude	East Longitude	Easternmost coordinate delimiting the geographic extent of the Data Project. A valid range of values,  expressed in decimal degrees, is -180,0 <= East Bounding Longitude Value <= 180,0.		text	57		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	geographicBoundingBox	citation	
 	northLongitude	North Latitude	Northernmost coordinate delimiting the geographic extent of the Data Project. A valid range of values,  expressed in decimal degrees, is -90,0 <= North Bounding Latitude Value <= 90,0.		text	58		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	geographicBoundingBox	citation	
 	southLongitude	South Latitude	Southernmost coordinate delimiting the geographic extent of the Data Project. A valid range of values,  expressed in decimal degrees, is -90,0 <= South Bounding Latitude Value <= 90,0.		text	59		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	geographicBoundingBox	citation	
-	series	Series	Information about the data project series to which the Data Project belongs		none	60	:	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		citation	
+	series	Series	Information about the data project series to which the Data Project belongs		none	60	:	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		citation	
 	seriesName	Name	The name of the data project series		text	61	#VALUE	TRUE	FALSE	FALSE	TRUE	FALSE	FALSE	series	citation	
 	seriesInformation	Information	Can include 1) a history of the series and 2) a summary of features that apply to the series		textbox	62	#VALUE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	series	citation	
 	software	Software	Information about the software used to generate the Data Project.		none	63	,	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		citation	https://www.w3.org/TR/prov-o/#wasGeneratedBy

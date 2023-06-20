@@ -23,6 +23,7 @@ package edu.harvard.iq.dataverse.ingest;
 import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -75,6 +76,11 @@ public class IngestMessageBean implements MessageListener {
             ingestMessage = (IngestMessage) om.getObject();
 
             // if the lock was removed while an ingest was queued, ratake the lock
+            // The "if" is the first thing that addDatasetLock method does.
+            // It has some complexity and would result in the code duplication if repeated here.
+            // If that check would be removed from the addDatasetLock method in the future without
+            // updating the code using this method, ingest code would still not break because
+            // we remove "all" ingest locks at the end (right now, there can be at most one ingest lock).
             datasetService.addDatasetLock(ingestMessage.getDatasetId(),
                     DatasetLock.Reason.Ingest,
                     ingestMessage.getAuthenticatedUserId(),
@@ -132,9 +138,9 @@ public class IngestMessageBean implements MessageListener {
                             IngestReport errorReport = new IngestReport();
                             errorReport.setFailure();
                             if (ex.getMessage() != null) {
-                                errorReport.setReport("Ingest succeeded, but failed to save the ingested tabular data in the database: " + ex.getMessage());
+                                errorReport.setReport(BundleUtil.getStringFromBundle("file.ingest.saveFailed.detail.message") + ex.getMessage());
                             } else {
-                                errorReport.setReport("Ingest succeeded, but failed to save the ingested tabular data in the database; no further information is available");
+                                errorReport.setReport(BundleUtil.getStringFromBundle("file.ingest.saveFailed.message"));
                             }
                             errorReport.setDataFile(datafile);
                             datafile.setIngestReport(errorReport);

@@ -65,16 +65,16 @@ public class OREMap {
         outputStream.flush();
     }
 
-    public JsonObject getOREMap() throws Exception {
+    public JsonObject getOREMap() {
         return getOREMap(false);
     }
     
-    public JsonObject getOREMap(boolean aggregationOnly) throws Exception {
+    public JsonObject getOREMap(boolean aggregationOnly) {
         return getOREMapBuilder(aggregationOnly).build();
     }
     
-    public JsonObjectBuilder getOREMapBuilder(boolean aggregationOnly) throws Exception {
-    
+    public JsonObjectBuilder getOREMapBuilder(boolean aggregationOnly) {
+
         //Set this flag if it wasn't provided
         if(excludeEmail==null) {
             excludeEmail = settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport, false);
@@ -241,7 +241,7 @@ public class OREMap {
                 // Add checksum. RDA recommends SHA-512
                 if (df.getChecksumType() != null && df.getChecksumValue() != null) {
                     checksum = Json.createObjectBuilder().add("@type", df.getChecksumType().toString())
-                        .add("@value", df.getChecksumValue()).build();
+                            .add("@value", df.getChecksumValue()).build();
                     aggRes.add(JsonLDTerm.checksum.getLabel(), checksum);
                 }
                 JsonArray tabTags = null;
@@ -250,7 +250,7 @@ public class OREMap {
                     tabTags = jab.build();
                 }
                 addIfNotNull(aggRes, JsonLDTerm.tabularTags, tabTags);
-                //Add latest resource to the array
+                // Add latest resource to the array
                 aggResArrayBuilder.add(aggRes.build());
             }
         }
@@ -265,7 +265,7 @@ public class OREMap {
             // Now create the overall map object with it's metadata
             JsonObjectBuilder oremapBuilder = Json.createObjectBuilder()
                     .add(JsonLDTerm.dcTerms("modified").getLabel(), LocalDate.now().toString())
-                    .add(JsonLDTerm.dcTerms("creator").getLabel(),BrandingUtil.getInstallationBrandName())
+                    .add(JsonLDTerm.dcTerms("creator").getLabel(), BrandingUtil.getInstallationBrandName())
                     .add("@type", JsonLDTerm.ore("ResourceMap").getLabel())
                     // Define an id for the map itself (separate from the @id of the dataset being
                     // described

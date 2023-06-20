@@ -352,12 +352,9 @@ public class IndexServiceBean {
     @TransactionAttribute(REQUIRES_NEW)
     public void indexDatasetInNewTransaction(Long datasetId) { //Dataset dataset) {
         boolean doNormalSolrDocCleanUp = false;
-        Dataset dataset = em.find(Dataset.class, datasetId);
-        if(dataset != null) {
-            asyncIndexDataset(dataset, doNormalSolrDocCleanUp);
-        } else {
-            logger.warning("Unable to index dataset with id: " + datasetId);
-        }
+        Dataset dataset = datasetService.findDeep(datasetId);
+        asyncIndexDataset(dataset, doNormalSolrDocCleanUp);
+        dataset = null;
     }
     
     // The following two variables are only used in the synchronized getNextToIndex method and do not need to be synchronized themselves
@@ -440,8 +437,7 @@ public class IndexServiceBean {
     }
 
     private void indexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
-        Dataset deep = datasetService.findDeep(dataset.getId());
-        doIndexDataset(deep, doNormalSolrDocCleanUp);
+        doIndexDataset(dataset, doNormalSolrDocCleanUp);
         updateLastIndexedTime(dataset.getId());
     }
     
@@ -809,6 +805,17 @@ public class IndexServiceBean {
         solrInputDocument.addField(SearchFields.DATASET_PERSISTENT_ID, dataset.getGlobalId().toString());
         solrInputDocument.addField(SearchFields.PERSISTENT_URL, dataset.getPersistentURL());
         solrInputDocument.addField(SearchFields.TYPE, "datasets");
+        boolean valid;
+        if (!indexableDataset.getDatasetVersion().isDraft()) {
+            valid = true;
+        } else {
+            DatasetVersion version = indexableDataset.getDatasetVersion().cloneDatasetVersion();
+            version.setDatasetFields(version.initDatasetFields());
+            valid = version.isValid();
+        }
+        if (JvmSettings.API_ALLOW_INCOMPLETE_METADATA.lookupOptional(Boolean.class).orElse(false)) {
+            solrInputDocument.addField(SearchFields.DATASET_VALID, valid);
+        }
 
         final Dataverse dataverse = dataset.getDataverseContext();
         final String dvIndexableCategoryName = dataverse.getIndexableCategoryName();
@@ -1695,7 +1702,7 @@ public class IndexServiceBean {
             if (object.isInstanceofDataset()) {
                 dataset = datasetService.findDeep(object.getId());
             }
-            List<String> paths =  object.isInstanceofDataset() ? retrieveDVOPaths(dataset) 
+            List<String> paths = object.isInstanceofDataset() ? retrieveDVOPaths(dataset)
                     : retrieveDVOPaths(dataverseService.find(object.getId()));
 
             sid.removeField(SearchFields.SUBTREE);

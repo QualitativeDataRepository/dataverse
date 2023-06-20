@@ -33,9 +33,9 @@ import edu.harvard.iq.dataverse.engine.command.impl.LinkDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.PublishDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.PublishDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
-import edu.harvard.iq.dataverse.export.ExportException;
 import edu.harvard.iq.dataverse.export.ExportService;
-import edu.harvard.iq.dataverse.export.spi.Exporter;
+import io.gdcc.spi.export.ExportException;
+import io.gdcc.spi.export.Exporter;
 import edu.harvard.iq.dataverse.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.LicenseServiceBean;
@@ -682,12 +682,14 @@ public class DatasetPage implements java.io.Serializable {
 
     private List<FileMetadata> selectFileMetadatasForDisplay() {
         final Set<Long> searchResultsIdSet;
-        if (StringUtil.isEmpty(fileLabelSearchTerm) && StringUtil.isEmpty(fileTypeFacet) && StringUtil.isEmpty(fileAccessFacet) && StringUtil.isEmpty(fileTagsFacet)) {
-            // But, if no search terms were specified, we return the full
-            // list of the files in the version:
+        if (isIndexedVersion() && StringUtil.isEmpty(fileLabelSearchTerm) && StringUtil.isEmpty(fileTypeFacet) && StringUtil.isEmpty(fileAccessFacet) && StringUtil.isEmpty(fileTagsFacet)) {
+            // Indexed version: we need facets, they are set as a side effect of getFileIdsInVersionFromSolr method.
+            // But, no search terms were specified, we will return the full
+            // list of the files in the version: we discard the result from getFileIdsInVersionFromSolr.
+            getFileIdsInVersionFromSolr(workingVersion.getId(), this.fileLabelSearchTerm);
             // Since the search results should include the full set of fmds if all the
             // terms/facets are empty, setting them to null should just be
-            // an optimization for the loop below
+            // an optimization to skip the loop below
             searchResultsIdSet = null;
         } else if (isIndexedVersion()) {
             // We run the search even if no search term and/or facets are
@@ -1842,6 +1844,7 @@ public class DatasetPage implements java.io.Serializable {
         if(sortOrder != null) {
             FileMetadata.setCategorySortOrder(sortOrder);
         }
+        
         if (dataset.getId() != null || versionId != null || persistentId != null) { // view mode for a dataset     
 
             DatasetVersionServiceBean.RetrieveDatasetVersionResponse retrieveDatasetVersionResponse = null;
@@ -1948,11 +1951,6 @@ public class DatasetPage implements java.io.Serializable {
                 // init the list of FileMetadatas
                 if (workingVersion.isDraft() && canUpdateDataset()) {
                     readOnly = false;
-                } else {
-                    // an attempt to retreive both the filemetadatas and datafiles early on, so that
-                    // we don't have to do so later (possibly, many more times than necessary):
-                    //AuthenticatedUser au = session.getUser() instanceof AuthenticatedUser ? (AuthenticatedUser) session.getUser() : null;
-                    //datafileService.findFileMetadataOptimizedExperimental(dataset, workingVersion, au);
                 }
                 // As of v5.x (PF8?), having the variables initially set to true in their
                 // declarations doesn't result in them being true when a page is first viewed -
@@ -2142,8 +2140,22 @@ public class DatasetPage implements java.io.Serializable {
         if (workingVersion.isDraft() && workingVersion.getId() != null && canUpdateDataset() 
                 && !dataset.isLockedFor(DatasetLock.Reason.finalizePublication)
               &&   (canPublishDataset() || !dataset.isLockedFor(DatasetLock.Reason.InReview) )){
-            JsfHelper.addWarningMessage(datasetService.getReminderString(dataset, canPublishDataset()));
+            JsfHelper.addWarningMessage(datasetService.getReminderString(dataset, canPublishDataset(), false, isValid()));
         }               
+    }
+
+    public boolean isValid() {
+        DatasetVersion version = dataset.getLatestVersion();
+        if (!version.isDraft()) {
+            return true;
+        }
+        DatasetVersion newVersion = version.cloneDatasetVersion();
+        newVersion.setDatasetFields(newVersion.initDatasetFields());
+        return newVersion.isValid();
+    }
+
+    public boolean isValidOrCanReviewIncomplete() {
+        return isValid() || JvmSettings.UI_ALLOW_REVIEW_INCOMPLETE.lookupOptional(Boolean.class).orElse(false);
     }
 
     private void displayLockInfo(Dataset dataset) {
@@ -2215,8 +2227,17 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String getSortOrder() {
-        return settingsWrapper.getValueForKey(SettingsServiceBean.Key.CategorySortOrder, null);
+        return settingsWrapper.getValueForKey(SettingsServiceBean.Key.CategoryOrder, null);
     }
+    
+    public boolean orderByFolder() {
+        return settingsWrapper.isTrueForKey(SettingsServiceBean.Key.OrderByFolder, true);
+    }
+    
+    public boolean allowUserManagementOfOrder() {
+        return settingsWrapper.isTrueForKey(SettingsServiceBean.Key.AllowUserManagementOfOrder, false);
+    }
+
 
     private Boolean fileTreeViewRequired = null;
 
@@ -2240,6 +2261,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public void setFileDisplayMode(String fileDisplayMode) {
+        isPageFlip = true;
         if ("Table".equals(fileDisplayMode)) {
             this.fileDisplayMode = FileDisplayStyle.TABLE;
         } else {
@@ -2251,13 +2273,6 @@ public class DatasetPage implements java.io.Serializable {
         return fileDisplayMode == FileDisplayStyle.TABLE;
     }
 
-    public void toggleFileDisplayMode() {
-        if (fileDisplayMode == FileDisplayStyle.TABLE) {
-            fileDisplayMode = FileDisplayStyle.TREE;
-        } else {
-            fileDisplayMode = FileDisplayStyle.TABLE;
-        }
-    }
     public boolean isFileDisplayTree() {
         return fileDisplayMode == FileDisplayStyle.TREE;
     }
@@ -2896,11 +2911,6 @@ public class DatasetPage implements java.io.Serializable {
             this.dataset = this.workingVersion.getDataset();
         }
 
-        if (readOnly) {
-            //AuthenticatedUser au = session.getUser() instanceof AuthenticatedUser ? (AuthenticatedUser) session.getUser() : null;
-            //datafileService.findFileMetadataOptimizedExperimental(dataset, workingVersion, au);
-        }
-
         fileMetadatasSearch = selectFileMetadatasForDisplay();
 
         displayCitation = dataset.getCitation(true, workingVersion);
@@ -3373,38 +3383,6 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
-    /*
-    List<FileMetadata> previouslyRestrictedFiles = null;
-
-    public boolean isShowAccessPopup() {
-        
-        for (FileMetadata fmd : workingVersion.getFileMetadatas()) {
-
-            if (fmd.isRestricted()) {
-            
-                if (editMode == EditMode.CREATE) {
-                    // if this is a brand new file, it's definitely not 
-                    // of a previously restricted kind!
-                    return true; 
-                }
-            
-                if (previouslyRestrictedFiles != null) {
-                    // We've already checked whether we are in the CREATE mode, 
-                    // above; and that means we can safely assume this filemetadata
-                    // has an existing db id. So it is safe to use the .contains()
-                    // method below:
-                    if (!previouslyRestrictedFiles.contains(fmd)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    public void setShowAccessPopup(boolean showAccessPopup) {} // dummy set method
-    */
     
     public String testSelectedFilesForRestrict(){
         if (selectedFiles.isEmpty()) {
@@ -4490,6 +4468,8 @@ public class DatasetPage implements java.io.Serializable {
             try {
                 exporter = ExportService.getInstance().getExporter(formatName);
             } catch (ExportException ex) {
+                logger.warning("Failed to get : " + formatName);
+                logger.warning(ex.getLocalizedMessage());
                 exporter = null;
             }
             if (exporter != null && exporter.isAvailableToUsers()) {
@@ -5114,10 +5094,9 @@ public class DatasetPage implements java.io.Serializable {
            // return false;
         }
         for (FileMetadata fmd : workingVersion.getFileMetadatas()){
+            AuthenticatedUser authenticatedUser = (AuthenticatedUser) session.getUser();
             //Change here so that if all restricted files have pending requests there's no Request Button
-            if ((!this.fileDownloadHelper.canDownloadFile(fmd) && (fmd.getDataFile().getFileAccessRequesters() == null
-                    || ( fmd.getDataFile().getFileAccessRequesters() != null
-                 &&   !fmd.getDataFile().getFileAccessRequesters().contains((AuthenticatedUser)session.getUser()))))){
+            if ((!this.fileDownloadHelper.canDownloadFile(fmd) && !fmd.getDataFile().containsFileAccessRequestFromUser(authenticatedUser))) {
                 return true;
             }
         }
@@ -5744,7 +5723,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean isTagPresort() {
        return this.tagPresort;
-    }
+        }
 
         public void setTagPresort(boolean tagPresort) {
             // Record the new value
@@ -5758,17 +5737,17 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean isFolderPresort() {
         return this.folderPresort;
-     }
+        }
 
         public void setFolderPresort(boolean folderPresort) {
             //Record the new value
-            newFolderPresort = folderPresort;
+            newFolderPresort = folderPresort && orderByFolder();
             // If this is not a page flip, it should be a real change to the presort
             // boolean that we should use.
             if (!isPageFlip) {
-                this.folderPresort = folderPresort;
+                this.folderPresort = folderPresort && orderByFolder();
             }
-     }
+        }
 
 
     public void explore(ExternalTool externalTool) {
