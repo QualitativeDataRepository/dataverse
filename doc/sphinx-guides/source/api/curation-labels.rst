@@ -95,7 +95,7 @@ To get the list of allowed curation labels allowed for a given Dataset
 You should expect a 200 ("OK") response with a comma-separated list of allowed labels contained in a JSON 'data' object.
 
 
-Get a Report on the Curation Status of all Datasets
+Get a Report on the Curation Status of All Datasets
 ---------------------------------------------------
 
 To get a CSV file listing the curation label assigned to each Dataset with a draft version, along with the creation and last modification dates, and list of those with permissions to publish the version.
@@ -111,4 +111,4 @@ This API call is restricted to superusers.
  
     curl -H X-Dataverse-key:$API_TOKEN "$SERVER_URL/api/datasets/listCurationStates"
 
-You should expect a 200 ("OK") response with a 'datasets.status.csv' file download.
+You should expect a 200 ("OK") response with a CSV formatted response.

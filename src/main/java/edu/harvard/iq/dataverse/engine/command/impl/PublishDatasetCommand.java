@@ -134,7 +134,7 @@ public class PublishDatasetCommand extends AbstractPublishDatasetCommand<Publish
             String dataFilePIDFormat = ctxt.settings().getValueForKey(SettingsServiceBean.Key.DataFilePIDFormat, "DEPENDENT");
             boolean registerGlobalIdsForFiles = 
                     (currentGlobalIdProtocol.equals(theDataset.getProtocol()) || dataFilePIDFormat.equals("INDEPENDENT")) 
-                    && ctxt.systemConfig().isFilePIDsEnabled();
+                    && ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner());
             
             if ( registerGlobalIdsForFiles ){
                 registerGlobalIdsForFiles = currentGlobalAuthority.equals( theDataset.getAuthority() );

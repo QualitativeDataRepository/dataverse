@@ -190,6 +190,10 @@ public class FileUtil implements java.io.Serializable  {
     public static final String HYPOTHESIS_LIMIT_WARNING = "Over 200 annotations, retrieval can't be completed";
     public static final String ANNOTATIONS_CATEGORY = "ATI Annotations";
 
+    public static final String MIME_TYPE_NETCDF = "application/netcdf";
+    public static final String MIME_TYPE_XNETCDF = "application/x-netcdf";
+    public static final String MIME_TYPE_HDF5 = "application/x-hdf5";
+
     // File type "thumbnail classes" tags:
 
     public static final String FILE_THUMBNAIL_CLASS_AUDIO = "audio";
@@ -255,27 +259,6 @@ public class FileUtil implements java.io.Serializable  {
 
     public FileUtil() {
     }
-
-    public static void copyFile(File inputFile, File outputFile) throws IOException {
-        FileChannel in = null;
-        WritableByteChannel out = null;
-
-        try {
-            in = new FileInputStream(inputFile).getChannel();
-            out = new FileOutputStream(outputFile).getChannel();
-            long bytesPerIteration = 50000;
-            long start = 0;
-            while ( start < in.size() ) {
-                in.transferTo(start, bytesPerIteration, out);
-                start += bytesPerIteration;
-            }
-
-        } finally {
-            if (in != null) { in.close(); }
-            if (out != null) { out.close(); }
-        }
-    }
-
 
     public static String getFileExtension(String fileName){
         String ext = null;
