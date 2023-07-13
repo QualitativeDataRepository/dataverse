@@ -232,11 +232,11 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
         String currentGlobalIdProtocol = ctxt.settings().getValueForKey(SettingsServiceBean.Key.Protocol, "");
         String currentGlobalAuthority = ctxt.settings().getValueForKey(SettingsServiceBean.Key.Authority, "");
         String dataFilePIDFormat = ctxt.settings().getValueForKey(SettingsServiceBean.Key.DataFilePIDFormat, "DEPENDENT");
-        boolean shouldRegister = ctxt.systemConfig().isFilePIDsEnabled()                                  // We use file PIDs
-                && !idServiceBean.registerWhenPublished()                                                 // The provider can pre-register
-                &&((currentGlobalIdProtocol.equals(protocol) && currentGlobalAuthority.equals(authority)) // the dataset PID is a protocol/authority Dataverse can create new PIDs in
-                        || dataFilePIDFormat.equals("INDEPENDENT"));                                      // or the files can use a different protocol/authority
-        logger.fine("IsFilePIDsEnabled: " + ctxt.systemConfig().isFilePIDsEnabled());
+        boolean shouldRegister = ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner()) // We use file PIDs
+                && !idServiceBean.registerWhenPublished()                                                  // The provider can pre-register
+                &&((currentGlobalIdProtocol.equals(protocol) && currentGlobalAuthority.equals(authority))  // the dataset PID is a protocol/authority Dataverse can create new PIDs in
+                        || dataFilePIDFormat.equals("INDEPENDENT"));                                       // or the files can use a different protocol/authority
+        logger.fine("IsFilePIDsEnabled: " + ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner()));
         logger.fine("RegWhenPub: " +  !idServiceBean.registerWhenPublished());
         logger.fine("OK provider: " + ((currentGlobalIdProtocol.equals(protocol) && currentGlobalAuthority.equals(authority)) // the dataset PID is a protocol/authority Dataverse can create new PIDs in
                         || dataFilePIDFormat.equals("INDEPENDENT")));  
@@ -259,7 +259,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                                    // pre-registration someday), so set false for efficiency
                 }
                 try {
-                    if (globalIdServiceBean.alreadyExists(dataFile)) {
+                    if (globalIdServiceBean.alreadyRegistered(dataFile)) {
                         int attempts = 0;
                         if (retry) {
                             do {
@@ -267,7 +267,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                                 logger.log(Level.INFO, "Attempting to register external identifier for datafile {0} (trying: {1}).",
                                         new Object[] { dataFile.getId(), dataFile.getIdentifier() });
                                 attempts++;
-                            } while (globalIdServiceBean.alreadyExists(dataFile) && attempts <= FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT);
+                            } while (globalIdServiceBean.alreadyRegistered(dataFile) && attempts <= FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT);
                         }
                         if (!retry) {
                             logger.warning("Reserving File PID for: " + getDataset().getId() + ", fileId: " + dataFile.getId() + ", during publication failed.");
