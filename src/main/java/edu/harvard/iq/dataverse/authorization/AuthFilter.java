@@ -75,7 +75,11 @@ public class AuthFilter implements Filter {
         if (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback"))) {
             logger.info("Path: " + path);
             if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
-                logger.info("check OIDC: " + httpSession.getAttribute("passiveChecked"));
+                if(httpSession != null) {
+                    logger.info("check OIDC: " + httpSession.getAttribute("passiveChecked"));
+                } else {
+                    logger.info("check OIDC: null");
+                }
                 synchronized (this) {
                     logger.info("really check OIDC");
                     AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
@@ -84,6 +88,7 @@ public class AuthFilter implements Filter {
                     String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
                     logger.info(redirectUrl);
                     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+                    httpSession = httpServletRequest.getSession(true);
                     httpSession.setAttribute("passiveChecked", true);
 
                     String remoteAddr = httpServletRequest.getRemoteAddr();
