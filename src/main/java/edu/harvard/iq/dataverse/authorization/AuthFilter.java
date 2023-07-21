@@ -57,7 +57,7 @@ public class AuthFilter implements Filter {
             FileHandler logFile = new FileHandler(".." + File.separator + glassfishLogsDirectory + File.separator + "authfilter.log");
             SimpleFormatter formatterTxt = new SimpleFormatter();
             logFile.setFormatter(formatterTxt);
-            logger.addHandler(logFile);
+            //logger.addHandler(logFile);
         } catch (IOException ex) {
             Logger.getLogger(AuthFilter.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SecurityException ex) {
@@ -71,12 +71,10 @@ public class AuthFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         HttpSession httpSession = httpServletRequest.getSession(false);
         String path = httpServletRequest.getRequestURI();
-        if (path != null) {
-            logger.info("Path: " + path);
-        }
+
 
         if (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback"))) {
-
+            logger.info("Path: " + path);
             if ((httpSession != null)) {
                 logger.info("check OIDC: " + httpSession.getAttribute("passiveChecked"));
                 synchronized (this) {
