@@ -57,7 +57,7 @@ public class AuthFilter implements Filter {
             FileHandler logFile = new FileHandler(".." + File.separator + glassfishLogsDirectory + File.separator + "authfilter.log");
             SimpleFormatter formatterTxt = new SimpleFormatter();
             logFile.setFormatter(formatterTxt);
-            //logger.addHandler(logFile);
+            // logger.addHandler(logFile);
         } catch (IOException ex) {
             Logger.getLogger(AuthFilter.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SecurityException ex) {
@@ -72,39 +72,36 @@ public class AuthFilter implements Filter {
         HttpSession httpSession = httpServletRequest.getSession(false);
         String path = httpServletRequest.getRequestURI();
 
-
         if (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback"))) {
             logger.info("Path: " + path);
-            if ((httpSession != null)) {
+            if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
                 logger.info("check OIDC: " + httpSession.getAttribute("passiveChecked"));
                 synchronized (this) {
-                    if (httpSession.getAttribute("passiveChecked") == null) {
-                        logger.info("really check OIDC");
-                        AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
-                        OIDCAuthProvider oidcidp = (OIDCAuthProvider) idp;
-                        String state = createState(oidcidp, toOption("https://dv.dev-aws.qdr.org/"));
-                        String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
-                        logger.info(redirectUrl);
-                        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-                        httpSession.setAttribute("passiveChecked", true);
+                    logger.info("really check OIDC");
+                    AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
+                    OIDCAuthProvider oidcidp = (OIDCAuthProvider) idp;
+                    String state = createState(oidcidp, toOption("https://dv.dev-aws.qdr.org/"));
+                    String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
+                    logger.info(redirectUrl);
+                    HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+                    httpSession.setAttribute("passiveChecked", true);
 
-                        String remoteAddr = httpServletRequest.getRemoteAddr();
-                        String requestUri = httpServletRequest.getRequestURI();
-                        String userAgent = httpServletRequest.getHeader("User-Agent");
+                    String remoteAddr = httpServletRequest.getRemoteAddr();
+                    String requestUri = httpServletRequest.getRequestURI();
+                    String userAgent = httpServletRequest.getHeader("User-Agent");
 
-                        String separator = "|";
+                    String separator = "|";
 
-                        StringBuilder sb = new StringBuilder();
-                        for (String string : Arrays.asList(remoteAddr, requestUri, userAgent)) {
-                            sb.append(string + separator);
-                        }
-
-                        logger.info(sb.toString());
-
-                        httpServletResponse.sendRedirect(redirectUrl);
-                        return;
-
+                    StringBuilder sb = new StringBuilder();
+                    for (String string : Arrays.asList(remoteAddr, requestUri, userAgent)) {
+                        sb.append(string + separator);
                     }
+
+                    logger.info(sb.toString());
+
+                    httpServletResponse.sendRedirect(redirectUrl);
+                    return;
+
                 }
             }
         }
