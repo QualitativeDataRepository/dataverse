@@ -30,6 +30,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.HttpMethod;
 
 import com.nimbusds.openid.connect.sdk.Prompt;
 
@@ -73,14 +74,15 @@ public class AuthFilter implements Filter {
             HttpSession httpSession = httpServletRequest.getSession(false);
             String path = httpServletRequest.getRequestURI();
 
-            if (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback"))) {
+            if ((httpServletRequest.getMethod() == HttpMethod.GET) && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.info("Path: " + path);
 
                 if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
                     if (httpSession != null) {
                         logger.info("check OIDC: " + httpSession.getAttribute("passiveChecked"));
                     } else {
-                        logger.info("check OIDC: null");
+                        logger.info("check OIDC: no session");
+                        httpSession = httpServletRequest.getSession(true);
                     }
                     logger.info("really check OIDC");
                     AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
@@ -89,7 +91,6 @@ public class AuthFilter implements Filter {
                     String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
                     logger.info(redirectUrl);
                     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-                    httpSession = httpServletRequest.getSession(true);
                     httpSession.setAttribute("passiveChecked", true);
 
                     String remoteAddr = httpServletRequest.getRemoteAddr();
