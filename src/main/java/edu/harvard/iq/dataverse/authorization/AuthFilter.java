@@ -74,16 +74,10 @@ public class AuthFilter implements Filter {
             HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
             HttpSession httpSession = httpServletRequest.getSession(false);
             String path = httpServletRequest.getRequestURI();
-String uaHeader = httpServletRequest.getHeader("USER-AGENT");
-logger.info("UAH: " + uaHeader);
-uaHeader = httpServletRequest.getHeader("user-agent");
-logger.info("uah: " + uaHeader);
-Enumeration<String> headers = httpServletRequest.getHeaderNames();
-while (headers.hasMoreElements()) {
-    logger.info("HName: " + headers.nextElement());
-}
-boolean isCheck = uaHeader==null || uaHeader.contains("check_http");
-            if ((httpServletRequest.getMethod() == HttpMethod.GET) && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")|| isCheck))) {
+            String uaHeader = httpServletRequest.getHeader("user-agent");
+            //Nagios uses a user-agent starting with check_http and we don't want to do a passive login check in that case.
+            boolean isCheck = (uaHeader != null) && uaHeader.contains("check_http");
+            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.info("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
                 if ((sso != null) || (httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
