@@ -88,7 +88,15 @@ boolean isCheck = uaHeader==null || uaHeader.contains("check_http");
                     logger.info("really check OIDC");
                     AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
                     OIDCAuthProvider oidcidp = (OIDCAuthProvider) idp;
-                    String state = createState(oidcidp, toOption("https://dv.dev-aws.qdr.org/"));
+                    // Create URL for the final destination after successful login
+                    // Drop sso parameter if present
+                    String qp = httpServletRequest.getQueryString();
+                    if (qp != null) {
+                        qp = qp.replaceFirst("[&]*sso=true", "");
+                    }
+                    String finalDestination = (qp == null) ? httpServletRequest.getRequestURL().toString() : httpServletRequest.getRequestURL().append("?").append(qp).toString();
+
+                    String state = createState(oidcidp, toOption(finalDestination));
                     String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
                     logger.info(redirectUrl);
                     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
