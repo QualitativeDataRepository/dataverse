@@ -92,10 +92,10 @@ boolean isCheck = uaHeader==null || uaHeader.contains("check_http");
                     // Drop sso parameter if present
                     String qp = httpServletRequest.getQueryString();
                     if (qp != null) {
-                        qp = qp.replaceFirst(".sso=true", "");
+                        qp = qp.replaceFirst("[&.?]sso=true", "");
                     }
                     String finalDestination = (qp == null) ? httpServletRequest.getRequestURL().toString() : httpServletRequest.getRequestURL().append("?").append(qp).toString();
-
+                    logger.info("FD: " + finalDestination);
                     String state = createState(oidcidp, toOption(finalDestination));
                     String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
                     logger.info(redirectUrl);
