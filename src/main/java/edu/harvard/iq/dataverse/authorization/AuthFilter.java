@@ -73,11 +73,12 @@ public class AuthFilter implements Filter {
             HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
             HttpSession httpSession = httpServletRequest.getSession(false);
             String path = httpServletRequest.getRequestURI();
-
-            if ((httpServletRequest.getMethod() == HttpMethod.GET) && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")))) {
+String uaHeader = httpServletRequest.getHeader("USER-AGENT");
+boolean isCheck = uaHeader==null || uaHeader.contains("check_http");
+            if ((httpServletRequest.getMethod() == HttpMethod.GET) && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")|| isCheck))) {
                 logger.info("Path: " + path);
-
-                if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
+                String sso = httpServletRequest.getParameter("sso");
+                if ((sso != null) || (httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
                     if (httpSession != null) {
                         logger.info("check OIDC: " + httpSession.getAttribute("passiveChecked"));
                     } else {
