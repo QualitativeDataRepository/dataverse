@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Optional;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -74,6 +75,13 @@ public class AuthFilter implements Filter {
             HttpSession httpSession = httpServletRequest.getSession(false);
             String path = httpServletRequest.getRequestURI();
 String uaHeader = httpServletRequest.getHeader("USER-AGENT");
+logger.info("UAH: " + uaHeader);
+uaHeader = httpServletRequest.getHeader("user-agent");
+logger.info("uah: " + uaHeader);
+Enumeration<String> headers = httpServletRequest.getHeaderNames();
+while (headers.hasMoreElements()) {
+    logger.info("HName: " + headers.nextElement());
+}
 boolean isCheck = uaHeader==null || uaHeader.contains("check_http");
             if ((httpServletRequest.getMethod() == HttpMethod.GET) && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")|| isCheck))) {
                 logger.info("Path: " + path);
