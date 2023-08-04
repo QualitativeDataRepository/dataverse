@@ -608,18 +608,10 @@ public class SettingsServiceBean {
          * allowing users to dynamically turn folder and category ordering on/off.
          */
         AllowUserManagementOfOrder,
-
-        /**
-         * Optional email address to use with the support form/ feedback api emails. Default is to use the SystemEmail account.
-         * 
-         */
-        
-        SupportEmail,
         /*
-         * Whether the repository support team should be CC'd on requests created in the
-         * contact form, when email is sent TO the listed Dataverse, Dataset, or DataFile contacts. Default is false.
+         * True/false(default) option deciding whether file PIDs can be enabled per collection - using the Dataverse/collection set attribute API call.
          */
-        CCSupportOnContactEmails
+        AllowEnablingFilePIDsPerCollection
         ;
 
         @Override
