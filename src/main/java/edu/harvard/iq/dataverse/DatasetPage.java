@@ -5531,15 +5531,21 @@ public class DatasetPage implements java.io.Serializable {
         return previewTools.size() > 0;
     }
     
-    public boolean isShowQueryButton(Long fileId) { 
-        DataFile dataFile = datafileService.find(fileId);
+    Boolean showQueryButton = null;
 
-        if(dataFile.isRestricted() || !dataFile.isReleased()  || FileUtil.isActivelyEmbargoed(dataFile)){
-            return false;
+    public boolean isShowQueryButton(Long fileId) {
+        if (showQueryButton == null) {
+            DataFile dataFile = datafileService.find(fileId);
+
+            if (dataFile.isRestricted() || !dataFile.isReleased() || FileUtil.isActivelyEmbargoed(dataFile)) {
+                showQueryButton = false;
+            } else {
+
+                List<ExternalTool> fileQueryTools = getQueryToolsForDataFile(fileId);
+                showQueryButton = fileQueryTools.size() > 0;
+            }
         }
-        
-        List<ExternalTool> fileQueryTools = getQueryToolsForDataFile(fileId);
-        return fileQueryTools.size() > 0;
+        return showQueryButton;
     }
 
     public List<ExternalTool> getPreviewToolsForDataFile(Long fileId) {
