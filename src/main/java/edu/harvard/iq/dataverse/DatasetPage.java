@@ -1863,6 +1863,7 @@ public class DatasetPage implements java.io.Serializable {
             if (persistentId != null) {
                 setIdByPersistentId();
             }
+            
             if (this.getId() != null) {
                 // Set Working Version and Dataset by Datasaet Id and Version
                 
@@ -1877,7 +1878,7 @@ public class DatasetPage implements java.io.Serializable {
                 // all we need, we are not using any of the entities produced 
                 // below. 
                 
-                dataset = datasetService.findDeep(this.getId());
+                dataset = datasetService.find(this.getId());
                 
                 if (dataset == null) {
                     logger.warning("No such dataset: "+dataset);

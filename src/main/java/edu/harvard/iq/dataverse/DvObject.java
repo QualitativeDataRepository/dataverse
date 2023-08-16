@@ -73,17 +73,6 @@ public abstract class DvObject extends DataverseEntity implements java.io.Serial
         } 
      }
     
-    public enum DType {
-        Dataverse("Dataverse"), Dataset("Dataset"),DataFile("DataFile");
-       
-        String dtype;
-        DType(String dt) {
-           dtype = dt;
-        }
-        public String getDType() {
-           return dtype;
-        } 
-     }
     public static final Visitor<String> NamePrinter = new Visitor<String>(){
 
         @Override
@@ -196,7 +185,7 @@ public abstract class DvObject extends DataverseEntity implements java.io.Serial
     public void setPreviewImageAvailable(boolean status) {
         this.previewImageAvailable = status;
     }
-
+    
     /**
      * Indicates whether a previous attempt to generate a preview image has failed,
      * regardless of size. This could be due to the file not being accessible, or a

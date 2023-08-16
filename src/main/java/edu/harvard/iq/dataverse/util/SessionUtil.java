@@ -10,15 +10,11 @@ import javax.servlet.http.HttpSession;
 public class SessionUtil {
 
     /**
-     * Changes the session id (jsessionId) - for use when the session's authority
-     * increases (i.e. at login) Servlet 3.1 Note: This method is needed while using
-     * Servlets 2.0. 3.1 has a HttpServletRequest.chageSessionId(); method that can
-     * be used instead.
-     * 
-     * @param h
-     *            the current HttpServletRequest e.g. for pages you can get this
-     *            from (HttpServletRequest)
-     *            FacesContext.getCurrentInstance().getExternalContext().getRequest();
+	 * Changes the session id (jsessionId) - for use when the session's authority increases (i.e. at login)
+	 * Servlet 3.1 Note: This method is needed while using Servlets 2.0. 3.1 has a HttpServletRequest.chageSessionId(); method that can be used instead.
+	 * 
+	 * @param h the current HttpServletRequest
+     * e.g. for pages you can get this from (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
      */
     public static void changeSessionId(HttpServletRequest h) {
         HttpSession session = h.getSession(false);
@@ -34,6 +30,5 @@ public class SessionUtil {
         for (Entry<String, Object> entry : sessionAttributes.entrySet()) {
             session.setAttribute(entry.getKey(), entry.getValue());
         }
-
     }
 }
