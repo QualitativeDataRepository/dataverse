@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Optional;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;

@@ -492,7 +492,7 @@ public class Shib implements java.io.Serializable {
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
         // Redirect user to Shibboleth login page
             try {
-                context.redirect(navigationWrapper.getShibLoginPath());
+                context.redirect(navigationWrapper.getSSOLoginPath());
                 return "";
             } catch (IOException ex) {
                 logger.info("Unable to redirect user to Shibboleth login page");

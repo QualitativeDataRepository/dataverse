@@ -128,8 +128,8 @@ public class OAuth2LoginBackingBean implements Serializable {
                     if (dvUser == null) {
                         dvUser = authenticationSvc.getAuthenticatedUserByEmail(oauthUser.getUsername());
                         if (dvUser != null) {
-                            logger.info("cli_id " + idp.getClientId());
-                            logger.info("id " + idp.getId());
+                            logger.fine("cli_id " + idp.getClientId());
+                            logger.fine("id " + idp.getId());
                             authenticationSvc.convertBuiltInUserToRemoteUser(dvUser, idp.getId(), new UserIdentifier(oauthUser.getIdInService(), null));
                         } else {
                             // Need to create a new user - unless signups are disabled
@@ -160,7 +160,7 @@ public class OAuth2LoginBackingBean implements Serializable {
                             oauth2Tokens.store(tokenData);
                         }
                         if(dvUser!=null) {
-                           logger.info("Found user: " + dvUser.getEmail());
+                           logger.fine("Found user: " + dvUser.getEmail());
                         }
 
                         Faces.redirect(redirectPage.orElse("/"));
