@@ -410,10 +410,8 @@ public class SettingsServiceBean {
          * QDR Custom settings
          * 
          */
-        /** URL for Shibboleth Single Logout */        
-        ShibLogoutUrl,
-        /** Latest version of Terms and Conditions document */
-        ShibAuthTermsVer,
+        /** URL for Single Sign-On Logouti.e. a URL to cause logout of other sso'd components */
+        SSOLogoutUrl,
         /** Url of integrated Drupal Site */
         QDRDrupalSiteURL,
         /** Base Url of this Dataverse Site */

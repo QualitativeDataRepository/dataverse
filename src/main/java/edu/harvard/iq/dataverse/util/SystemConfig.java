@@ -611,25 +611,6 @@ public class SystemConfig {
         return settingsService.isTrueForKey(SettingsServiceBean.Key.ShibPassiveLoginEnabled, defaultResponse);
     }
     
-    /* QDRCustom */
-    public int getShibAuthTermsVer() {
-        String versionOption = settingsService.getValueForKey(SettingsServiceBean.Key.ShibAuthTermsVer);
-        Integer version = null;
-        
-        if (versionOption != null && !versionOption.equals("")) {
-            try {
-                version = new Integer(versionOption);
-            } catch (NumberFormatException nfe) {
-                version = null; 
-            }
-        }
-        
-        if (version != null) {
-            return version;
-        }
-        
-        return 1;
-    }
     public boolean isShibAttributeCharacterSetConversionEnabled() {
         boolean defaultResponse = true;
         return settingsService.isTrueForKey(SettingsServiceBean.Key.ShibAttributeCharacterSetConversionEnabled, defaultResponse);

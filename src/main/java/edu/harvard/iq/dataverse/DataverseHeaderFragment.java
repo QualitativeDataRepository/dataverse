@@ -243,8 +243,8 @@ public class DataverseHeaderFragment implements java.io.Serializable {
         // session is going to be issued to them. 
         
         String safeDefaultIfKeyNotFound = "https://idp.dev-aws.qdr.org/idp/profile/Logout";
-        String shibLogoutUrl = settingsService.getValueForKey(SettingsServiceBean.Key.ShibLogoutUrl, safeDefaultIfKeyNotFound);
-        externalContext.redirect(shibLogoutUrl);
+        String ssoLogoutUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SSOLogoutUrl, safeDefaultIfKeyNotFound);
+        externalContext.redirect(ssoLogoutUrl);
     }
 
     private Boolean signupAllowed = null;
