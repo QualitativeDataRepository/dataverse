@@ -20,6 +20,7 @@ import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.Embargo;
 import edu.harvard.iq.dataverse.FileMetadata;
+import edu.harvard.iq.dataverse.GlobalId;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
@@ -351,12 +352,9 @@ public class IndexServiceBean {
     @TransactionAttribute(REQUIRES_NEW)
     public void indexDatasetInNewTransaction(Long datasetId) { //Dataset dataset) {
         boolean doNormalSolrDocCleanUp = false;
-        Dataset dataset = em.find(Dataset.class, datasetId);
-        if(dataset != null) {
-            asyncIndexDataset(dataset, doNormalSolrDocCleanUp);
-        } else {
-            logger.warning("Unable to index dataset with id: " + datasetId);
-        }
+        Dataset dataset = datasetService.findDeep(datasetId);
+        asyncIndexDataset(dataset, doNormalSolrDocCleanUp);
+        dataset = null;
     }
     
     // The following two variables are only used in the synchronized getNextToIndex method and do not need to be synchronized themselves
@@ -439,8 +437,7 @@ public class IndexServiceBean {
     }
 
     private void indexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
-        Dataset deep = datasetService.findDeep(dataset.getId());
-        doIndexDataset(deep, doNormalSolrDocCleanUp);
+        doIndexDataset(dataset, doNormalSolrDocCleanUp);
         updateLastIndexedTime(dataset.getId());
     }
     
@@ -808,6 +805,17 @@ public class IndexServiceBean {
         solrInputDocument.addField(SearchFields.DATASET_PERSISTENT_ID, dataset.getGlobalId().toString());
         solrInputDocument.addField(SearchFields.PERSISTENT_URL, dataset.getPersistentURL());
         solrInputDocument.addField(SearchFields.TYPE, "datasets");
+        boolean valid;
+        if (!indexableDataset.getDatasetVersion().isDraft()) {
+            valid = true;
+        } else {
+            DatasetVersion version = indexableDataset.getDatasetVersion().cloneDatasetVersion();
+            version.setDatasetFields(version.initDatasetFields());
+            valid = version.isValid();
+        }
+        if (JvmSettings.API_ALLOW_INCOMPLETE_METADATA.lookupOptional(Boolean.class).orElse(false)) {
+            solrInputDocument.addField(SearchFields.DATASET_VALID, valid);
+        }
 
         final Dataverse dataverse = dataset.getDataverseContext();
         final String dvIndexableCategoryName = dataverse.getIndexableCategoryName();
@@ -882,7 +890,7 @@ public class IndexServiceBean {
             }
 
             Set<String> langs = settingsService.getConfiguredLanguages();
-            Map<Long, JsonObject> cvocMap = datasetFieldService.getCVocConf(false);
+            Map<Long, JsonObject> cvocMap = datasetFieldService.getCVocConf(true);
             Set<String> metadataBlocksWithValue = new HashSet<>();
             for (DatasetField dsf : datasetVersion.getFlatDatasetFields()) {
 
@@ -1358,7 +1366,9 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.FILE_CHECKSUM_VALUE, fileMetadata.getDataFile().getChecksumValue());
                     datafileSolrInputDocument.addField(SearchFields.DESCRIPTION, fileMetadata.getDescription());
                     datafileSolrInputDocument.addField(SearchFields.FILE_DESCRIPTION, fileMetadata.getDescription());
-                    datafileSolrInputDocument.addField(SearchFields.FILE_PERSISTENT_ID, fileMetadata.getDataFile().getGlobalId().toString());
+                    GlobalId filePid = fileMetadata.getDataFile().getGlobalId();
+                    datafileSolrInputDocument.addField(SearchFields.FILE_PERSISTENT_ID,
+                            (filePid != null) ? filePid.toString() : null);
                     datafileSolrInputDocument.addField(SearchFields.UNF, fileMetadata.getDataFile().getUnf());
                     datafileSolrInputDocument.addField(SearchFields.SUBTREE, dataversePaths);
                     // datafileSolrInputDocument.addField(SearchFields.HOST_DATAVERSE,
@@ -1692,7 +1702,7 @@ public class IndexServiceBean {
             if (object.isInstanceofDataset()) {
                 dataset = datasetService.findDeep(object.getId());
             }
-            List<String> paths =  object.isInstanceofDataset() ? retrieveDVOPaths(dataset) 
+            List<String> paths = object.isInstanceofDataset() ? retrieveDVOPaths(dataset)
                     : retrieveDVOPaths(dataverseService.find(object.getId()));
 
             sid.removeField(SearchFields.SUBTREE);

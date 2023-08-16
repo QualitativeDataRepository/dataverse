@@ -624,6 +624,7 @@ public class AuthenticationServiceBean {
             String identifier = internalUserIdentifer + i;
             while ( identifierExists(identifier) ) {
                 i += 1;
+                identifier = internalUserIdentifer + i;
             }
             authenticatedUser.setUserIdentifier(identifier);
         } else {
@@ -763,7 +764,7 @@ public class AuthenticationServiceBean {
         }
 
         String oldProviderId = authuserLookup.getAuthenticationProviderId();
-        logger.info("we expect this to be 'builtin': " + oldProviderId);
+        logger.info("we expect this to be 'builtin' or 'shib' at QDR: " + oldProviderId);
         authuserLookup.setAuthenticationProviderId(newProviderId);
         String oldUserLookupIdentifier = authuserLookup.getPersistentUserId();
         logger.info("this should be 'pete' or whatever the old builtin username was: " + oldUserLookupIdentifier);
@@ -775,17 +776,20 @@ public class AuthenticationServiceBean {
          * builtinuser table in a single transaction.
          */
         em.persist(authuserLookup);
-        String builtinUsername = builtInUserIdentifier.replaceFirst(AuthenticatedUser.IDENTIFIER_PREFIX, "");
-        BuiltinUser builtin = builtinUserServiceBean.findByUserName(builtinUsername);
-        if (builtin != null) {
-            // These were created by AuthenticationResponse.Status.BREAKOUT in canLogInAsBuiltinUser
-            List<PasswordResetData> oldTokens = passwordResetServiceBean.findPasswordResetDataByDataverseUser(builtin);
-            for (PasswordResetData oldToken : oldTokens) {
-                em.remove(oldToken);
+        if (oldProviderId.equals("builtin")) {
+            String builtinUsername = builtInUserIdentifier.replaceFirst(AuthenticatedUser.IDENTIFIER_PREFIX, "");
+            BuiltinUser builtin = builtinUserServiceBean.findByUserName(builtinUsername);
+            if (builtin != null) {
+                // These were created by AuthenticationResponse.Status.BREAKOUT in
+                // canLogInAsBuiltinUser
+                List<PasswordResetData> oldTokens = passwordResetServiceBean.findPasswordResetDataByDataverseUser(builtin);
+                for (PasswordResetData oldToken : oldTokens) {
+                    em.remove(oldToken);
+                }
+                em.remove(builtin);
+            } else {
+                logger.info("Couldn't delete builtin user because could find it based on username " + builtinUsername);
             }
-            em.remove(builtin);
-        } else {
-            logger.info("Couldn't delete builtin user because could find it based on username " + builtinUsername);
         }
         AuthenticatedUser nonBuiltinUser = lookupUser(newProviderId, perUserIdentifier);
         if (nonBuiltinUser != null) {

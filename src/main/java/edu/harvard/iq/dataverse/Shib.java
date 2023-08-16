@@ -133,24 +133,6 @@ public class Shib implements java.io.Serializable {
         state = State.INIT;
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
         request = (HttpServletRequest) context.getRequest();
-        //QDR Custom - manage SSO cookies
-        response = (HttpServletResponse)context.getResponse();
-        String QDRDrupalSiteURL = settingsWrapper.get(":QDRDrupalSiteURL");
-        String QDRDrupalSiteHost = QDRDrupalSiteURL;
-        int index = QDRDrupalSiteURL.indexOf("://");
-        if (index >=0) {
-            QDRDrupalSiteHost = QDRDrupalSiteURL.substring(index + 3);
-        }
-        String cookieVal = getPrettyFacesHomePageString(false);
-        try {
-            cookieVal = URLEncoder.encode(cookieVal, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.warning("Unable to escape redirect URL for cookie: " + cookieVal);
-        }
-        Cookie passiveSSOCookie = new Cookie("_check_is_passive_dv", cookieVal);
-        //In QDR config, common domain for Drupal and Dataverse is '.<Drupal dns name>'
-        passiveSSOCookie.setDomain("." + QDRDrupalSiteHost);
-        
         ShibUtil.printAttributes(request);
         
         /* 
@@ -158,7 +140,12 @@ public class Shib implements java.io.Serializable {
         * Direct the user to the Drupal Terms & Conditions page if the user has not 
         * accepted the latest version of the T&C
         */
-        Integer acceptedTermsDocVer;
+        /*
+         * QDR No longer uses Shib, So this can be deleted. Keeping it for now in case
+         * we need to ~copy this into the OIDC code to redirect to the t&c page there.
+         * Hoping it isn't needed there either.
+         */
+/*        Integer acceptedTermsDocVer;
         try {
             String acceptedTermsDocVerStr = getRequiredValueFromAssertion(ShibUtil.acceptedTermsDocVerAttribute);
             acceptedTermsDocVer = new Integer(acceptedTermsDocVerStr);
@@ -183,7 +170,7 @@ public class Shib implements java.io.Serializable {
                 return;
             }
         }
-        
+  }      
         /**
          * @todo Investigate why JkEnvVar is null since it may be useful for
          * debugging per https://github.com/IQSS/dataverse/issues/2916 . See
@@ -321,8 +308,6 @@ public class Shib implements java.io.Serializable {
             logInUserAndSetShibAttributes(au);
             String prettyFacesHomePageString = getPrettyFacesHomePageString(false);
             try {
-                //QDR - add SSO cookie
-                response.addCookie(passiveSSOCookie);
                 FacesContext.getCurrentInstance().getExternalContext().redirect(prettyFacesHomePageString);
             } catch (IOException ex) {
                 logger.info("Unable to redirect user to homepage at " + prettyFacesHomePageString);
@@ -380,8 +365,6 @@ public class Shib implements java.io.Serializable {
                 String destinationAfterAccountCreation = confirmAndCreateAccount();
                 if (destinationAfterAccountCreation != null) {
                     try {
-                        //QDR - add SSO cookie
-                        response.addCookie(passiveSSOCookie);
                         context.redirect(destinationAfterAccountCreation);
                         return;
                     } catch (IOException ex) {
@@ -490,12 +473,12 @@ public class Shib implements java.io.Serializable {
     public String cancel() {
         // QDRCustom
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-        // Redirect user to Shibboleth login page
+        // Redirect user to SSO login page
             try {
-                context.redirect(navigationWrapper.getShibLoginPath());
+                context.redirect(navigationWrapper.getSSOLoginPath());
                 return "";
             } catch (IOException ex) {
-                logger.info("Unable to redirect user to Shibboleth login page");
+                logger.info("Unable to redirect user to SSO login page");
                 return "";
             }
     }

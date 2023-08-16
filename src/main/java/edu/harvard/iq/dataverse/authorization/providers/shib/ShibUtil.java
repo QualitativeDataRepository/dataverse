@@ -388,7 +388,7 @@ public class ShibUtil {
                 shibValues.add(attr + ": " + attrObject.toString());
             }
         }
-        logger.info("shib values: " + shibValues);
+        logger.fine("shib values: " + shibValues);
     }
 
 }

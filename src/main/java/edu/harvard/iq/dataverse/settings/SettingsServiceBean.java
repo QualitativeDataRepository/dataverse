@@ -407,21 +407,11 @@ public class SettingsServiceBean {
         InheritParentRoleAssignments,
         
         /**
-         * A comma-separated list of CategoryName in the desired order for files to be
-         * sorted in the file table display. If not set, files will be sorted
-         * alphabetically by default. If set, files will be sorted by these categories
-         * and alphabetically within each category.
-         */
-        CategorySortOrder,
-        
-        /**
          * QDR Custom settings
          * 
          */
-        /** URL for Shibboleth Single Logout */        
-        ShibLogoutUrl,
-        /** Latest version of Terms and Conditions document */
-        ShibAuthTermsVer,
+        /** URL for Single Sign-On Logouti.e. a URL to cause logout of other sso'd components */
+        SSOLogoutUrl,
         /** Url of integrated Drupal Site */
         QDRDrupalSiteURL,
         /** Base Url of this Dataverse Site */
@@ -600,16 +590,26 @@ public class SettingsServiceBean {
          */
         WebloaderUrl,
         /**
-         * Optional email address to use with the support form/ feedback api emails. Default is to use the SystemEmail account.
-         * 
+         * A comma-separated list of CategoryName in the desired order for files to be
+         * sorted in the file table display. If not set, files will be sorted
+         * alphabetically by default. If set, files will be sorted by these categories
+         * and alphabetically within each category.
          */
-        
-        SupportEmail,
+        CategoryOrder,
+        /**
+         * True(default)/false option deciding whether ordering by folder should be applied to the 
+         * dataset listing of datafiles.
+         */
+        OrderByFolder,
+        /**
+         * True/false(default) option deciding whether the dataset file table display should include checkboxes
+         * allowing users to dynamically turn folder and category ordering on/off.
+         */
+        AllowUserManagementOfOrder,
         /*
-         * Whether the repository support team should be CC'd on requests created in the
-         * contact form, when email is sent TO the listed Dataverse, Dataset, or DataFile contacts. Default is false.
+         * True/false(default) option deciding whether file PIDs can be enabled per collection - using the Dataverse/collection set attribute API call.
          */
-        CCSupportOnContactEmails
+        AllowEnablingFilePIDsPerCollection
         ;
 
         @Override

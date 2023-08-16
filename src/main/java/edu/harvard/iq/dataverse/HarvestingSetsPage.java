@@ -131,7 +131,7 @@ public class HarvestingSetsPage implements java.io.Serializable {
         if (!isSessionUserAuthenticated()) {
             // Redirect user to Shibboleth login page
             try {
-                context.redirect(navigationWrapper.getShibLoginPath());
+                context.redirect(navigationWrapper.getSSOLoginPath());
                 return "";
             } catch (IOException ex) {
                 logger.info("Unable to redirect user to Shibboleth login page");

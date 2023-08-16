@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.util;
 
-import edu.harvard.iq.dataverse.export.openaire.Organizations;
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
 
 import org.junit.Ignore;
@@ -88,6 +87,10 @@ public class PersonOrOrgUtilTest {
             verifyIsPerson("Cadili", null, null);
             //Verify override works
             verifyIsPerson("IBM", null, null, true);
+            
+            verifyIsPerson("kcjim11, kcjim11", "kcjim11", "kcjim11");
+            
+            verifyIsPerson("Bartholomew 3, James", "James", "Bartholomew 3");
         }
         
         private void verifyIsOrganization(String fullName) {

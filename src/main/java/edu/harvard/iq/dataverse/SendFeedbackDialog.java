@@ -3,11 +3,12 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.feedback.Feedback;
 import edu.harvard.iq.dataverse.feedback.FeedbackUtil;
+import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.MailUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -92,7 +93,6 @@ public class SendFeedbackDialog implements java.io.Serializable {
         return userEmail;
     }
 
-    @SuppressWarnings("deprecation")
     public void initUserInput(ActionEvent ae) {
         userEmail = "";
         userMessage = "";
@@ -101,11 +101,8 @@ public class SendFeedbackDialog implements java.io.Serializable {
         op1 = Long.valueOf(random.nextInt(10));
         op2 = Long.valueOf(random.nextInt(10));
         userSum = null;
-        String systemEmail = settingsService.getValueForKey(SettingsServiceBean.Key.SupportEmail);
-        if(systemEmail==null) {
-            systemEmail = settingsService.getValueForKey(SettingsServiceBean.Key.SystemEmail);
-        }
-        systemAddress = MailUtil.parseSystemAddress(systemEmail);
+        String supportEmail = JvmSettings.SUPPORT_EMAIL.lookupOptional().orElse(settingsService.getValueForKey(SettingsServiceBean.Key.SystemEmail));
+        systemAddress = MailUtil.parseSystemAddress(supportEmail);
     }
 
     public Long getOp1() {
@@ -219,13 +216,19 @@ public class SendFeedbackDialog implements java.io.Serializable {
             return null;
         }
             logger.fine("sending feedback: " + feedback);
-            mailService.sendMail(feedback.getFromEmail(), feedback.getToEmail(), feedback.getCcEmail(), feedback.getSubject(), feedback.getBody(), null);
+            mailService.sendMail(feedback.getFromEmail(), feedback.getToEmail(), feedback.getCcEmail(), feedback.getSubject(), feedback.getBody());
         return null;
     }
+
+    public boolean ccSupport() {
+        return ccSupport(feedbackTarget);
+    }
     
-    private boolean ccSupport() {
-        //Setting is enabled and this isn't already a direct message to support (no feedbackObject
-        return feedbackTarget!=null &&settingsService.isTrueForKey(SettingsServiceBean.Key.CCSupportOnContactEmails, false);
+    public static boolean ccSupport(DvObject feedbackTarget) {
+        //Setting is enabled and this isn't already a direct message to support (no feedbackTarget)
+        Optional<Boolean> ccSupport = JvmSettings.CC_SUPPORT_ON_CONTACT_EMAIL.lookupOptional(Boolean.class);
+        
+        return feedbackTarget!=null && ccSupport.isPresent() &&ccSupport.get();
     }
 
 }

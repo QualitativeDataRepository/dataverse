@@ -126,7 +126,6 @@ public class ImageThumbConverter {
             }
             if (!thumbnailGenerated) {
                 logger.fine("No thumbnail generated for " + file.getId());
-                file.setPreviewsHaveFailed(true);
             }
             return thumbnailGenerated;
         }
@@ -194,6 +193,7 @@ public class ImageThumbConverter {
         // We rely on ImageMagick to convert PDFs; so if it's not installed, 
         // better give up right away: 
         if (!isImageMagickInstalled()) {
+            logger.fine("Couldn't find ImageMagick");
             return false;
         }
 
@@ -216,35 +216,34 @@ public class ImageThumbConverter {
             tempFilesRequired = true;
 
         } catch (IOException ioex) {
+            logger.warning(ioex.getMessage());
             // this on the other hand is likely a fatal condition :(
             return false;
         }
 
         if (tempFilesRequired) {
-            ReadableByteChannel pdfFileChannel;
-
+            InputStream inputStream = null; 
             try {
                 storageIO.open();
-                //inputStream = storageIO.getInputStream();
-                pdfFileChannel = storageIO.getReadChannel();
+                inputStream = storageIO.getInputStream();
             } catch (Exception ioex) {
                 logger.warning("caught Exception trying to open an input stream for " + storageIO.getDataFile().getStorageIdentifier());
                 return false;
             }
 
             File tempFile;
-            FileChannel tempFileChannel = null;
+            OutputStream outputStream = null;
             try {
                 tempFile = File.createTempFile("tempFileToRescale", ".tmp");
-                tempFileChannel = new FileOutputStream(tempFile).getChannel();
-
-                tempFileChannel.transferFrom(pdfFileChannel, 0, storageIO.getSize());
+                outputStream = new FileOutputStream(tempFile);
+                //Reads/transfers all bytes from the input stream to the output stream. 
+                inputStream.transferTo(outputStream);
             } catch (IOException ioex) {
                 logger.warning("GenerateImageThumb: failed to save pdf bytes in a temporary file.");
                 return false;
             } finally {
-                IOUtils.closeQuietly(tempFileChannel);
-                IOUtils.closeQuietly(pdfFileChannel);
+                IOUtils.closeQuietly(inputStream);
+                IOUtils.closeQuietly(outputStream);
             }
             sourcePdfFile = tempFile;
         }
@@ -459,7 +458,6 @@ public class ImageThumbConverter {
                 if (!generated) {
                     // Record failure
                     logger.fine("Failed to generate base64 thumbnail for file id: " + file.getId());
-                    file.setPreviewsHaveFailed(true);
                 } else {
                     // Success - try to open again:
                     try {
@@ -774,7 +772,7 @@ public class ImageThumbConverter {
             try {
                 fileSize = new File(fileLocation).length();
             } catch (Exception ex) {
-                // 
+               logger.warning("Can't open file: " + fileLocation);
             }
 
             if (fileSize == 0 || fileSize > sizeLimit) {

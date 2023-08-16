@@ -131,7 +131,7 @@ public class DataverseSession implements Serializable{
                         // In QDR config, common domain for Drupal and Dataverse is '.<Drupal dns name>'
                         passiveSSOCookie.setDomain("." + QDRDrupalSiteHost);
                         ((HttpServletResponse) context.getExternalContext().getResponse()).addCookie(passiveSSOCookie);
-                        httpSession.setAttribute("passiveChecked", true);
+                        //httpSession.setAttribute("passiveChecked", true);
                     }
                 }
             }

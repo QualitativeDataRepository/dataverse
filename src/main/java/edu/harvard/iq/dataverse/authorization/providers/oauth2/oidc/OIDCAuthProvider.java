@@ -23,12 +23,15 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
+import com.nimbusds.openid.connect.sdk.Prompt;
+import com.nimbusds.openid.connect.sdk.Prompt.Type;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderConfigurationRequest;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
+import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.exceptions.AuthorizationSetupException;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.AbstractOAuth2AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2Exception;
@@ -59,7 +62,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
     OIDCProviderMetadata idpMetadata;
     
     public OIDCAuthProvider(String aClientId, String aClientSecret, String issuerEndpointURL) throws AuthorizationSetupException {
-        this.clientSecret = aClientSecret; // nedded for state creation
+        this.clientSecret = aClientSecret; // needed for state creation
         this.clientAuth = new ClientSecretBasic(new ClientID(aClientId), new Secret(aClientSecret));
         this.issuer = new Issuer(issuerEndpointURL);
         getMetadata();
@@ -73,6 +76,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @see <a href="https://github.com/eclipse-ee4j/el-ri/issues/43">Jakarta EE Bug 43</a>
      * @return false
      */
+    
+    //ToDo: Should be fixed - don't need this now
     @Override
     public boolean isDisplayIdentifier() { return false; }
     
@@ -142,6 +147,11 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      */
     @Override
     public String buildAuthzUrl(String state, String callbackUrl) {
+        return buildAuthzUrl(state, callbackUrl, null, 0);
+    }
+
+    public String buildAuthzUrl(String state, String callbackUrl, Type promptType, int maxAge) {
+
         State stateObject = new State(state);
         URI callback = URI.create(callbackUrl);
         Nonce nonce = new Nonce();
@@ -152,14 +162,15 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
                                                                       callback)
             .endpointURI(idpMetadata.getAuthorizationEndpointURI())
             .state(stateObject)
-            .nonce(nonce)
+            .nonce(nonce).prompt(promptType==null ? null : new Prompt(promptType))
+            .maxAge(maxAge)
             .build();
         
         return req.toURI().toString();
     }
     
     /**
-     * Receive user data from OIDC provider after authn/z has been successfull. (Callback view uses this)
+     * Receive user data from OIDC provider after authn/z has been successful. (Callback view uses this)
      * Request a token and access the resource, parse output and return user details.
      * @param code The authz code sent from the provider
      * @param redirectUrl The redirect URL (some providers require this when fetching the access token, e. g. Google)
@@ -199,12 +210,16 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @return the usable user record for processing ing {@link edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean}
      */
     OAuth2UserRecord getUserRecord(UserInfo userInfo) {
+        String role = userInfo.getStringClaim("role");
+        role = role == null ? "" : role;
+        String affiliation = userInfo.getStringClaim("organization");
+        affiliation = affiliation == null ? "" : affiliation;
         return new OAuth2UserRecord(
             this.getId(),
             userInfo.getSubject().getValue(),
             userInfo.getPreferredUsername(),
             null,
-            new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), "", ""),
+            new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), role, affiliation),
             null
         );
     }
@@ -271,5 +286,19 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
         } catch (ParseException ex) {
             throw new OAuth2Exception(-1, ex.getMessage(), BundleUtil.getStringFromBundle("auth.providers.exception.userinfo", Arrays.asList(this.getTitle())));
         }
+    }
+
+    /**
+     * Returns the UserRecordIdentifier corresponding to the given accessToken if valid.
+     * UserRecordIdentifier (same used as in OAuth2UserRecord), i.e. can be used to find a local UserAccount.
+     * @param accessToken
+     * @return Returns the UserRecordIdentifier corresponding to the given accessToken if valid.
+     * @throws IOException
+     * @throws OAuth2Exception
+     */
+    public Optional<UserRecordIdentifier> getUserIdentifierForValidToken(BearerAccessToken accessToken) throws IOException, OAuth2Exception{
+        // Request the UserInfoEndpoint to obtain UserInfo, since this endpoint also validate the Token we can reuse the existing code path.
+        // As an alternative we could use the Introspect Endpoint or assume the Token as some encoded information (i.e. JWT).
+        return  Optional.of(new UserRecordIdentifier(  this.getId(), getUserInfo(accessToken).get().getSubject().getValue()));
     }
 }

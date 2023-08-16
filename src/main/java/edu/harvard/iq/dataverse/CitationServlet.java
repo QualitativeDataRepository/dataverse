@@ -5,6 +5,7 @@
  */
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.pidproviders.PidUtil;
 import java.io.IOException;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -19,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 public class CitationServlet extends HttpServlet {
 
     @EJB
-    DatasetServiceBean datasetService;    
+    DvObjectServiceBean dvObjectService;
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,10 +36,14 @@ public class CitationServlet extends HttpServlet {
         
         String persistentId = request.getParameter("persistentId");
         if (persistentId != null) {
-            Dataset ds = datasetService.findByGlobalId(persistentId);        
-            if (ds != null) {
-                response.sendRedirect("dataset.xhtml?persistentId=" + persistentId);
-                return;        
+            DvObject dob = dvObjectService.findByGlobalId(PidUtil.parseAsGlobalID(persistentId));
+            if (dob != null) {
+                if (dob instanceof Dataset) {
+                    response.sendRedirect("dataset.xhtml?persistentId=" + persistentId);
+                } else if (dob instanceof DataFile) {
+                    response.sendRedirect("file.xhtml?persistentId=" + persistentId);
+                }
+                return;
             }
         }
         response.sendError(HttpServletResponse.SC_NOT_FOUND);

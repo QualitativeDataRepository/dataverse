@@ -1,22 +1,22 @@
 package edu.harvard.iq.dataverse;
 
-import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.util.MarkupChecker;
 import edu.harvard.iq.dataverse.util.PersonOrOrgUtil;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.DataFileComparator;
 import edu.harvard.iq.dataverse.DatasetFieldType.FieldType;
+import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.license.License;
+import edu.harvard.iq.dataverse.pidproviders.PidUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import edu.harvard.iq.dataverse.util.DataFileComparator;
 import edu.harvard.iq.dataverse.util.DateUtil;
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
 import edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
 import java.io.Serializable;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -55,7 +55,6 @@ import javax.persistence.Version;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 
@@ -67,7 +66,9 @@ import org.apache.commons.lang3.StringUtils;
 @NamedQueries({
     @NamedQuery(name = "DatasetVersion.findUnarchivedReleasedVersion",
                query = "SELECT OBJECT(o) FROM DatasetVersion AS o WHERE o.dataset.harvestedFrom IS NULL and o.releaseTime IS NOT NULL and o.archivalCopyLocation IS NULL"
-    )})
+    ), 
+    @NamedQuery(name = "DatasetVersion.findById", 
+                query = "SELECT o FROM DatasetVersion o LEFT JOIN FETCH o.fileMetadatas WHERE o.id=:id")})
     
     
 @Entity
@@ -77,6 +78,7 @@ import org.apache.commons.lang3.StringUtils;
 public class DatasetVersion implements Serializable {
 
     private static final Logger logger = Logger.getLogger(DatasetVersion.class.getCanonicalName());
+    private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     /**
      * Convenience comparator to compare dataset versions by their version number.
@@ -243,6 +245,7 @@ public class DatasetVersion implements Serializable {
     }
     
     public List<FileMetadata> getFileMetadatasSorted() {
+ 
         /*
          * fileMetadatas can sometimes be an
          * org.eclipse.persistence.indirection.IndirectList When that happens, the
@@ -257,7 +260,7 @@ public class DatasetVersion implements Serializable {
             for(FileMetadata fmd: fileMetadatas) {
                 newFMDs.add(fmd);
             }
-            fileMetadatas = newFMDs;
+            setFileMetadatas(newFMDs);
         }
         
         DataFileComparator dfc = new DataFileComparator();
@@ -408,7 +411,7 @@ public class DatasetVersion implements Serializable {
     }
 
     public GlobalId getDeaccessionLinkAsGlobalId() {
-        return new GlobalId(deaccessionLink);
+        return PidUtil.parseAsGlobalID(deaccessionLink);
     }
 
     public Date getCreateTime() {
@@ -1399,17 +1402,14 @@ public class DatasetVersion implements Serializable {
     }
 
     /**
-     * @return String containing the version's series title
+     * @return List of Strings containing the version's series title(s)
      */
-    public String getSeriesTitle() {
+    public List<String>  getSeriesTitles() {
 
         List<String> seriesNames = getCompoundChildFieldValues(DatasetFieldConstant.series,
                 DatasetFieldConstant.seriesName);
-        if (seriesNames.size() > 1) {
-            logger.warning("More than one series title found for datasetVersion: " + this.id);
-        }
         if (!seriesNames.isEmpty()) {
-            return seriesNames.get(0);
+            return seriesNames;
         } else {
             return null;
         }
@@ -1721,8 +1721,6 @@ public class DatasetVersion implements Serializable {
 
     public List<ConstraintViolation<DatasetField>> validateRequired() {
         List<ConstraintViolation<DatasetField>> returnListreturnList = new ArrayList<>();
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
         for (DatasetField dsf : this.getFlatDatasetFields()) {
             dsf.setValidationMessage(null); // clear out any existing validation message
             Set<ConstraintViolation<DatasetField>> constraintViolations = validator.validate(dsf);
@@ -1736,11 +1734,13 @@ public class DatasetVersion implements Serializable {
         return returnListreturnList;
     }
     
+    public boolean isValid() {
+        return validate().isEmpty();
+    }
+
     public Set<ConstraintViolation> validate() {
         Set<ConstraintViolation> returnSet = new HashSet<>();
 
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
 
         for (DatasetField dsf : this.getFlatDatasetFields()) {
             dsf.setValidationMessage(null); // clear out any existing validation message
@@ -2071,10 +2071,8 @@ public class DatasetVersion implements Serializable {
             for (FileMetadata fileMetadata : fileMetadatasSorted) {
                 JsonObjectBuilder fileObject = NullSafeJsonBuilder.jsonObjectBuilder();
                 String filePidUrlAsString = null;
-                URL filePidUrl = fileMetadata.getDataFile().getGlobalId().toURL();
-                if (filePidUrl != null) {
-                    filePidUrlAsString = filePidUrl.toString();
-                }
+                GlobalId gid = fileMetadata.getDataFile().getGlobalId();
+                filePidUrlAsString = gid != null ? gid.asURL() : null;
                 fileObject.add("@type", "DataDownload");
                 fileObject.add("name", fileMetadata.getLabel());
                 fileObject.add("encodingFormat", fileMetadata.getDataFile().getContentType());
