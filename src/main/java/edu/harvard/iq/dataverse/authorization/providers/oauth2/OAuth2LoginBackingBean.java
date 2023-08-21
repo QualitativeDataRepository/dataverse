@@ -144,13 +144,14 @@ public class OAuth2LoginBackingBean implements Serializable {
                                 // Auto-create new account (since at QDR it has all required info already)
                                 // For QDR internal users, we don't get an email as email is mapped only to username.
                                 // getDisplayInfo() can be null in tests
-                                if((oauthUser.getDisplayInfo()!=null) && oauthUser.getDisplayInfo().getEmailAddress()==null) {
+                                if((oauthUser.getDisplayInfo()!=null) && (oauthUser.getDisplayInfo().getEmailAddress()==null)){
                                     oauthUser.getDisplayInfo().setEmailAddress(oauthUser.getUsername());
                                 }
                                 newAccountPage.setNewUser(oauthUser);
                                 newAccountPage.setUsername(oauthUser.getUsername());
                                 newAccountPage.createNewAccount();
                                 Faces.redirect(redirectPage.orElse("/"));
+                                return;
                             }
                         }
                         dvUser = authenticationSvc.lookupUser(idtf);
