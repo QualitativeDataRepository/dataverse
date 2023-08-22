@@ -1,15 +1,29 @@
 package edu.harvard.iq.dataverse.util;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.AbstractSubmitToArchiveCommand;
+import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import io.gdcc.spi.export.Exporter;
 
 /**
  * Simple class to reflectively get an instance of the desired class for
@@ -26,7 +40,31 @@ public class ArchiverUtil {
     public static AbstractSubmitToArchiveCommand createSubmitToArchiveCommand(String className, DataverseRequest dvr, DatasetVersion version) {
         if (className != null) {
             try {
-                Class<?> clazz = Class.forName(className);
+                
+                /*
+                 * Step 1 - find the EXPORTERS dir and add all jar files there to a class loader
+                 */
+                List<URL> jarUrls = new ArrayList<>();
+                Optional<String> exportPathSetting = JvmSettings.ARCHIVERS_DIRECTORY.lookupOptional(String.class);
+                if (exportPathSetting.isPresent()) {
+                    Path exporterDir = Paths.get(exportPathSetting.get());
+                    // Get all JAR files from the configured directory
+                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(exporterDir, "*.jar")) {
+                        // Using the foreach loop here to enable catching the URI/URL exceptions
+                        for (Path path : stream) {
+                            logger.log(Level.FINE, "Adding {0}", path.toUri().toURL());
+                            // This is the syntax required to indicate a jar file from which classes should
+                            // be loaded (versus a class file).
+                            jarUrls.add(new URL("jar:" + path.toUri().toURL() + "!/"));
+                        }
+                    } catch (IOException e) {
+                        logger.warning("Problem accessing external Archivers: " + e.getLocalizedMessage());
+                    }
+                }
+                //Assumes version has the base classLoader
+                URLClassLoader cl = URLClassLoader.newInstance(jarUrls.toArray(new URL[0]), version.getClass().getClassLoader());
+
+                Class<?> clazz = Class.forName(className, true, cl);
                 if (AbstractSubmitToArchiveCommand.class.isAssignableFrom(clazz)) {
                     Constructor<?> ctor;
                     ctor = clazz.getConstructor(DataverseRequest.class, DatasetVersion.class);

@@ -118,6 +118,8 @@ public enum JvmSettings {
     SCOPE_SPI(PREFIX, "spi"),
     SCOPE_EXPORTERS(SCOPE_SPI, "exporters"),
     EXPORTERS_DIRECTORY(SCOPE_EXPORTERS, "directory"),
+    SCOPE_ARCHIVERS(SCOPE_SPI, "archivers"),
+    ARCHIVERS_DIRECTORY(SCOPE_ARCHIVERS, "directory"),
     
     // MAIL SETTINGS
     SCOPE_MAIL(PREFIX, "mail"),
