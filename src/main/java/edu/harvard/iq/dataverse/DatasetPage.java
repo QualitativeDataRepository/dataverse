@@ -5703,7 +5703,7 @@ public class DatasetPage implements java.io.Serializable {
                     Method m = clazz.getMethod("isArchivable", Dataset.class, SettingsWrapper.class);
                     Object[] params = { dataset, settingsWrapper };
                     archivable = ((Boolean) m.invoke(null, params) == true);
-                } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException
+                } catch (IllegalAccessException | IllegalArgumentException
                         | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                     logger.warning("Failed to call isArchivable on configured archiver class: " + className);
                     e.printStackTrace();
