@@ -5698,8 +5698,8 @@ public class DatasetPage implements java.io.Serializable {
             archivable = false;
             String className = settingsWrapper.getValueForKey(SettingsServiceBean.Key.ArchiverClassName, null);
             if (className != null) {
+                Class<?> clazz = ArchiverUtil.getSubmitToArchiveCommandClass(className, workingVersion);
                 try {
-                    Class<?> clazz = Class.forName(className);
                     Method m = clazz.getMethod("isArchivable", Dataset.class, SettingsWrapper.class);
                     Object[] params = { dataset, settingsWrapper };
                     archivable = ((Boolean) m.invoke(null, params) == true);

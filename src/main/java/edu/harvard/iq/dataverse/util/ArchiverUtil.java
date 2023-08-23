@@ -37,10 +37,10 @@ public class ArchiverUtil {
     public ArchiverUtil() {
     }
 
-    public static AbstractSubmitToArchiveCommand createSubmitToArchiveCommand(String className, DataverseRequest dvr, DatasetVersion version) {
+    public static Class getSubmitToArchiveCommandClass(String className, DatasetVersion version) {
         if (className != null) {
             try {
-                
+
                 /*
                  * Step 1 - find the EXPORTERS dir and add all jar files there to a class loader
                  */
@@ -61,10 +61,23 @@ public class ArchiverUtil {
                         logger.warning("Problem accessing external Archivers: " + e.getLocalizedMessage());
                     }
                 }
-                //Assumes version has the base classLoader
+                // Assumes version has the base classLoader
                 URLClassLoader cl = URLClassLoader.newInstance(jarUrls.toArray(new URL[0]), version.getClass().getClassLoader());
 
                 Class<?> clazz = Class.forName(className, true, cl);
+                return clazz;
+            } catch (Exception e) {
+                logger.warning("Unable to get class for an Archiver: " + className);
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static AbstractSubmitToArchiveCommand createSubmitToArchiveCommand(String className, DataverseRequest dvr, DatasetVersion version) {
+        Class<?> clazz = getSubmitToArchiveCommandClass(className, version);
+        if (clazz != null) {
+            try {
                 if (AbstractSubmitToArchiveCommand.class.isAssignableFrom(clazz)) {
                     Constructor<?> ctor;
                     ctor = clazz.getConstructor(DataverseRequest.class, DatasetVersion.class);
