@@ -59,6 +59,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -1214,7 +1215,9 @@ public class IndexServiceBean {
                                 // track down "bad" documents.
                                 logger.warning(String.format("Full-text indexing for %s failed",
                                         fileMetadata.getDataFile().getDisplayName()));
-                                e.printStackTrace();
+                                if (logger.isLoggable(Level.FINE)) {
+                                    e.printStackTrace();
+                                }
                             } catch (OutOfMemoryError e) {
                                 logger.warning(String.format("Full-text indexing for %s failed due to OutOfMemoryError",
                                         fileMetadata.getDataFile().getDisplayName()));

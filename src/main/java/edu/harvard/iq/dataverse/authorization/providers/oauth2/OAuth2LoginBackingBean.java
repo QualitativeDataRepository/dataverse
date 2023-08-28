@@ -104,7 +104,7 @@ public class OAuth2LoginBackingBean implements Serializable {
             }
             // Passive Login attempt check
             if (isPassiveLoginFailure(req)) {
-                
+                parseStateFromRequest(req.getParameter("state"));
                 logger.info("Failed passive");
                 Faces.redirect(redirectPage.orElse("/"));
             } else {

@@ -49,15 +49,7 @@ public class NavigationWrapper implements java.io.Serializable {
     public String getSSOLoginPath() {
         String QDRDataverseBaseURL = settingsWrapper.get(":QDRDataverseBaseURL");   
         String QDRDrupalSiteURL = settingsWrapper.get(":QDRDrupalSiteURL");
-        String ssoLoginPath;
-        try {
-            ssoLoginPath = QDRDrupalSiteURL + "/qdr-oidc-sso/qdr/redirect?current_page=" + URLEncoder.encode(QDRDataverseBaseURL, "UTF-8") + "%2Fshib.xhtml%3FredirectPage%3D" + URLEncoder.encode(getPageFromContext(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            //Shouldn't happen since we're just re-encoding something already successfully encoded once
-            ssoLoginPath = QDRDrupalSiteURL + "/qdr-oidc-sso/qdr/redirect?current_page=" + QDRDataverseBaseURL;
-            logger.severe("Unexpected Failure in getting ssoLoginPath, baseURL = " + QDRDataverseBaseURL + ", redirectPage = " + getPageFromContext());
-            e.printStackTrace();
-        }
+        String ssoLoginPath = QDRDrupalSiteURL + "/qdr-oidc-sso/qdr/redirect?current_page=" + QDRDataverseBaseURL + getPageFromContext();
         return ssoLoginPath;
     }
 
