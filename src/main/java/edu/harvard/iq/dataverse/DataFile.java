@@ -32,8 +32,8 @@ import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  *
@@ -72,10 +72,6 @@ public class DataFile extends DvObject implements Comparable {
     @Column( nullable = false )
     @Pattern(regexp = "^.*/.*$", message = "{contenttype.slash}")
     private String contentType;
-
-    public void setFileAccessRequests(List<FileAccessRequest> fileAccessRequests) {
-        this.fileAccessRequests = fileAccessRequests;
-    }
 
 //    @Expose    
 //    @SerializedName("storageIdentifier")
@@ -200,6 +196,28 @@ public class DataFile extends DvObject implements Comparable {
     @OneToMany(mappedBy="dataFile", cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<GuestbookResponse> guestbookResponses;
 
+    @OneToMany(mappedBy="dataFile",fetch = FetchType.LAZY,cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    private List<FileAccessRequest> fileAccessRequests;
+
+    @ManyToMany
+    @JoinTable(name = "fileaccessrequests",
+    joinColumns = @JoinColumn(name = "datafile_id"),
+    inverseJoinColumns = @JoinColumn(name = "authenticated_user_id"))
+    private List<AuthenticatedUser> fileAccessRequesters;
+
+    
+    public List<FileAccessRequest> getFileAccessRequests(){
+        return fileAccessRequests;
+    }
+    
+    public List<FileAccessRequest> getFileAccessRequests(FileAccessRequest.RequestState state){
+        return fileAccessRequests.stream().filter(far -> far.getState() == state).collect(Collectors.toList());
+    }
+
+    public void setFileAccessRequests(List<FileAccessRequest> fARs){
+        this.fileAccessRequests = fARs;
+    }
+    
     public List<GuestbookResponse> getGuestbookResponses() {
         return guestbookResponses;
     }
@@ -750,49 +768,37 @@ public class DataFile extends DvObject implements Comparable {
         return null; 
     }
 
-    @OneToMany(mappedBy = "dataFile", cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval = true)
-    private List<FileAccessRequest> fileAccessRequests;
-
-    public List<FileAccessRequest> getFileAccessRequests() {
-        return fileAccessRequests;
+    public List<AuthenticatedUser> getFileAccessRequesters() {
+        return fileAccessRequesters;
     }
 
-    public void addFileAccessRequester(AuthenticatedUser authenticatedUser) {
+    public void setFileAccessRequesters(List<AuthenticatedUser> fileAccessRequesters) {
+        this.fileAccessRequesters = fileAccessRequesters;
+    }
+
+
+    public void addFileAccessRequest(FileAccessRequest request) {
         if (this.fileAccessRequests == null) {
             this.fileAccessRequests = new ArrayList<>();
         }
 
-        Set<AuthenticatedUser> existingUsers = this.fileAccessRequests.stream()
-            .map(FileAccessRequest::getAuthenticatedUser)
-            .collect(Collectors.toSet());
-
-        if (existingUsers.contains(authenticatedUser)) {
-            return;
-        }
-
-        FileAccessRequest request = new FileAccessRequest();
-        request.setCreationTime(new Date());
-        request.setDataFile(this);
-        request.setAuthenticatedUser(authenticatedUser);
-
-        FileAccessRequest.FileAccessRequestKey key = new FileAccessRequest.FileAccessRequestKey();
-        key.setAuthenticatedUser(authenticatedUser.getId());
-        key.setDataFile(this.getId());
-
-        request.setId(key);
-
         this.fileAccessRequests.add(request);
     }
 
-    public boolean removeFileAccessRequester(RoleAssignee roleAssignee) {
+    public FileAccessRequest getAccessRequestForAssignee(RoleAssignee roleAssignee) {
+        if (this.fileAccessRequests == null) {
+            return null;
+        }
+
+        return this.fileAccessRequests.stream()
+                .filter(fileAccessRequest -> fileAccessRequest.getRequester().equals(roleAssignee) && fileAccessRequest.isStateCreated()).findFirst()
+                .orElse(null);
+    }
+
+    public boolean removeFileAccessRequest(FileAccessRequest request) {
         if (this.fileAccessRequests == null) {
             return false;
         }
-
-        FileAccessRequest request = this.fileAccessRequests.stream()
-            .filter(fileAccessRequest -> fileAccessRequest.getAuthenticatedUser().equals(roleAssignee))
-            .findFirst()
-            .orElse(null);
 
         if (request != null) {
             this.fileAccessRequests.remove(request);
@@ -802,13 +808,13 @@ public class DataFile extends DvObject implements Comparable {
         return false;
     }
 
-    public boolean containsFileAccessRequestFromUser(RoleAssignee roleAssignee) {
+    public boolean containsActiveFileAccessRequestFromUser(RoleAssignee roleAssignee) {
         if (this.fileAccessRequests == null) {
             return false;
         }
 
-        Set<AuthenticatedUser> existingUsers = this.fileAccessRequests.stream()
-            .map(FileAccessRequest::getAuthenticatedUser)
+        Set<AuthenticatedUser> existingUsers = getFileAccessRequests(FileAccessRequest.RequestState.CREATED).stream()
+            .map(FileAccessRequest::getRequester)
             .collect(Collectors.toSet());
 
         return existingUsers.contains(roleAssignee);
