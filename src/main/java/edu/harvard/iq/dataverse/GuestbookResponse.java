@@ -8,6 +8,8 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
+import edu.harvard.iq.dataverse.util.BundleUtil;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,8 +67,12 @@ public class GuestbookResponse implements Serializable {
     @JoinColumn(nullable=true)
     private AuthenticatedUser authenticatedUser;
 
-    @OneToOne(cascade=CascadeType.ALL,mappedBy="guestbookResponse",fetch = FetchType.LAZY, optional = false)
+    @OneToOne(cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST},mappedBy="guestbookResponse",fetch = FetchType.LAZY)
     private FileDownload fileDownload;
+
+    @OneToMany(mappedBy="guestbookResponse",cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST},fetch = FetchType.LAZY)
+    //private FileAccessRequest fileAccessRequest;
+    private List<FileAccessRequest> fileAccessRequests;
      
     @OneToMany(mappedBy="guestbookResponse",cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST},orphanRemoval=true)
     @OrderBy ("id")
@@ -231,11 +237,6 @@ public class GuestbookResponse implements Serializable {
     public String getResponseDate() {
         return new SimpleDateFormat("MMMM d, yyyy").format(responseTime);
     }
-    
-    public String getResponseDateForDisplay(){
-        return null; //    SimpleDateFormat("yyyy").format(new Timestamp(new Date().getTime()));
-    }
-    
 
     public List<CustomQuestionResponse> getCustomQuestionResponses() {
         return customQuestionResponses;
@@ -253,6 +254,13 @@ public class GuestbookResponse implements Serializable {
         this.fileDownload = fDownload;
     }
     
+    public List<FileAccessRequest> getFileAccessRequests(){
+        return fileAccessRequests;
+    }
+
+    public void setFileAccessRequest(List<FileAccessRequest> fARs){
+        this.fileAccessRequests = fARs;
+    }
     
     public Dataset getDataset() {
         return dataset;
@@ -302,6 +310,39 @@ public class GuestbookResponse implements Serializable {
     public void setSessionId(String sessionId) {
         
         this.fileDownload.setSessionId(sessionId);
+    }
+    
+    public String toHtmlFormattedResponse() {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(BundleUtil.getStringFromBundle("dataset.guestbookResponse.id") + ": " + getId() + "<br>\n");
+        sb.append(BundleUtil.getStringFromBundle("dataset.guestbookResponse.date") + ": " + getResponseDate() + "<br>\n");
+        sb.append(BundleUtil.getStringFromBundle("dataset.guestbookResponse.respondent") + "<br><ul style=\"list-style-type:none;\">\n<li>"
+                + BundleUtil.getStringFromBundle("name") + ": " + getName() + "</li>\n<li>");
+        sb.append("  " + BundleUtil.getStringFromBundle("email") + ": " + getEmail() + "</li>\n<li>");
+        sb.append(
+                "  " + BundleUtil.getStringFromBundle("institution") + ": " + wrapNullAnswer(getInstitution()) + "</li>\n<li>");
+        sb.append("  " + BundleUtil.getStringFromBundle("position") + ": " + wrapNullAnswer(getPosition()) + "</li></ul>\n");
+        sb.append(BundleUtil.getStringFromBundle("dataset.guestbookResponse.guestbook.additionalQuestions")
+                + ":<ul style=\"list-style-type:none;\">\n");
+
+        for (CustomQuestionResponse cqr : getCustomQuestionResponses()) {
+            sb.append("<li>" + BundleUtil.getStringFromBundle("dataset.guestbookResponse.question") + ": "
+                    + cqr.getCustomQuestion().getQuestionString() + "<br>"
+                    + BundleUtil.getStringFromBundle("dataset.guestbookResponse.answer") + ": "
+                    + wrapNullAnswer(cqr.getResponse()) + "</li>\n");
+        }
+        sb.append("</ul>");
+        return sb.toString();
+    }
+    
+    private String wrapNullAnswer(String answer) {
+        //This assumes we don't have to distinguish null from when the user actually answers "(No Reponse)". The db still has the real value
+        if (answer == null) {
+            return BundleUtil.getStringFromBundle("dataset.guestbookResponse.noResponse");
+        }
+        return answer;
     }
     
     @Override
