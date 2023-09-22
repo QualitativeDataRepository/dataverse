@@ -3281,7 +3281,7 @@ public class DatasetPage implements java.io.Serializable {
         } else {
             guestbookResponse.setFileFormat("");
         }
-        guestbookResponse.setDownloadtype("Download");
+        guestbookResponse.setEventType(GuestbookResponse.DOWNLOAD);
     }
 
     /*helper function to filter the selected files into <selected downloadable>, 

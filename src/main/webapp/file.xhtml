@@ -296,7 +296,7 @@
                                             <!-- Classic downloads -->
                                             <div class="metrics-count-block" jsf:rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
                                                 <h:outputFormat value="{0} #{bundle['metrics.downloads']}">
-                                                    <f:param value="#{guestbookResponseServiceBean.getCountGuestbookResponsesByDataFileId(FilePage.fileId)}"/>
+                                                    <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDataFileId(FilePage.fileId)}"/>
                                                 </h:outputFormat>
                                                 <span class="glyphicon glyphicon-question-sign tooltip-icon"
                                                       data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.file.downloads.tip']}"></span>
@@ -304,7 +304,7 @@
                                             <!-- Make Data Count downloads -->
                                             <div class="metrics-count-block" jsf:rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
                                                 <h:outputFormat value="{0} #{bundle['metrics.downloads']}">
-                                                    <f:param value="#{guestbookResponseServiceBean.getCountGuestbookResponsesByDataFileId(FilePage.fileId)}"/>
+                                                    <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDataFileId(FilePage.fileId)}"/>
                                                 </h:outputFormat>
                                                 <span class="glyphicon glyphicon-question-sign tooltip-icon"
                                                         data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.file.downloads.nonmdc.tip']}"></span>
