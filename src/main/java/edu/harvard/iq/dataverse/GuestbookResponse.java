@@ -132,7 +132,7 @@ public class GuestbookResponse implements Serializable {
      * The type can also be the name of a previewer/explore tool
      */
     
-    static final String ACCESS_REQUEST = "AccessRequest";
+    public static final String ACCESS_REQUEST = "AccessRequest";
     static final String DOWNLOAD = "Download";
     static final String SUBSET = "Subset";
     static final String EXPLORE = "Explore";
