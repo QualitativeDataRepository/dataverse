@@ -288,7 +288,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
             exportServiceInstance.exportAllFormats(dataset);
             dataset = ctxt.em().merge(dataset);
         } catch (Exception e) {
-            logger.log(Level.FINE, "Caught unknown exception while trying to export", e);
+            logger.log(Level.INFO, "Caught unknown exception while trying to export", e);
             throw new ExportException(e.getMessage());
         }
     }
