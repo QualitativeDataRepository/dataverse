@@ -7,6 +7,8 @@ import edu.harvard.iq.dataverse.DatasetField;
 import edu.harvard.iq.dataverse.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.DatasetLock;
 import static edu.harvard.iq.dataverse.DatasetVersion.VersionState.*;
+import static javax.ejb.TransactionAttributeType.REQUIRES_NEW;
+
 import edu.harvard.iq.dataverse.DatasetVersionUser;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DvObject;
@@ -23,6 +25,8 @@ import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.workflow.WorkflowContext.TriggerType;
+import io.gdcc.spi.export.ExportException;
+
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -38,6 +42,7 @@ import java.util.concurrent.Future;
 import org.apache.solr.client.solrj.SolrServerException;
 
 import javax.ejb.EJB;
+import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
 
 
@@ -256,11 +261,11 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         }
 
         // Metadata export:
-        
         try {
-            ExportService instance = ExportService.getInstance();
-            instance.exportAllFormats(dataset);
-            dataset = ctxt.datasets().merge(dataset); 
+            exportAllFormatsInNewTransaction(dataset, ctxt);
+//            ExportService instance = ExportService.getInstance();
+//            instance.exportAllFormats(dataset);
+//            dataset = ctxt.datasets().merge(dataset); 
         } catch (Exception ex) {
             // Something went wrong!
             // Just like with indexing, a failure to export is not a fatal
@@ -274,6 +279,19 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         return retVal;
     }
 
+    
+    @TransactionAttribute(REQUIRES_NEW)
+    public void exportAllFormatsInNewTransaction(Dataset dataset, CommandContext ctxt) throws ExportException {
+        try {
+            ExportService exportServiceInstance = ExportService.getInstance();
+            exportServiceInstance.exportAllFormats(dataset);
+            dataset = ctxt.datasets().merge(dataset);
+        } catch (Exception e) {
+            logger.log(Level.FINE, "Caught unknown exception while trying to export", e);
+            throw new ExportException(e.getMessage());
+        }
+    }
+    
     /**
      * add the dataset subjects to all parent dataverses.
      */
