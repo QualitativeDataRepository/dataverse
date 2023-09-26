@@ -2914,7 +2914,9 @@ public class DatasetPage implements java.io.Serializable {
         logger.fine("working version id" + ((workingVersion!=null)?workingVersion.getId():"null"));
         logger.fine("dataset id" + ((dataset!=null)?dataset.getId():"null"));
         logger.fine("version id" + versionId);
-
+if(versionId == null) {
+    versionId=workingVersion.getId();
+}
         //dataset = datasetService.find(dataset.getId());
         dataset = null;
         workingVersion = null; 
