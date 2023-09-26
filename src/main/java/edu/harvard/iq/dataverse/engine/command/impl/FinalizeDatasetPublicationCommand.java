@@ -283,9 +283,10 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
     @TransactionAttribute(REQUIRES_NEW)
     public void exportAllFormatsInNewTransaction(Dataset dataset, CommandContext ctxt) throws ExportException {
         try {
+            ctxt.em().refresh(dataset);
             ExportService exportServiceInstance = ExportService.getInstance();
             exportServiceInstance.exportAllFormats(dataset);
-            dataset = ctxt.datasets().merge(dataset);
+            dataset = ctxt.em().merge(dataset);
         } catch (Exception e) {
             logger.log(Level.FINE, "Caught unknown exception while trying to export", e);
             throw new ExportException(e.getMessage());
