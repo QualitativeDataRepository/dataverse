@@ -261,12 +261,12 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         }
 
         // Metadata export:
-        try {
-            exportAllFormatsInNewTransaction(dataset, ctxt);
+       // try {
+            ctxt.datasets().reExportDatasetAsync(dataset);
 //            ExportService instance = ExportService.getInstance();
 //            instance.exportAllFormats(dataset);
 //            dataset = ctxt.datasets().merge(dataset); 
-        } catch (Exception ex) {
+/*        } catch (Exception ex) {
             // Something went wrong!
             // Just like with indexing, a failure to export is not a fatal
             // condition. We'll just log the error as a warning and keep
@@ -275,23 +275,12 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
             // ... but it is important to only update the export time stamp if the 
             // export was indeed successful.
         }        
-        
+*/        
         return retVal;
     }
 
     
-    @TransactionAttribute(REQUIRES_NEW)
-    public void exportAllFormatsInNewTransaction(Dataset dataset, CommandContext ctxt) throws ExportException {
-        try {
-            ctxt.em().refresh(dataset);
-            ExportService exportServiceInstance = ExportService.getInstance();
-            exportServiceInstance.exportAllFormats(dataset);
-            dataset = ctxt.em().merge(dataset);
-        } catch (Exception e) {
-            logger.log(Level.INFO, "Caught unknown exception while trying to export", e);
-            throw new ExportException(e.getMessage());
-        }
-    }
+
     
     /**
      * add the dataset subjects to all parent dataverses.
