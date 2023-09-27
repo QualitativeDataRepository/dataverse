@@ -48,11 +48,11 @@
                 <ui:fragment rendered="#{!editDatafilesPage}">
                     <!-- conditional render in file page links, if file has global id, use that; if not, we use database id -->
                     <a href="#{widgetWrapper.wrapURL('/file.xhtml?'.concat(!empty fileMetadata.dataFile.globalId ? 'persistentId=' : 'fileId=').concat(!empty fileMetadata.dataFile.globalId ? fileMetadata.dataFile.globalId.asString() : fileMetadata.dataFile.id).concat('&amp;version=').concat(fileMetadata.datasetVersion.friendlyVersionNumber))}">
-                        #{fileMetadata.label}
+                        #{fileMetadata.datafile.originalFileName}
                     </a>
                 </ui:fragment>
                 <ui:fragment rendered="#{editDatafilesPage}">
-                    <span>#{fileMetadata.label}</span>
+                    <span>#{fileMetadata.datafile.originalFileName}</span>
                 </ui:fragment>
             </div>
             <!-- HIERARCHY + TYPE + SIZE + DATE + CHECKSUM -->
@@ -60,7 +60,7 @@
                 <!-- id:#{fileMetadata.dataFile.id} -->
                 <h:outputText id="fileHierarchy" styleClass="show" value="#{fileMetadata.directoryLabel}/" rendered="#{!empty fileMetadata.directoryLabel}"/>
                 <h:outputText id="fileType" value="#{fileMetadata.dataFile.tabularData ? bundle['file.type.tabularData'] : fileMetadata.dataFile.friendlyType}"/>
-                <h:outputText id="fileSize" value=" - #{fileMetadata.dataFile.friendlySize}"/>
+                <h:outputText id="fileSize" value=" - #{fileMetadata.dataFile.friendlyOriginalFileSize}"/>
                 <div class="dateCreatePublish-block">
                     <h:outputText id="fileCreatePublishDate" value="#{fileMetadata.dataFile.released ? ((fileMetadata.dataFile.embargo!=null) ? bundle['metadatareleased'] : bundle['published']) : bundle['deposited']} #{fileMetadata.getFileDateToDisplay()}" rendered="#{!(empty fileMetadata.id)}"/>
                     <h:outputText id="embargoDate" class="embargoright" value="#{fileMetadata.dataFile.released ? ((dataFileServiceBean.isActivelyEmbargoed(fileMetadata)) ? bundle['embargoed.until'] : bundle['embargoed.wasthrough']):bundle['embargoed.willbeuntil']} #{fileMetadata.dataFile.embargo.formattedDateAvailable}" rendered="#{!(empty fileMetadata.dataFile.embargo)}"/>
@@ -71,7 +71,7 @@
                     </h:outputFormat>
                 </div>
                 <!-- CHECKSUM -->
-                <div class="checksum-block" jsf:rendered="#{!fileMetadata.dataFile.tabularData and !(empty fileMetadata.dataFile.checksumValue)}">
+                <div class="checksum-block" jsf:rendered="#{!(empty fileMetadata.dataFile.checksumValue)}">
                     <span class="#{!editDatafilesPage ? 'checksum-truncate checksum-tooltip' : ''}" style="margin-right:3px;"
                                   data-toggle="tooltip" data-placement="top" data-html="true"
                                   data-clipboard-action="copy"
@@ -85,6 +85,7 @@
                 </div>
                 <!-- TABULAR VARIABLES, OBSERVATIONS + UNF -->
                 <div class="unf-block" jsf:rendered="#{fileMetadata.dataFile.tabularData}">
+                    <h:outputText value="#{bundle['file.type.tabularData']}"/>
                     <h:outputText id="fileNumVars" value="#{fileMetadata.dataFile.dataTable.varQuantity} #{bundle['file.metaData.dataFile.dataTab.variables']}, "/>
                     <h:outputText id="fileNumObs" value="#{fileMetadata.dataFile.dataTable.caseQuantity} #{bundle['file.metaData.dataFile.dataTab.observations']} "/>
                     <span jsf:id="fileUNF" class="#{!editDatafilesPage ? 'checksum-truncate checksum-tooltip' : ''}" style="margin-right:3px;"
