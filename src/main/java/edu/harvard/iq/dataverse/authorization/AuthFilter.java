@@ -129,7 +129,7 @@ public class AuthFilter implements Filter {
 
     @Override
     public void destroy() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
