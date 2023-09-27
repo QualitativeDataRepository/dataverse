@@ -7,8 +7,6 @@ import edu.harvard.iq.dataverse.DatasetField;
 import edu.harvard.iq.dataverse.DatasetFieldConstant;
 import edu.harvard.iq.dataverse.DatasetLock;
 import static edu.harvard.iq.dataverse.DatasetVersion.VersionState.*;
-import static javax.ejb.TransactionAttributeType.REQUIRES_NEW;
-
 import edu.harvard.iq.dataverse.DatasetVersionUser;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DvObject;
@@ -20,13 +18,10 @@ import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.workflow.WorkflowContext.TriggerType;
-import io.gdcc.spi.export.ExportException;
-
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -40,10 +35,6 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import java.util.ArrayList;
 import java.util.concurrent.Future;
 import org.apache.solr.client.solrj.SolrServerException;
-
-import javax.ejb.EJB;
-import javax.ejb.TransactionAttribute;
-import javax.inject.Inject;
 
 
 /**
@@ -261,27 +252,10 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         }
 
         // Metadata export:
-       // try {
             ctxt.datasets().reExportDatasetAsync(dataset);
-//            ExportService instance = ExportService.getInstance();
-//            instance.exportAllFormats(dataset);
-//            dataset = ctxt.datasets().merge(dataset); 
-/*        } catch (Exception ex) {
-            // Something went wrong!
-            // Just like with indexing, a failure to export is not a fatal
-            // condition. We'll just log the error as a warning and keep
-            // going:
-            logger.log(Level.WARNING, "Finalization: exception caught while exporting: "+ex.getMessage(), ex);
-            // ... but it is important to only update the export time stamp if the 
-            // export was indeed successful.
-        }        
-*/        
         return retVal;
     }
 
-    
-
-    
     /**
      * add the dataset subjects to all parent dataverses.
      */

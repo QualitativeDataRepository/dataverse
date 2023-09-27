@@ -2911,18 +2911,14 @@ public class DatasetPage implements java.io.Serializable {
     public String refresh() {
         logger.fine("refreshing");
 
-        logger.fine("working version id" + ((workingVersion!=null)?workingVersion.getId():"null"));
-        logger.fine("dataset id" + ((dataset!=null)?dataset.getId():"null"));
-        logger.fine("version id" + versionId);
-if(versionId == null) {
-    versionId=workingVersion.getId();
-}
+        if (versionId == null) {
+            versionId = workingVersion.getId();
+        }
         //dataset = datasetService.find(dataset.getId());
         dataset = null;
         workingVersion = null; 
 
         logger.fine("refreshing working version");
-        
 
         DatasetVersionServiceBean.RetrieveDatasetVersionResponse retrieveDatasetVersionResponse = null;
 
@@ -2935,9 +2931,6 @@ if(versionId == null) {
             dataset = workingVersion.getDataset();
         } 
         
-        logger.fine("2working version id" + ((workingVersion!=null)?workingVersion.getId():"null"));
-        logger.fine("2dataset id" + ((dataset!=null)?dataset.getId():"null"));
-
         if (this.workingVersion == null) {
             // TODO:
             // should probably redirect to the 404 page, if we can't find
