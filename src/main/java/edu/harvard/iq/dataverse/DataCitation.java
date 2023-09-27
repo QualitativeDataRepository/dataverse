@@ -104,7 +104,7 @@ public class DataCitation {
         getCommonValuesFrom(dsv);
 
         // file Title for direct File citation
-        fileTitle = fm.getLabel();
+        fileTitle = fm.getLabelForOriginal();
         DataFile df = fm.getDataFile();
 
         // The Global Identifier of the Datafile (if published and isDirect==true) or Dataset as appropriate

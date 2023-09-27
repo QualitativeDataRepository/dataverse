@@ -48,18 +48,18 @@
                 <ui:fragment rendered="#{!editDatafilesPage}">
                     <!-- conditional render in file page links, if file has global id, use that; if not, we use database id -->
                     <a href="#{widgetWrapper.wrapURL('/file.xhtml?'.concat(!empty fileMetadata.dataFile.globalId ? 'persistentId=' : 'fileId=').concat(!empty fileMetadata.dataFile.globalId ? fileMetadata.dataFile.globalId.asString() : fileMetadata.dataFile.id).concat('&amp;version=').concat(fileMetadata.datasetVersion.friendlyVersionNumber))}">
-                        #{fileMetadata.dataFile.originalFileName}
+                        #{fileMetadata.labelForOriginal}
                     </a>
                 </ui:fragment>
                 <ui:fragment rendered="#{editDatafilesPage}">
-                    <span>#{fileMetadata.dataFile.originalFileName}</span>
+                    <span>#{fileMetadata.labelForOriginal}</span>
                 </ui:fragment>
             </div>
             <!-- HIERARCHY + TYPE + SIZE + DATE + CHECKSUM -->
             <div class="text-muted small">
                 <!-- id:#{fileMetadata.dataFile.id} -->
                 <h:outputText id="fileHierarchy" styleClass="show" value="#{fileMetadata.directoryLabel}/" rendered="#{!empty fileMetadata.directoryLabel}"/>
-                <h:outputText id="fileType" value="#{fileMetadata.dataFile.tabularData ? bundle['file.type.tabularData'] : fileMetadata.dataFile.friendlyType}"/>
+                <h:outputText id="fileType" value="#{fileMetadata.dataFile.friendlyType}"/>
                 <h:outputText id="fileSize" value=" - #{fileMetadata.dataFile.friendlyOriginalFileSize}"/>
                 <div class="dateCreatePublish-block">
                     <h:outputText id="fileCreatePublishDate" value="#{fileMetadata.dataFile.released ? ((fileMetadata.dataFile.embargo!=null) ? bundle['metadatareleased'] : bundle['published']) : bundle['deposited']} #{fileMetadata.getFileDateToDisplay()}" rendered="#{!(empty fileMetadata.id)}"/>

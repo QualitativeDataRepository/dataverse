@@ -142,6 +142,14 @@ public class FileMetadata implements Serializable {
         this.label = label;
     }
 
+    public String getLabelForOriginal() {
+        if(dataFile.isTabularData()) {
+            return dataFile.getDerivedOriginalFileName();
+        } else {
+            return label;
+        }
+    }
+    
     public FileMetadata() {
         variableMetadatas = new ArrayList<VariableMetadata>();
         varGroups = new ArrayList<VarGroup>();
