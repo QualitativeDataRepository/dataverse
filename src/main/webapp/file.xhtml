@@ -44,7 +44,7 @@
                             <div class="row">
                               <p:fragment id="fileTitleFragment">
                                 <div id="file-title-block" class="col-xs-12 margin-bottom-half">
-                                    <span class="file-title-label">#{FilePage.fileMetadata.label}</span>
+                                    <span class="file-title-label">#{FilePage.fileMetadata.labelForOriginal}</span>
                                     
                                     <!-- FILE LEVEL MSGs -->
                                     <div class="bg-info text-info text-center margin-bottom-half" jsf:rendered="#{FilePage.fileMetadata.dataFile.ingestProblem and FilePage.canUpdateDataset()}">
@@ -614,11 +614,11 @@
                                                         <td>#{FilePage.file.embargo.reason}
                                                         </td>
                                                     </tr>
-                                                    <tr id="fileSizeBlock" jsf:rendered="#{!(empty FilePage.file.friendlySize)}">
+                                                    <tr id="fileSizeBlock" jsf:rendered="#{!(empty FilePage.file.friendlyOriginalFileSize)}">
                                                         <th scope="row">
                                                             #{bundle['file.metadataTab.fileMetadata.size.label']}
                                                         </th>
-                                                        <td>#{FilePage.file.friendlySize}</td>
+                                                        <td>#{FilePage.file.friendlyOriginalFileSize}</td>
                                                     </tr>
                                                     <tr id="fileTypeBlock" jsf:rendered="#{!(empty FilePage.file.friendlyType)}">
                                                         <th scope="row">
