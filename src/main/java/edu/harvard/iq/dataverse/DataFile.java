@@ -463,6 +463,10 @@ public class DataFile extends DvObject implements Comparable {
         return null;
     }
     
+    public String getFriendlyOriginalFileSize() {
+        return getFriendlySize(getOriginalFileSize());
+    }
+    
     public String getOriginalFileName() {
         if (isTabularData()) {
             DataTable dataTable = getDataTable();
@@ -625,8 +629,12 @@ public class DataFile extends DvObject implements Comparable {
      * @return 
      */
     public String getFriendlySize() {
-        if (filesize != null) {
-            return FileSizeChecker.bytesToHumanReadable(filesize);
+        return getFriendlySize(filesize);
+    }
+    
+    private String getFriendlySize(Long size) {
+        if (size != null) {
+            return FileSizeChecker.bytesToHumanReadable(size);
         } else {
             return BundleUtil.getStringFromBundle("file.sizeNotAvailable");
         }
