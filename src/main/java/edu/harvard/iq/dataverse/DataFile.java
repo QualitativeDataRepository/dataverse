@@ -446,7 +446,8 @@ public class DataFile extends DvObject implements Comparable {
     }
     
     public String getFriendlyOriginalFileSize() {
-        return getFriendlySize(getOriginalFileSize());
+        Long size = (getOriginalFileSize()==null) ? filesize : getOriginalFileSize();
+        return getFriendlySize(size);
     }
     
     public String getOriginalFileName() {
@@ -461,7 +462,7 @@ public class DataFile extends DvObject implements Comparable {
     }
 
     
-    private String getDerivedOriginalFileName() {
+    public String getDerivedOriginalFileName() {
         FileMetadata fm = getFileMetadata();
         String filename = fm.getLabel();
         String originalExtension = FileUtil.generateOriginalExtension(getOriginalFileFormat());
