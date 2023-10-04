@@ -147,9 +147,10 @@ public class FileMetadata implements Serializable {
         return (last == -1) ? label : label.substring(0, last);
     }
 
-    public String getExtension() {
-        int last = label.lastIndexOf(".");
-        return (last == -1) ? "" : label.substring(last);
+    public String getOriginalExtension() {
+        String origFilename = getLabelForOriginal();
+        int last = origFilename.lastIndexOf(".");
+        return (last == -1) ? "" : origFilename.substring(last);
     }
 
     public void setLabelNoExtension(String name) {

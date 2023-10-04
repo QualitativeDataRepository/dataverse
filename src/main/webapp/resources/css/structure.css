@@ -1564,3 +1564,8 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
 	min-width: 130px;
 	padding: 0px;
 }
+
+/* editFilesFragment */
+.file-metadata-block input:first-of-type {
+    text-align: right;
+}

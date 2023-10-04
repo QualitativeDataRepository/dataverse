@@ -425,7 +425,7 @@
                                             #{bundle['file.fileName']}
                                         </label>
                                         <p:inputText id="fileName" value="#{fileMetadata.labelNoExtension}" style="width:60%; margin-bottom:.5em;" disabled="#{fileMetadata.dataFile.filePackage}"/>
-                                        <h:outputText val="#{fileMetadata.extension}"/>
+                                        <h:outputText value="#{fileMetadata.originalExtension}"/>
                                         <p:message for="datasetForm:filesTable:#{rowNum}:fileName"/>
 
                                         <label class="control-label" jsf:for="fileDirectoryName" style="margin-right:1em;margin-bottom:.5em;">
