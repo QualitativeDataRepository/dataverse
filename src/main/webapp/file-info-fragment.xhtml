@@ -59,7 +59,7 @@
             <div class="text-muted small">
                 <!-- id:#{fileMetadata.dataFile.id} -->
                 <h:outputText id="fileHierarchy" styleClass="show" value="#{fileMetadata.directoryLabel}/" rendered="#{!empty fileMetadata.directoryLabel}"/>
-                <h:outputText id="fileType" value="#{fileMetadata.dataFile.friendlyType}"/>
+                <h:outputText id="fileType" value="#{fileMetadata.dataFile.originalFormatLabel}"/>
                 <h:outputText id="fileSize" value=" - #{fileMetadata.dataFile.friendlyOriginalFileSize}"/>
                 <div class="dateCreatePublish-block">
                     <h:outputText id="fileCreatePublishDate" value="#{fileMetadata.dataFile.released ? ((fileMetadata.dataFile.embargo!=null) ? bundle['metadatareleased'] : bundle['published']) : bundle['deposited']} #{fileMetadata.getFileDateToDisplay()}" rendered="#{!(empty fileMetadata.id)}"/>
