@@ -142,6 +142,25 @@ public class FileMetadata implements Serializable {
         this.label = label;
     }
 
+    public String getLabelNoExtension() {
+        int last = label.lastIndexOf(".");
+        return (last == -1) ? label : label.substring(0, last);
+    }
+
+    public String getExtension() {
+        int last = label.lastIndexOf(".");
+        return (last == -1) ? "" : label.substring(last);
+    }
+
+    public void setLabelNoExtension(String name) {
+        int last = this.label.lastIndexOf(".");
+        if (last == -1) {
+            this.label = name;
+        } else {
+            this.label = name + this.label.substring(last);
+        }
+    }
+    
     public String getLabelForOriginal() {
         if(dataFile.isTabularData()) {
             return dataFile.getDerivedOriginalFileName();
