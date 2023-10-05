@@ -124,6 +124,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                 errCount=(errCount+1)%100;
                 if(errCount==1) {
                   sce.printStackTrace();
+                  logger.info("driverId: " + driverId);
+                  logger.info("bucketName: " + bucketName);
+                  logger.info("endpoint: " + endpoint);
+                  logger.info("proxy: " + proxy);
+                  logger.info("profile: " + System.getProperty("dataverse.files." + driverId + ".profile"));
                 }
                 throw new IOException("ERROR: S3AccessIO - Failed to look up bucket "+bucketName+" (is AWS properly configured?): " + sce.getMessage());
             }
