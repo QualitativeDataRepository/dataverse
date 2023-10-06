@@ -1134,6 +1134,18 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
 
     private static AmazonS3 getClient(String driverId) {
+        int delay = 0;
+        String delayStr = System.getProperty("dataverse.files." + driverId + ".delay", "0");
+        try {
+            delay=Integer.parseInt(delayStr);
+        } catch (NumberFormatException nfe) {
+            logger.warning("Unable to parse dataverse.files." + driverId + ".delay as int: " + delayStr);
+        }
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+        }
         if(driverClientMap.containsKey(driverId)) {
             return driverClientMap.get(driverId);
         } else {
