@@ -792,6 +792,7 @@ public class IndexServiceBean {
     }
 
     public SolrInputDocuments toSolrDocs(IndexableDataset indexableDataset, Set<Long> datafilesInDraftVersion) throws  SolrServerException, IOException {
+        try {
         IndexableDataset.DatasetState state = indexableDataset.getDatasetState();
         Dataset dataset = indexableDataset.getDatasetVersion().getDataset();
         logger.fine("adding or updating Solr document for dataset id " + dataset.getId());
@@ -1462,6 +1463,11 @@ public class IndexServiceBean {
         Long datasetId = dataset.getId();
         final String msg = "indexed dataset " + datasetId + " as " + datasetSolrDocId + ". filesIndexed: " + filesIndexed;
         return new SolrInputDocuments(docs, msg, datasetId);
+        } catch (Exception e) {
+            logger.warning(e.getLocalizedMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     private String addOrUpdateDataset(IndexableDataset indexableDataset, Set<Long> datafilesInDraftVersion) throws  SolrServerException, IOException {   
