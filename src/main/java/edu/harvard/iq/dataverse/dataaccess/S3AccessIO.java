@@ -1353,13 +1353,8 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             // Add all providers to chain - the first working provider will be used
             // (role-based is first in the default cred provider chain, so we're just
             // reproducing that, then profile, then static credentials as the fallback)
-            if(delay==0) {
-                AWSCredentialsProviderChain providerChain = new AWSCredentialsProviderChain(instanceCredentials, profileCredentials, staticCredentials);
-                s3CB.setCredentials(providerChain);
-            } else {
-                AWSCredentialsProviderChain providerChain = new AWSCredentialsProviderChain(profileCredentials, staticCredentials);
-                s3CB.setCredentials(providerChain);
-            }
+            AWSCredentialsProviderChain providerChain = new AWSCredentialsProviderChain(profileCredentials, staticCredentials, instanceCredentials);
+            s3CB.setCredentials(providerChain);
             // let's build the client :-)
             AmazonS3 client =  s3CB.build();
             driverClientMap.put(driverId,  client);
