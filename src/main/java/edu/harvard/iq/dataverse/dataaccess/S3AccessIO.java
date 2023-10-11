@@ -213,6 +213,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                 key = getMainFileKey();
                 ObjectMetadata objectMetadata = null; 
                 try {
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException e) {
+                        logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                    }
                     objectMetadata = s3.getObjectMetadata(bucketName, key);
                 } catch (SdkClientException sce) {
                     throw new IOException("Cannot get S3 object " + key + " ("+sce.getMessage()+")");
@@ -259,6 +264,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                     int retries = 20;
                     while (retries > 0) {
                         try {
+                            try {
+                                Thread.sleep(delay);
+                            } catch (InterruptedException e) {
+                                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                            }
                             objectMetadata = s3.getObjectMetadata(bucketName, key);
                             if (retries != 20) {
                                 logger.warning(
@@ -291,6 +301,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     public InputStream getInputStream() throws IOException {
         if(super.getInputStream()==null) {
             try {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                }
                 setInputStream(s3.getObject(new GetObjectRequest(bucketName, key)).getObjectContent());
             } catch (SdkClientException sce) {
                 throw new IOException("Cannot get S3 object " + key + " ("+sce.getMessage()+")");
@@ -385,6 +400,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(filesize);
             try {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                }
                 s3.putObject(bucketName, key, inputStream, metadata);
             } catch (SdkClientException ioex) {
                 String failureMsg = ioex.getMessage();
@@ -410,6 +430,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         File tempFile = createTempFile(tempPath, inputStream);
         
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.putObject(bucketName, key, tempFile);
         } catch (SdkClientException ioex) {
             String failureMsg = ioex.getMessage();
@@ -420,6 +445,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             throw new IOException(failureMsg);
         }
         tempFile.delete();
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+        }
         ObjectMetadata objectMetadata = s3.getObjectMetadata(bucketName, key);
         if (objectMetadata != null) {
             setSize(objectMetadata.getContentLength());
@@ -438,6 +468,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         // (probably unnecessary - attempting to delete it will fail if it doesn't exist - ?)
         try {
             DeleteObjectRequest deleteObjRequest = new DeleteObjectRequest(bucketName, key);
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.deleteObject(deleteObjRequest);
         } catch (AmazonClientException ase) {
             logger.warning("Caught an AmazonClientException in S3AccessIO.delete(): " + ase.getMessage());
@@ -471,6 +506,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         logger.fine("Inside isAuxObjectCached");
         String destinationKey = getDestinationKey(auxItemTag);
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             return s3.doesObjectExist(bucketName, destinationKey);
         } catch (AmazonClientException ase) {
             logger.warning("Caught an AmazonClientException in S3AccessIO.isAuxObjectCached:    " + ase.getMessage());
@@ -483,6 +523,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         open();
         String destinationKey = getDestinationKey(auxItemTag);
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             return s3.getObjectMetadata(bucketName, destinationKey).getContentLength();
         } catch (AmazonClientException ase) {
             logger.warning("Caught an AmazonClientException in S3AccessIO.getAuxObjectSize:    " + ase.getMessage());
@@ -499,6 +544,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     public void backupAsAux(String auxItemTag) throws IOException {
         String destinationKey = getDestinationKey(auxItemTag);
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.copyObject(new CopyObjectRequest(bucketName, key, bucketName, destinationKey));
         } catch (AmazonClientException ase) {
             logger.warning("Caught an AmazonClientException in S3AccessIO.backupAsAux:    " + ase.getMessage());
@@ -511,6 +561,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     public void revertBackupAsAux(String auxItemTag) throws IOException {
         String destinationKey = getDestinationKey(auxItemTag);
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.copyObject(new CopyObjectRequest(bucketName, destinationKey,  bucketName, key));
             deleteAuxObject(auxItemTag);
         } catch (AmazonClientException ase) {
@@ -528,6 +583,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         String destinationKey = getDestinationKey(auxItemTag);
         try {
             File inputFile = fileSystemPath.toFile();
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.putObject(new PutObjectRequest(bucketName, destinationKey, inputFile));            
         } catch (AmazonClientException ase) {
             logger.warning("Caught an AmazonClientException in S3AccessIO.savePathAsAux():    " + ase.getMessage());
@@ -547,6 +607,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(filesize);
             try {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                }
                 s3.putObject(bucketName, destinationKey, inputStream, metadata);
             } catch (SdkClientException ioex) {
                 String failureMsg = ioex.getMessage();
@@ -594,6 +659,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         String destinationKey = getDestinationKey(auxItemTag);
         
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.putObject(bucketName, destinationKey, tempFile);
         } catch (SdkClientException ioex) {
             String failureMsg = ioex.getMessage();
@@ -637,6 +707,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         ListObjectsRequest req = new ListObjectsRequest().withBucketName(bucketName).withPrefix(prefix);
         ObjectListing storedAuxFilesList = null; 
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             storedAuxFilesList = s3.listObjects(req);
         } catch (SdkClientException sce) {
             throw new IOException ("S3 listAuxObjects: failed to get a listing for "+prefix);
@@ -648,6 +723,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         try {
             while (storedAuxFilesList.isTruncated()) {
                 logger.fine("S3 listAuxObjects: going to next page of list");
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                }
                 storedAuxFilesList = s3.listNextBatchOfObjects(storedAuxFilesList);
                 if (storedAuxFilesList != null) {
                     storedAuxFilesSummary.addAll(storedAuxFilesList.getObjectSummaries());
@@ -675,6 +755,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         String destinationKey = getDestinationKey(auxItemTag);
         try {
             DeleteObjectRequest dor = new DeleteObjectRequest(bucketName, destinationKey);
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.deleteObject(dor);
         } catch (AmazonClientException ase) {
             logger.warning("S3AccessIO: Unable to delete object    " + ase.getMessage());
@@ -692,6 +777,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         List<S3ObjectSummary> storedAuxFilesSummary = null;
         try {
             ListObjectsRequest req = new ListObjectsRequest().withBucketName(bucketName).withPrefix(prefix);
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             ObjectListing storedAuxFilesList = s3.listObjects(req);
             if (storedAuxFilesList == null) {
                 // nothing to delete
@@ -699,6 +789,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             }
             storedAuxFilesSummary = storedAuxFilesList.getObjectSummaries();
             while (storedAuxFilesList.isTruncated()) {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                }
                 storedAuxFilesList = s3.listNextBatchOfObjects(storedAuxFilesList);
                 if (storedAuxFilesList != null) {
                     storedAuxFilesSummary.addAll(storedAuxFilesList.getObjectSummaries());
@@ -724,6 +819,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
         logger.fine("Trying to delete auxiliary files...");
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.deleteObjects(multiObjectDeleteRequest);
         } catch (SdkClientException e) {
             throw new IOException("S3AccessIO: Failed to delete one or more auxiliary objects.");
@@ -759,6 +859,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             logger.warning("Trying to check if a path exists is only supported for a data file.");
         }
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             return s3.doesObjectExist(bucketName, destinationKey);
         } catch (AmazonClientException ase) {
             logger.warning("Caught an AmazonClientException in S3AccessIO.exists():    " + ase.getMessage());
@@ -780,6 +885,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     public InputStream getAuxFileAsInputStream(String auxItemTag) throws IOException {
         String destinationKey = getDestinationKey(auxItemTag);
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             S3Object s3object = s3.getObject(new GetObjectRequest(bucketName, destinationKey));
             if (s3object != null) {
                 return s3object.getObjectContent();
@@ -914,6 +1024,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
             URL s; 
             try {
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                }
                 s = s3.generatePresignedUrl(generatePresignedUrlRequest);
             } catch (SdkClientException sce) {
                 //throw new IOException("SdkClientException generating temporary S3 url for "+key+" ("+sce.getMessage()+")");
@@ -992,6 +1107,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         
         URL presignedUrl; 
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             presignedUrl = s3.generatePresignedUrl(generatePresignedUrlRequest);
         } catch (SdkClientException sce) {
             logger.warning("SdkClientException generating temporary S3 url for "+key+" ("+sce.getMessage()+")");
@@ -1038,6 +1158,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             JsonObjectBuilder urls = Json.createObjectBuilder();
             InitiateMultipartUploadRequest initiationRequest = new InitiateMultipartUploadRequest(bucketName, key);
             initiationRequest.putCustomRequestHeader(Headers.S3_TAGGING, "dv-state=temp");
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             InitiateMultipartUploadResult initiationResponse = s3.initiateMultipartUpload(initiationRequest);
             String uploadId = initiationResponse.getUploadId();
             for (int i = 1; i <= (fileSize / minPartSize) + (fileSize % minPartSize > 0 ? 1 : 0); i++) {
@@ -1047,6 +1172,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                 uploadPartUrlRequest.addRequestParameter("partNumber", Integer.toString(i));
                 URL presignedUrl;
                 try {
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException e) {
+                        logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                    }
                     presignedUrl = s3.generatePresignedUrl(uploadPartUrlRequest);
                 } catch (SdkClientException sce) {
                     logger.warning("SdkClientException generating temporary S3 url for " + key + " (" + sce.getMessage()
@@ -1133,8 +1263,9 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     }
 
 
+    int delay = 0;
+    
     private static AmazonS3 getClient(String driverId) {
-        int delay = 0;
         String delayStr = System.getProperty("dataverse.files." + driverId + ".delay", "0");
         try {
             delay=Integer.parseInt(delayStr);
@@ -1237,6 +1368,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             DeleteObjectTaggingRequest deleteObjectTaggingRequest = new DeleteObjectTaggingRequest(bucketName, key);
             //NOte - currently we only use one tag so delete is the fastest and cheapest way to get rid of that one tag 
             //Otherwise you have to get tags, remove the one you don't want and post new tags and get charged for the operations
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.deleteObjectTagging(deleteObjectTaggingRequest);
          } catch (SdkClientException sce) {
              if(sce.getMessage().contains("Status Code: 501")) {
@@ -1356,6 +1492,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         ListObjectsRequest req = new ListObjectsRequest().withBucketName(bucketName).withPrefix(prefix);
         ObjectListing storedFilesList = null; 
         try {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             storedFilesList = s3.listObjects(req);
         } catch (SdkClientException sce) {
             throw new IOException ("S3 listObjects: failed to get a listing for " + prefix);
@@ -1367,6 +1508,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         try {
             while (storedFilesList.isTruncated()) {
                 logger.fine("S3 listObjects: going to next page of list");
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+                }
                 storedFilesList = s3.listNextBatchOfObjects(storedFilesList);
                 if (storedFilesList != null) {
                     storedFilesSummary.addAll(storedFilesList.getObjectSummaries());
@@ -1396,6 +1542,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
         try {
             DeleteObjectRequest dor = new DeleteObjectRequest(bucketName, prefix + fileName);
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             s3.deleteObject(dor);
         } catch (AmazonClientException ase) {
             logger.warning("S3AccessIO: Unable to delete object    " + ase.getMessage());
