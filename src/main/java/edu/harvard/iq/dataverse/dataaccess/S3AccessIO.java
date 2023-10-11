@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -96,6 +97,9 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     
     private static HashMap<String, AmazonS3> driverClientMap = new HashMap<String,AmazonS3>();
     private static HashMap<String, TransferManager> driverTMMap = new HashMap<String,TransferManager>();
+    private static Map<String, Integer> delayMap = new HashMap<String, Integer>();
+    
+    private int delay=0;
 
     public S3AccessIO(T dvObject, DataAccessRequest req, String driverId) {
         super(dvObject, req, driverId);
@@ -105,6 +109,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             bucketName=getBucketName(driverId);
             minPartSize = getMinPartSize(driverId);
             s3=getClient(driverId);
+            delay = delayMap.getOrDefault(driverId, 0);
             tm=getTransferManager(driverId);
             endpoint = System.getProperty("dataverse.files." + driverId + ".custom-endpoint-url", "");
             proxy = System.getProperty("dataverse.files." + driverId + ".proxy-url", "");
@@ -1262,24 +1267,24 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         }
     }
 
-
-    int delay = 0;
-    
-    private static AmazonS3 getClient(String driverId) {
-        String delayStr = System.getProperty("dataverse.files." + driverId + ".delay", "0");
-        try {
-            delay=Integer.parseInt(delayStr);
-        } catch (NumberFormatException nfe) {
-            logger.warning("Unable to parse dataverse.files." + driverId + ".delay as int: " + delayStr);
-        }
-        try {
-            Thread.sleep(delay);
-        } catch (InterruptedException e) {
-            logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
-        }
+   private static AmazonS3 getClient(String driverId) {
+       
         if(driverClientMap.containsKey(driverId)) {
             return driverClientMap.get(driverId);
         } else {
+            int delay = 0;
+            String delayStr = System.getProperty("dataverse.files." + driverId + ".delay", "0");
+            try {
+                delay=Integer.parseInt(delayStr);
+                delayMap.put(driverId,  delay);
+            } catch (NumberFormatException nfe) {
+                logger.warning("Unable to parse dataverse.files." + driverId + ".delay as int: " + delayStr);
+            }
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warning("Interupted while sleeping for " + delay + " ms with driver: " + driverId);
+            }
             // get a standard client, using the standard way of configuration the credentials, etc.
             AmazonS3ClientBuilder s3CB = AmazonS3ClientBuilder.standard();
 
