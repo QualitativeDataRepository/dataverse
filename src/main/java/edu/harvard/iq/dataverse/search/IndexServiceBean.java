@@ -1462,6 +1462,7 @@ public class IndexServiceBean {
         }
         Long datasetId = dataset.getId();
         final String msg = "indexed dataset " + datasetId + " as " + datasetSolrDocId + ". filesIndexed: " + filesIndexed;
+        logger.fine(msg);
         return new SolrInputDocuments(docs, msg, datasetId);
         } catch (Exception e) {
             logger.warning(e.getLocalizedMessage());
@@ -1477,6 +1478,7 @@ public class IndexServiceBean {
             solrClientService.getSolrClient().add(docs.getDocuments());
             solrClientService.getSolrClient().commit();
         } catch (SolrServerException | IOException ex) {
+            logger.warning("Check process-failures logs re: " + ex.getLocalizedMessage());
             if (ex.getCause() instanceof SolrServerException) {
                 throw new SolrServerException(ex);
             } else if (ex.getCause() instanceof IOException) {
