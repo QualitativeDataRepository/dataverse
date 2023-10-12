@@ -50,7 +50,7 @@ public class AuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        logger.info(AuthFilter.class.getName() + "initialized. filterConfig.getServletContext().getServerInfo(): " + filterConfig.getServletContext().getServerInfo());
+        logger.fine(AuthFilter.class.getName() + "initialized. filterConfig.getServletContext().getServerInfo(): " + filterConfig.getServletContext().getServerInfo());
 
         try {
             String glassfishLogsDirectory = "logs";
@@ -77,13 +77,13 @@ public class AuthFilter implements Filter {
             //Nagios uses a user-agent starting with check_http and we don't want to do a passive login check in that case.
             boolean isCheck = (uaHeader != null) && uaHeader.contains("check_http");
             if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")))) {
-                logger.info("Path: " + path);
+                logger.fine("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
                 if ((sso != null) || (httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
                     if (httpSession != null) {
-                        logger.info("check OIDC: " + httpSession.getAttribute("passiveChecked"));
+                        logger.fine("check OIDC: " + httpSession.getAttribute("passiveChecked"));
                     }
-                    logger.info("really check OIDC");
+                    logger.fine("really check OIDC");
                     AbstractOAuth2AuthenticationProvider idp = authenticationSvc.getOAuth2Provider("oidc-keycloak");
                     OIDCAuthProvider oidcidp = (OIDCAuthProvider) idp;
                     // Create URL for the final destination after successful login
@@ -96,10 +96,10 @@ public class AuthFilter implements Filter {
 
                     String state = createState(oidcidp, toOption(finalDestination));
                     String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
-                    logger.info(redirectUrl);
+                    logger.fine(redirectUrl);
                     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
                     if (httpSession == null) {
-                        logger.info("check OIDC: no session");
+                        logger.fine("check OIDC: no session");
                         httpSession = httpServletRequest.getSession(true);
                     }
                     httpSession.setAttribute("passiveChecked", true);
@@ -115,7 +115,7 @@ public class AuthFilter implements Filter {
                         sb.append(string + separator);
                     }
 
-                    logger.info(sb.toString());
+                    logger.fine(sb.toString());
 
                     httpServletResponse.sendRedirect(redirectUrl);
                     return;
