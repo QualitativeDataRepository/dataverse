@@ -219,7 +219,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             userInfo.getSubject().getValue(),
             userInfo.getPreferredUsername(),
             null,
-            new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), role, affiliation),
+            new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), affiliation, role),
             null
         );
     }
