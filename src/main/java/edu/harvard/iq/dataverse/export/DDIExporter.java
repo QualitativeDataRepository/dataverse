@@ -3,15 +3,19 @@ package edu.harvard.iq.dataverse.export;
 
 import com.google.auto.service.AutoService;
 import edu.harvard.iq.dataverse.DatasetVersion;
+import edu.harvard.iq.dataverse.api.Files;
 import edu.harvard.iq.dataverse.export.ddi.DdiExportUtil;
 import io.gdcc.spi.export.ExportDataProvider;
 import io.gdcc.spi.export.ExportException;
 import io.gdcc.spi.export.Exporter;
 import io.gdcc.spi.export.XMLExporter;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.json.JsonUtil;
+
 import java.io.OutputStream;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import javax.json.JsonObject;
 import javax.xml.stream.XMLStreamException;
@@ -31,6 +35,8 @@ public class DDIExporter implements XMLExporter {
     public static String DEFAULT_XML_SCHEMALOCATION = "https://ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd";
     public static String DEFAULT_XML_VERSION = "2.5";
     public static final String PROVIDER_NAME = "ddi";
+    
+    private static final Logger logger = Logger.getLogger(DDIExporter.class.getName());
 
     @Override
     public String getFormatName() {
@@ -49,6 +55,7 @@ public class DDIExporter implements XMLExporter {
             XMLStreamWriter xmlw = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
             xmlw.writeStartDocument();
             xmlw.flush();
+            logger.info(JsonUtil.prettyPrint(dataProvider.getDatasetFileDetails());
             DdiExportUtil.datasetJson2ddi(dataProvider.getDatasetJson(), dataProvider.getDatasetFileDetails(),
                     outputStream);
         } catch (XMLStreamException xse) {
