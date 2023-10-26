@@ -1833,14 +1833,12 @@ public class DdiExportUtil {
 
         // labl
         if ((vm == null || !vm.containsKey("label"))) {
-            xmlw.writeStartElement("labl");
-            writeAttribute(xmlw, "level", "variable");
             if(dvar.containsKey("label")) {
+                xmlw.writeStartElement("labl");
+                writeAttribute(xmlw, "level", "variable");
                 xmlw.writeCharacters(dvar.getString("label"));
-            } else {
-                xmlw.writeCharacters(dvar.getString("name"));
+                xmlw.writeEndElement(); //labl
             }
-            xmlw.writeEndElement(); //labl
         } else if (vm != null && vm.containsKey("label")) {
             xmlw.writeStartElement("labl");
             writeAttribute(xmlw, "level", "variable");
