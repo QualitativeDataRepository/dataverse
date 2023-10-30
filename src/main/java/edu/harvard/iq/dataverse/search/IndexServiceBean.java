@@ -101,7 +101,6 @@ import org.xml.sax.ContentHandler;
 
 @Stateless
 @Named
-@Lock(LockType.READ)
 public class IndexServiceBean {
 
     private static final Logger logger = Logger.getLogger(IndexServiceBean.class.getCanonicalName());
@@ -427,7 +426,7 @@ public class IndexServiceBean {
         }
     }
     
-    
+    @Asynchronous
     public void asyncIndexDatasetList(List<Dataset> datasets, boolean doNormalSolrDocCleanUp) {
         for(Dataset dataset : datasets) {
             asyncIndexDataset(dataset, true);
