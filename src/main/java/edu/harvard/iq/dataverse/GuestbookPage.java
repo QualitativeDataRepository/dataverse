@@ -295,6 +295,7 @@ public class GuestbookPage implements java.io.Serializable {
                 dataverse.getGuestbooks().add(guestbook);
                 cmd = new UpdateDataverseCommand(dataverse, null, null, dvRequestService.getDataverseRequest(), null);                
                 commandEngine.submit(cmd);
+                logger.info("Returned from command");
                 create = true;
             } else {
                 cmd = new UpdateDataverseGuestbookCommand(dataverse, guestbook, dvRequestService.getDataverseRequest());
