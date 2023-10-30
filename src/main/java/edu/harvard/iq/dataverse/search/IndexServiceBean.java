@@ -101,6 +101,7 @@ import org.xml.sax.ContentHandler;
 
 @Stateless
 @Named
+@Lock(LockType.READ)
 public class IndexServiceBean {
 
     private static final Logger logger = Logger.getLogger(IndexServiceBean.class.getCanonicalName());
@@ -410,7 +411,7 @@ public class IndexServiceBean {
      * @param doNormalSolrDocCleanUp Flag for normal Solr doc clean up.
      */
     @Asynchronous
-    @Lock(LockType.READ)
+    
     public void asyncIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) {
         Long id = dataset.getId();
         Dataset next = getNextToIndex(id, dataset); // if there is an ongoing index job for this dataset, next is null (ongoing index job will reindex the newest version after current indexing finishes)
@@ -426,7 +427,7 @@ public class IndexServiceBean {
         }
     }
     
-    @Asynchronous
+    
     public void asyncIndexDatasetList(List<Dataset> datasets, boolean doNormalSolrDocCleanUp) {
         for(Dataset dataset : datasets) {
             asyncIndexDataset(dataset, true);
