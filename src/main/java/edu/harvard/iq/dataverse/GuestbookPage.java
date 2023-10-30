@@ -290,17 +290,14 @@ public class GuestbookPage implements java.io.Serializable {
         try {
             if (editMode == EditMode.CREATE || editMode == EditMode.CLONE ) {
                 guestbook.setCreateTime(new Timestamp(new Date().getTime()));
-                guestbook.setUsageCount(new Long(0));
+                guestbook.setUsageCount(Long.valueOf(0));
                 guestbook.setEnabled(true);
                 dataverse.getGuestbooks().add(guestbook);
-                cmd = new UpdateDataverseCommand(dataverse, null, null, dvRequestService.getDataverseRequest(), null);                
-                commandEngine.submit(cmd);
                 logger.info("Returned from command");
                 create = true;
-            } else {
-                cmd = new UpdateDataverseGuestbookCommand(dataverse, guestbook, dvRequestService.getDataverseRequest());
-                commandEngine.submit(cmd);
-            }
+            } 
+            cmd = new UpdateDataverseGuestbookCommand(dataverse, guestbook, dvRequestService.getDataverseRequest());
+            commandEngine.submit(cmd);
 
         } catch (EJBException ex) {
             StringBuilder error = new StringBuilder();
