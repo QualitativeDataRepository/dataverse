@@ -39,7 +39,7 @@ public class PrivateUrlPage implements Serializable {
         try {
             DataFile file = null;
             if(fileId!= null) {
-                file = dataFileService.find(fileId);
+                file = dataFileService.find(Long.valueOf(fileId));
             } else if(filePid!= null) {
                 file = dataFileService.findByGlobalId(filePid);
             }
