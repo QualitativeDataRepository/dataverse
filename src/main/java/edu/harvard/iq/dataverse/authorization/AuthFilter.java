@@ -76,7 +76,8 @@ public class AuthFilter implements Filter {
             String uaHeader = httpServletRequest.getHeader("user-agent");
             //Nagios uses a user-agent starting with check_http and we don't want to do a passive login check in that case.
             boolean isCheck = (uaHeader != null) && uaHeader.contains("check_http");
-            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")))) {
+            //boolean hasAuthToken = httpServletRequest.getParameter("key") != null) || (httpServletRequest.getParameter("token")!= null)  || httpServletRequest.getHeader('X-Dataverse-key');
+            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.fine("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
                 if ((sso != null) || (httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
