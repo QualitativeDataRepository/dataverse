@@ -36,7 +36,7 @@ public class PrivateUrlServiceBean implements Serializable {
 
     @EJB
     DatasetServiceBean datasetServiceBean;
-    
+
     @EJB
     DataFileServiceBean dataFileServiceBean;
 
@@ -59,12 +59,11 @@ public class PrivateUrlServiceBean implements Serializable {
     }
 
     /**
-     * @param file 
-     * @return PrivateUrlRedirectData if it can be found using the token or
-     * null.
+     * @param file
+     * @return PrivateUrlRedirectData if it can be found using the token or null.
      */
     public PrivateUrlRedirectData getPrivateUrlRedirectDataFromToken(String token, String file) {
-        return PrivateUrlUtil.getPrivateUrlRedirectData(getRoleAssignmentFromPrivateUrlToken(token), dataFileServiceBean.findByGlobalId(file));
+        return PrivateUrlUtil.getPrivateUrlRedirectData(getRoleAssignmentFromPrivateUrlToken(token), (file == null) ? null : dataFileServiceBean.findByGlobalId(file));
     }
 
     /**
@@ -96,7 +95,8 @@ public class PrivateUrlServiceBean implements Serializable {
     }
 
     /**
-     * @param dataset A non-null dataset;
+     * @param dataset
+     *            A non-null dataset;
      * @return A role assignment for a Private URL, if found, or null.
      *
      * @todo This might be a good place for Optional.
