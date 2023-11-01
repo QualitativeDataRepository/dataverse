@@ -11,12 +11,14 @@ import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.DataverseRequestServiceBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.EjbDataverseEngine;
+import edu.harvard.iq.dataverse.FileDownloadServiceBean;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.TermsOfUseAndAccessValidator;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.api.auth.AuthRequired;
 import edu.harvard.iq.dataverse.authorization.users.ApiToken;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.datasetutility.AddReplaceFileHelper;
 import edu.harvard.iq.dataverse.datasetutility.DataFileTagException;
@@ -100,6 +102,8 @@ public class Files extends AbstractApiBean {
     SystemConfig systemConfig;
     @EJB
     SettingsServiceBean settingsService;
+    @EJB
+    FileDownloadServiceBean fileDownloadService;
     @Inject
     MakeDataCountLoggingServiceBean mdcLogService;
     
@@ -799,9 +803,7 @@ public class Files extends AbstractApiBean {
         }
         ApiToken apiToken = null;
         User u = getRequestUser(crc);
-        if (u instanceof AuthenticatedUser) {
-            apiToken = authSvc.findApiTokenByUser((AuthenticatedUser) u);
-        }
+        apiToken = fileDownloadService.getApiToken(u);
         FileMetadata target = fileSvc.findFileMetadata(fmid);
         if (target == null) {
             return error(BAD_REQUEST, "FileMetadata not found.");
