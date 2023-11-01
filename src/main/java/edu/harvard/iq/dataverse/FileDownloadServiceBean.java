@@ -392,6 +392,9 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             PrivateUrl privateUrl = privateUrlService.getPrivateUrlFromDatasetId(privateUrlUser.getDatasetId());
             apiToken = new ApiToken();
             apiToken.setTokenString(privateUrl.getToken());
+            AuthenticatedUser au = new AuthenticatedUser();
+            au.setUserIdentifier(privateUrlUser.getIdentifier());
+            apiToken.setAuthenticatedUser(au);
         }
         return apiToken;
     }
