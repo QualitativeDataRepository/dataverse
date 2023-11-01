@@ -16,6 +16,7 @@ import javax.ws.rs.core.UriInfo;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 import static edu.harvard.iq.dataverse.util.UrlSignerUtil.SIGNED_URL_TOKEN;
 import static edu.harvard.iq.dataverse.util.UrlSignerUtil.SIGNED_URL_USER;
@@ -32,6 +33,9 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
     protected AuthenticationServiceBean authSvc;
     @Inject
     protected PrivateUrlServiceBean privateUrlSvc;
+    
+    private static final Logger logger = Logger.getLogger(SignedUrlAuthMechanism.class.getCanonicalName());
+
 
     @Override
     public User findUserFromRequest(ContainerRequestContext containerRequestContext) throws WrappedAuthErrorResponse {
@@ -65,10 +69,13 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
         targetUser = authSvc.getAuthenticatedUser(userId);
         userApiToken = authSvc.findApiTokenByUser((AuthenticatedUser)targetUser);
         } else if (userId.startsWith(PrivateUrlUser.PREFIX)) {
+            logger.info("User {} is a private URL user: " + userId);
             PrivateUrl privateUrl = privateUrlSvc.getPrivateUrlFromDatasetId(Long.parseLong(userId.substring(PrivateUrlUser.PREFIX.length())));
+            logger.info("Private url: " + privateUrl.getToken());
             userApiToken = new ApiToken();
             userApiToken.setTokenString(privateUrl.getToken());
             targetUser = privateUrlSvc.getPrivateUrlUserFromToken(privateUrl.getToken());
+            logger.info("Private urli user:" + targetUser.getIdentifier());
         }
         if (targetUser != null && userApiToken != null) {
             String signedUrl = URLDecoder.decode(uriInfo.getRequestUri().toString(), StandardCharsets.UTF_8);
