@@ -63,6 +63,7 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
         // we reject the request.
         UriInfo uriInfo = containerRequestContext.getUriInfo();
         String userId = uriInfo.getQueryParameters().getFirst(SIGNED_URL_USER);
+        logger.info("User {} is: " + userId);
         User targetUser = null; 
         ApiToken userApiToken = null;
         if(userId.startsWith(AuthenticatedUser.IDENTIFIER_PREFIX)) {
