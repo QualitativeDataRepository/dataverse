@@ -1,7 +1,11 @@
 package edu.harvard.iq.dataverse.authorization.users;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import edu.harvard.iq.dataverse.authorization.RoleAssigneeDisplayInfo;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+
 
 /**
  * A PrivateUrlUser is virtual in the sense that it does not have a row in the
@@ -12,7 +16,7 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
  */
 public class PrivateUrlUser implements User {
 
-    public static final String PREFIX = "#";
+    public static final String PREFIX = "!";
 
     /**
      * In the future, this could probably be dvObjectId rather than datasetId,

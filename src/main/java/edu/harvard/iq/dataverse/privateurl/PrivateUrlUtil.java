@@ -151,8 +151,11 @@ public class PrivateUrlUtil {
      */
     static String getDraftUrl(DataFile dataFile) {
         if (dataFile != null) {
-            if (dataFile.getGlobalId().isComplete()) {
+            if (dataFile.getGlobalId()!=null && dataFile.getGlobalId().isComplete()) {
                 String relativeUrl = "/file.xhtml?persistentId=" + dataFile.getGlobalId().toString() + "&version=DRAFT";
+                return relativeUrl;
+            } else {
+                String relativeUrl = "/file.xhtml?fileId=" + dataFile.getId() + "&version=DRAFT";
                 return relativeUrl;
             }
         }

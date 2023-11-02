@@ -8,6 +8,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author Guillermo Portas
@@ -17,6 +18,8 @@ import java.util.List;
 public class CompoundAuthMechanism implements AuthMechanism {
 
     private final List<AuthMechanism> authMechanisms = new ArrayList<>();
+
+    private static final Logger logger = Logger.getLogger(CompoundAuthMechanism.class.getCanonicalName());
 
     @Inject
     public CompoundAuthMechanism(ApiKeyAuthMechanism apiKeyAuthMechanism, WorkflowKeyAuthMechanism workflowKeyAuthMechanism, SignedUrlAuthMechanism signedUrlAuthMechanism, SessionCookieAuthMechanism sessionCookieAuthMechanism, BearerTokenAuthMechanism bearerTokenAuthMechanism) {

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SignedUrlAuthMechanismTest {
 
     private static final String TEST_SIGNED_URL_TOKEN = "test-signed-url-token";
-    private static final String TEST_SIGNED_URL_USER_ID = "test-user";
+    private static final String TEST_SIGNED_URL_USER_ID = "@test-user";
 
     private SignedUrlAuthMechanism sut;
 

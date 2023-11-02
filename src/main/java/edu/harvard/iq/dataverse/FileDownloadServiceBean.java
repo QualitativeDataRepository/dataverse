@@ -37,7 +37,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
@@ -389,9 +388,13 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             }
         } else if (user instanceof PrivateUrlUser) {
             PrivateUrlUser privateUrlUser = (PrivateUrlUser) user;
+            
             PrivateUrl privateUrl = privateUrlService.getPrivateUrlFromDatasetId(privateUrlUser.getDatasetId());
             apiToken = new ApiToken();
             apiToken.setTokenString(privateUrl.getToken());
+            AuthenticatedUser au = new AuthenticatedUser();
+            au.setUserIdentifier(privateUrlUser.getIdentifier());
+            apiToken.setAuthenticatedUser(au);
         }
         return apiToken;
     }
