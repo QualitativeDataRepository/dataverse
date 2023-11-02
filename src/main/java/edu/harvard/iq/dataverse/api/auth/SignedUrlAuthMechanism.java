@@ -40,6 +40,7 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
     @Override
     public User findUserFromRequest(ContainerRequestContext containerRequestContext) throws WrappedAuthErrorResponse {
         String signedUrlRequestParameter = getSignedUrlRequestParameter(containerRequestContext);
+        logger.info("param: " + signedUrlRequestParameter);
         if (signedUrlRequestParameter == null) {
             return null;
         }
@@ -51,6 +52,8 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
     }
 
     private String getSignedUrlRequestParameter(ContainerRequestContext containerRequestContext) {
+        logger.info("url: " + containerRequestContext.getUriInfo().getRequestUri());
+
         return containerRequestContext.getUriInfo().getQueryParameters().getFirst(SIGNED_URL_TOKEN);
     }
 
