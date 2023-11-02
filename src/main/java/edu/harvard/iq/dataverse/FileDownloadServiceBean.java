@@ -23,8 +23,6 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +37,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
@@ -398,7 +395,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             apiToken = new ApiToken();
             apiToken.setTokenString(privateUrl.getToken());
             AuthenticatedUser au = new AuthenticatedUser();
-            au.setUserIdentifier(URLEncoder.encode(privateUrlUser.getIdentifier(),StandardCharsets.UTF_8));
+            au.setUserIdentifier(privateUrlUser.getIdentifier());
             apiToken.setAuthenticatedUser(au);
             logger.info("PU Token: " + apiToken.getTokenString());
             logger.info("PU User: " + apiToken.getAuthenticatedUser().getUserIdentifier());
