@@ -293,7 +293,6 @@ public class GuestbookPage implements java.io.Serializable {
                 guestbook.setUsageCount(Long.valueOf(0));
                 guestbook.setEnabled(true);
                 dataverse.getGuestbooks().add(guestbook);
-                logger.info("Returned from command");
                 create = true;
             } 
             cmd = new UpdateDataverseGuestbookCommand(dataverse, guestbook, dvRequestService.getDataverseRequest());

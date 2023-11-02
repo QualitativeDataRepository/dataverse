@@ -380,7 +380,6 @@ public class FileDownloadServiceBean implements java.io.Serializable {
     public ApiToken getApiToken(User user) {
         ApiToken apiToken = null;
         if (user instanceof AuthenticatedUser) {
-            logger.info("Auth User: " + user.getIdentifier());
             AuthenticatedUser authenticatedUser = (AuthenticatedUser) user;
             apiToken = authService.findApiTokenByUser(authenticatedUser);
             if (apiToken == null || apiToken.isExpired()) {
@@ -389,7 +388,6 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             }
         } else if (user instanceof PrivateUrlUser) {
             PrivateUrlUser privateUrlUser = (PrivateUrlUser) user;
-            logger.info("PU User: " + privateUrlUser.getIdentifier());
             
             PrivateUrl privateUrl = privateUrlService.getPrivateUrlFromDatasetId(privateUrlUser.getDatasetId());
             apiToken = new ApiToken();
@@ -397,8 +395,6 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             AuthenticatedUser au = new AuthenticatedUser();
             au.setUserIdentifier(privateUrlUser.getIdentifier());
             apiToken.setAuthenticatedUser(au);
-            logger.info("PU Token: " + apiToken.getTokenString());
-            logger.info("PU User: " + apiToken.getAuthenticatedUser().getUserIdentifier());
         }
         return apiToken;
     }

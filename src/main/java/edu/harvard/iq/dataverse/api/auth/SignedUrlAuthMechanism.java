@@ -40,7 +40,6 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
     @Override
     public User findUserFromRequest(ContainerRequestContext containerRequestContext) throws WrappedAuthErrorResponse {
         String signedUrlRequestParameter = getSignedUrlRequestParameter(containerRequestContext);
-        logger.info("param: " + signedUrlRequestParameter);
         if (signedUrlRequestParameter == null) {
             return null;
         }
@@ -52,8 +51,6 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
     }
 
     private String getSignedUrlRequestParameter(ContainerRequestContext containerRequestContext) {
-        logger.info("url: " + containerRequestContext.getUriInfo().getRequestUri());
-
         return containerRequestContext.getUriInfo().getQueryParameters().getFirst(SIGNED_URL_TOKEN);
     }
 
@@ -66,20 +63,16 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
         // we reject the request.
         UriInfo uriInfo = containerRequestContext.getUriInfo();
         String userId = uriInfo.getQueryParameters().getFirst(SIGNED_URL_USER);
-        logger.info("User {} is: " + userId);
         User targetUser = null; 
         ApiToken userApiToken = null;
         if(userId.startsWith(AuthenticatedUser.IDENTIFIER_PREFIX)) {
         targetUser = authSvc.getAuthenticatedUser(userId);
         userApiToken = authSvc.findApiTokenByUser((AuthenticatedUser)targetUser);
         } else if (userId.startsWith(PrivateUrlUser.PREFIX)) {
-            logger.info("User {} is a private URL user: " + userId);
             PrivateUrl privateUrl = privateUrlSvc.getPrivateUrlFromDatasetId(Long.parseLong(userId.substring(PrivateUrlUser.PREFIX.length())));
-            logger.info("Private url: " + privateUrl.getToken());
             userApiToken = new ApiToken();
             userApiToken.setTokenString(privateUrl.getToken());
             targetUser = privateUrlSvc.getPrivateUrlUserFromToken(privateUrl.getToken());
-            logger.info("Private url user:" + targetUser.getIdentifier());
         }
         if (targetUser != null && userApiToken != null) {
             String signedUrl = URLDecoder.decode(uriInfo.getRequestUri().toString(), StandardCharsets.UTF_8);

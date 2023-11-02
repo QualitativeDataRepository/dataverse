@@ -104,7 +104,7 @@ public class UpdateDataverseCommand extends AbstractCommand<Dataverse> {
                 }
             }
             
-            logger.info("Finished update dataverse command");
+            
             return result;
 	}
         
@@ -115,9 +115,8 @@ public class UpdateDataverseCommand extends AbstractCommand<Dataverse> {
         // TODO: is this actually needed? Is there a better way to handle
         Dataverse result = (Dataverse) r;
         List<Dataset> datasets = ctxt.datasets().findByOwnerId(result.getId());
-        logger.info("Async dataset indexing starting for " + datasets.size() + " datasets");
         ctxt.index().asyncIndexDatasetList(datasets, true);
-        logger.info("Dataverse indexing starting");
+        
         return ctxt.dataverses().index((Dataverse) r);
     }  
 

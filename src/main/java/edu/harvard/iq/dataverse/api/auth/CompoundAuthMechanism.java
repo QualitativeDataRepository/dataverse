@@ -39,11 +39,9 @@ public class CompoundAuthMechanism implements AuthMechanism {
     public User findUserFromRequest(ContainerRequestContext containerRequestContext) throws WrappedAuthErrorResponse {
         User user = null;
         for (AuthMechanism authMechanism : authMechanisms) {
-            logger.info("Using auth mechanism: " + authMechanism.getClass().getName());
             User userFromRequest = authMechanism.findUserFromRequest(containerRequestContext);
             if (userFromRequest != null) {
                 user = userFromRequest;
-                logger.info("Found user from auth mechanism: " + user.getIdentifier());
                 break;
             }
         }
