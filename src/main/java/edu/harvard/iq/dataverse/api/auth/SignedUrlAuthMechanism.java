@@ -72,9 +72,9 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
         if(userId.startsWith(AuthenticatedUser.IDENTIFIER_PREFIX)) {
         targetUser = authSvc.getAuthenticatedUser(userId);
         userApiToken = authSvc.findApiTokenByUser((AuthenticatedUser)targetUser);
-        } else if (userId.startsWith(PrivateUrlUser.ENCODED_PREFIX)) {
+        } else if (userId.startsWith(PrivateUrlUser.PREFIX)) {
             logger.info("User {} is a private URL user: " + userId);
-            PrivateUrl privateUrl = privateUrlSvc.getPrivateUrlFromDatasetId(Long.parseLong(userId.substring(PrivateUrlUser.ENCODED_PREFIX.length())));
+            PrivateUrl privateUrl = privateUrlSvc.getPrivateUrlFromDatasetId(Long.parseLong(userId.substring(PrivateUrlUser.PREFIX.length())));
             logger.info("Private url: " + privateUrl.getToken());
             userApiToken = new ApiToken();
             userApiToken.setTokenString(privateUrl.getToken());
