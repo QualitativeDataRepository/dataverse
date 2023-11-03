@@ -6239,7 +6239,7 @@ public class DatasetPage implements java.io.Serializable {
         String localeCode = session.getLocaleCode();
         User user = session.getUser();
         if (user instanceof AuthenticatedUser) {
-            ApiToken apiToken = authService.getValidApiTokenForUser((AuthenticatedUser) user);
+            ApiToken apiToken = authService.getValidApiTokenForAuthenticatedUser((AuthenticatedUser) user);
             return WebloaderUtil.getWebloaderUrl(d, apiToken, localeCode,
                     settingsService.getValueForKey(SettingsServiceBean.Key.WebloaderUrl));
         } else {
