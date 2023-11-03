@@ -345,7 +345,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         User user = session.getUser();
         DatasetVersion version = fmd.getDatasetVersion();
         if (version.isDraft() || fmd.getDatasetVersion().isDeaccessioned() || (fmd.getDataFile().isRestricted()) || (FileUtil.isActivelyEmbargoed(fmd))) {
-            apiToken = authService.getApiTokenForUser(user);
+            apiToken = authService.getValidApiTokenForUser(user);
         }
         DataFile dataFile = null;
         if (fmd != null) {
