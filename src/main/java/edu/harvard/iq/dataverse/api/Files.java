@@ -803,7 +803,7 @@ public class Files extends AbstractApiBean {
         }
         ApiToken apiToken = null;
         User u = getRequestUser(crc);
-        apiToken = fileDownloadService.getApiToken(u);
+        apiToken = authService.getApiTokenForUser(user);
         FileMetadata target = fileSvc.findFileMetadata(fmid);
         if (target == null) {
             return error(BAD_REQUEST, "FileMetadata not found.");

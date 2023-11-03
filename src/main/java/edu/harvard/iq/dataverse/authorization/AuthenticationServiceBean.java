@@ -28,11 +28,15 @@ import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationP
 import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProviderFactory;
 import edu.harvard.iq.dataverse.authorization.users.ApiToken;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
+import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailData;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeAllRolesCommand;
 import edu.harvard.iq.dataverse.passwordreset.PasswordResetData;
 import edu.harvard.iq.dataverse.passwordreset.PasswordResetServiceBean;
+import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
+import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.search.savedsearch.SavedSearchServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
@@ -127,6 +131,9 @@ public class AuthenticationServiceBean {
     @EJB
     SavedSearchServiceBean savedSearchService;
 
+    @EJB
+    PrivateUrlServiceBean privateUrlService;
+ 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
         
@@ -944,14 +951,31 @@ public class AuthenticationServiceBean {
         return query.getResultList();
     }
 
-    public ApiToken getValidApiTokenForUser(AuthenticatedUser user) {
+    public ApiToken getValidApiTokenForAuthenticatedUser(AuthenticatedUser user) {
         ApiToken apiToken = null;
         apiToken = findApiTokenByUser(user);
-        if ((apiToken == null) || (apiToken.getExpireTime().before(new Date()))) {
+        if ((apiToken == null) || apiToken.isExpired()) {
             logger.fine("Created apiToken for user: " + user.getIdentifier());
             apiToken = generateApiTokenForUser(user);
         }
         return apiToken;
     }
 
+    //Gets a token for an AuthenticatedUser or a PrivateUrlUser
+    public ApiToken getApiTokenForUser(User user) {
+        ApiToken apiToken = null;
+        if (user instanceof AuthenticatedUser) {
+            apiToken = getValidApiTokenForAuthenticatedUser((AuthenticatedUser) user);
+        } else if (user instanceof PrivateUrlUser) {
+            PrivateUrlUser privateUrlUser = (PrivateUrlUser) user;
+            
+            PrivateUrl privateUrl = privateUrlService.getPrivateUrlFromDatasetId(privateUrlUser.getDatasetId());
+            apiToken = new ApiToken();
+            apiToken.setTokenString(privateUrl.getToken());
+            AuthenticatedUser au = new AuthenticatedUser();
+            au.setUserIdentifier(privateUrlUser.getIdentifier());
+            apiToken.setAuthenticatedUser(au);
+        }
+        return apiToken;
+    }
 }
