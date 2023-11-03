@@ -951,6 +951,13 @@ public class AuthenticationServiceBean {
         return query.getResultList();
     }
 
+    /**
+     * This method gets a valid api token for an AuthenticatedUser, creating a new
+     * token if one doesn't exist or if the token is expired.
+     * 
+     * @param user
+     * @return
+     */
     public ApiToken getValidApiTokenForAuthenticatedUser(AuthenticatedUser user) {
         ApiToken apiToken = null;
         apiToken = findApiTokenByUser(user);
@@ -961,8 +968,15 @@ public class AuthenticationServiceBean {
         return apiToken;
     }
 
-    //Gets a token for an AuthenticatedUser or a PrivateUrlUser
-    public ApiToken getApiTokenForUser(User user) {
+    /**
+     *  Gets a token for an AuthenticatedUser or a PrivateUrlUser. It will create a
+     *  new token if needed for an AuthenticatedUser. Note that, for a PrivateUrlUser, this method creates a token
+     *  with a temporary AuthenticateUser that only has a userIdentifier - needed in generating signed Urls.
+     * @param user
+     * @return a token or null (i.e. if the user is not an AuthenticatedUser or PrivateUrlUser)
+     */
+
+    public ApiToken getValidApiTokenForUser(User user) {
         ApiToken apiToken = null;
         if (user instanceof AuthenticatedUser) {
             apiToken = getValidApiTokenForAuthenticatedUser((AuthenticatedUser) user);

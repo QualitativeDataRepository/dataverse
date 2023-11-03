@@ -1311,7 +1311,7 @@ public class FilePage implements java.io.Serializable {
         ApiToken apiToken = null;
         User user = session.getUser();
         if (fileMetadata.getDatasetVersion().isDraft() || fileMetadata.getDatasetVersion().isDeaccessioned() || (fileMetadata.getDataFile().isRestricted()) || (FileUtil.isActivelyEmbargoed(fileMetadata))) {
-            apiToken=authService.getApiTokenForUser(user);
+            apiToken=authService.getValidApiTokenForUser(user);
         }
         if(externalTool == null){
             return "";
