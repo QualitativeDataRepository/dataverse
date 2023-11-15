@@ -1674,14 +1674,15 @@ public class EditDatafilesPage implements java.io.Serializable {
                     // Send it through the ingest service
                     // -----------------------------------------------------------
                     try {
-
-                        // Note: In general, a single uploaded file may produce multiple datafiles - 
+                        // Note: A single uploaded file may produce multiple datafiles - 
                         // for example, multiple files can be extracted from an uncompressed
-                        // zip file. In this case, we should have 1 file returned
-                        CreateDataFileResult createDataFilesResult = FileUtil.createDataFiles(workingVersion, hypothesisStream, FileUtil.HYPOTHESIS_ANNOTATIONS_FILENAME, FileUtil.MIME_TYPE_HYPOTHESIS_ANNOTATIONS, null, null, systemConfig);
+                        // zip file.
+                        Command<CreateDataFileResult> cmd = new CreateNewDataFilesCommand(dvRequestService.getDataverseRequest(), workingVersion, hypothesisStream, FileUtil.HYPOTHESIS_ANNOTATIONS_FILENAME, FileUtil.MIME_TYPE_HYPOTHESIS_ANNOTATIONS, null, userStorageQuota, null);
+                        CreateDataFileResult createDataFilesResult = commandEngine.submit(cmd);
                         datafiles = createDataFilesResult.getDataFiles();
                         Optional.ofNullable(editDataFilesPageHelper.getHtmlErrorMessage(createDataFilesResult)).ifPresent(errorMessage -> errorMessages.add(errorMessage));
-                    } catch (IOException ex) {
+
+                    } catch (CommandException ex) {
                         logger.log(Level.SEVERE, "Error during ingest of Hypothesis for group {0} and uri {1}", new Object[]{hypothesisGroupSelection, hypothesisUrlSelection});
                         logger.log(Level.SEVERE, ex.getMessage());
                     }
