@@ -2,7 +2,7 @@
 	citation		Citation Metadata	https://dataverse.org/schema/citation/												
 #datasetField	name	title	description	watermark	 fieldType	displayOrder	displayFormat	advancedSearchField	allowControlledVocabulary	allowmultiples	facetable	displayoncreate	required	parent	metadatablock_id	termURI
 	title	Title	The main title of the Data Project		text	0		TRUE	FALSE	FALSE	FALSE	TRUE	TRUE		citation	http://purl.org/dc/terms/title
-	alternativeTitle	Alternative Title	Either 1) a title commonly used to refer to the Data Project or 2) an abbreviation of the main title		text	1		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		citation	http://purl.org/dc/terms/alternative
+	alternativeTitle	Alternative Title	Either 1) a title commonly used to refer to the Data Project or 2) an abbreviation of the main title		text	1		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		citation	http://purl.org/dc/terms/alternative
 	alternativeURL	Alternative URL	Another URL where one can view or access the data in the Data Project, e.g. a project or personal webpage	https://	url	2	<a href="#VALUE" target="_blank">#VALUE</a>	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		citation	https://schema.org/distribution
 	otherId	QDRID	The QDR ID assigned to the project		none	3	:	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		citation	
 	otherIdAgency	QDRID	The name of the agency that generated the other identifier	provided by QDR	text	4		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	otherId	citation	

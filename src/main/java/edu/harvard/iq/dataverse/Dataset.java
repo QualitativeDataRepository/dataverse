@@ -19,22 +19,22 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.NamedStoredProcedureQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.ParameterMode;
-import javax.persistence.StoredProcedureParameter;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.NamedStoredProcedureQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.StringUtil;
@@ -162,6 +162,23 @@ public class Dataset extends DvObjectContainer {
         this.citationDateDatasetFieldType = citationDateDatasetFieldType;
     }    
 
+    // Per DataCite best practices, the citation date of a dataset may need 
+    // to be adjusted to reflect the latest embargo availability date of any 
+    // file within the first published version. 
+    // If any files are embargoed in the first version, this date will be
+    // calculated and cached here upon its publication, in the 
+    // FinalizeDatasetPublicationCommand. 
+    private Timestamp embargoCitationDate;
+    
+    public Timestamp getEmbargoCitationDate() {
+        return embargoCitationDate;
+    }
+
+    public void setEmbargoCitationDate(Timestamp embargoCitationDate) {
+        this.embargoCitationDate = embargoCitationDate;
+    }
+    
+    
     
     @ManyToOne
     @JoinColumn(name="template_id",nullable = true)
@@ -267,8 +284,8 @@ public class Dataset extends DvObjectContainer {
 
     public String getPersistentURL() {
         GlobalId gid = this.getGlobalId();
-        if(gid != null && gid.asURL()!=null) {
-            return gid.asURL().toString();
+        if(gid != null) {
+            return gid.asURL();
         } else {
             logger.warning("Dataset " + this.getId() + "doesn't have a valid PID");
             return "Unavailable!";
@@ -695,20 +712,10 @@ public class Dataset extends DvObjectContainer {
         Timestamp citationDate = null;
         //Only calculate if this dataset doesn't use an alternate date field for publication date
         if (citationDateDatasetFieldType == null) {
-            List<DatasetVersion> versions = this.versions;
-            // TODo - is this ever not version 1.0 (or draft if not published yet)
-            DatasetVersion oldest = versions.get(versions.size() - 1);
             citationDate = super.getPublicationDate();
-            if (oldest.isPublished()) {
-                List<FileMetadata> fms = oldest.getFileMetadatas();
-                for (FileMetadata fm : fms) {
-                    Embargo embargo = fm.getDataFile().getEmbargo();
-                    if (embargo != null) {
-                        Timestamp embDate = Timestamp.valueOf(embargo.getDateAvailable().atStartOfDay());
-                        if (citationDate.compareTo(embDate) < 0) {
-                            citationDate = embDate;
-                        }
-                    }
+            if (embargoCitationDate != null) {
+                if (citationDate.compareTo(embargoCitationDate) < 0) {
+                    return embargoCitationDate;
                 }
             }
         }

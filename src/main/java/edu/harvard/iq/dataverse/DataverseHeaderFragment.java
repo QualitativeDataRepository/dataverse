@@ -20,12 +20,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -241,7 +241,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
         // .getExternalContext().getSession(false) will return null at this point!
         // so it is important to redirect the user to the next page, where a new 
         // session is going to be issued to them. 
-        
+        //Not a useful default but will avoid a 500 error if the setting isn't set
         String safeDefaultIfKeyNotFound = "https://idp.dev-aws.qdr.org/idp/profile/Logout";
         String ssoLogoutUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SSOLogoutUrl, safeDefaultIfKeyNotFound);
         externalContext.redirect(ssoLogoutUrl);
