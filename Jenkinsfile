@@ -30,7 +30,7 @@ node {
       try {
         withMaven(
           //jdk: 'jdk17',
-          maven: 'mvn-3-6-3') {
+          maven: 'mvn-3-5-0') {
             sh "mvn test"
           }
       }
@@ -49,7 +49,7 @@ node {
       try {
         withMaven(
           //jdk: 'jdk17',
-          maven: 'mvn-3-6-3') {
+          maven: 'mvn-3-5-0') {
             sh "mvn clean package -DskipTests"
         }
       }
