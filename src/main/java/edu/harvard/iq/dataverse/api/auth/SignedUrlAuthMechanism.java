@@ -16,7 +16,6 @@ import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
 
 import static edu.harvard.iq.dataverse.util.UrlSignerUtil.SIGNED_URL_TOKEN;
 import static edu.harvard.iq.dataverse.util.UrlSignerUtil.SIGNED_URL_USER;
@@ -34,9 +33,6 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
     @Inject
     protected PrivateUrlServiceBean privateUrlSvc;
     
-    private static final Logger logger = Logger.getLogger(SignedUrlAuthMechanism.class.getCanonicalName());
-
-
     @Override
     public User findUserFromRequest(ContainerRequestContext containerRequestContext) throws WrappedAuthErrorResponse {
         String signedUrlRequestParameter = getSignedUrlRequestParameter(containerRequestContext);
@@ -65,9 +61,9 @@ public class SignedUrlAuthMechanism implements AuthMechanism {
         String userId = uriInfo.getQueryParameters().getFirst(SIGNED_URL_USER);
         User targetUser = null; 
         ApiToken userApiToken = null;
-        if(!userId.startsWith(PrivateUrlUser.PREFIX)) {
-        targetUser = authSvc.getAuthenticatedUser(userId);
-        userApiToken = authSvc.findApiTokenByUser((AuthenticatedUser)targetUser);
+        if (!userId.startsWith(PrivateUrlUser.PREFIX)) {
+            targetUser = authSvc.getAuthenticatedUser(userId);
+            userApiToken = authSvc.findApiTokenByUser((AuthenticatedUser) targetUser);
         } else {
             PrivateUrl privateUrl = privateUrlSvc.getPrivateUrlFromDatasetId(Long.parseLong(userId.substring(PrivateUrlUser.PREFIX.length())));
             userApiToken = new ApiToken();

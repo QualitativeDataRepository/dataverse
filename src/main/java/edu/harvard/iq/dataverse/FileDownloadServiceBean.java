@@ -69,7 +69,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
     UserNotificationServiceBean userNotificationService;
     @EJB
     AuthenticationServiceBean authService;
-   @EJB
+    @EJB
     SettingsServiceBean settingsService;
     @EJB
     MailServiceBean mailService;

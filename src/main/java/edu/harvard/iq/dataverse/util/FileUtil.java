@@ -1465,35 +1465,24 @@ public class FileUtil implements java.io.Serializable  {
         }
 
         StorageIO<DataFile> storage = dataFile.getStorageIO();
-        InputStream in = null;
-        
-        try {
-            storage.open(DataAccessOption.READ_ACCESS);
-            
-            if (!dataFile.isTabularData()) {
-                in = storage.getInputStream();
-            } else {
-                // if this is a tabular file, read the preserved original "auxiliary file"
-                // instead:
-                in = storage.getAuxFileAsInputStream(FileUtil.SAVED_ORIGINAL_FILENAME_EXTENSION);
-            }
-        } catch (IOException ioex) {
-            in = null;
-        }
+        String recalculatedChecksum = null;
 
-        if (in == null) {
+        try (InputStream inputStream = getOriginalFileInputStream(storage, dataFile.isTabularData())) {
+            recalculatedChecksum = FileUtil.calculateChecksum(inputStream, checksumType);
+        } catch (IOException ioex) {
             String info = BundleUtil.getStringFromBundle("dataset.publish.file.validation.error.failRead", Arrays.asList(dataFile.getId().toString()));
             logger.log(Level.INFO, info);
             throw new IOException(info);
+        } catch (RuntimeException rte) {
+            logger.log(Level.SEVERE, "failed to calculated checksum, one retry", rte);
+            recalculatedChecksum = null;
         }
 
-        String recalculatedChecksum = null;
-        try {
-            recalculatedChecksum = FileUtil.calculateChecksum(in, checksumType);
-        } catch (RuntimeException rte) {
-            recalculatedChecksum = null;
-        } finally {
-            IOUtils.closeQuietly(in);
+        if (recalculatedChecksum == null) { //retry once
+            storage = dataFile.getStorageIO();
+            try (InputStream inputStream = getOriginalFileInputStream(storage, dataFile.isTabularData())) {
+                recalculatedChecksum = FileUtil.calculateChecksum(inputStream, checksumType);
+            }
         }
 
         if (recalculatedChecksum == null) {
@@ -1511,19 +1500,12 @@ public class FileUtil implements java.io.Serializable  {
             boolean fixed = false;
             if (!dataFile.isTabularData() && dataFile.getIngestReport() != null) {
                 // try again, see if the .orig file happens to be there:
-                try {
-                    in = storage.getAuxFileAsInputStream(FileUtil.SAVED_ORIGINAL_FILENAME_EXTENSION);
-                } catch (IOException ioex) {
-                    in = null;
+                try (InputStream in = storage.getAuxFileAsInputStream(FileUtil.SAVED_ORIGINAL_FILENAME_EXTENSION)) {
+                    recalculatedChecksum = FileUtil.calculateChecksum(in, checksumType);
+                } catch (RuntimeException rte) {
+                    recalculatedChecksum = null;
                 }
-                if (in != null) {
-                    try {
-                        recalculatedChecksum = FileUtil.calculateChecksum(in, checksumType);
-                    } catch (RuntimeException rte) {
-                        recalculatedChecksum = null;
-                    } finally {
-                        IOUtils.closeQuietly(in);
-                    }
+                if (recalculatedChecksum != null) {
                     // try again: 
                     if (recalculatedChecksum.equals(dataFile.getChecksumValue())) {
                         fixed = true;
