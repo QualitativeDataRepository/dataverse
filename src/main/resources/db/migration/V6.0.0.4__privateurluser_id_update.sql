@@ -1,1 +1,0 @@
- update roleassignment set assigneeidentifier=replace(assigneeidentifier, '#','!') where assigneeidentifier like '#%';
