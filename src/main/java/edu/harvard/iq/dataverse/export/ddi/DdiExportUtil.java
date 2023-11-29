@@ -60,9 +60,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public class DdiExportUtil {
 
@@ -190,7 +188,10 @@ public class DdiExportUtil {
        
         writeFullElement(xmlw, "titl", dto2Primitive(version, DatasetFieldConstant.title), datasetDto.getMetadataLanguage());
         writeFullElement(xmlw, "subTitl", dto2Primitive(version, DatasetFieldConstant.subTitle));
-        writeFullElement(xmlw, "altTitl", dto2Primitive(version, DatasetFieldConstant.alternativeTitle));
+        FieldDTO altField = dto2FieldDTO( version, DatasetFieldConstant.alternativeTitle, "citation"  );
+        if (altField != null) {
+            writeMultipleElement(xmlw, "altTitl", altField, datasetDto.getMetadataLanguage());
+        }
         
         xmlw.writeStartElement("IDNo");
         writeAttribute(xmlw, "agency", persistentAgency);

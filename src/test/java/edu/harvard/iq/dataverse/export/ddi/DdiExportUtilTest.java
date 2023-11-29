@@ -78,7 +78,6 @@ public class DdiExportUtilTest {
         logger.fine(XmlPrinter.prettyPrintXml(result));
         
         // then
-        
         XmlAssert.assertThat(result).and(datasetAsDdi).ignoreWhitespace().areSimilar();
     }
 
