@@ -131,6 +131,7 @@ class OAuth2LoginBackingBeanTest {
         
         @Test
         void noCode() {
+            when(requestMock.getParameter("error")).thenReturn(null);
             assertDoesNotThrow(() -> loginBackingBean.exchangeCodeForToken());
             assertThat(loginBackingBean.getError(), Matchers.isA(OAuth2Exception.class));
         }
@@ -144,6 +145,7 @@ class OAuth2LoginBackingBeanTest {
             
             // fake the code received from the provider
             when(requestMock.getParameter("code")).thenReturn(code);
+            when(requestMock.getParameter("error")).thenReturn(null);
             // let's deep-fake the result of getUserRecord()
             doReturn(userRecord).when(testIdp).getUserRecord(code, state, null);
     
@@ -173,6 +175,7 @@ class OAuth2LoginBackingBeanTest {
         
             // fake the code received from the provider
             when(requestMock.getParameter("code")).thenReturn(code);
+            when(requestMock.getParameter("error")).thenReturn(null);
             // let's deep-fake the result of getUserRecord()
             doReturn(userRecord).when(testIdp).getUserRecord(code, state, null);
             doReturn(tokenData).when(userRecord).getTokenData();
