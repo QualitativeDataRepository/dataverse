@@ -41,7 +41,6 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -54,7 +53,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -62,21 +60,19 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.ejb.AsyncResult;
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.EJBException;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import static javax.ejb.TransactionAttributeType.REQUIRES_NEW;
-import javax.inject.Named;
-import javax.json.JsonObject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.ejb.AsyncResult;
+import jakarta.ejb.Asynchronous;
+import jakarta.ejb.EJB;
+import jakarta.ejb.EJBException;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import static jakarta.ejb.TransactionAttributeType.REQUIRES_NEW;
+import jakarta.inject.Named;
+import jakarta.json.JsonObject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -410,7 +406,6 @@ public class IndexServiceBean {
      * @param doNormalSolrDocCleanUp Flag for normal Solr doc clean up.
      */
     @Asynchronous
-    
     public void asyncIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) {
         Long id = dataset.getId();
         Dataset next = getNextToIndex(id, dataset); // if there is an ongoing index job for this dataset, next is null (ongoing index job will reindex the newest version after current indexing finishes)

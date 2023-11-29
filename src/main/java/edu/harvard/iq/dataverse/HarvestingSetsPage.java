@@ -6,11 +6,6 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.impl.CreateHarvestingClientCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateHarvestingClientCommand;
-import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
-import edu.harvard.iq.dataverse.harvest.client.HarvestingClientServiceBean;
 import edu.harvard.iq.dataverse.harvest.server.OAIRecord;
 import edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean;
 import edu.harvard.iq.dataverse.harvest.server.OAISet;
@@ -27,16 +22,16 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.ejb.EJB;
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -129,12 +124,12 @@ public class HarvestingSetsPage implements java.io.Serializable {
         // QDRCustom
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();        
         if (!isSessionUserAuthenticated()) {
-            // Redirect user to Shibboleth login page
+            // Redirect user to QDR SSO login page
             try {
                 context.redirect(navigationWrapper.getSSOLoginPath());
                 return "";
             } catch (IOException ex) {
-                logger.info("Unable to redirect user to Shibboleth login page");
+                logger.info("Unable to redirect user to QDR SSO login page");
                 return "";
             }
         } else if (!isSuperUser()) {

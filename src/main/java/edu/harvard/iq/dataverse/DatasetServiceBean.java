@@ -1,5 +1,22 @@
 package edu.harvard.iq.dataverse;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.commons.lang3.StringUtils;
+
 import edu.harvard.iq.dataverse.DatasetVersion.VersionState;
 import edu.harvard.iq.dataverse.api.util.FailedPIDResolutionLoggingServiceBean;
 import edu.harvard.iq.dataverse.api.util.FailedPIDResolutionLoggingServiceBean.FailedPIDResolutionEntry;
@@ -26,33 +43,22 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
-
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.EJBException;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.StoredProcedureQuery;
-import javax.persistence.TypedQuery;
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.ocpsoft.common.util.Strings;
+import jakarta.ejb.Asynchronous;
+import jakarta.ejb.EJB;
+import jakarta.ejb.EJBException;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 /**
  *
@@ -128,7 +134,7 @@ public class DatasetServiceBean implements java.io.Serializable {
     public Dataset findDeep(Object pk) {
         return (Dataset) em.createNamedQuery("Dataset.findById")
             .setParameter("id", pk)
-            // Optimization hints: retrieve all data in one query; this prevents point queries when iterating over the files 
+            // Optimization hints: retrieve all data in one query; this prevents point queries when iterating over the files
             .setHint("eclipselink.left-join-fetch", "o.files.ingestRequest")
             .setHint("eclipselink.left-join-fetch", "o.files.thumbnailForDataset")
             .setHint("eclipselink.left-join-fetch", "o.files.dataTables")
@@ -334,7 +340,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             if (retVal == null) {
                 try {
 
-                    HttpServletRequest httpRequest = ((javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest());
+                    HttpServletRequest httpRequest = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest());
                     FailedPIDResolutionLoggingServiceBean.FailedPIDResolutionEntry entry = new FailedPIDResolutionEntry(globalId, httpRequest.getRequestURI(), httpRequest.getMethod(), new DataverseRequest(null, httpRequest).getSourceAddress());
                     fprLogService.logEntry(entry);
                 } catch (NullPointerException npe) {
@@ -351,7 +357,7 @@ public class DatasetServiceBean implements java.io.Serializable {
      * in the dataset components, a ConstraintViolationException will be thrown,
      * which can be further parsed to detect the specific offending values.
      * @param id the id of the dataset
-     * @throws javax.validation.ConstraintViolationException
+     * @throws ConstraintViolationException
      */
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -419,7 +425,7 @@ public class DatasetServiceBean implements java.io.Serializable {
         query.setParameter("userId", au.getId());
         try {
             return query.getSingleResult();
-        } catch (javax.persistence.NoResultException e) {
+        } catch (NoResultException e) {
             return null;
         }
     }
@@ -534,7 +540,7 @@ public class DatasetServiceBean implements java.io.Serializable {
         }
         try {
             return query.getResultList();
-        } catch (javax.persistence.NoResultException e) {
+        } catch (NoResultException e) {
             return null;
         }
     }
@@ -615,7 +621,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             return null;
         }
 
-        String datasetIdStr = Strings.join(datasetIds, ", ");
+        String datasetIdStr = StringUtils.join(datasetIds, ", ");
 
         String qstr = "SELECT d.id, h.archiveDescription FROM harvestingClient h, dataset d WHERE d.harvestingClient_id = h.id AND d.id IN (" + datasetIdStr + ")";
         List<Object[]> searchResults;
@@ -791,11 +797,11 @@ public class DatasetServiceBean implements java.io.Serializable {
 
     public void exportDataset(Dataset dataset, boolean forceReExport) {
         if (dataset != null) {
-            // Note that the logic for handling a dataset is similar to what is implemented in exportAllDatasets, 
+            // Note that the logic for handling a dataset is similar to what is implemented in exportAllDatasets,
             // but when only one dataset is exported we do not log in a separate export logging file
             if (dataset.isReleased() && dataset.getReleasedVersion() != null && !dataset.isDeaccessioned()) {
 
-                // can't trust dataset.getPublicationDate(), no. 
+                // can't trust dataset.getPublicationDate(), no.
                 Date publicationDate = dataset.getReleasedVersion().getReleaseTime(); // we know this dataset has a non-null released version! Maybe not - SEK 8/19 (We do now! :)
                 if (forceReExport || (publicationDate != null
                         && (dataset.getLastExportTime() == null
@@ -809,13 +815,13 @@ public class DatasetServiceBean implements java.io.Serializable {
                 }
             }
         }
-        
+
     }
 
     //get a string to add to save success message
     //depends on page (dataset/file) and user privleges
     public String getReminderString(Dataset dataset, boolean canPublishDataset, boolean filePage, boolean isValid) {
-       
+
         String reminderString;
 
         if (canPublishDataset) {

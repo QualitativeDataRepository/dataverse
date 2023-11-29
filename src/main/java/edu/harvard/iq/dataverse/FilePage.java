@@ -33,8 +33,6 @@ import edu.harvard.iq.dataverse.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.makedatacount.MakeDataCountLoggingServiceBean;
 import edu.harvard.iq.dataverse.makedatacount.MakeDataCountLoggingServiceBean.MakeDataCountEntry;
-import edu.harvard.iq.dataverse.makedatacount.MakeDataCountUtil;
-import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
@@ -44,9 +42,8 @@ import edu.harvard.iq.dataverse.util.StringUtil;
 
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import edu.harvard.iq.dataverse.util.json.JsonUtil;
+
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,19 +52,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.ejb.EJBException;
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-import javax.validation.ConstraintViolation;
+import jakarta.ejb.EJB;
+import jakarta.ejb.EJBException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.validator.ValidatorException;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
+import jakarta.validation.ConstraintViolation;
 
 import org.primefaces.PrimeFaces;
 import org.primefaces.component.tabview.TabView;
@@ -1531,6 +1528,15 @@ public class FilePage implements java.io.Serializable {
 
     public void setFileDownloadHelper(FileDownloadHelper fileDownloadHelper) {
         this.fileDownloadHelper = fileDownloadHelper;
+    }
+
+    /**
+     * This method only exists because in file-edit-button-fragment.xhtml we
+     * call bean.editFileMetadata() and we need both FilePage (this bean) and
+     * DatasetPage to have the method defined to prevent errors in server.log.
+     */
+    public String editFileMetadata(){
+        return "";
     }
 
 }

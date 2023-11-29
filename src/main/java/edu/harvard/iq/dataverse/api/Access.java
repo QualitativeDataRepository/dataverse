@@ -31,7 +31,8 @@ import edu.harvard.iq.dataverse.PermissionsWrapper;
 import edu.harvard.iq.dataverse.RoleAssignment;
 import edu.harvard.iq.dataverse.UserNotification;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
-import static edu.harvard.iq.dataverse.api.AbstractApiBean.error;
+import edu.harvard.iq.dataverse.ThemeWidgetFragment;
+
 import static edu.harvard.iq.dataverse.api.Datasets.handleVersion;
 
 import edu.harvard.iq.dataverse.api.auth.AuthRequired;
@@ -73,7 +74,7 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder;
 
 import java.util.logging.Logger;
-import javax.ejb.EJB;
+import jakarta.ejb.EJB;
 import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -88,47 +89,46 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
-import javax.inject.Inject;
-import javax.json.Json;
+import jakarta.inject.Inject;
+import jakarta.json.Json;
 import java.net.URI;
-import javax.json.JsonArrayBuilder;
-import javax.persistence.TypedQuery;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.persistence.TypedQuery;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.UriInfo;
 
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.ServiceUnavailableException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.ServiceUnavailableException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import jakarta.ws.rs.core.StreamingOutput;
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 import java.net.URISyntaxException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.json.JsonObjectBuilder;
-import javax.ws.rs.RedirectionException;
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.core.MediaType;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+
+import jakarta.json.JsonObjectBuilder;
+import jakarta.ws.rs.RedirectionException;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.core.MediaType;
+import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -1196,16 +1196,7 @@ public class Access extends AbstractApiBean {
         
         DataverseTheme theme = dataverse.getDataverseTheme(); 
         if (theme != null && theme.getLogo() != null && !theme.getLogo().equals("")) {
-            Properties p = System.getProperties();
-            String domainRoot = p.getProperty("com.sun.aas.instanceRoot");
-  
-            if (domainRoot != null && !"".equals(domainRoot)) {
-                return new File (domainRoot + File.separator + 
-                    "docroot" + File.separator + 
-                    "logos" + File.separator + 
-                    dataverse.getLogoOwnerId() + File.separator + 
-                    theme.getLogo());
-            }
+            return ThemeWidgetFragment.getLogoDir(dataverse.getLogoOwnerId()).resolve(theme.getLogo()).toFile();
         }
             
         return null;         
@@ -1681,7 +1672,48 @@ public class Access extends AbstractApiBean {
             return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.fileAccess.rejectFailure.noRequest", args));
         }
     }
-    
+
+    @GET
+    @AuthRequired
+    @Path("/datafile/{id}/userFileAccessRequested")
+    public Response getUserFileAccessRequested(@Context ContainerRequestContext crc, @PathParam("id") String dataFileId) {
+        DataFile dataFile;
+        AuthenticatedUser requestAuthenticatedUser;
+        try {
+            dataFile = findDataFileOrDie(dataFileId);
+            requestAuthenticatedUser = getRequestAuthenticatedUserOrDie(crc);
+        } catch (WrappedResponse wr) {
+            return wr.getResponse();
+        }
+        boolean fileAccessRequested = false;
+        List<FileAccessRequest> requests = dataFile.getFileAccessRequests();
+        for (FileAccessRequest fileAccessRequest : requests) {
+            if (fileAccessRequest.getRequester().getId().equals(requestAuthenticatedUser.getId())) {
+                fileAccessRequested = true;
+                break;
+            }
+        }
+        return ok(fileAccessRequested);
+    }
+
+    @GET
+    @AuthRequired
+    @Path("/datafile/{id}/userPermissions")
+    public Response getUserPermissionsOnFile(@Context ContainerRequestContext crc, @PathParam("id") String dataFileId) {
+        DataFile dataFile;
+        try {
+            dataFile = findDataFileOrDie(dataFileId);
+        } catch (WrappedResponse wr) {
+            return wr.getResponse();
+        }
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+        User requestUser = getRequestUser(crc);
+        jsonObjectBuilder.add("canDownloadFile", permissionService.userOn(requestUser, dataFile).has(Permission.DownloadFile));
+        jsonObjectBuilder.add("canManageFilePermissions", permissionService.userOn(requestUser, dataFile).has(Permission.ManageFilePermissions));
+        jsonObjectBuilder.add("canEditOwnerDataset", permissionService.userOn(requestUser, dataFile.getOwner()).has(Permission.EditDataset));
+        return ok(jsonObjectBuilder);
+    }
+
     // checkAuthorization is a convenience method; it calls the boolean method
     // isAccessAuthorized(), the actual workhorse, tand throws a 403 exception if not.
     
@@ -1948,5 +1980,5 @@ public class Access extends AbstractApiBean {
             throw new BadRequestException(); 
         }
         return redirectUri;
-    }   
+    }
 }

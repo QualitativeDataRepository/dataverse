@@ -14,24 +14,19 @@ import edu.harvard.iq.dataverse.util.SessionUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.enterprise.context.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import com.google.api.client.util.DateTime;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -112,29 +107,6 @@ public class DataverseSession implements Serializable{
     public User getUser(boolean lookupAuthenticatedUserAgain) {
         if ( user == null ) {
             user = GuestUser.get();
-            FacesContext context = FacesContext.getCurrentInstance();
-            if (context != null) {
-                HttpSession httpSession = (HttpSession) context.getExternalContext().getSession(false);
-                if (httpSession != null) {
-                    Object o = httpSession.getAttribute("passiveChecked");
-                    if (o == null) {
-                        logger.fine("No passiveChecked: Setting cookie to 0: " + LocalDateTime.now().toString());
-                        // QDR - remove SSO cookie when user changes
-                        Cookie passiveSSOCookie = new Cookie("_check_is_passive_dv", "0");
-                        passiveSSOCookie.setMaxAge(0);
-                        String QDRDrupalSiteURL = settingsWrapper.get(":QDRDrupalSiteURL");
-                        String QDRDrupalSiteHost = QDRDrupalSiteURL;
-                        int index = QDRDrupalSiteURL.indexOf("://");
-                        if (index >= 0) {
-                            QDRDrupalSiteHost = QDRDrupalSiteURL.substring(index + 3);
-                        }
-                        // In QDR config, common domain for Drupal and Dataverse is '.<Drupal dns name>'
-                        passiveSSOCookie.setDomain("." + QDRDrupalSiteHost);
-                        ((HttpServletResponse) context.getExternalContext().getResponse()).addCookie(passiveSSOCookie);
-                        //httpSession.setAttribute("passiveChecked", true);
-                    }
-                }
-            }
         }
         if (lookupAuthenticatedUserAgain && user instanceof AuthenticatedUser) {
             AuthenticatedUser auFromSession = (AuthenticatedUser) user;

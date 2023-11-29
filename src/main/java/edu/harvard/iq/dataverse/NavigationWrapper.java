@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -96,12 +96,12 @@ public class NavigationWrapper implements java.io.Serializable {
         if (!session.getUser().isAuthenticated()){
             // QDRCustom
             ExternalContext context = FacesContext.getCurrentInstance().getExternalContext(); 
-            // Redirect user to Shibboleth login page
+            // Redirect user to QDR SSO login page
             try {
                 context.redirect(getSSOLoginPath());
                 return "";
             } catch (IOException ex) {
-                logger.info("Unable to redirect user to Shibboleth login page");
+                logger.info("Unable to redirect user to QDR SSO login page");
                 return "";
             }
         } else {
@@ -118,7 +118,7 @@ public class NavigationWrapper implements java.io.Serializable {
         try {
             context.getExternalContext().responseSendError(errorCode,null);
         } catch (IOException ex) {
-            Logger.getLogger(PermissionsWrapper.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         context.responseComplete();
         return "";
