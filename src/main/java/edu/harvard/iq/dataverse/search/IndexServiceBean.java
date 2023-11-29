@@ -1228,7 +1228,10 @@ public class IndexServiceBean {
                                         fileMetadata.getDataFile().getDisplayName(),e.getClass().getCanonicalName(), e.getLocalizedMessage()));
                             } finally {
                                 textHandler = null;
-                                accessObject.closeInputStream();
+                                //QDR handle case where StorageIO can't be created, as with prod content on stage
+                                if(accessObject!=null) {
+                                    accessObject.closeInputStream();
+                                }
                             }
                         }
                     }
