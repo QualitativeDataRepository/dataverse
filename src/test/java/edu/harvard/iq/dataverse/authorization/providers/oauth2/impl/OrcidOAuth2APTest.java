@@ -73,7 +73,7 @@ public class OrcidOAuth2APTest extends OrcidOAuth2AP {
     @Test
     public void testParseUserResponse_noEmails() {
         OrcidOAuth2AP sut = new OrcidOAuth2AP("clientId", "clientSecret", "userEndpoint");
-        String noEmail = PERSON.replaceAll("\n", " ").replaceAll("<email:emails>.*</email:emails>", "");
+        String noEmail = PERSON.replaceAll("\r", " ").replaceAll("\n", " ").replaceAll("<email:emails>.*</email:emails>", "");
         final AbstractOAuth2AuthenticationProvider.ParsedUserResponse actual = sut.parseUserResponse(noEmail);
 
         assertEquals("Bob.Doc", actual.username);
@@ -120,7 +120,7 @@ public class OrcidOAuth2APTest extends OrcidOAuth2AP {
         OrcidOAuth2AP sut = new OrcidOAuth2AP("clientId", "clientSecret", "userEndpoint");
         assertNotNull( ACTIVITIES );
         
-        String responseWithNoOrg = ACTIVITIES.replaceAll("\n","").replaceAll("<employment:organization>.*</employment:organization>", "");
+        String responseWithNoOrg = ACTIVITIES.replaceAll("\r", " ").replaceAll("\n","").replaceAll("<employment:organization>.*</employment:organization>", "");
         
         final AuthenticatedUserDisplayInfo actual = sut.parseActivitiesResponse(responseWithNoOrg);
 
