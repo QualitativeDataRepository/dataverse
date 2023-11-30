@@ -420,7 +420,7 @@ public class IndexServiceBean {
             next = getNextToIndex(id, null); // if dataset was not changed during the indexing (and no new job was requested), next is null and loop can be stopped
         }
     }
-    
+
     @Asynchronous
     public void asyncIndexDatasetList(List<Dataset> datasets, boolean doNormalSolrDocCleanUp) {
         for(Dataset dataset : datasets) {
