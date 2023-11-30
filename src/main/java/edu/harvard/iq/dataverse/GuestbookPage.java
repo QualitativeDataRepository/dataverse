@@ -288,6 +288,11 @@ public class GuestbookPage implements java.io.Serializable {
            
         Command<Dataverse> cmd;
         try {
+            // Per recent #dv-tech conversation w/ Jim - copying the code 
+            // below from his QDR branch; the code that used to be here called
+            // UpdateDataverseCommand when saving new guestbooks, and that involved 
+            // an unnecessary reindexing of the dataverse (and, in some cases, 
+            // reindexing of the underlying datasets). - L.A.
             if (editMode == EditMode.CREATE || editMode == EditMode.CLONE ) {
                 guestbook.setCreateTime(new Timestamp(new Date().getTime()));
                 guestbook.setUsageCount(Long.valueOf(0));
@@ -297,7 +302,7 @@ public class GuestbookPage implements java.io.Serializable {
             } 
             cmd = new UpdateDataverseGuestbookCommand(dataverse, guestbook, dvRequestService.getDataverseRequest());
             commandEngine.submit(cmd);
-
+        
         } catch (EJBException ex) {
             StringBuilder error = new StringBuilder();
             error.append(ex).append(" ");
