@@ -8,7 +8,7 @@ package edu.harvard.iq.dataverse.search;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -27,6 +27,8 @@ import java.util.logging.Logger;
  * classes that need it. 
  * This ensures that we are using one client only - as recommended by the 
  * documentation. 
+ * 
+ * ToDo - investigate use of ConcurrentUpdateHttp2SolrClient for indexing.
  */
 @Named
 @Singleton
@@ -46,7 +48,7 @@ public class SolrClientService {
         String path = JvmSettings.SOLR_PATH.lookup();
         
         String urlString = protocol + "://" + systemConfig.getSolrHostColonPort() + path;
-        solrClient = new HttpSolrClient.Builder(urlString).build();
+        solrClient = new Http2SolrClient.Builder(urlString).build();
     }
     
     @PreDestroy

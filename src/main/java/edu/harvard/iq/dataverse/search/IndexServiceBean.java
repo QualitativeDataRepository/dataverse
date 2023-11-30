@@ -80,7 +80,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
@@ -173,7 +172,7 @@ public class IndexServiceBean {
         String path = JvmSettings.SOLR_PATH.lookup();
     
         String urlString = protocol + "://" + systemConfig.getSolrHostColonPort() + path;
-        solrServer = new HttpSolrClient.Builder(urlString).build();
+        solrServer = solrClientService.getSolrClient();
 
         rootDataverseName = findRootDataverseCached().getName();
     }
