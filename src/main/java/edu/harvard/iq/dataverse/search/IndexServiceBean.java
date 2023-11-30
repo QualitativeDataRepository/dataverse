@@ -166,12 +166,6 @@ public class IndexServiceBean {
 
     @PostConstruct
     public void init() {
-        // Get from MPCONFIG. Might be configured by a sysadmin or simply return the default shipped with
-        // resources/META-INF/microprofile-config.properties.
-        String protocol = JvmSettings.SOLR_PROT.lookup();
-        String path = JvmSettings.SOLR_PATH.lookup();
-    
-        String urlString = protocol + "://" + systemConfig.getSolrHostColonPort() + path;
         solrServer = solrClientService.getSolrClient();
 
         rootDataverseName = findRootDataverseCached().getName();
