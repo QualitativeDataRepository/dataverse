@@ -80,7 +80,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.Http2SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
@@ -173,7 +173,7 @@ public class IndexServiceBean {
         String path = JvmSettings.SOLR_PATH.lookup();
     
         String urlString = protocol + "://" + systemConfig.getSolrHostColonPort() + path;
-        solrServer = new Http2SolrClient.Builder(urlString).build();
+        solrServer = new HttpSolrClient.Builder(urlString).build();
 
         rootDataverseName = findRootDataverseCached().getName();
     }
@@ -420,7 +420,7 @@ public class IndexServiceBean {
             next = getNextToIndex(id, null); // if dataset was not changed during the indexing (and no new job was requested), next is null and loop can be stopped
         }
     }
-    
+
     @Asynchronous
     public void asyncIndexDatasetList(List<Dataset> datasets, boolean doNormalSolrDocCleanUp) {
         for(Dataset dataset : datasets) {
