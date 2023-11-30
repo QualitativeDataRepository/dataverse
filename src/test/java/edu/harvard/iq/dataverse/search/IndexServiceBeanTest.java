@@ -20,7 +20,7 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.testing.JvmSetting;
 import edu.harvard.iq.dataverse.util.testing.LocalJvmSettings;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.Http2SolrClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +44,7 @@ public class IndexServiceBeanTest {
     private static final Logger logger = Logger.getLogger(IndexServiceBeanTest.class.getCanonicalName());
 
     private IndexServiceBean indexService;
+    private SolrClientService solrClientService;
     private Dataverse dataverse;
 
     @Mock
@@ -56,12 +57,14 @@ public class IndexServiceBeanTest {
         dataverse = MocksFactory.makeDataverse();
         dataverse.setDataverseType(DataverseType.UNCATEGORIZED);
         indexService = new IndexServiceBean();
+        solrClientService = new SolrClientService();
         indexService.systemConfig = systemConfig;
         indexService.settingsService = Mockito.mock(SettingsServiceBean.class);
         indexService.dataverseService = Mockito.mock(DataverseServiceBean.class);
         indexService.datasetFieldService = Mockito.mock(DatasetFieldServiceBean.class);
+        indexService.solrClientService = Mockito.mock(SolrClientService.class);
         BrandingUtil.injectServices(indexService.dataverseService, indexService.settingsService);
-
+        Mockito.when(indexService.solrClientService.getSolrClient()).thenReturn(solrClientService.getSolrClient());
         Mockito.when(indexService.dataverseService.findRootDataverse()).thenReturn(dataverse);
     }
     
@@ -71,10 +74,12 @@ public class IndexServiceBeanTest {
         String url = "http://localhost:8983/solr/collection1";
         
         // when
+        solrClientService.init();
+        
         indexService.init();
         
         // then
-        HttpSolrClient client = (HttpSolrClient) indexService.solrServer;
+        Http2SolrClient client = (Http2SolrClient) indexService.solrServer;
         assertEquals(url, client.getBaseURL());
     }
     
@@ -88,10 +93,11 @@ public class IndexServiceBeanTest {
         String url = "http://foobar:1234/solr/test";
         
         // when
+        solrClientService.init();
         indexService.init();
         
         // then
-        HttpSolrClient client = (HttpSolrClient) indexService.solrServer;
+        Http2SolrClient client = (Http2SolrClient) indexService.solrServer;
         assertEquals(url, client.getBaseURL());
     }
 
