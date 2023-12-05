@@ -8,7 +8,7 @@ package edu.harvard.iq.dataverse.search;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.Http2SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -48,7 +48,7 @@ public class SolrClientService {
         String path = JvmSettings.SOLR_PATH.lookup();
         
         String urlString = protocol + "://" + systemConfig.getSolrHostColonPort() + path;
-        solrClient = new Http2SolrClient.Builder(urlString).build();
+        solrClient = new HttpSolrClient.Builder(urlString).build();
     }
     
     @PreDestroy
