@@ -114,7 +114,11 @@ public class ImageThumbConverter {
             logger.fine("Found cached thumbnail for " + file.getId());
             return true;
         }
+        return generateThumbnail(file, storageIO, size);
 
+    }
+
+    private static boolean generateThumbnail(DataFile file, StorageIO<DataFile> storageIO, int size) {
         logger.log(Level.FINE, (file.isPreviewsHaveFailed() ? "Not trying" : "Trying") + " to generate thumbnail, file id: " + file.getId());
         // Don't try to generate if there have been failures:
         if (!file.isPreviewsHaveFailed()) {
@@ -446,27 +450,13 @@ public class ImageThumbConverter {
             logger.fine("Null channel for aux object " + THUMBNAIL_SUFFIX + size);
 
             // try to generate, if not available and hasn't failed before
-            logger.log(Level.FINE, (file.isPreviewsHaveFailed() ? "Not trying" : "Trying") + "to generate base64 thumbnail, file id: " + file.getId());
-            if (!file.isPreviewsHaveFailed()) {
-                boolean generated = false;
-                if (file.getContentType().substring(0, 6).equalsIgnoreCase("image/")) {
-                    generated = generateImageThumbnail(storageIO, size);
-                } else if (file.getContentType().equalsIgnoreCase("application/pdf")) {
-                    generated = generatePDFThumbnail(storageIO, size);
-                }
-
-                if (!generated) {
-                    // Record failure
-                    logger.fine("Failed to generate base64 thumbnail for file id: " + file.getId());
-                } else {
-                    // Success - try to open again:
+            if(generateThumbnail(file, storageIO, size)) {
                     try {
                         cachedThumbnailChannel = storageIO.openAuxChannel(THUMBNAIL_SUFFIX + size);
                     } catch (Exception ioEx) {
                         cachedThumbnailChannel = null;
                     }
                 }
-            }
 
             // if still null - give up:
             if (cachedThumbnailChannel == null) {
