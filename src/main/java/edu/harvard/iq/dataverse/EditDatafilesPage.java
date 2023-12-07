@@ -1681,7 +1681,7 @@ public class EditDatafilesPage implements java.io.Serializable {
                         // Note: A single uploaded file may produce multiple datafiles - 
                         // for example, multiple files can be extracted from an uncompressed
                         // zip file.
-                        Command<CreateDataFileResult> cmd = new CreateNewDataFilesCommand(dvRequestService.getDataverseRequest(), workingVersion, hypothesisStream, FileUtil.HYPOTHESIS_ANNOTATIONS_FILENAME, FileUtil.MIME_TYPE_HYPOTHESIS_ANNOTATIONS, null, userStorageQuota, null);
+                        Command<CreateDataFileResult> cmd = new CreateNewDataFilesCommand(dvRequestService.getDataverseRequest(), workingVersion, hypothesisStream, FileUtil.HYPOTHESIS_ANNOTATIONS_FILENAME, FileUtil.MIME_TYPE_HYPOTHESIS_ANNOTATIONS, null, uploadSessionQuota, null);
                         CreateDataFileResult createDataFilesResult = commandEngine.submit(cmd);
                         datafiles = createDataFilesResult.getDataFiles();
                         Optional.ofNullable(editDataFilesPageHelper.getHtmlErrorMessage(createDataFilesResult)).ifPresent(errorMessage -> errorMessages.add(errorMessage));
