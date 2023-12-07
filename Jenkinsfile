@@ -1,5 +1,4 @@
-#!groovy
-
+#!/usr/bin/env groovy
 node {
   workspace = pwd()
   properties([[$class: 'ParametersDefinitionProperty', parameterDefinitions: [
@@ -25,18 +24,18 @@ node {
       /*
       * Run Unit tests
       */
-      notifyBuild("Running Tests", "good")
+      notifyBuild("Running tests..", "good")
 
       try {
         withMaven(
           //jdk: 'jdk17',
-          maven: 'mvn-3-5-0') {
+          maven: 'mvn-3-6') {
             sh "mvn test"
           }
       }
       catch (e) {
         currentBuild.result = "UNSTABLE"
-        notifyBuild("Warning: Tests Failed!", "warning")
+        notifyBuild("Tests failed!", "warning")
       }
     }
 
@@ -44,18 +43,18 @@ node {
       /*
       * Run Unit tests
       */
-      notifyBuild("Building", "good")
+      notifyBuild("Building..", "good")
 
       try {
         withMaven(
           //jdk: 'jdk17',
-          maven: 'mvn-3-5-0') {
+          maven: 'mvn-3-6') {
             sh "mvn clean package -DskipTests"
         }
       }
       catch (e) {
         currentBuild.result = "FAILURE"
-        notifyBuild("Warning: Build failed!", "warning")
+        notifyBuild("Build failed!", "warning")
       }
 
       stash includes: 'target/dataverse*.war', name: 'dataverse-war'
@@ -81,7 +80,7 @@ node {
       }
       catch (e) {
         currentBuild.result = "FAILURE"
-        notifyBuild("Failed!", "danger")
+        notifyBuild("Deploy failed!", "danger")
         throw e
       }
     }

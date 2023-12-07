@@ -27,6 +27,8 @@ import java.util.logging.Logger;
  * classes that need it. 
  * This ensures that we are using one client only - as recommended by the 
  * documentation. 
+ * 
+ * ToDo - investigate use of ConcurrentUpdateHttp2SolrClient for indexing.
  */
 @Named
 @Singleton
