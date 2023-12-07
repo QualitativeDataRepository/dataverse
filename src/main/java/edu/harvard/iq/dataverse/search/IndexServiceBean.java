@@ -60,6 +60,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
@@ -146,7 +147,13 @@ public class IndexServiceBean {
 
     @PostConstruct
     public void init() {
-        solrServer = solrClientService.getSolrClient();
+        // Get from MPCONFIG. Might be configured by a sysadmin or simply return the default shipped with
+        // resources/META-INF/microprofile-config.properties.
+        String protocol = JvmSettings.SOLR_PROT.lookup();
+        String path = JvmSettings.SOLR_PATH.lookup();
+    
+        String urlString = protocol + "://" + systemConfig.getSolrHostColonPort() + path;
+        solrServer = new HttpSolrClient.Builder(urlString).build();
 
         rootDataverseName = findRootDataverseCached().getName();
     }
