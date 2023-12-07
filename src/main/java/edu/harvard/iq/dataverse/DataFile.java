@@ -649,7 +649,7 @@ public class DataFile extends DvObject implements Comparable {
             return BundleUtil.getStringFromBundle("file.sizeNotAvailable");
         }
     }
-
+    
     public boolean isRestricted() {
         return restricted;
     }

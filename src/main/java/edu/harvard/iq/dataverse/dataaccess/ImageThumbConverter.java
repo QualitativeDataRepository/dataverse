@@ -119,9 +119,9 @@ public class ImageThumbConverter {
     }
 
     private static boolean generateThumbnail(DataFile file, StorageIO<DataFile> storageIO, int size) {
-        logger.log(Level.FINE, (file.isPreviewsHaveFailed() ? "Not trying" : "Trying") + " to generate thumbnail, file id: " + file.getId());
+        logger.log(Level.FINE, (file.isPreviewImageFail() ? "Not trying" : "Trying") + " to generate thumbnail, file id: " + file.getId());
         // Don't try to generate if there have been failures:
-        if (!file.isPreviewsHaveFailed()) {
+        if (!file.isPreviewImageFail()) {
             boolean thumbnailGenerated = false;
             if (file.getContentType().substring(0, 6).equalsIgnoreCase("image/")) {
                 thumbnailGenerated = generateImageThumbnail(storageIO, size);
@@ -135,7 +135,6 @@ public class ImageThumbConverter {
         }
 
         return false;
-
     }
 
     // Note that this method works on ALL file types for which thumbnail 
@@ -451,12 +450,12 @@ public class ImageThumbConverter {
 
             // try to generate, if not available and hasn't failed before
             if(generateThumbnail(file, storageIO, size)) {
-                    try {
-                        cachedThumbnailChannel = storageIO.openAuxChannel(THUMBNAIL_SUFFIX + size);
-                    } catch (Exception ioEx) {
-                        cachedThumbnailChannel = null;
-                    }
+                try {
+                    cachedThumbnailChannel = storageIO.openAuxChannel(THUMBNAIL_SUFFIX + size);
+                } catch (Exception ioEx) {
+                    cachedThumbnailChannel = null;
                 }
+            }
 
             // if still null - give up:
             if (cachedThumbnailChannel == null) {

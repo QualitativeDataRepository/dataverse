@@ -95,8 +95,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     
     private boolean mainDriver = true;
 
-    private static int errCount=0;
-    
     private static HashMap<String, AmazonS3> driverClientMap = new HashMap<String,AmazonS3>();
     private static HashMap<String, TransferManager> driverTMMap = new HashMap<String,TransferManager>();
 
@@ -121,7 +119,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             // much but potentially make the failure (in the unlikely case a bucket doesn't
             // exist/just disappeared) happen slightly earlier (here versus at the first
             // file/metadata access).
-                    
         } catch (Exception e) {
             throw new AmazonClientException(
                         "Cannot instantiate a S3 client for " + bucketName + "; check your AWS credentials and region",
@@ -1135,8 +1132,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         }
     }
 
-   private static AmazonS3 getClient(String driverId) {
-       
+    private static AmazonS3 getClient(String driverId) {
         if(driverClientMap.containsKey(driverId)) {
             return driverClientMap.get(driverId);
         } else {
@@ -1213,22 +1209,20 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                 allowInstanceCredentials = false;
                 AWSStaticCredentialsProvider staticCredentials = new AWSStaticCredentialsProvider(
                         new BasicAWSCredentials(
-                                accessKey.orElse(""),
-                                secretKey.orElse("")));
+                                accessKey.get(),
+                                secretKey.get()));
                 providers.add(staticCredentials);
             } else if (s3profile == null) {
                 //Only use the default profile when it isn't explicitly set for this store when there are no static creds (otherwise it will be preferred).
                 s3profile = "default";
             }
             if (s3profile != null) {
-                ProfileCredentialsProvider profileCredentials = new ProfileCredentialsProvider(s3profile);
-                providers.add(profileCredentials);
+                providers.add(new ProfileCredentialsProvider(s3profile));
             }
 
             if (allowInstanceCredentials) {
                 // Add role-based provider as in the default provider chain
-                InstanceProfileCredentialsProvider instanceCredentials = InstanceProfileCredentialsProvider.getInstance();
-                providers.add(instanceCredentials);
+                providers.add(InstanceProfileCredentialsProvider.getInstance());
             }
             // Add all providers to chain - the first working provider will be used
             // (role-based is first in the default cred provider chain (if no profile or

@@ -418,26 +418,27 @@ public class DatasetUtil {
         }
         StorageIO<Dataset> dataAccess = null;
 
-        try{
+        try {
             dataAccess = DataAccess.getStorageIO(dataset);
-        }
-        catch(IOException ioex){
-            logger.warning("getLogo(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier() + " (" + ioex.getMessage() + ")");
+        } catch (IOException ioex) {
+            logger.warning("getLogo(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier()
+                    + " (" + ioex.getMessage() + ")");
         }
 
         InputStream in = null;
         try {
             if (dataAccess == null) {
-                logger.warning("getLogo(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier());
+                logger.warning(
+                        "getLogo(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier());
             } else {
                 in = dataAccess.getAuxFileAsInputStream(datasetLogoFilenameFinal);
             }
         } catch (IOException ex) {
-            logger.fine("Dataset-level thumbnail file does not exist, or failed to open; will try to find an image file that can be used as the thumbnail.");
+            logger.fine(
+                    "Dataset-level thumbnail file does not exist, or failed to open; will try to find an image file that can be used as the thumbnail.");
         }
 
-
-        if(in==null) {
+        if (in == null) {
             DataFile thumbnailFile = dataset.getThumbnailFile();
 
             if (thumbnailFile == null) {
@@ -447,22 +448,26 @@ public class DatasetUtil {
                 } else {
                     thumbnailFile = attemptToAutomaticallySelectThumbnailFromDataFiles(dataset, null);
                     if (thumbnailFile == null) {
-                        logger.fine("Dataset (id :" + dataset.getId() + ") does not have a logo available that could be selected automatically.");
+                        logger.fine("Dataset (id :" + dataset.getId()
+                                + ") does not have a logo available that could be selected automatically.");
                         return null;
                     } else {
 
                     }
                 }
-            } 
+            }
             if (thumbnailFile.isRestricted()) {
-                logger.fine("Dataset (id :" + dataset.getId() + ") has a logo the user selected but the file must have later been restricted. Returning null.");
+                logger.fine("Dataset (id :" + dataset.getId()
+                        + ") has a logo the user selected but the file must have later been restricted. Returning null.");
                 return null;
             }
 
             try {
-                in = ImageThumbConverter.getImageThumbnailAsInputStream(thumbnailFile.getStorageIO(),ImageThumbConverter.DEFAULT_PREVIEW_SIZE).getInputStream();
+                in = ImageThumbConverter.getImageThumbnailAsInputStream(thumbnailFile.getStorageIO(),
+                        ImageThumbConverter.DEFAULT_PREVIEW_SIZE).getInputStream();
             } catch (IOException ioex) {
-                logger.warning("getLogo(): Failed to get logo from DataFile for " + dataset.getStorageIdentifier() + " (" + ioex.getMessage() + ")");                
+                logger.warning("getLogo(): Failed to get logo from DataFile for " + dataset.getStorageIdentifier()
+                        + " (" + ioex.getMessage() + ")");
                 ioex.printStackTrace();
             }
 

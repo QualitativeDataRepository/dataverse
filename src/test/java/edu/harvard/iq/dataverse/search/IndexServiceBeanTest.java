@@ -1,23 +1,17 @@
 package edu.harvard.iq.dataverse.search;
 
-import edu.harvard.iq.dataverse.ControlledVocabularyValue;
-import edu.harvard.iq.dataverse.DOIServiceBean;
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetField;
-import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
-import edu.harvard.iq.dataverse.DatasetFieldType;
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.Dataverse.DataverseType;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.GlobalId;
-import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.mocks.MocksFactory;
+import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import edu.harvard.iq.dataverse.util.testing.JvmSetting;
 import edu.harvard.iq.dataverse.util.testing.LocalJvmSettings;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,11 +21,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @LocalJvmSettings
@@ -58,9 +52,40 @@ public class IndexServiceBeanTest {
         indexService.datasetFieldService = Mockito.mock(DatasetFieldServiceBean.class);
         indexService.solrClientService = Mockito.mock(SolrClientService.class);
         BrandingUtil.injectServices(indexService.dataverseService, indexService.settingsService);
+
         Mockito.when(indexService.dataverseService.findRootDataverse()).thenReturn(dataverse);
     }
     
+    @Test
+    public void testInitWithDefaults() {
+        // given
+        String url = "http://localhost:8983/solr/collection1";
+        
+        // when
+        indexService.init();
+        
+        // then
+        HttpSolrClient client = (HttpSolrClient) indexService.solrServer;
+        assertEquals(url, client.getBaseURL());
+    }
+    
+    
+    @Test
+    @JvmSetting(key = JvmSettings.SOLR_HOST, value = "foobar")
+    @JvmSetting(key = JvmSettings.SOLR_PORT, value = "1234")
+    @JvmSetting(key = JvmSettings.SOLR_CORE, value = "test")
+    void testInitWithConfig() {
+        // given
+        String url = "http://foobar:1234/solr/test";
+        
+        // when
+        indexService.init();
+        
+        // then
+        HttpSolrClient client = (HttpSolrClient) indexService.solrServer;
+        assertEquals(url, client.getBaseURL());
+    }
+
     @Test
     public void TestIndexing() throws SolrServerException, IOException {
         final IndexableDataset indexableDataset = createIndexableDataset();
@@ -72,6 +97,40 @@ public class IndexServiceBeanTest {
 
         assertTrue(!docs.getDocuments().isEmpty());
         assertTrue(indexedFields.contains("language"));
+    }
+
+    @Test
+    public void testValidateBoundingBox() throws SolrServerException, IOException {
+        final IndexableDataset indexableDataset = createIndexableDataset();
+        final DatasetVersion datasetVersion = indexableDataset.getDatasetVersion();
+        DatasetField dsf = new DatasetField();
+        DatasetFieldType dsft = new DatasetFieldType(DatasetFieldConstant.geographicBoundingBox, DatasetFieldType.FieldType.TEXT, true);
+        dsf.setDatasetFieldType(dsft);
+
+        List<DatasetFieldCompoundValue> vals = new LinkedList<>();
+        DatasetFieldCompoundValue val = new DatasetFieldCompoundValue();
+        val.setParentDatasetField(dsf);
+        val.setChildDatasetFields(Arrays.asList(
+                constructBoundingBoxValue(DatasetFieldConstant.westLongitude, "34.9"), // bad value. must be less than east
+                constructBoundingBoxValue(DatasetFieldConstant.eastLongitude, "34.8"),
+                constructBoundingBoxValue(DatasetFieldConstant.northLatitude, "34.2"),
+                constructBoundingBoxValue(DatasetFieldConstant.southLatitude, "34.1")
+        ));
+        vals.add(val);
+        dsf.setDatasetFieldCompoundValues(vals);
+        datasetVersion.getDatasetFields().add(dsf);
+
+        final SolrInputDocuments docs = indexService.toSolrDocs(indexableDataset, null);
+        Optional<SolrInputDocument> doc = docs.getDocuments().stream().findFirst();
+        assertTrue(doc.isPresent());
+        assertTrue(!doc.get().containsKey("geolocation"));
+        assertTrue(!doc.get().containsKey("boundingBox"));
+    }
+    private DatasetField constructBoundingBoxValue(String datasetFieldTypeName, String value) {
+        DatasetField retVal = new DatasetField();
+        retVal.setDatasetFieldType(new DatasetFieldType(datasetFieldTypeName, DatasetFieldType.FieldType.TEXT, false));
+        retVal.setDatasetFieldValues(Collections.singletonList(new DatasetFieldValue(retVal, value)));
+        return retVal;
     }
 
     private IndexableDataset createIndexableDataset() {
