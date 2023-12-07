@@ -8,6 +8,7 @@ User-agent: *
 # For example, if you only want to make the site accessed by Googlebot, but 
 # keep all the other bots away, un-comment out the following two lines:
 #Disallow: /
+Disallow: /dataset.xhtml*jsessionid=
 #User-agent: Googlebot
 Allow: /$
 Allow: /dataset.xhtml
