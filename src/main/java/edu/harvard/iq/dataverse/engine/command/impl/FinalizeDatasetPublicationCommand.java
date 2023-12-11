@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.harvard.iq.dataverse.GlobalIdServiceBean;
 import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
+import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import java.util.ArrayList;
@@ -332,7 +333,8 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
                     // (the decision was made to validate all the files on every
                     // major release; we can revisit the decision if there's any
                     // indication that this makes publishing take significantly longer.
-                    if (maxFileSize == -1 || dataFile.getFilesize() < maxFileSize) {
+                    String driverId = FileUtil.getStorageDriver(dataFile);
+                    if(StorageIO.isDataverseAccessible(driverId) && maxFileSize == -1 || dataFile.getFilesize() < maxFileSize) {
                         FileUtil.validateDataFileChecksum(dataFile);
                     }
                     else {
