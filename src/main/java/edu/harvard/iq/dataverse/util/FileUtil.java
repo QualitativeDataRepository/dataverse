@@ -1804,5 +1804,11 @@ public class FileUtil implements java.io.Serializable  {
         }
         return false;
     }
+
+
+    public static String getStorageDriver(DataFile dataFile) {
+        String storageIdentifier = dataFile.getStorageIdentifier();
+        return storageIdentifier.substring(0, storageIdentifier.indexOf(DataAccess.SEPARATOR));
+    }
     
 }
