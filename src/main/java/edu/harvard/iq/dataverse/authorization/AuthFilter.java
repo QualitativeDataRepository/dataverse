@@ -19,6 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.apache.commons.lang3.StringUtils;
+
 import jakarta.ejb.EJB;
 import jakarta.inject.Inject;
 import jakarta.servlet.Filter;
@@ -75,7 +77,7 @@ public class AuthFilter implements Filter {
             String path = httpServletRequest.getRequestURI();
             String uaHeader = httpServletRequest.getHeader("user-agent");
             //Nagios uses a user-agent starting with check_http and we don't want to do a passive login check in that case.
-            boolean isCheck = (uaHeader != null) && uaHeader.contains("check_http");
+            boolean isCheck = (uaHeader != null) && (uaHeader.contains("check_http") || StringUtils.containsIgnoreCase(uaHeader, "bot"));
             //boolean hasAuthToken = httpServletRequest.getParameter("key") != null) || (httpServletRequest.getParameter("token")!= null)  || httpServletRequest.getHeader('X-Dataverse-key');
             if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.fine("Path: " + path);
