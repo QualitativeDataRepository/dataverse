@@ -19,18 +19,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import javax.ejb.EJB;
-import javax.inject.Inject;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.ws.rs.HttpMethod;
+import org.apache.commons.lang3.StringUtils;
+
+import jakarta.ejb.EJB;
+import jakarta.inject.Inject;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.HttpMethod;
 
 import com.nimbusds.openid.connect.sdk.Prompt;
 
@@ -75,9 +77,9 @@ public class AuthFilter implements Filter {
             String path = httpServletRequest.getRequestURI();
             String uaHeader = httpServletRequest.getHeader("user-agent");
             //Nagios uses a user-agent starting with check_http and we don't want to do a passive login check in that case.
-            boolean isCheck = (uaHeader != null) && uaHeader.contains("check_http");
+            boolean isCheck = (uaHeader != null) && (uaHeader.contains("check_http") || StringUtils.containsIgnoreCase(uaHeader, "bot") || StringUtils.containsIgnoreCase(uaHeader, "google"));
             //boolean hasAuthToken = httpServletRequest.getParameter("key") != null) || (httpServletRequest.getParameter("token")!= null)  || httpServletRequest.getHeader('X-Dataverse-key');
-            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("javax.faces.resource") || path.contains("/oauth2/callback")))) {
+            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.fine("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
                 if ((sso != null) || (httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {

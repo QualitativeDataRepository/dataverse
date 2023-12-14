@@ -19,26 +19,24 @@ import edu.harvard.iq.dataverse.validation.EMailValidator;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.ejb.EJBException;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.ejb.EJB;
+import jakarta.ejb.EJBException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @ViewScoped
 @Named("Shib")
@@ -72,7 +70,7 @@ public class Shib implements java.io.Serializable {
     HttpServletResponse response;
 
     private String userPersistentId;
-    private String internalUserIdentifer;
+    private String internalUserIdentifier;
     AuthenticatedUserDisplayInfo displayInfo;
     /**
      * @todo Remove this boolean some day? Now the mockups show a popup. Should
@@ -134,43 +132,7 @@ public class Shib implements java.io.Serializable {
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
         request = (HttpServletRequest) context.getRequest();
         ShibUtil.printAttributes(request);
-        
-        /* 
-        * QDRCustom
-        * Direct the user to the Drupal Terms & Conditions page if the user has not 
-        * accepted the latest version of the T&C
-        */
-        /*
-         * QDR No longer uses Shib, So this can be deleted. Keeping it for now in case
-         * we need to ~copy this into the OIDC code to redirect to the t&c page there.
-         * Hoping it isn't needed there either.
-         */
-/*        Integer acceptedTermsDocVer;
-        try {
-            String acceptedTermsDocVerStr = getRequiredValueFromAssertion(ShibUtil.acceptedTermsDocVerAttribute);
-            acceptedTermsDocVer = new Integer(acceptedTermsDocVerStr);
-        } catch (Exception ex) {
-        	//Old accounts appear to not have a value which causes an exception when converting to an Integer
-        	//No other errors known to cause this but we can catch anything else that can't be parsed, just in case.
-            acceptedTermsDocVer=0; //Treat this as never having accepted any version as though a new user  
-        }
-        
-        int latestTermsDocVer = systemConfig.getShibAuthTermsVer();        
-        if (acceptedTermsDocVer < latestTermsDocVer) {            
-            
-            Map<String, String> params = context.getRequestParameterMap();
-            String paramRedirectPage = params.get("redirectPage");            
-            String termsConditionsPageURL = QDRDrupalSiteURL + "/qdr-sso/dv-terms-conditions-redirect?redirectPage=" + paramRedirectPage;
-            // Direct user to Drupal T&C page
-            try {
-                context.redirect(termsConditionsPageURL);
-                return;
-            } catch (IOException ex) {
-                logger.info("Unable to redirect user to Terms & Conditions Page " + termsConditionsPageURL);
-                return;
-            }
-        }
-  }      
+
         /**
          * @todo Investigate why JkEnvVar is null since it may be useful for
          * debugging per https://github.com/IQSS/dataverse/issues/2916 . See
@@ -256,8 +218,8 @@ public class Shib implements java.io.Serializable {
         }
 
         String usernameAssertion = getValueFromAssertion(ShibUtil.usernameAttribute);
-        internalUserIdentifer = ShibUtil.generateFriendlyLookingUserIdentifer(usernameAssertion, emailAddress);
-        logger.fine("friendly looking identifer (backend will enforce uniqueness):" + internalUserIdentifer);
+        internalUserIdentifier = ShibUtil.generateFriendlyLookingUserIdentifier(usernameAssertion, emailAddress);
+        logger.log(Level.FINE, "friendly looking identifier (backend will enforce uniqueness): {0}", internalUserIdentifier);
 
         String shibAffiliationAttribute = settingsService.getValueForKey(SettingsServiceBean.Key.ShibAffiliationAttribute);
         String affiliation = (StringUtils.isNotBlank(shibAffiliationAttribute))
@@ -313,9 +275,7 @@ public class Shib implements java.io.Serializable {
                 logger.info("Unable to redirect user to homepage at " + prettyFacesHomePageString);
             }
         } else {
-            /*** QDRCustom: do not change state to allow for auto-creation of local account  ***/
-            /*** state = State.PROMPT_TO_CREATE_NEW_ACCOUNT; ***/
-            
+            state = State.PROMPT_TO_CREATE_NEW_ACCOUNT;
             displayNameToPersist = displayInfo.getTitle();
             emailToPersist = emailAddress;
             /**
@@ -360,18 +320,7 @@ public class Shib implements java.io.Serializable {
                     debugSummary = "Could not find a builtin account based on the username. Here we should simply create a new Shibboleth user";
                 }
             } else {
-                // QDRCustom: auto-create local account for authenticated Shibboleth user
-                debugSummary = "Could not find an auth user based on email address. Creating new local account for Shibboleth user with email: " + emailAddress;                
-                String destinationAfterAccountCreation = confirmAndCreateAccount();
-                if (destinationAfterAccountCreation != null) {
-                    try {
-                        context.redirect(destinationAfterAccountCreation);
-                        return;
-                    } catch (IOException ex) {
-                        logger.info("Unable to redirect user to page: " + destinationAfterAccountCreation);
-                        return;
-                    }                    
-                }                
+                debugSummary = "Could not find an auth user based on email address";
             }
 
         }
@@ -385,7 +334,7 @@ public class Shib implements java.io.Serializable {
         AuthenticatedUser au = null;
         try {
             au = authSvc.createAuthenticatedUser(
-                    new UserRecordIdentifier(shibAuthProvider.getId(), lookupStringPerAuthProvider), internalUserIdentifer, displayInfo, true);
+                    new UserRecordIdentifier(shibAuthProvider.getId(), lookupStringPerAuthProvider), internalUserIdentifier, displayInfo, true);
         } catch (EJBException ex) {
             /**
              * @todo Show the ConstraintViolationException, if any.
@@ -402,15 +351,7 @@ public class Shib implements java.io.Serializable {
             userNotificationService.sendNotification(au,
                     new Timestamp(new Date().getTime()),
                     UserNotification.Type.CREATEACC, null);
-            //QDR - redirect if/as requested
-            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-            Map<String, String> params = context.getRequestParameterMap();
-            String paramRedirectPage = params.get("redirectPage");
-            if(paramRedirectPage!=null) {
-                return paramRedirectPage;
-            } else {
-              return "/dataverseuser.xhtml?selectTab=dataRelatedToMe&faces-redirect=true";
-            }
+            return "/dataverseuser.xhtml?selectTab=accountInfo&faces-redirect=true";
         } else {
             JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("shib.createUser.fail"));
         }
@@ -421,7 +362,7 @@ public class Shib implements java.io.Serializable {
         visibleTermsOfUse = false;
         ShibAuthenticationProvider shibAuthProvider = new ShibAuthenticationProvider();
         String lookupStringPerAuthProvider = userPersistentId;
-        UserIdentifier userIdentifier = new UserIdentifier(lookupStringPerAuthProvider, internalUserIdentifer);
+        UserIdentifier userIdentifier = new UserIdentifier(lookupStringPerAuthProvider, internalUserIdentifier);
         logger.fine("builtin username: " + builtinUsername);
         AuthenticatedUser builtInUserToConvert = authSvc.canLogInAsBuiltinUser(builtinUsername, builtinPassword);
         if (builtInUserToConvert != null) {
@@ -436,7 +377,7 @@ public class Shib implements java.io.Serializable {
                 logInUserAndSetShibAttributes(au);
                 debugSummary = "Local account validated and successfully converted to a Shibboleth account. The old account username was " + builtinUsername;
                 JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataverse.shib.success"));
-                return "/dataverseuser.xhtml?selectTab=dataRelatedToMe&faces-redirect=true";
+                return "/dataverseuser.xhtml?selectTab=accountInfo&faces-redirect=true";
             } else {
                 debugSummary = "Local account validated but unable to convert to Shibboleth account.";
             }
@@ -471,16 +412,7 @@ public class Shib implements java.io.Serializable {
      * https://iqssharvard.mybalsamiq.com/projects/loginwithshibboleth-version3-dataverse40/Dataverse%20Account%20III%20-%20Agree%20Terms%20of%20Use
      */
     public String cancel() {
-        // QDRCustom
-        ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-        // Redirect user to SSO login page
-            try {
-                context.redirect(navigationWrapper.getSSOLoginPath());
-                return "";
-            } catch (IOException ex) {
-                logger.info("Unable to redirect user to SSO login page");
-                return "";
-            }
+        return loginpage + "?faces-redirect=true";
     }
 
     /**

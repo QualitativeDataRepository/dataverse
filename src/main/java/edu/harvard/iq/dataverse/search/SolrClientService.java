@@ -10,11 +10,11 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.ejb.EJB;
-import javax.ejb.Singleton;
-import javax.inject.Named;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Singleton;
+import jakarta.inject.Named;
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -27,6 +27,8 @@ import java.util.logging.Logger;
  * classes that need it. 
  * This ensures that we are using one client only - as recommended by the 
  * documentation. 
+ * 
+ * ToDo - investigate use of ConcurrentUpdateHttp2SolrClient for indexing.
  */
 @Named
 @Singleton

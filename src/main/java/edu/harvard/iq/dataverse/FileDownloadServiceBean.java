@@ -19,6 +19,8 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
+import edu.harvard.iq.dataverse.util.URLTokenUtil;
+
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -27,15 +29,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.primefaces.PrimeFaces;
 //import org.primefaces.context.RequestContext;
@@ -69,7 +71,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
     UserNotificationServiceBean userNotificationService;
     @EJB
     AuthenticationServiceBean authService;
-   @EJB
+    @EJB
     SettingsServiceBean settingsService;
     @EJB
     MailServiceBean mailService;
@@ -308,13 +310,19 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         }
     }
 
-    private void redirectToDownloadAPI(String downloadType, Long fileId, boolean guestBookRecordAlreadyWritten, Long fileMetadataId) {
-        String fileDownloadUrl = FileUtil.getFileDownloadUrlPath(downloadType, fileId, guestBookRecordAlreadyWritten, fileMetadataId);
-        logger.fine("Redirecting to file download url: " + fileDownloadUrl);
-        try {
-            FacesContext.getCurrentInstance().getExternalContext().redirect(fileDownloadUrl);
-        } catch (IOException ex) {
-            logger.info("Failed to issue a redirect to file download url (" + fileDownloadUrl + "): " + ex);
+    private void redirectToDownloadAPI(String downloadType, Long fileId, boolean guestBookRecordAlreadyWritten,
+            Long fileMetadataId) {
+        String fileDownloadUrl = FileUtil.getFileDownloadUrlPath(downloadType, fileId, guestBookRecordAlreadyWritten,
+                fileMetadataId);
+        if (downloadType.equals("GlobusTransfer")) {
+            PrimeFaces.current().executeScript(URLTokenUtil.getScriptForUrl(fileDownloadUrl));
+        } else {
+            logger.fine("Redirecting to file download url: " + fileDownloadUrl);
+            try {
+                FacesContext.getCurrentInstance().getExternalContext().redirect(fileDownloadUrl);
+            } catch (IOException ex) {
+                logger.info("Failed to issue a redirect to file download url (" + fileDownloadUrl + "): " + ex);
+            }
         }
     }
     
@@ -620,5 +628,4 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             
         return null; 
     }
-    
 }

@@ -9,6 +9,8 @@ import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
+
+import static edu.harvard.iq.dataverse.api.ApiConstants.DS_VERSION_DRAFT;
 import static edu.harvard.iq.dataverse.dataaccess.DataAccess.getStorageIO;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
@@ -416,26 +418,27 @@ public class DatasetUtil {
         }
         StorageIO<Dataset> dataAccess = null;
 
-        try{
+        try {
             dataAccess = DataAccess.getStorageIO(dataset);
-        }
-        catch(IOException ioex){
-            logger.warning("getLogo(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier() + " (" + ioex.getMessage() + ")");
+        } catch (IOException ioex) {
+            logger.warning("getLogo(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier()
+                    + " (" + ioex.getMessage() + ")");
         }
 
         InputStream in = null;
         try {
             if (dataAccess == null) {
-                logger.warning("getLogo(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier());
+                logger.warning(
+                        "getLogo(): Failed to initialize dataset StorageIO for " + dataset.getStorageIdentifier());
             } else {
                 in = dataAccess.getAuxFileAsInputStream(datasetLogoFilenameFinal);
             }
         } catch (IOException ex) {
-            logger.fine("Dataset-level thumbnail file does not exist, or failed to open; will try to find an image file that can be used as the thumbnail.");
+            logger.fine(
+                    "Dataset-level thumbnail file does not exist, or failed to open; will try to find an image file that can be used as the thumbnail.");
         }
 
-
-        if(in==null) {
+        if (in == null) {
             DataFile thumbnailFile = dataset.getThumbnailFile();
 
             if (thumbnailFile == null) {
@@ -445,22 +448,26 @@ public class DatasetUtil {
                 } else {
                     thumbnailFile = attemptToAutomaticallySelectThumbnailFromDataFiles(dataset, null);
                     if (thumbnailFile == null) {
-                        logger.fine("Dataset (id :" + dataset.getId() + ") does not have a logo available that could be selected automatically.");
+                        logger.fine("Dataset (id :" + dataset.getId()
+                                + ") does not have a logo available that could be selected automatically.");
                         return null;
                     } else {
 
                     }
                 }
-            } 
+            }
             if (thumbnailFile.isRestricted()) {
-                logger.fine("Dataset (id :" + dataset.getId() + ") has a logo the user selected but the file must have later been restricted. Returning null.");
+                logger.fine("Dataset (id :" + dataset.getId()
+                        + ") has a logo the user selected but the file must have later been restricted. Returning null.");
                 return null;
             }
 
             try {
-                in = ImageThumbConverter.getImageThumbnailAsInputStream(thumbnailFile.getStorageIO(),ImageThumbConverter.DEFAULT_PREVIEW_SIZE).getInputStream();
+                in = ImageThumbConverter.getImageThumbnailAsInputStream(thumbnailFile.getStorageIO(),
+                        ImageThumbConverter.DEFAULT_PREVIEW_SIZE).getInputStream();
             } catch (IOException ioex) {
-                logger.warning("getLogo(): Failed to get logo from DataFile for " + dataset.getStorageIdentifier() + " (" + ioex.getMessage() + ")");                
+                logger.warning("getLogo(): Failed to get logo from DataFile for " + dataset.getStorageIdentifier()
+                        + " (" + ioex.getMessage() + ")");
                 ioex.printStackTrace();
             }
 
@@ -579,7 +586,7 @@ public class DatasetUtil {
         // for the filter to whitelist by these attributes. 
         
         try {
-            jsonMetadata = json(ds).add("datasetVersion", json(ds.getLatestVersion()))
+            jsonMetadata = json(ds).add("datasetVersion", json(ds.getLatestVersion(), true))
                     .add("sourceAddress", sourceAddressLabel)
                     .add("userIdentifier", userIdentifier)
                     .add("parentAlias", ds.getOwner().getAlias())
@@ -638,10 +645,10 @@ public class DatasetUtil {
         // Return the URI
         // For standard licenses, just return the stored URI
         return (license != null) ? license.getUri().toString()
-                // For custom terms, construct a URI with :draft or the version number in the URI
+                // For custom terms, construct a URI with draft version constant or the version number in the URI
                 : (dsv.getVersionState().name().equals("DRAFT")
                         ? dsv.getDataverseSiteUrl()
-                                + "/api/datasets/:persistentId/versions/:draft/customlicense?persistentId="
+                                + "/api/datasets/:persistentId/versions/" + DS_VERSION_DRAFT + "/customlicense?persistentId="
                                 + dsv.getDataset().getGlobalId().asString()
                         : dsv.getDataverseSiteUrl() + "/api/datasets/:persistentId/versions/" + dsv.getVersionNumber()
                                 + "." + dsv.getMinorVersionNumber() + "/customlicense?persistentId="

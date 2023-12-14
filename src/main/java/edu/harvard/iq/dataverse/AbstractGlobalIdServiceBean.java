@@ -5,8 +5,8 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.io.InputStream;
 
-import javax.ejb.EJB;
-import javax.inject.Inject;
+import jakarta.ejb.EJB;
+import jakarta.inject.Inject;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -229,6 +229,11 @@ public abstract class AbstractGlobalIdServiceBean implements GlobalIdServiceBean
         if(!isConfigured()) {
             return null;
         }
+        // Occasionally, the protocol separator character ':' comes in still
+        // URL-encoded as %3A (usually as a result of the URL having been 
+        // encoded twice):
+        fullIdentifierString = fullIdentifierString.replace("%3A", ":");
+        
         int index1 = fullIdentifierString.indexOf(':');
         if (index1 > 0) { // ':' found with one or more characters before it
             String protocol = fullIdentifierString.substring(0, index1);

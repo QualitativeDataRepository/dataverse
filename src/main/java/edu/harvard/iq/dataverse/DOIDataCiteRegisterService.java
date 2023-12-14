@@ -7,7 +7,6 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.AbstractGlobalIdServiceBean.GlobalIdMetadataTemplate;
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
-import edu.harvard.iq.dataverse.settings.JvmSettings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,16 +20,17 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.json.Json;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import javax.xml.transform.Source;
 
 
+import edu.harvard.iq.dataverse.settings.JvmSettings;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

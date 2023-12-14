@@ -179,7 +179,7 @@
                                                                 <!-- NORMAL DOWNLOAD BUTTON (NO TABULAR FILES) -->
                                                                 <li jsf:rendered="#{!DatasetPage.versionHasTabular}">
                                                                     <p:commandLink update="@form" actionListener="#{DatasetPage.startDownloadAllOriginal()}" styleClass="btn-download" 
-                                                                                   oncomplete="showPopup();">
+                                                                                   oncomplete="showPopup(false);">
                                                                     #{bundle.download}
                                                                         <h:outputFormat value="#{bundle['dataset.accessBtn.download.size']}">
                                                                             <f:param value="#{DatasetPage.sizeOfDataset}" />
@@ -193,7 +193,7 @@
                                                                     <!-- DOWNLOAD ORIGINAL BUTTON (TABULAR FILES PRESENT) -->
                                                                     <li jsf:rendered="#{ DatasetPage.sizeOfDatasetOrig != '0 B'  and !(DatasetPage.tooLargeToDownloadOriginal) }">
                                                                         <p:commandLink update="@form" actionListener="#{DatasetPage.startDownloadAllOriginal()}" 
-                                                                                       oncomplete="showPopup();"
+                                                                                       oncomplete="showPopup(false);"
                                                                                        styleClass="btn-download">
                                                                             #{bundle.downloadOriginal}
                                                                             <h:outputFormat value="#{bundle['dataset.accessBtn.download.size']}">
@@ -209,7 +209,7 @@
                                                                     </ui:fragment>
                                                                     <!-- DOWNLOAD ARCHIVAL FILES (TABULAR FILES PRESENT) -->
                                                                     <li jsf:rendered="#{!DatasetPage.tooLargeToDownloadArchival}">
-                                                                        <p:commandLink update="@form" oncomplete="showPopup();" 
+                                                                        <p:commandLink update="@form" oncomplete="showPopup(false);" 
                                                                                        actionListener="#{DatasetPage.startDownloadAllArchival()}" styleClass="btn-download">
                                                                                 #{bundle.downloadArchival}
                                                                             <h:outputFormat value="#{bundle['dataset.accessBtn.download.size']}">
@@ -231,17 +231,14 @@
                                                             </ui:fragment>
                                                             <ui:fragment rendered="#{settingsWrapper.globusDownload and settingsWrapper.isGlobusEnabledStorageDriver(DatasetPage.dataset.effectiveStorageDriverId)}">
                                                                 <li>
-                                                                    <h:commandLink styleClass="btn-download" action="#{DatasetPage.startGlobusTransfer()}">
-                                                                        <h:outputText value="Globus Transfer"/>
-                                                                    </h:commandLink>
-                                                                </li>
-                                                            </ui:fragment>
-                                                            
-                                                            <ui:fragment rendered="#{settingsWrapper.globusDownload and settingsWrapper.isGlobusEnabledStorageDriver(DatasetPage.dataset.effectiveStorageDriverId)}">
-                                                                <li>
-                                                                    <h:commandLink styleClass="btn-download" action="#{DatasetPage.startGlobusTransfer()}">
-                                                                        <h:outputText value="Globus Transfer"/>
-                                                                    </h:commandLink>
+                                                                    <p:commandLink update="@form" oncomplete="showPopup(true);" 
+                                                                                       actionListener="#{DatasetPage.startGlobusTransfer(true, false)}" styleClass="btn-download">
+                                                                                #{bundle.transfer}
+                                                                        <h:outputFormat value="#{bundle['dataset.accessBtn.transfer.size']}">
+                                                                            <f:param value="#{DatasetPage.sizeOfDataset}" />
+                                                                        </h:outputFormat>
+                                                                        <f:actionListener binding="#{DatasetPage.setTermsGuestbookPopupAction(bundle.download)}"/>
+                                                                        </p:commandLink>
                                                                 </li>
                                                             </ui:fragment>
                                                             
@@ -464,6 +461,17 @@
                                                             <h:outputText value="#{bundle['dataset.editBtn.itemLabel.thumbnailsAndWidgets']}"/>
                                                         </h:outputLink>
                                                     </li>
+                                                        <ui:fragment rendered="#{DatasetPage.datasetConfigureTools.size() >= 1}">
+                                                            <li class="dropdown-header">#{bundle['dataset.accessBtn.header.configure']} <span class="glyphicon glyphicon-cog"/></li>
+                                                            <!-- Configure tool links -->
+                                                            <ui:repeat var="tool" value="#{DatasetPage.datasetConfigureTools}">
+                                                                <li>
+                                                                    <p:commandLink styleClass="btn-explore" actionListener="#{DatasetPage.setDatasetConfigureTool(tool)}" process="@this" update="datasetForm:configureToolDialog" oncomplete="PF('configureToolDialog').show();">
+                                                                        <h:outputText value="#{tool.getDisplayNameLang()}"/>
+                                                                    </p:commandLink>
+                                                                </li>
+                                                            </ui:repeat>
+                                                        </ui:fragment>
                                                     <ui:fragment rendered="#{!DatasetPage.dataset.released and DatasetPage.dataset.latestVersion.versionState=='DRAFT' and permissionsWrapper.canIssueDeleteDatasetCommand(DatasetPage.dataset)}">
                                                         <li role="separator" class="divider"></li>
                                                         <li>
@@ -965,6 +973,19 @@
                             </button>
                         </div>
                     </p:dialog>
+                    <p:dialog id="configureToolDialog" styleClass="smallPopUp" header="#{DatasetPage.datasetConfigureTool.displayNameLang}" widgetVar="configureToolDialog" modal="true">
+                        <p class="help-block">
+                            <h:outputFormat value="#{DatasetPage.datasetConfigureTool.description}" escape="false"/>
+                        </p>
+                        <div class="button-block">
+                            <p:commandLink styleClass="btn btn-default" action="#{DatasetPage.configure(DatasetPage.datasetConfigureTool)}" oncomplete="PF('configureToolDialog').hide();">
+                                <h:outputFormat value="#{bundle['continue']}"/>
+                            </p:commandLink>
+                            <button class="btn btn-link" onclick="PF('configureToolDialog').hide();" type="button">
+                                #{bundle.cancel}
+                            </button>
+                        </div>
+                    </p:dialog>
                     <p:dialog id="citationsDialog" styleClass="smallPopUp" header="#{bundle['metrics.citations.dialog.header']}" widgetVar="citationsDialog" modal="true">
                         <p class="help-block">
                             <h:outputFormat value="#{bundle['metrics.citations.dialog.help']}" escape="false">
@@ -1040,6 +1061,28 @@
                                              rendered="#{DatasetPage.guestbookAndTermsPopupRequired and !settingsWrapper.rsyncDownload}"
                                              oncomplete="PF('guestbookAndTermsPopup').show();" />
                             <button class="btn btn-link" onclick="PF('downloadMixed').hide();" type="button">
+                                #{bundle.cancel}
+                            </button>
+                        </div>
+                    </p:dialog>
+                    <p:dialog id="globusTransferMixed" styleClass="smallPopUp" header="#{bundle['dataset.inValidSelectedFilesForTransfer']}" widgetVar="globusTransferMixed" modal="true">
+                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.mixedSelectedFilesForTransfer']}</p>
+                        <table>
+                            <ui:repeat var="resFile" value="#{DatasetPage.selectedNonGlobusTransferableFiles}" >
+                                <tr>
+                                    <td>#{resFile.label}</td>
+                                </tr>
+                            </ui:repeat>
+                        </table>
+                        <div class="button-block">
+                            <p class="help-block">#{bundle['dataset.transferUnrestricted']}</p>
+                            <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}" onclick="PF('globusTransferMixed').hide()" 
+                                             rendered="#{!DatasetPage.guestbookAndTermsPopupRequired}"
+                                             action="#{DatasetPage.startGlobusTransfer(false, true)}"/>
+                            <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}" onclick="PF('globusTransferMixed').hide();"
+                                             rendered="#{DatasetPage.guestbookAndTermsPopupRequired and !settingsWrapper.rsyncDownload}"
+                                             oncomplete="PF('guestbookAndTermsPopup').show();" />
+                            <button class="btn btn-link" onclick="PF('globusTransferMixed').hide();" type="button">
                                 #{bundle.cancel}
                             </button>
                         </div>
@@ -1493,6 +1536,7 @@
                             <ui:param name="fileDownloadService" value="#{DatasetPage.fileDownloadService}"/>
                             <ui:param name="termsGuestbookPopupAction" value="#{DatasetPage.termsGuestbookPopupAction}"/>
                             <ui:param name="guestbookPopupRequiredAtDownload" value="#{DatasetPage.guestbookPopupRequiredAtDownload}"/>
+                            <ui:param name="isGlobusTransfer" value="#{DatasetPage.globusTransferRequested}"/>
                         </ui:include>
                     </p:dialog>
                     <!-- Preview Guestbook -->
@@ -1569,6 +1613,12 @@
                                     </p:fragment>
                                 </div>
                             </div>
+                        </div>
+                        <div>
+                            <p:fragment rendered="#{!empty DatasetPage.alreadyLinkedDataverses}"> 
+                            <h:outputLabel  value="#{bundle['dataset.linking.popop.already.linked.note']}"/>&#160;
+                            <h:outputText rendered="#{!empty DatasetPage.alreadyLinkedDataverses }" value="#{DatasetPage.alreadyLinkedDataverses}"/>
+                            </p:fragment>
                         </div>
                         <div class="button-block">
                             <p:commandButton id="saveLinkButton" styleClass="btn btn-default"    
@@ -1886,10 +1936,14 @@
                         $('button[id$="updateOwnerDataverse"]').trigger('click');
                     } 
                     
-                    function showPopup() {
+                    function showPopup(isTransfer) {
                         var outcome = document.getElementById("datasetForm:validateFilesOutcome").value;
                         if (outcome ==='Mixed'){
-                            PF('downloadMixed').show();
+                            if(isTransfer) {
+                               PF('globusTransferMixed').show();
+                            } else {
+                                PF('downloadMixed').show();
+                            }
                         }
                         if (outcome ==='FailEmpty'){
                             PF('selectFilesForDownload').show();

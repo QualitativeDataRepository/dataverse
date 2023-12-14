@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse;
 
-import edu.harvard.iq.dataverse.authorization.AccessRequest;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
@@ -9,6 +8,9 @@ import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.storageuse.StorageQuota;
+import edu.harvard.iq.dataverse.storageuse.StorageUseServiceBean;
+import edu.harvard.iq.dataverse.storageuse.UploadSessionQuotaLimit;
 import edu.harvard.iq.dataverse.util.FileSortFieldAndOrder;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -27,24 +29,20 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Named;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.StoredProcedureQuery;
-import javax.persistence.TypedQuery;
-import org.apache.commons.lang3.RandomStringUtils;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
+import jakarta.inject.Named;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 
 /**
  *
  * @author Leonid Andreev
- * 
- * Basic skeleton of the new DataFile service for DVN 4.0
  * 
  */
 
@@ -66,6 +64,11 @@ public class DataFileServiceBean implements java.io.Serializable {
     IngestServiceBean ingestService;
 
     @EJB EmbargoServiceBean embargoService;
+    
+    @EJB SystemConfig systemConfig;
+    
+    @EJB
+    StorageUseServiceBean storageUseService; 
     
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -948,7 +951,6 @@ public class DataFileServiceBean implements java.io.Serializable {
          is more important... 
         
         */
-                
         
         file = this.find(file.getId());
         if (ImageThumbConverter.isThumbnailAvailable(file)) {
@@ -956,7 +958,7 @@ public class DataFileServiceBean implements java.io.Serializable {
             this.save(file);
             return true;
         }
-        file.setPreviewsHaveFailed(true);
+        file.setPreviewImageFail(true);
         this.save(file);
         return false;
     }
@@ -1354,5 +1356,40 @@ public class DataFileServiceBean implements java.io.Serializable {
     public Embargo findEmbargo(Long id) {
         DataFile d = find(id);
         return d.getEmbargo();
+    }
+    
+    /**
+     * Checks if the supplied DvObjectContainer (Dataset or Collection; although
+     * only collection-level storage quotas are officially supported as of now)
+     * has a quota configured, and if not, keeps checking if any of the direct
+     * ancestor Collections further up have a configured quota. If it finds one, 
+     * it will retrieve the current total content size for that specific ancestor 
+     * dvObjectContainer and use it to define the quota limit for the upload
+     * session in progress. 
+     * 
+     * @param parent - DvObjectContainer, Dataset or Collection
+     * @return upload session size limit spec, or null if quota not defined on 
+     * any of the ancestor DvObjectContainers
+     */
+    public UploadSessionQuotaLimit getUploadSessionQuotaLimit(DvObjectContainer parent) {
+        DvObjectContainer testDvContainer = parent; 
+        StorageQuota quota = testDvContainer.getStorageQuota();
+        while (quota == null && testDvContainer.getOwner() != null) {
+            testDvContainer = testDvContainer.getOwner();
+            quota = testDvContainer.getStorageQuota();
+            if (quota != null) {
+                break;
+            }
+        }    
+        if (quota == null || quota.getAllocation() == null) {
+            return null; 
+        }
+        
+        // Note that we are checking the recorded storage use not on the 
+        // immediate parent necessarily, but on the specific ancestor 
+        // DvObjectContainer on which the storage quota is defined:
+        Long currentSize = storageUseService.findStorageSizeByDvContainerId(testDvContainer.getId()); 
+        
+        return new UploadSessionQuotaLimit(quota.getAllocation(), currentSize);
     }
 }

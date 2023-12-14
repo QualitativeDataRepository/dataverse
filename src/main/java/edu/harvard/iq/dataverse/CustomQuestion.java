@@ -1,8 +1,8 @@
 package edu.harvard.iq.dataverse;
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  *
