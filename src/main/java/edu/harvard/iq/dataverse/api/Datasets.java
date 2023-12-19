@@ -4247,7 +4247,7 @@ public class Datasets extends AbstractApiBean {
                 BundleUtil.getStringFromBundle("datasets.api.modificationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.curationstatus"),
                 String.join(",", assignees.keySet())));
-        List<Long> adminnedDatasetIDList = permissionSvc.getDvObjectIdsUserHasRoleOn(user, Collections.singletonList(dataverseRoleService.findBuiltinRoleByAlias(DataverseRole.ADMIN)), Collections.singletonList(DvObject.DType.Dataset.name()), true);
+        List<Long> adminnedDatasetIDList = permissionSvc.getDvObjectIdsUserHasRoleOn(user, Collections.singletonList(dataverseRoleService.findBuiltinRoleByAlias(DataverseRole.ADMIN)), Collections.singletonList(DvObject.DType.Dataset.name()), false);
         for (Dataset dataset : datasetSvc.findAllWithDraftVersion()) {
             if(adminnedDatasetIDList.contains(dataset.getId())) {
                 List<RoleAssignment> ras = permissionService.assignmentsOn(dataset);
