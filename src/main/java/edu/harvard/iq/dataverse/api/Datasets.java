@@ -4247,8 +4247,10 @@ public class Datasets extends AbstractApiBean {
                 BundleUtil.getStringFromBundle("datasets.api.modificationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.curationstatus"),
                 String.join(",", assignees.keySet())));
+        HashSet<Permission> permissions = new HashSet<Permission>();
         for (Dataset dataset : datasetSvc.findAllWithDraftVersion()) {
-            if(permissionSvc.hasPermissionsFor(user, dataset, Collections.singleton(Permission.PublishDataset))) {
+            permissions.add(Permission.PublishDataset);
+            if(permissionSvc.hasPermissionsFor(user, dataset, permissions)) {
                 List<RoleAssignment> ras = permissionService.assignmentsOn(dataset);
                 curationRoles.forEach(r -> {
                     assignees.put(r.getAlias(), new HashSet<String>());
