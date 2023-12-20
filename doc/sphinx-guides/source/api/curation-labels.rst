@@ -100,7 +100,7 @@ Get a Report on the Curation Status of All Datasets
 
 To get a CSV file listing the curation label assigned to each Dataset with a draft version, along with the creation and last modification dates, and list of those with permissions to publish the version.
 
-This API call is restricted to superusers.
+This API call filters the returned list to only show Datasets that the user can publish.
 
 .. code-block:: bash
 

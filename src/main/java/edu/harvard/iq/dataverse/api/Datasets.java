@@ -4223,11 +4223,9 @@ public class Datasets extends AbstractApiBean {
     @Produces("text/csv")
     public Response getCurationStates(@Context ContainerRequestContext crc) throws WrappedResponse {
 
+        AuthenticatedUser user = null;
         try {
-            AuthenticatedUser user = getRequestAuthenticatedUserOrDie(crc);
-            if (!user.isSuperuser()) {
-                return error(Response.Status.FORBIDDEN, "Superusers only.");
-            }
+            user = getRequestAuthenticatedUserOrDie(crc);
         } catch (WrappedResponse wr) {
             return wr.getResponse();
         }
@@ -4249,26 +4247,30 @@ public class Datasets extends AbstractApiBean {
                 BundleUtil.getStringFromBundle("datasets.api.modificationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.curationstatus"),
                 String.join(",", assignees.keySet())));
+        HashSet<Permission> permissions = new HashSet<Permission>();
         for (Dataset dataset : datasetSvc.findAllWithDraftVersion()) {
-            List<RoleAssignment> ras = permissionService.assignmentsOn(dataset);
-            curationRoles.forEach(r -> {
-                assignees.put(r.getAlias(), new HashSet<String>());
-            });
-            for (RoleAssignment ra : ras) {
-                if (curationRoles.contains(ra.getRole())) {
-                    assignees.get(ra.getRole().getAlias()).add(ra.getAssigneeIdentifier());
+            permissions.add(Permission.PublishDataset);
+            if(permissionSvc.hasPermissionsFor(user, dataset, permissions)) {
+                List<RoleAssignment> ras = permissionService.assignmentsOn(dataset);
+                curationRoles.forEach(r -> {
+                    assignees.put(r.getAlias(), new HashSet<String>());
+                });
+                for (RoleAssignment ra : ras) {
+                    if (curationRoles.contains(ra.getRole())) {
+                        assignees.get(ra.getRole().getAlias()).add(ra.getAssigneeIdentifier());
+                    }
                 }
+                DatasetVersion dsv = dataset.getLatestVersion();
+                String name = dataset.getCurrentName().replace("\"", "\"\"");
+                String status = dsv.getExternalStatusLabel();
+                String url = systemConfig.getDataverseSiteUrl() + dataset.getTargetUrl() + dataset.getGlobalId().asString();
+                String date = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getCreateTime());
+                String modDate = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getLastUpdateTime());
+                String hyperlink = "\"=HYPERLINK(\"\"" + url + "\"\",\"\"" + name + "\"\")\"";
+                List<String> sList = new ArrayList<String>();
+                assignees.entrySet().forEach(e -> sList.add(e.getValue().size() == 0 ? "" : String.join(";", e.getValue())));
+                csvSB.append("\n").append(String.join(",", hyperlink, date, modDate, status == null ? "" : status, String.join(",", sList)));
             }
-            DatasetVersion dsv = dataset.getLatestVersion();
-            String name = dataset.getCurrentName().replace("\"", "\"\"");
-            String status = dsv.getExternalStatusLabel();
-            String url = systemConfig.getDataverseSiteUrl() + dataset.getTargetUrl() + dataset.getGlobalId().asString();
-            String date = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getCreateTime());
-            String modDate = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getLastUpdateTime());
-            String hyperlink = "\"=HYPERLINK(\"\"" + url + "\"\",\"\"" + name + "\"\")\"";
-            List<String> sList = new ArrayList<String>();
-            assignees.entrySet().forEach(e -> sList.add(e.getValue().size() == 0 ? "" : String.join(";", e.getValue())));
-            csvSB.append("\n").append(String.join(",", hyperlink, date, modDate, status == null ? "" : status, String.join(",", sList)));
         }
         csvSB.append("\n");
         return ok(csvSB.toString(), MediaType.valueOf(FileUtil.MIME_TYPE_CSV), "datasets.status.csv");
