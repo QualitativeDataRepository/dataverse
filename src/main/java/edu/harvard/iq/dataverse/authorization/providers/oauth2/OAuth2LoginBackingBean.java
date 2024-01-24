@@ -126,7 +126,10 @@ public class OAuth2LoginBackingBean implements Serializable {
                     AuthenticatedUser dvUser = authenticationSvc.lookupUser(idtf);
 
                     if (dvUser == null) {
-                        dvUser = authenticationSvc.getAuthenticatedUserByEmail(oauthUser.getUsername());
+                        dvUser = authenticationSvc.getAuthenticatedUser(oauthUser.getUsername());
+                        if(dvUser==null) {
+                          dvUser = authenticationSvc.getAuthenticatedUserByEmail(oauthUser.getUsername());
+                        }
                         if (dvUser != null) {
                             logger.fine("cli_id " + idp.getClientId());
                             logger.fine("id " + idp.getId());
