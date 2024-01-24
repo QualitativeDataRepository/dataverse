@@ -117,14 +117,9 @@ public class SearchIncludeFragment implements java.io.Serializable {
     final private String ASCENDING = SortOrder.asc.toString();
     final private String DESCENDING = SortOrder.desc.toString();
     private String typeFilterQuery;
-    private Long facetCountDataverses = 0L;
-    private Long facetCountDatasets = 0L;
-    private Long facetCountFiles = 0L;
     Map<String, Long> previewCountbyType = new HashMap<>();
     private String sortField;
     private SortOrder sortOrder;
-    private String currentSort;
-    private String currentSortFriendly;
     private int page = 1;
     private int paginationGuiStart = 1;
     private int paginationGuiEnd = 10;
@@ -140,7 +135,6 @@ public class SearchIncludeFragment implements java.io.Serializable {
     private String errorFromSolr;
     private SearchException searchException;
     private boolean rootDv = false;
-    private Map<Long, String> harvestedDatasetDescriptions = null;
     private boolean solrErrorEncountered = false;
     private String adjustFacetName = null; 
     private int adjustFacetNumber = 0; 
@@ -1373,6 +1367,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
     public void setDisplayCardValues() {
 
         Set<Long> harvestedDatasetIds = null;
+        Set<Long> harvestedFileIds = null;
         for (SolrSearchResult result : searchResultsList) {
             //logger.info("checking DisplayImage for the search result " + i++);
             if (result.getType().equals("dataverses")) {
@@ -1398,10 +1393,10 @@ public class SearchIncludeFragment implements java.io.Serializable {
             } else if (result.getType().equals("files")) {
                 result.setImageUrl(thumbnailServiceWrapper.getFileCardImageAsBase64Url(result));
                 if (result.isHarvested()) {
-                    if (harvestedDatasetIds == null) {
-                        harvestedDatasetIds = new HashSet<>();
+                    if (harvestedFileIds == null) {
+                        harvestedFileIds = new HashSet<>();
                     }
-                    harvestedDatasetIds.add(result.getParentIdAsLong());
+                    harvestedFileIds.add(result.getEntityId());
                 }
             }
         }
@@ -1413,25 +1408,35 @@ public class SearchIncludeFragment implements java.io.Serializable {
         // SQL query:
         
         if (harvestedDatasetIds != null) {
-            Map<Long, String> descriptionsForHarvestedDatasets = datasetService.getArchiveDescriptionsForHarvestedDatasets(harvestedDatasetIds);
-            if (descriptionsForHarvestedDatasets != null && descriptionsForHarvestedDatasets.size() > 0) {
+            Map<Long, String> descriptionsForHarvestedDatasets = dvObjectService.getArchiveDescriptionsForHarvestedDvObjects(harvestedDatasetIds);
+            if (descriptionsForHarvestedDatasets != null && !descriptionsForHarvestedDatasets.isEmpty()) {
                 for (SolrSearchResult result : searchResultsList) {
-                    if (result.isHarvested()) {
-                        if (result.getType().equals("files")) { 
-                            if (descriptionsForHarvestedDatasets.containsKey(result.getParentIdAsLong())) {
-                                result.setHarvestingDescription(descriptionsForHarvestedDatasets.get(result.getParentIdAsLong()));
-                            }
-                        } else if (result.getType().equals("datasets")) {
-                            if (descriptionsForHarvestedDatasets.containsKey(result.getEntityId())) {
-                                result.setHarvestingDescription(descriptionsForHarvestedDatasets.get(result.getEntityId()));
-                            }
-                        }
+                    if (result.isHarvested() && result.getType().equals("datasets") && descriptionsForHarvestedDatasets.containsKey(result.getEntityId())) {
+                        result.setHarvestingDescription(descriptionsForHarvestedDatasets.get(result.getEntityId()));
                     }
                 }
             }
             descriptionsForHarvestedDatasets = null;
             harvestedDatasetIds = null;
         }
+
+        if (harvestedFileIds != null) {
+
+            Map<Long, String> descriptionsForHarvestedFiles = dvObjectService.getArchiveDescriptionsForHarvestedDvObjects(harvestedFileIds);
+            if (descriptionsForHarvestedFiles != null && !descriptionsForHarvestedFiles.isEmpty()) {
+                for (SolrSearchResult result : searchResultsList) {
+                    if (result.isHarvested() && result.getType().equals("files") && descriptionsForHarvestedFiles.containsKey(result.getEntityId())) {
+
+                        result.setHarvestingDescription(descriptionsForHarvestedFiles.get(result.getEntityId()));
+
+                    }
+                }
+            }
+            descriptionsForHarvestedFiles = null;
+            harvestedDatasetIds = null;
+
+        }
+        
         
         // determine which of the objects are linked:
         
