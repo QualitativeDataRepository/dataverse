@@ -11,13 +11,13 @@
                 <p:focus context="contactDialog"/>
                 <!-- to: Support -->
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">#{bundle['contact.to']}</label>
+                    <span class="col-sm-3 control-label">#{bundle['contact.to']}</span>
                     <div class="col-sm-9">
                         <p id="messageTo" class="form-control-static">#{sendFeedbackDialog.getMessageTo()}</p>
                     </div>
                 </div>
                 <div class="form-group" jsf:rendered="#{sendFeedbackDialog.ccSupport()}">
-                    <label class="col-sm-3 control-label">#{bundle['contact.cc']}</label>
+                    <span class="col-sm-3 control-label">#{bundle['contact.cc']}</span>
                     <div class="col-sm-9">
                         <p id="messageCC" class="form-control-static">#{sendFeedbackDialog.getMessageCC()}</p>
                     </div>
@@ -25,7 +25,7 @@
                 <ui:fragment rendered="#{sendFeedbackDialog.isLoggedIn()}">
                 <!-- from email (logged in + auto-filled) -->
                     <div class="form-group">
-                        <label class="col-sm-3 control-label">#{bundle['contact.from']}</label>
+                        <span class="col-sm-3 control-label">#{bundle['contact.from']}</span>
                         <div class="col-sm-9">
                             <p id="userEmailStatic" class="form-control-static">#{sendFeedbackDialog.loggedInUserEmail()}</p>
                         </div>
