@@ -530,7 +530,7 @@
         </dependency>
         <dependency>
           <groupId>com.google.cloud</groupId>
-          <artifactId>libraries-bom</artifactId>
+          <artifactId>google-cloud-storage</artifactId>
           <!-- no version here as managed in <dependencyManagement> of parent for convergence! -->
         </dependency>
         <!-- JWT support, currently in DRSSubmitToArchiveCommand-->
