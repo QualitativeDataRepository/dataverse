@@ -197,7 +197,7 @@ public class MediaResourceManagerImpl implements MediaResourceManager {
                                     // Finalize the delete of the physical file 
                                     // (File service will double-check that the datafile no 
                                     // longer exists in the database, before proceeding to 
-                                    // delete the physical file)
+                                    // delete the physical file) so this will result in a warning whenever the file needs to remain.
                                     try {
                                         dataFileService.finalizeFileDelete(fileIdLong, deleteStorageLocation);
                                     } catch (IOException ioex) {
