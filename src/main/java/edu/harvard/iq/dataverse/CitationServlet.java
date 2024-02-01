@@ -36,7 +36,14 @@ public class CitationServlet extends HttpServlet {
         
         String persistentId = request.getParameter("persistentId");
         if (persistentId != null) {
-            DvObject dob = dvObjectService.findByGlobalId(PidUtil.parseAsGlobalID(persistentId));
+            GlobalId pid = PidUtil.parseAsGlobalID(persistentId);
+            DvObject dob = dvObjectService.findByGlobalId(pid);
+            if (dob == null) {
+                dob = dvObjectService.findByAltGlobalId(pid, DvObject.DType.Dataset);
+                if (dob == null) {
+                    dob = dvObjectService.findByAltGlobalId(pid, DvObject.DType.DataFile);
+                }
+            }
             if (dob != null) {
                 if (dob instanceof Dataset) {
                     response.sendRedirect("dataset.xhtml?persistentId=" + persistentId);
