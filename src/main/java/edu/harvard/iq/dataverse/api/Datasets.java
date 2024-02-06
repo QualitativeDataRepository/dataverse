@@ -36,24 +36,6 @@ import edu.harvard.iq.dataverse.externaltools.ExternalToolHandler;
 import edu.harvard.iq.dataverse.globus.GlobusServiceBean;
 import edu.harvard.iq.dataverse.globus.GlobusUtil;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
-import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
-import edu.harvard.iq.dataverse.api.AbstractApiBean.WrappedResponse;
-import edu.harvard.iq.dataverse.api.dto.RoleAssignmentDTO;
-import edu.harvard.iq.dataverse.dataaccess.DataAccess;
-import edu.harvard.iq.dataverse.dataaccess.GlobusAccessibleStore;
-import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
-import edu.harvard.iq.dataverse.dataaccess.S3AccessIO;
-import edu.harvard.iq.dataverse.dataaccess.StorageIO;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.exception.UnforcedCommandException;
-import edu.harvard.iq.dataverse.engine.command.impl.GetDatasetStorageSizeCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.RevokeRoleCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.UpdateDvObjectPIDMetadataCommand;
-import edu.harvard.iq.dataverse.makedatacount.DatasetExternalCitations;
-import edu.harvard.iq.dataverse.makedatacount.DatasetExternalCitationsServiceBean;
-import edu.harvard.iq.dataverse.makedatacount.DatasetMetrics;
-import edu.harvard.iq.dataverse.makedatacount.DatasetMetricsServiceBean;
-import edu.harvard.iq.dataverse.makedatacount.MakeDataCountLoggingServiceBean;
 import edu.harvard.iq.dataverse.makedatacount.*;
 import edu.harvard.iq.dataverse.makedatacount.MakeDataCountLoggingServiceBean.MakeDataCountEntry;
 import edu.harvard.iq.dataverse.metrics.MetricsUtil;
@@ -64,16 +46,7 @@ import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.*;
 import edu.harvard.iq.dataverse.util.bagit.OREMap;
-import edu.harvard.iq.dataverse.util.json.JSONLDUtil;
-import edu.harvard.iq.dataverse.util.json.JsonLDTerm;
-import edu.harvard.iq.dataverse.util.json.JsonParseException;
-import edu.harvard.iq.dataverse.util.json.JsonUtil;
-import edu.harvard.iq.dataverse.util.SignpostingResources;
-import edu.harvard.iq.dataverse.search.IndexServiceBean;
-import static edu.harvard.iq.dataverse.api.ApiConstants.*;
-import static edu.harvard.iq.dataverse.util.json.JsonPrinter.*;
-import static edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder.jsonObjectBuilder;
-import edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder;
+import edu.harvard.iq.dataverse.util.json.*;
 import edu.harvard.iq.dataverse.workflow.Workflow;
 import edu.harvard.iq.dataverse.workflow.WorkflowContext;
 import edu.harvard.iq.dataverse.workflow.WorkflowContext.TriggerType;
@@ -813,7 +786,7 @@ public class Datasets extends AbstractApiBean {
     @Path("{id}/metadata")
     @Produces("application/ld+json, application/json-ld")
     public Response getVersionJsonLDMetadata(@Context ContainerRequestContext crc, @PathParam("id") String id, @Context UriInfo uriInfo, @Context HttpHeaders headers) {
-        return getVersionJsonLDMetadata(crc, id, DS_VERSION_DRAFT, uriInfo, headers);
+        return getVersionJsonLDMetadata(crc, id, DS_VERSION_LATEST, uriInfo, headers);
     }
 
     @PUT
@@ -2768,7 +2741,7 @@ public class Datasets extends AbstractApiBean {
 
             @Override
             public Command<DatasetVersion> handleLatest() {
-                return new GetLatestAccessibleDatasetVersionCommand(req, ds, includeDeaccessioned);
+                return new GetLatestAccessibleDatasetVersionCommand(req, ds, includeDeaccessioned, checkPermsWhenDeaccessioned);
             }
 
             @Override
