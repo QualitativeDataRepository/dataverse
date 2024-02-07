@@ -1,17 +1,5 @@
 package edu.harvard.iq.dataverse;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import edu.harvard.iq.dataverse.DatasetVersion.VersionState;
 import edu.harvard.iq.dataverse.api.util.FailedPIDResolutionLoggingServiceBean;
 import edu.harvard.iq.dataverse.api.util.FailedPIDResolutionLoggingServiceBean.FailedPIDResolutionEntry;
@@ -38,6 +26,13 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
+
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
@@ -54,6 +49,7 @@ import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -604,6 +600,54 @@ public class DatasetServiceBean implements java.io.Serializable {
 
         return null;
     }
+
+    /**
+     * Used to identify and properly display Harvested objects on the dataverse page.
+     *
+     * @param datasetIds
+     * @return
+     */
+    public Map<Long, String> getArchiveDescriptionsForHarvestedDatasets(Set<Long> datasetIds){
+        if (datasetIds == null || datasetIds.size() < 1) {
+            return null;
+        }
+
+        String datasetIdStr = StringUtils.join(datasetIds, ", ");
+
+        String qstr = "SELECT d.id, h.archiveDescription FROM harvestingClient h, dataset d WHERE d.harvestingClient_id = h.id AND d.id IN (" + datasetIdStr + ")";
+        List<Object[]> searchResults;
+
+        try {
+            searchResults = em.createNativeQuery(qstr).getResultList();
+        } catch (Exception ex) {
+            searchResults = null;
+        }
+
+        if (searchResults == null) {
+            return null;
+        }
+
+        Map<Long, String> ret = new HashMap<>();
+
+        for (Object[] result : searchResults) {
+            Long dsId;
+            if (result[0] != null) {
+                try {
+                    dsId = (Long)result[0];
+                } catch (Exception ex) {
+                    dsId = null;
+                }
+                if (dsId == null) {
+                    continue;
+                }
+
+                ret.put(dsId, (String)result[1]);
+            }
+        }
+
+        return ret;
+    }
+
 
 
     public boolean isDatasetCardImageAvailable(DatasetVersion datasetVersion, User user) {
