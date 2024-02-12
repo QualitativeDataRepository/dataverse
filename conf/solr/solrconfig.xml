@@ -718,6 +718,9 @@
       <str name="echoParams">explicit</str>
       <int name="rows">10</int>
       <!--
+        QDR - does not use the IQSS standard boosting configuration as it interferes with the custom code to allow full-text
+        search for restricted/unpublished files. 
+        
         This boosting configuration has been
         - first introduced in 2015, see https://github.com/IQSS/dataverse/issues/1928#issuecomment-91651853,
         - been re-introduced in 2018 for Solr 7.2.1 update, see https://github.com/IQSS/dataverse/issues/4158,
@@ -727,46 +730,6 @@
         Since then, this has not been touched again (2021-12-21).
       -->
       <str name="defType">edismax</str>
-      <float name="tie">0.075</float>
-      <str name="qf">
-          dvName^400
-          authorName^180
-          dvSubject^190
-          dvDescription^180
-          dvAffiliation^170
-          title^130
-          subject^120
-          keyword^110
-          topicClassValue^100
-          dsDescriptionValue^90
-          authorAffiliation^80
-          publicationCitation^60
-          producerName^50
-          fileName^30
-          fileDescription^30
-          variableLabel^20
-          variableName^10
-          _text_^1.0
-      </str>
-      <str name="pf">
-          dvName^200
-          authorName^100
-          dvSubject^100
-          dvDescription^100
-          dvAffiliation^100
-          title^75
-          subject^75
-          keyword^75
-          topicClassValue^75
-          dsDescriptionValue^75
-          authorAffiliation^75
-          publicationCitation^75
-          producerName^75
-      </str>
-      <!-- Even though this number is huge it only seems to apply a boost of ~1.5x to final result -MAD 4.9.3 -->
-      <str name="bq">
-          isHarvested:false^25000
-      </str>
     </lst>
   </requestHandler>
 
