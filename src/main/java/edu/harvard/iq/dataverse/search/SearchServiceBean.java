@@ -285,7 +285,8 @@ public class SearchServiceBean {
         List<DatasetFieldType> datasetFields = datasetFieldService.findAllOrderedById();
         Map<String, String> solrFieldsToHightlightOnMap = new HashMap<>();
         if (addHighlights) {
-            solrQuery.setHighlight(true).setHighlightSnippets(1);
+            
+            solrQuery.setHighlight(true).setParam("hl.method","original").setHighlightSnippets(1);
             Integer fragSize = systemConfig.getSearchHighlightFragmentSize();
             if (fragSize != null) {
                 solrQuery.setHighlightFragsize(fragSize);
