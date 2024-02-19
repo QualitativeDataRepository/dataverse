@@ -553,15 +553,18 @@
                                                 <p class="form-control-static" style="display:inline-block;">
                                                     <span class="form-control-static">#{DataverseUserPage.currentUser.email}</span>
                                                     &#160;
-                                                    <span class="text-danger" jsf:rendered="#{DataverseUserPage.emailNotVerified}">
+                                                    <!--QDR - disable local email verification-->
+                                                    <span class="text-danger" jsf:rendered="false and #{DataverseUserPage.emailNotVerified}">
                                                         <span class="glyphicon glyphicon-ban-circle"/> #{bundle['confirmEmail.notVerified']}
                                                     </span>
-                                                    <span class="text-success" jsf:rendered="#{!DataverseUserPage.emailNotVerified}">
+                                                    <!--QDR - disable local email verification-->
+                                                    <span class="text-success" jsf:rendered="false and #{!DataverseUserPage.emailNotVerified}">
                                                         <span class="glyphicon glyphicon-ok"/> #{bundle['confirmEmail.verified']}
                                                     </span>
                                                 </p>
                                                 &#160;
-                                                <p:commandLink rendered="#{DataverseUserPage.showVerifyEmailButton()}" styleClass="btn btn-default" 
+                                                <!--QDR - disable local email verification-->
+                                                <p:commandLink rendered="false and #{DataverseUserPage.showVerifyEmailButton()}" styleClass="btn btn-default" 
                                                                 id="verifyEmailButton"
                                                                 action="#{DataverseUserPage.sendConfirmEmail()}"
                                                                 update="@([id$=verifyEmailButton]), :messagePanel"
