@@ -21,6 +21,7 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.mocks.MocksFactory;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
 import java.util.Collections;
 import java.util.List;
@@ -182,7 +183,7 @@ public class ReturnDatasetToAuthorCommandTest {
     public void testEmptyOrNullComment(){
         dataset.getLatestVersion().setVersionState(DatasetVersion.VersionState.DRAFT);
         Dataset updatedDataset = null;
-        String expected = "You must enter a reason for returning a dataset to the author(s).";
+        String expected = BundleUtil.getStringFromBundle("dataset.reject.commentNull");
         String actual = null;
         try {
             testEngine.submit( new AddLockCommand(dataverseRequest, dataset,
