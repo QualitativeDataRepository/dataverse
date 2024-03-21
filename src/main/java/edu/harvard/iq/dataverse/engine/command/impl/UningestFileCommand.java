@@ -47,10 +47,10 @@ public class UningestFileCommand extends AbstractVoidCommand  {
     @Override
     protected void executeImpl(CommandContext ctxt) throws CommandException {
         
-        // first check if  user is a superuser
-        if (!(getUser() instanceof AuthenticatedUser)) {      
+        // first check if user is authenticated (not needed with @RequiredPermissions(Permission.PublishDataset) above?
+        if (!(getUser() instanceof AuthenticatedUser)) {
             throw new PermissionException("Uningest File can only be called by User with the PublishDataset permission.",
-                this,  Collections.singleton(Permission.EditDataset), uningest);                
+                this,  Collections.singleton(Permission.EditDataset), uningest);
         }
         
         // is this actually a tabular data file?

@@ -11,7 +11,6 @@ import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
-import edu.harvard.iq.dataverse.dataaccess.AbstractRemoteOverlayAccessIO;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.GlobusAccessibleStore;
 import edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter;
@@ -25,6 +24,7 @@ import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
+import edu.harvard.iq.dataverse.engine.command.impl.CheckRateLimitForDatasetPage;
 import edu.harvard.iq.dataverse.engine.command.impl.CreatePrivateUrlCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CuratePublishedDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeaccessionDatasetVersionCommand;
@@ -37,13 +37,17 @@ import edu.harvard.iq.dataverse.engine.command.impl.PublishDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.PublishDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.util.cache.CacheFactoryBean;
 import io.gdcc.spi.export.ExportException;
 import io.gdcc.spi.export.Exporter;
 import edu.harvard.iq.dataverse.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.ingest.IngestServiceBean;
 import edu.harvard.iq.dataverse.license.LicenseServiceBean;
 import edu.harvard.iq.dataverse.metadataimport.ForeignMetadataImportServiceBean;
+import edu.harvard.iq.dataverse.pidproviders.PidProvider;
 import edu.harvard.iq.dataverse.pidproviders.PidUtil;
+import edu.harvard.iq.dataverse.pidproviders.doi.AbstractDOIProvider;
+import edu.harvard.iq.dataverse.pidproviders.doi.datacite.DataCiteDOIProvider;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
@@ -61,7 +65,6 @@ import static edu.harvard.iq.dataverse.util.StringUtil.isEmpty;
 
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import edu.harvard.iq.dataverse.util.URLTokenUtil;
 import edu.harvard.iq.dataverse.util.WebloaderUtil;
 import edu.harvard.iq.dataverse.validation.URLValidator;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
@@ -238,6 +241,8 @@ public class DatasetPage implements java.io.Serializable {
     SolrClientService solrClientService;
     @EJB
     DvObjectServiceBean dvObjectService;
+    @EJB
+    CacheFactoryBean cacheFactory;
     @Inject
     DataverseRequestServiceBean dvRequestService;
     @Inject
@@ -535,7 +540,6 @@ public class DatasetPage implements java.io.Serializable {
         this.removeUnusedTags = removeUnusedTags;
     }
 
-    private List<FileMetadata> fileMetadatas;
     private String fileSortField;
     private String fileSortOrder;
     private boolean tagPresort = true;
@@ -703,6 +707,16 @@ public class DatasetPage implements java.io.Serializable {
 
     public void setNumberOfFilesToShow(Long numberOfFilesToShow) {
         this.numberOfFilesToShow = numberOfFilesToShow;
+    }
+
+    private String returnReason = "";
+
+    public String getReturnReason() {
+        return returnReason;
+    }
+
+    public void setReturnReason(String returnReason) {
+        this.returnReason = returnReason;
     }
 
     public void showAll(){
@@ -1890,15 +1904,15 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private String init(boolean initFull) {
-
+        // Check for rate limit exceeded. Must be done before anything else to prevent unnecessary processing.
+        if (!cacheFactory.checkRate(session.getUser(), new CheckRateLimitForDatasetPage(null,null))) {
+            return BundleUtil.getStringFromBundle("command.exception.user.ratelimited", Arrays.asList(CheckRateLimitForDatasetPage.class.getSimpleName()));
+        }
         //System.out.println("_YE_OLDE_QUERY_COUNTER_");  // for debug purposes
         setDataverseSiteUrl(systemConfig.getDataverseSiteUrl());
 
         guestbookResponse = new GuestbookResponse();
 
-        String nonNullDefaultIfKeyNotFound = "";
-        protocol = settingsWrapper.getValueForKey(SettingsServiceBean.Key.Protocol, nonNullDefaultIfKeyNotFound);
-        authority = settingsWrapper.getValueForKey(SettingsServiceBean.Key.Authority, nonNullDefaultIfKeyNotFound);
         String sortOrder = getSortOrder();
         if(sortOrder != null) {
             FileMetadata.setCategorySortOrder(sortOrder);
@@ -2095,8 +2109,8 @@ public class DatasetPage implements java.io.Serializable {
             //Need to assign an identifier prior to calls to requestDirectUploadUrl if direct upload is used.
             if ( isEmpty(dataset.getIdentifier()) && systemConfig.directUploadEnabled(dataset) ) {
                 CommandContext ctxt = commandEngine.getContext();
-                GlobalIdServiceBean idServiceBean = GlobalIdServiceBean.getBean(ctxt);
-                dataset.setIdentifier(idServiceBean.generateDatasetIdentifier(dataset));
+                PidProvider pidProvider = ctxt.dvObjects().getEffectivePidGenerator(dataset);
+                pidProvider.generatePid(dataset);
             }
             dataverseTemplates.addAll(dataverseService.find(ownerId).getTemplates());
             if (!dataverseService.find(ownerId).isTemplateRoot()) {
@@ -2300,14 +2314,17 @@ public class DatasetPage implements java.io.Serializable {
             lockedDueToIngestVar = true;
         }
 
-        // With DataCite, we try to reserve the DOI when the dataset is created. Sometimes this
-        // fails because DataCite is down. We show the message below to set expectations that the
-        // "Publish" button won't work until the DOI has been reserved using the "Reserve PID" API.
-        if (settingsWrapper.isDataCiteInstallation() && dataset.getGlobalIdCreateTime() == null && editMode != EditMode.CREATE) {
-            JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.locked.pidNotReserved.message"),
-                    BundleUtil.getStringFromBundle("dataset.locked.pidNotReserved.message.details"));
+        if (dataset.getGlobalIdCreateTime() == null && editMode != EditMode.CREATE) {
+            // With DataCite, we try to reserve the DOI when the dataset is created. Sometimes this
+            // fails because DataCite is down. We show the message below to set expectations that the
+            // "Publish" button won't work until the DOI has been reserved using the "Reserve PID" API.
+            PidProvider pidProvider = PidUtil.getPidProvider(dataset.getGlobalId().getProviderId());
+            if (DataCiteDOIProvider.TYPE.equals(pidProvider.getProviderType())) {
+                JH.addMessage(FacesMessage.SEVERITY_WARN,
+                        BundleUtil.getStringFromBundle("dataset.locked.pidNotReserved.message"),
+                        BundleUtil.getStringFromBundle("dataset.locked.pidNotReserved.message.details"));
+            }
         }
-        
         //if necessary refresh publish message also
         
         displayPublishMessage();
@@ -2684,8 +2701,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public String sendBackToContributor() {
         try {
-            //FIXME - Get Return Comment from sendBackToContributor popup
-            Command<Dataset> cmd = new ReturnDatasetToAuthorCommand(dvRequestService.getDataverseRequest(), dataset, "");
+            Command<Dataset> cmd = new ReturnDatasetToAuthorCommand(dvRequestService.getDataverseRequest(), dataset, returnReason);
             dataset = commandEngine.submit(cmd);
             JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.reject.success"));
         } catch (CommandException ex) {
@@ -3393,7 +3409,7 @@ public class DatasetPage implements java.io.Serializable {
             if(globusDownloadEnabled) {
                 String driverId = DataAccess.getStorageDriverFromIdentifier(fmd.getDataFile().getStorageIdentifier());
                 globusTransferable = GlobusAccessibleStore.isGlobusAccessible(driverId);
-                downloadable = downloadable && !AbstractRemoteOverlayAccessIO.isNotDataverseAccessible(driverId); 
+                downloadable = downloadable && StorageIO.isDataverseAccessible(driverId); 
             }
             if(downloadable){
                 getSelectedDownloadableFiles().add(fmd);
@@ -3596,28 +3612,6 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
-    
-    public String testSelectedFilesForRestrict(){
-        if (selectedFiles.isEmpty()) {
-                PrimeFaces.current().executeScript("PF('selectFilesForRestrict').show()");
-            return "";
-        } else {           
-            boolean validSelection = true;
-            for (FileMetadata fmd : selectedFiles) {
-                if (fmd.isRestricted() == true) {
-                    validSelection = false;
-                    break;
-                }
-            }
-            if (!validSelection) {
-                PrimeFaces.current().executeScript("PF('selectFilesForRestrict').show()");
-                return "";
-            }                       
-            PrimeFaces.current().executeScript("PF('accessPopup').show()");
-            return "";
-        }        
-    }
-    
     public String restrictFiles(boolean restricted) throws CommandException {
         List filesToRestrict = new ArrayList();
         if (fileMetadataForAction != null) {
@@ -6406,6 +6400,10 @@ public class DatasetPage implements java.io.Serializable {
             signpostingLinkHeader = sr.getLinks();
         }
         return signpostingLinkHeader;
+    }
+    
+    public boolean isDOI() {
+        return AbstractDOIProvider.DOI_PROTOCOL.equals(dataset.getGlobalId().getProtocol());
     }
 
 }

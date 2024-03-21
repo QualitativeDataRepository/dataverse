@@ -78,8 +78,8 @@
         </li>
     </ui:fragment>
     
-    <!-- QDR - single file uningest/reingest -->
-    <ui:fragment rendered="#{isFilePg and dataverseSession.user.superuser and (FilePage.fileMetadata.dataFile.isTabularData() or FilePage.fileMetadata.dataFile.isIngestProblem())}">
+    <!-- Single file uningest/reingest -->
+    <ui:fragment rendered="#{isFilePg and (dataverseSession.user.superuser and FilePage.fileMetadata.dataFile.isTabularData()) or (FilePage.fileMetadata.dataFile.isIngestProblem() and FilePage.canPublishDataset())}">
         <li>
             <p:commandLink update="@form,:messagePanel,:fileForm:fileTitleFragment, :fileForm:topDatasetBlockFragment" action="#{FilePage.uningestFile()}">
                 <h:outputText value="#{bundle['file.uningest']}"/>
