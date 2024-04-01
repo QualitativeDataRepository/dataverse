@@ -24,7 +24,7 @@ import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.impl.CheckRateLimitForDatasetPage;
+import edu.harvard.iq.dataverse.engine.command.impl.CheckRateLimitForDatasetPageCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CreatePrivateUrlCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CuratePublishedDatasetVersionCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeaccessionDatasetVersionCommand;
@@ -249,6 +249,8 @@ public class DatasetPage implements java.io.Serializable {
     DatasetVersionUI datasetVersionUI;
     @Inject
     PermissionsWrapper permissionsWrapper;
+    @Inject 
+    NavigationWrapper navigationWrapper;
     @Inject
     FileDownloadHelper fileDownloadHelper;
     @Inject
@@ -785,11 +787,17 @@ public class DatasetPage implements java.io.Serializable {
             return isIndexedVersion = false;
         }
         // If this is the latest published version, we want to confirm that this 
-        // version was successfully indexed after the last publication 
-        
+        // version was successfully indexed after the last publication
         if (isThisLatestReleasedVersion()) {
-            return isIndexedVersion = (workingVersion.getDataset().getIndexTime() != null)
-                    && workingVersion.getDataset().getIndexTime().after(workingVersion.getReleaseTime());
+            if (workingVersion.getDataset().getIndexTime() == null) {
+                return isIndexedVersion = false;
+            }
+            // We add 3 hours to the indexed time to prevent false negatives
+            // when indexed time gets overwritten in finalizing the publication step
+            // by a value before the release time
+            final long duration = 3 * 60 * 60 * 1000;
+            final Timestamp movedIndexTime = new Timestamp(workingVersion.getDataset().getIndexTime().getTime() + duration);
+            return isIndexedVersion = movedIndexTime.after(workingVersion.getReleaseTime());
         }
         
         // Drafts don't have the indextime stamps set/incremented when indexed, 
@@ -1905,8 +1913,8 @@ public class DatasetPage implements java.io.Serializable {
 
     private String init(boolean initFull) {
         // Check for rate limit exceeded. Must be done before anything else to prevent unnecessary processing.
-        if (!cacheFactory.checkRate(session.getUser(), new CheckRateLimitForDatasetPage(null,null))) {
-            return BundleUtil.getStringFromBundle("command.exception.user.ratelimited", Arrays.asList(CheckRateLimitForDatasetPage.class.getSimpleName()));
+        if (!cacheFactory.checkRate(session.getUser(), new CheckRateLimitForDatasetPageCommand(null,null))) {
+            return navigationWrapper.tooManyRequests();
         }
         //System.out.println("_YE_OLDE_QUERY_COUNTER_");  // for debug purposes
         setDataverseSiteUrl(systemConfig.getDataverseSiteUrl());
@@ -2012,7 +2020,7 @@ public class DatasetPage implements java.io.Serializable {
                         // to the local 404 page, below.
                         logger.warning("failed to issue a redirect to "+originalSourceURL);
                     }
-                    return originalSourceURL;
+                    return null;
                 }
 
                 return permissionsWrapper.notFound();
@@ -5807,6 +5815,19 @@ public class DatasetPage implements java.io.Serializable {
 
         return thisLatestReleasedVersion;
 
+    }
+
+    public String getCroissant() {
+        if (isThisLatestReleasedVersion()) {
+            final String CROISSANT_SCHEMA_NAME = "croissant";
+            ExportService instance = ExportService.getInstance();
+            String croissant = instance.getExportAsString(dataset, CROISSANT_SCHEMA_NAME);
+            if (croissant != null && !croissant.isEmpty()) {
+                logger.fine("Returning cached CROISSANT.");
+                return croissant;
+            } 
+        }
+        return null;
     }
 
     public String getJsonLd() {

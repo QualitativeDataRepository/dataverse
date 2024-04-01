@@ -266,7 +266,10 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         } catch (Exception e) {
             logger.warning("Failure to send dataset published messages for : " + dataset.getId() + " : " + e.getMessage());
         }
-        ctxt.index().asyncIndexDataset(dataset, true);                   
+        // Metadata export:
+        ctxt.datasets().reExportDatasetAsync(dataset);
+        
+        ctxt.index().asyncIndexDataset(dataset, true);
         
         //re-indexing dataverses that have additional subjects
         if (!dataversesToIndex.isEmpty()){
@@ -282,8 +285,6 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
             }
         }
 
-        // Metadata export:
-            ctxt.datasets().reExportDatasetAsync(dataset);
         return retVal;
     }
 
