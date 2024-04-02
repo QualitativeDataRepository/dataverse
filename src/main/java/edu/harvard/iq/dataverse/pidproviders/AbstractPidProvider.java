@@ -194,7 +194,7 @@ public abstract class AbstractPidProvider implements PidProvider {
                         + ") doesn't match that of the provider, id: " + getId());
             }
         }
-        if (dvObject.getAuthority() == null) {
+        if (StringUtils.isEmpty(dvObject.getAuthority())) {
             dvObject.setAuthority(getAuthority());
         } else {
             if (!dvObject.getAuthority().equals(getAuthority())) {
