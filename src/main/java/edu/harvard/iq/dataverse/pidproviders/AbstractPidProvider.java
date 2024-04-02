@@ -15,6 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.beust.jcommander.Strings;
 
 public abstract class AbstractPidProvider implements PidProvider {
@@ -182,7 +184,7 @@ public abstract class AbstractPidProvider implements PidProvider {
     @Override
     public DvObject generatePid(DvObject dvObject) {
 
-        if (dvObject.getProtocol() == null) {
+        if (StringUtils.isEmpty(dvObject.getProtocol())) {
             dvObject.setProtocol(getProtocol());
         } else {
             if (!dvObject.getProtocol().equals(getProtocol())) {
