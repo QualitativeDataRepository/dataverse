@@ -150,13 +150,11 @@ import edu.harvard.iq.dataverse.search.FacetLabel;
 import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SearchServiceBean;
-import edu.harvard.iq.dataverse.search.SearchUtil;
 import edu.harvard.iq.dataverse.search.SolrClientService;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SignpostingResources;
 import edu.harvard.iq.dataverse.util.FileMetadataUtil;
 import java.util.Comparator;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -310,8 +308,6 @@ public class DatasetPage implements java.io.Serializable {
 
     private String persistentId;
     private String version;
-    private String protocol = "";
-    private String authority = "";
     private String customFields="";
 
     private boolean noDVsAtAll = false;
@@ -2105,8 +2101,6 @@ public class DatasetPage implements java.io.Serializable {
             editMode = EditMode.CREATE;
             selectedHostDataverse = dataverseService.find(ownerId);
             dataset.setOwner(selectedHostDataverse);
-            dataset.setProtocol(protocol);
-            dataset.setAuthority(authority);
 
             if (dataset.getOwner() == null) {
                 return permissionsWrapper.notFound();
