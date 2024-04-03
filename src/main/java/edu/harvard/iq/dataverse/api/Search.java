@@ -1,9 +1,13 @@
 package edu.harvard.iq.dataverse.api;
 
+import edu.harvard.iq.dataverse.Dataset;
+import edu.harvard.iq.dataverse.DatasetVersion;
+import edu.harvard.iq.dataverse.DatasetVersionFilesServiceBean;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.api.auth.AuthRequired;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
+import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.search.FacetCategory;
 import edu.harvard.iq.dataverse.search.FacetLabel;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import jakarta.ejb.EJB;
+import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObjectBuilder;
@@ -55,6 +60,8 @@ public class Search extends AbstractApiBean {
     DvObjectServiceBean dvObjectService;
     @EJB
     SolrIndexServiceBean SolrIndexService;
+    @Inject
+    DatasetVersionFilesServiceBean datasetVersionFilesServiceBean;
 
     @GET
     @AuthRequired
@@ -179,7 +186,7 @@ public class Search extends AbstractApiBean {
             JsonArrayBuilder itemsArrayBuilder = Json.createArrayBuilder();
             List<SolrSearchResult> solrSearchResults = solrQueryResponse.getSolrSearchResults();
             for (SolrSearchResult solrSearchResult : solrSearchResults) {
-                itemsArrayBuilder.add(solrSearchResult.toJsonObject(showRelevance, showEntityIds, showApiUrls, metadataFields));
+                itemsArrayBuilder.add(solrSearchResult.json(showRelevance, showEntityIds, showApiUrls, metadataFields, getDatasetFileCount(solrSearchResult)));
             }
 
             JsonObjectBuilder spelling_alternatives = Json.createObjectBuilder();
@@ -187,21 +194,6 @@ public class Search extends AbstractApiBean {
                 spelling_alternatives.add(entry.getKey(), entry.getValue().toString());
             }
 
-            JsonArrayBuilder facets = Json.createArrayBuilder();
-            JsonObjectBuilder facetCategoryBuilder = Json.createObjectBuilder();
-            for (FacetCategory facetCategory : solrQueryResponse.getFacetCategoryList()) {
-                JsonObjectBuilder facetCategoryBuilderFriendlyPlusData = Json.createObjectBuilder();
-                JsonArrayBuilder facetLabelBuilderData = Json.createArrayBuilder();
-                for (FacetLabel facetLabel : facetCategory.getFacetLabel()) {
-                    JsonObjectBuilder countBuilder = Json.createObjectBuilder();
-                    countBuilder.add(facetLabel.getName(), facetLabel.getCount());
-                    facetLabelBuilderData.add(countBuilder);
-                }
-                facetCategoryBuilderFriendlyPlusData.add("friendly", facetCategory.getFriendlyName());
-                facetCategoryBuilderFriendlyPlusData.add("labels", facetLabelBuilderData);
-                facetCategoryBuilder.add(facetCategory.getName(), facetCategoryBuilderFriendlyPlusData);
-            }
-            facets.add(facetCategoryBuilder);
 
             JsonObjectBuilder value = Json.createObjectBuilder()
                     .add("q", query)
@@ -210,6 +202,22 @@ public class Search extends AbstractApiBean {
                     .add("spelling_alternatives", spelling_alternatives)
                     .add("items", itemsArrayBuilder.build());
             if (showFacets) {
+                JsonArrayBuilder facets = Json.createArrayBuilder();
+                JsonObjectBuilder facetCategoryBuilder = Json.createObjectBuilder();
+                for (FacetCategory facetCategory : solrQueryResponse.getFacetCategoryList()) {
+                    JsonObjectBuilder facetCategoryBuilderFriendlyPlusData = Json.createObjectBuilder();
+                    JsonArrayBuilder facetLabelBuilderData = Json.createArrayBuilder();
+                    for (FacetLabel facetLabel : facetCategory.getFacetLabel()) {
+                        JsonObjectBuilder countBuilder = Json.createObjectBuilder();
+                        countBuilder.add(facetLabel.getName(), facetLabel.getCount());
+                        facetLabelBuilderData.add(countBuilder);
+                    }
+                    facetCategoryBuilderFriendlyPlusData.add("friendly", facetCategory.getFriendlyName());
+                    facetCategoryBuilderFriendlyPlusData.add("labels", facetLabelBuilderData);
+                    facetCategoryBuilder.add(facetCategory.getName(), facetCategoryBuilderFriendlyPlusData);
+                }
+                facets.add(facetCategoryBuilder);
+
                 value.add("facets", facets);
             }
             value.add("count_in_response", solrSearchResults.size());
@@ -232,6 +240,15 @@ public class Search extends AbstractApiBean {
         }
     }
 
+    private Long getDatasetFileCount(SolrSearchResult solrSearchResult) {
+        DvObject dvObject = solrSearchResult.getEntity();
+        if (dvObject.isInstanceofDataset()) {
+            DatasetVersion datasetVersion = ((Dataset) dvObject).getVersionFromId(solrSearchResult.getDatasetVersionId());
+            return datasetVersionFilesServiceBean.getFileMetadataCount(datasetVersion);
+        }
+        return null;
+    }
+    
     private User getUser(ContainerRequestContext crc) throws WrappedResponse {
         User userToExecuteSearchAs = GuestUser.get();
         try {
