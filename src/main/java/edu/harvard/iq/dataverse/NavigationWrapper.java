@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.ws.rs.core.Response.Status;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.Cookie;
@@ -109,6 +110,10 @@ public class NavigationWrapper implements java.io.Serializable {
         }        
     }
     
+    public String tooManyRequests() {
+        return sendError(Status.TOO_MANY_REQUESTS.getStatusCode());
+    }
+     
     public String notFound() {
         return sendError(HttpServletResponse.SC_NOT_FOUND);
     }

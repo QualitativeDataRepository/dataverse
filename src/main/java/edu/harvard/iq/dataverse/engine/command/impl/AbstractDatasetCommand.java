@@ -14,7 +14,12 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandExecutionException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
+import edu.harvard.iq.dataverse.pidproviders.PidProvider;
+import edu.harvard.iq.dataverse.pidproviders.PidUtil;
+import edu.harvard.iq.dataverse.pidproviders.doi.fake.FakeDOIProvider;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.SystemConfig;
+
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Date;
@@ -24,11 +29,8 @@ import java.util.logging.Logger;
 import static java.util.stream.Collectors.joining;
 
 import jakarta.validation.ConstraintViolation;
-import edu.harvard.iq.dataverse.GlobalIdServiceBean;
 import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
-import edu.harvard.iq.dataverse.pidproviders.FakePidProviderServiceBean;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 
 /**
@@ -155,18 +157,18 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
      */
     protected void registerExternalIdentifier(Dataset theDataset, CommandContext ctxt, boolean retry) throws CommandException {
         if (!theDataset.isIdentifierRegistered()) {
-            GlobalIdServiceBean globalIdServiceBean = GlobalIdServiceBean.getBean(theDataset.getProtocol(), ctxt);
-            if ( globalIdServiceBean != null ) {
+            PidProvider pidProvider = PidUtil.getPidProvider(theDataset.getGlobalId().getProviderId());
+            if ( pidProvider != null ) {
                 try {
-                    if (globalIdServiceBean.alreadyRegistered(theDataset)) {
+                    if (pidProvider.alreadyRegistered(theDataset)) {
                         int attempts = 0;
                         if(retry) {
                             do  {
-                                theDataset.setIdentifier(globalIdServiceBean.generateDatasetIdentifier(theDataset));
+                                pidProvider.generatePid(theDataset);
                                 logger.log(Level.INFO, "Attempting to register external identifier for dataset {0} (trying: {1}).",
                                     new Object[]{theDataset.getId(), theDataset.getIdentifier()});
                                 attempts++;
-                            } while (globalIdServiceBean.alreadyRegistered(theDataset) && attempts <= FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT);
+                            } while (pidProvider.alreadyRegistered(theDataset) && attempts <= FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT);
                         }
                         if(!retry) {
                             logger.warning("Reserving PID for: "  + getDataset().getId() + " failed.");
@@ -179,7 +181,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                     }
                     // Invariant: Dataset identifier does not exist in the remote registry
                     try {
-                        globalIdServiceBean.createIdentifier(theDataset);
+                        pidProvider.createIdentifier(theDataset);
                         theDataset.setGlobalIdCreateTime(getTimestamp());
                         theDataset.setIdentifierRegistered(true);
                     } catch (Throwable ex) {
@@ -190,7 +192,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                     if (e instanceof CommandException) {
                         throw (CommandException) e;
                     }
-                    throw new CommandException(BundleUtil.getStringFromBundle("dataset.publish.error", globalIdServiceBean.getProviderInformation()), this);
+                    throw new CommandException(BundleUtil.getStringFromBundle("dataset.publish.error", pidProvider.getProviderInformation()), this);
                 }
             } else {
                 throw new IllegalCommandException("This dataset may not be published because its id registry service is not supported.", this);
@@ -221,48 +223,44 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
 
     protected void registerFilePidsIfNeeded(Dataset theDataset, CommandContext ctxt, boolean b) throws CommandException {
      // Register file PIDs if needed
-        String protocol = theDataset.getProtocol();
-        String authority = theDataset.getAuthority();
-        GlobalIdServiceBean idServiceBean = GlobalIdServiceBean.getBean(protocol, ctxt);
-        String currentGlobalIdProtocol = ctxt.settings().getValueForKey(SettingsServiceBean.Key.Protocol, "");
-        String currentGlobalAuthority = ctxt.settings().getValueForKey(SettingsServiceBean.Key.Authority, "");
-        String dataFilePIDFormat = ctxt.settings().getValueForKey(SettingsServiceBean.Key.DataFilePIDFormat, "DEPENDENT");
+        PidProvider pidProvider = theDataset.getEffectivePidGenerator();
+        
         boolean shouldRegister = ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner()) // We use file PIDs
-                && !idServiceBean.registerWhenPublished()                                                  // The provider can pre-register
-                &&((currentGlobalIdProtocol.equals(protocol) && currentGlobalAuthority.equals(authority))  // the dataset PID is a protocol/authority Dataverse can create new PIDs in
-                        || dataFilePIDFormat.equals("INDEPENDENT"));                                       // or the files can use a different protocol/authority
+                && !pidProvider.registerWhenPublished()                                                  // The provider can pre-register
+                &&(pidProvider.canCreatePidsLike(theDataset.getGlobalId())  // the dataset PID is a protocol/authority Dataverse can create new PIDs in
+                        || pidProvider.getDatafilePidFormat().equals(SystemConfig.DataFilePIDFormat.INDEPENDENT.toString()));    // or the files can use a different protocol/authority
         logger.fine("IsFilePIDsEnabled: " + ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner()));
-        logger.fine("RegWhenPub: " +  !idServiceBean.registerWhenPublished());
-        logger.fine("OK provider: " + ((currentGlobalIdProtocol.equals(protocol) && currentGlobalAuthority.equals(authority)) // the dataset PID is a protocol/authority Dataverse can create new PIDs in
-                        || dataFilePIDFormat.equals("INDEPENDENT")));  
+        logger.fine("RegWhenPub: " +  !pidProvider.registerWhenPublished());
+        logger.fine("OK provider: " + (pidProvider.canCreatePidsLike(theDataset.getGlobalId()) // the dataset PID is a protocol/authority Dataverse can create new PIDs in
+                        || pidProvider.getDatafilePidFormat().equals(SystemConfig.DataFilePIDFormat.INDEPENDENT.toString())));
         logger.fine("Should register: " + shouldRegister);
         for (DataFile dataFile : theDataset.getFiles()) {
             logger.fine(dataFile.getId() + " is registered?: " + dataFile.isIdentifierRegistered());
             if (shouldRegister && !dataFile.isIdentifierRegistered()) {
                 // pre-register a persistent id
-                registerFileExternalIdentifier(dataFile, idServiceBean, ctxt, true);
+                registerFileExternalIdentifier(dataFile, pidProvider, ctxt, true);
             }
         }
     }
 
-    private void registerFileExternalIdentifier(DataFile dataFile, GlobalIdServiceBean globalIdServiceBean, CommandContext ctxt, boolean retry) throws CommandException {
+    private void registerFileExternalIdentifier(DataFile dataFile, PidProvider pidProvider, CommandContext ctxt, boolean retry) throws CommandException {
     
         if (!dataFile.isIdentifierRegistered()) {
-            if (globalIdServiceBean != null) {
-                if (globalIdServiceBean instanceof FakePidProviderServiceBean) {
+
+                if (pidProvider instanceof FakeDOIProvider) {
                     retry = false; // No reason to allow a retry with the FakeProvider (even if it allows
                                    // pre-registration someday), so set false for efficiency
                 }
                 try {
-                    if (globalIdServiceBean.alreadyRegistered(dataFile)) {
+                    if (pidProvider.alreadyRegistered(dataFile)) {
                         int attempts = 0;
                         if (retry) {
                             do {
-                                dataFile.setIdentifier(globalIdServiceBean.generateDataFileIdentifier(dataFile));
+                                pidProvider.generatePid(dataFile);
                                 logger.log(Level.INFO, "Attempting to register external identifier for datafile {0} (trying: {1}).",
                                         new Object[] { dataFile.getId(), dataFile.getIdentifier() });
                                 attempts++;
-                            } while (globalIdServiceBean.alreadyRegistered(dataFile) && attempts <= FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT);
+                            } while (pidProvider.alreadyRegistered(dataFile) && attempts <= FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT);
                         }
                         if (!retry) {
                             logger.warning("Reserving File PID for: " + getDataset().getId() + ", fileId: " + dataFile.getId() + ", during publication failed.");
@@ -276,7 +274,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                     }
                     // Invariant: DataFile identifier does not exist in the remote registry
                     try {
-                        globalIdServiceBean.createIdentifier(dataFile);
+                        pidProvider.createIdentifier(dataFile);
                         dataFile.setGlobalIdCreateTime(getTimestamp());
                         dataFile.setIdentifierRegistered(true);
                     } catch (Throwable ex) {
@@ -287,13 +285,12 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                     if (e instanceof CommandException) {
                         throw (CommandException) e;
                     }
-                    throw new CommandException(BundleUtil.getStringFromBundle("file.register.error", globalIdServiceBean.getProviderInformation()), this);
+                    throw new CommandException(BundleUtil.getStringFromBundle("file.register.error", pidProvider.getProviderInformation()), this);
                 }
             } else {
                 throw new IllegalCommandException("This datafile may not have a PID because its id registry service is not supported.", this);
             }
     
-        }
     
     }
 

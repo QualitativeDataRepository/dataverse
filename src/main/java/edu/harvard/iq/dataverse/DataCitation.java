@@ -7,6 +7,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
+import edu.harvard.iq.dataverse.pidproviders.AbstractPidProvider;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -605,13 +606,13 @@ public class DataCitation {
         String authorString = getAuthorsString();
 
         if (authorString.isEmpty()) {
-            authorString = AbstractGlobalIdServiceBean.UNAVAILABLE;
+            authorString = AbstractPidProvider.UNAVAILABLE;
         }
         // QDR - use institution name
         String producerString = getPublisher();
 
         if (producerString.isEmpty()) {
-            producerString =  AbstractGlobalIdServiceBean.UNAVAILABLE;
+            producerString =  AbstractPidProvider.UNAVAILABLE;
         }
 
         metadata.put("datacite.creator", authorString);

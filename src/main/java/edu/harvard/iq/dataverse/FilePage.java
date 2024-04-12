@@ -52,6 +52,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
 import jakarta.faces.application.FacesMessage;
@@ -105,8 +107,6 @@ public class FilePage implements java.io.Serializable {
     @EJB
     DataFileServiceBean datafileService;
     @EJB
-    DatasetServiceBean datasetService;
-    @EJB
     DatasetVersionServiceBean datasetVersionService;
 
     @EJB
@@ -119,6 +119,8 @@ public class FilePage implements java.io.Serializable {
     GuestbookResponseServiceBean guestbookResponseService;
     @EJB
     AuthenticationServiceBean authService;
+    @EJB
+    DatasetServiceBean datasetService;
     @EJB
     IngestServiceBean ingestService;
     @EJB
@@ -214,7 +216,7 @@ public class FilePage implements java.io.Serializable {
             // If this DatasetVersion is unpublished and permission is doesn't have permissions:
             //  > Go to the Login page
             //
-            // Check permissions       
+            // Check permissions
             Boolean authorized = (fileMetadata.getDatasetVersion().isReleased())
                     || (!fileMetadata.getDatasetVersion().isReleased() && this.canViewUnpublishedDataset());
 
@@ -243,12 +245,8 @@ public class FilePage implements java.io.Serializable {
             if (file.isTabularData()) {
                 contentType=DataFileServiceBean.MIME_TYPE_TSV_ALT;
             }
-            configureTools = externalToolService.findFileToolsByTypeAndContentType(ExternalTool.Type.CONFIGURE, contentType);
-            exploreTools = externalToolService.findFileToolsByTypeAndContentType(ExternalTool.Type.EXPLORE, contentType);
-            queryTools = externalToolService.findFileToolsByTypeAndContentType(ExternalTool.Type.QUERY, contentType);
-            Collections.sort(exploreTools, CompareExternalToolName);
-            toolsWithPreviews  = sortExternalTools();
-
+            loadExternalTools();
+            
             if (toolType != null) {
                 if (toolType.equals("PREVIEW")) {
                     if (!toolsWithPreviews.isEmpty()) {
@@ -295,6 +293,22 @@ public class FilePage implements java.io.Serializable {
         return null;
     }
     
+    private void loadExternalTools() {
+        String contentType= file.getContentType();
+        configureTools = externalToolService.findFileToolsByTypeAndContentType(ExternalTool.Type.CONFIGURE, contentType);
+        exploreTools = externalToolService.findFileToolsByTypeAndContentType(ExternalTool.Type.EXPLORE, contentType);
+        queryTools = externalToolService.findFileToolsByTypeAndContentType(ExternalTool.Type.QUERY, contentType);
+        Collections.sort(exploreTools, CompareExternalToolName);
+        toolsWithPreviews  = sortExternalTools();
+        //For inaccessible files, only show the tools that have access to aux files (which are currently always accessible)
+        if(!StorageIO.isDataverseAccessible(DataAccess.getStorageDriverFromIdentifier(file.getStorageIdentifier()))) {
+            configureTools = configureTools.stream().filter(tool ->tool.accessesAuxFiles()).collect(Collectors.toList());
+            exploreTools = exploreTools.stream().filter(tool ->tool.accessesAuxFiles()).collect(Collectors.toList());
+            queryTools = queryTools.stream().filter(tool ->tool.accessesAuxFiles()).collect(Collectors.toList());
+            toolsWithPreviews = toolsWithPreviews.stream().filter(tool ->tool.accessesAuxFiles()).collect(Collectors.toList());
+        }
+    }
+
     private void displayPublishMessage(){
         if (fileMetadata.getDatasetVersion().isDraft()  && canUpdateDataset()
                 &&   (canPublishDataset() || !fileMetadata.getDatasetVersion().getDataset().isLockedFor(DatasetLock.Reason.InReview))){
@@ -534,8 +548,8 @@ public class FilePage implements java.io.Serializable {
         dataFile.getIngestRequest().setForceTypeCheck(true);
         
         // update the datafile, to save the newIngest request in the database:
-        save();
-
+        datafileService.save(file);
+        
         // queue the data ingest job for asynchronous execution: 
         String status = ingestService.startIngestJobs(editDataset.getId(), new ArrayList<>(Arrays.asList(dataFile)), (AuthenticatedUser) session.getUser());
         
@@ -549,7 +563,7 @@ public class FilePage implements java.io.Serializable {
             
             logger.warning("Ingest Status for file: " + dataFile.getId() + " : " + status);
         }
-        logger.info("File: " + dataFile.getId() + " ingest queued");
+        logger.fine("File: " + dataFile.getId() + " ingest queued");
 
         init();
         JsfHelper.addInfoMessage(BundleUtil.getStringFromBundle("file.ingest.ingestQueued"));
@@ -557,23 +571,31 @@ public class FilePage implements java.io.Serializable {
     }
 
     public String uningestFile() throws CommandException {
-        
+
         if (!file.isTabularData()) {
-            if(file.isIngestProblem()) {
+            //Ingest never succeeded, either there was a failure or this is not a tabular data file
+            if (file.isIngestProblem()) {
+                //We allow anyone who can publish to uningest in order to clear a problem
                 User u = session.getUser();
-                if(!u.isAuthenticated() ||  !(permissionService.permissionsFor(u, file).contains(Permission.PublishDataset))) {
+                if (!u.isAuthenticated() || !(permissionService.permissionsFor(u, file).contains(Permission.PublishDataset))) {
                     logger.warning("User: " + u.getIdentifier() + " tried to uningest a file");
-                    //Shouldn't happen (choice not displayed for users who don't have the right permission), but check anyway
-                    JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("file.ingest.cantUningestFileWarning"));
+                    // Shouldn't happen (choice not displayed for users who don't have the right
+                    // permission), but check anyway
+                    JH.addMessage(FacesMessage.SEVERITY_WARN,
+                            BundleUtil.getStringFromBundle("file.ingest.cantUningestFileWarning"));
                     return null;
                 }
-              file.setIngestDone();
-              file.setIngestReport(null);
+                file.setIngestDone();
+                file.setIngestReport(null);
             } else {
-              JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("file.ingest.cantUningestFileWarning"));
-              return null;
+                //Shouldn't happen - got called when there is no tabular data or an ingest problem
+                JH.addMessage(FacesMessage.SEVERITY_WARN,
+                        BundleUtil.getStringFromBundle("file.ingest.cantUningestFileWarning"));
+                return null;
             }
         } else {
+            //Superuser required to uningest after a success
+            //Uningest command does it's own check for isSuperuser
             commandEngine.submit(new UningestFileCommand(dvRequestService.getDataverseRequest(), file));
             Long dataFileId = file.getId();
             file = datafileService.find(dataFileId);
@@ -592,13 +614,13 @@ public class FilePage implements java.io.Serializable {
                 logger.log(Level.WARNING, "Uningest: Exception while exporting:{0}", ex.getMessage());
             }
         }
-        save();
-        //Refresh filemetadata with file title, etc.
+        datafileService.save(file);
+
+        // Refresh filemetadata with file title, etc.
         init();
         JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("file.uningest.complete"));
         return returnToDraftVersion();
     }
-    
     
     private List<FileMetadata> filesToBeDeleted = new ArrayList<>();
 

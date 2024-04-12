@@ -403,15 +403,6 @@ public class SolrSearchResult {
 		return matchedFieldsArray;
 	}
 
-	public JsonObject toJsonObject(boolean showRelevance, boolean showEntityIds, boolean showApiUrls) {
-		return toJsonObject(showRelevance, showEntityIds, showApiUrls, null);
-	}
-
-	public JsonObject toJsonObject(boolean showRelevance, boolean showEntityIds, boolean showApiUrls,
-			List<String> metadataFields) {
-		return json(showRelevance, showEntityIds, showApiUrls, metadataFields).build();
-	}
-
 	/**
 	 * Add additional fields for the MyData page
 	 *
@@ -450,11 +441,10 @@ public class SolrSearchResult {
 	} // getJsonForMydata
 
 	public JsonObjectBuilder json(boolean showRelevance, boolean showEntityIds, boolean showApiUrls) {
-		return json(showRelevance, showEntityIds, showApiUrls, null);
+		return json(showRelevance, showEntityIds, showApiUrls, null, null);
 	}
 
-	public JsonObjectBuilder json(boolean showRelevance, boolean showEntityIds, boolean showApiUrls,
-			List<String> metadataFields) {
+	public JsonObjectBuilder json(boolean showRelevance, boolean showEntityIds, boolean showApiUrls, List<String> metadataFields, Long datasetFileCount) {
 
 		if (this.type == null) {
 			return jsonObjectBuilder();
@@ -571,7 +561,7 @@ public class SolrSearchResult {
 					subjects.add(subject);
 				}
 				nullSafeJsonBuilder.add("subjects", subjects);
-				nullSafeJsonBuilder.add("fileCount", dv.getFileMetadatas().size());
+				nullSafeJsonBuilder.add("fileCount", datasetFileCount);
 				nullSafeJsonBuilder.add("versionId", dv.getId());
 				nullSafeJsonBuilder.add("versionState", dv.getVersionState().toString());
 				if (this.isPublishedState()) {
