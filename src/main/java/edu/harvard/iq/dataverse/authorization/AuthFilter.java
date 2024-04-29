@@ -77,10 +77,12 @@ public class AuthFilter implements Filter {
             //Nagios uses a user-agent starting with check_http and we don't want to do a passive login check in that case.
             boolean isCheck = (uaHeader != null) && (uaHeader.contains("check_http") || StringUtils.containsIgnoreCase(uaHeader, "bot") || StringUtils.containsIgnoreCase(uaHeader, "google"));
             //boolean hasAuthToken = httpServletRequest.getParameter("key") != null) || (httpServletRequest.getParameter("token")!= null)  || httpServletRequest.getHeader('X-Dataverse-key');
-            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/sso") || (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
+            boolean ssoPath = path.equals("/sso");
+            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (ssoPath || path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.fine("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
-                if ((sso != null) || (httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
+                //Going to /
+                if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null) || (sso != null) || (ssoPath && httpSession.getAttribute("passiveChecked") != null)) {
                     if (httpSession != null) {
                         logger.fine("check OIDC: " + httpSession.getAttribute("passiveChecked"));
                     }
@@ -120,6 +122,10 @@ public class AuthFilter implements Filter {
                     httpServletResponse.sendRedirect(redirectUrl);
                     return;
 
+                } else if (ssoPath) {
+                    HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+                    httpServletResponse.setStatus(200);
+                    return;
                 }
             }
         }
