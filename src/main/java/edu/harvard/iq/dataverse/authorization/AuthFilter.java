@@ -82,7 +82,7 @@ public class AuthFilter implements Filter {
                 logger.fine("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
                 //Going to /
-                if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null) || (sso != null) || (ssoPath && httpSession.getAttribute("passiveChecked") != null)) {
+                if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null) || (sso != null) || (ssoPath && httpSession.getAttribute("inSsoLoop") == null)) {
                     if (httpSession != null) {
                         logger.fine("check OIDC: " + httpSession.getAttribute("passiveChecked"));
                     }
@@ -106,7 +106,9 @@ public class AuthFilter implements Filter {
                         httpSession = httpServletRequest.getSession(true);
                     }
                     httpSession.setAttribute("passiveChecked", true);
-
+                    if(ssoPath) {
+                        httpSession.setAttribute("inSsoLoop", true);
+                    }
                     String remoteAddr = httpServletRequest.getRemoteAddr();
                     String requestUri = httpServletRequest.getRequestURI();
                     String userAgent = httpServletRequest.getHeader("User-Agent");
@@ -123,6 +125,7 @@ public class AuthFilter implements Filter {
                     return;
 
                 } else if (ssoPath) {
+                    httpSession.removeAttribute("inSsoLoop");
                     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
                     httpServletResponse.setStatus(200);
                     return;
