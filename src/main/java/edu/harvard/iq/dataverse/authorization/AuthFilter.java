@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.authorization;
 
+import edu.harvard.iq.dataverse.SettingsWrapper;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.AbstractOAuth2AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.oidc.OIDCAuthProvider;
 import edu.harvard.iq.dataverse.util.ClockUtil;
@@ -43,6 +44,9 @@ public class AuthFilter implements Filter {
     @EJB
     SystemConfig systemConfig;
 
+    @EJB
+    SettingsWrapper settingsWrapper;
+
     @Inject
     AuthenticationServiceBean authenticationSvc;
 
@@ -78,6 +82,11 @@ public class AuthFilter implements Filter {
             boolean isCheck = (uaHeader != null) && (uaHeader.contains("check_http") || StringUtils.containsIgnoreCase(uaHeader, "bot") || StringUtils.containsIgnoreCase(uaHeader, "google"));
             //boolean hasAuthToken = httpServletRequest.getParameter("key") != null) || (httpServletRequest.getParameter("token")!= null)  || httpServletRequest.getHeader('X-Dataverse-key');
             boolean ssoPath = path.equals("/sso");
+            if(ssoPath) {
+                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", settingsWrapper.get(":QDRDrupalSiteURL"));
+                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET");
+               
+            }
             if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (ssoPath || path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.fine("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
