@@ -1,8 +1,8 @@
 package edu.harvard.iq.dataverse.authorization;
 
-import edu.harvard.iq.dataverse.SettingsWrapper;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.AbstractOAuth2AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.oidc.OIDCAuthProvider;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.ClockUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -43,9 +43,9 @@ public class AuthFilter implements Filter {
 
     @EJB
     SystemConfig systemConfig;
-
+    
     @EJB
-    SettingsWrapper settingsWrapper;
+    SettingsServiceBean settingsService;
 
     @Inject
     AuthenticationServiceBean authenticationSvc;
@@ -54,6 +54,8 @@ public class AuthFilter implements Filter {
     @ClockUtil.LocalTime
     Clock clock;
 
+    private final String dvUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
+    
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         logger.fine(AuthFilter.class.getName() + "initialized. filterConfig.getServletContext().getServerInfo(): " + filterConfig.getServletContext().getServerInfo());
@@ -83,7 +85,7 @@ public class AuthFilter implements Filter {
             //boolean hasAuthToken = httpServletRequest.getParameter("key") != null) || (httpServletRequest.getParameter("token")!= null)  || httpServletRequest.getHeader('X-Dataverse-key');
             boolean ssoPath = path.equals("/sso");
             if(ssoPath) {
-                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", settingsWrapper.get(":QDRDrupalSiteURL"));
+                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", dvUrl);
                 ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET");
                
             }
