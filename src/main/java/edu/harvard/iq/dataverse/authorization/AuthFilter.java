@@ -9,17 +9,12 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 
 import static edu.harvard.iq.dataverse.util.StringUtil.toOption;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-
 import org.apache.commons.lang3.StringUtils;
 
 import jakarta.ejb.EJB;
@@ -77,13 +72,18 @@ public class AuthFilter implements Filter {
             if(ssoPath) {
                 ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", dvUrl);
                 ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET");
-               
+                if ((httpSession != null) && (httpSession.getAttribute("passiveChecked") != null)) {
+                    httpSession.removeAttribute("passiveChecked");
+                }
+                HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+                httpServletResponse.setStatus(200);
+                return;
             }
-            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (ssoPath || path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
+            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.fine("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
                 //Going to /
-                if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null) || (sso != null) || (ssoPath && httpSession.getAttribute("inSsoLoop") == null)) {
+                if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null) || (sso != null)) {
                     if (httpSession != null) {
                         logger.fine("check OIDC: " + httpSession.getAttribute("passiveChecked"));
                     }
@@ -107,9 +107,6 @@ public class AuthFilter implements Filter {
                         httpSession = httpServletRequest.getSession(true);
                     }
                     httpSession.setAttribute("passiveChecked", true);
-                    if(ssoPath) {
-                        httpSession.setAttribute("inSsoLoop", true);
-                    }
                     String remoteAddr = httpServletRequest.getRemoteAddr();
                     String requestUri = httpServletRequest.getRequestURI();
                     String userAgent = httpServletRequest.getHeader("User-Agent");
@@ -125,11 +122,6 @@ public class AuthFilter implements Filter {
                     httpServletResponse.sendRedirect(redirectUrl);
                     return;
 
-                } else if (ssoPath) {
-                    httpSession.removeAttribute("inSsoLoop");
-                    HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-                    httpServletResponse.setStatus(200);
-                    return;
                 }
             }
         }
