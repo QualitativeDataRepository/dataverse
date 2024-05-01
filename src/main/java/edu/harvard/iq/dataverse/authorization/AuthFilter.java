@@ -49,13 +49,14 @@ public class AuthFilter implements Filter {
     @ClockUtil.LocalTime
     Clock clock;
 
-    private String dvUrl;
+    //QDR setting for the Drupal URL
+    private String drupalUrl;
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         logger.fine(AuthFilter.class.getName() + "initialized. filterConfig.getServletContext().getServerInfo(): " + filterConfig.getServletContext().getServerInfo());
-        dvUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
-        logger.fine("Setting Drupal URl to : " + dvUrl);
+        drupalUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
+        logger.fine("Setting Drupal URl to : " + drupalUrl);
     }
 
     @Override
@@ -68,13 +69,16 @@ public class AuthFilter implements Filter {
             //Nagios uses a user-agent starting with check_http and we don't want to do a passive login check in that case.
             boolean isCheck = (uaHeader != null) && (uaHeader.contains("check_http") || StringUtils.containsIgnoreCase(uaHeader, "bot") || StringUtils.containsIgnoreCase(uaHeader, "google"));
             //boolean hasAuthToken = httpServletRequest.getParameter("key") != null) || (httpServletRequest.getParameter("token")!= null)  || httpServletRequest.getHeader('X-Dataverse-key');
+            //~QDR specific - a means to reset the passiveChecked flag so the next access will try passive login again
+            //If the origin were configurable, this might be useful in general
             boolean ssoPath = path.equals("/sso");
             if(ssoPath) {
-                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", dvUrl);
-                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET");
+                //((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", drupalUrl);
+                //((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET");
                 if ((httpSession != null) && (httpSession.getAttribute("passiveChecked") != null)) {
                     httpSession.removeAttribute("passiveChecked");
                 }
+                //After resetting, just return with no content
                 HttpServletResponse httpServletResponse = (HttpServletResponse) response;
                 httpServletResponse.setStatus(200);
                 return;
