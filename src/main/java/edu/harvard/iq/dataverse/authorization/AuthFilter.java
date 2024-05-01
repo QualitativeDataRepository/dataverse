@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.authorization;
 
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.AbstractOAuth2AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.oidc.OIDCAuthProvider;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.ClockUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -38,6 +39,9 @@ public class AuthFilter implements Filter {
     @EJB
     SystemConfig systemConfig;
     
+    @EJB
+    SettingsServiceBean settingsService;
+    
     @Inject
     AuthenticationServiceBean authenticationSvc;
 
@@ -45,9 +49,15 @@ public class AuthFilter implements Filter {
     @ClockUtil.LocalTime
     Clock clock;
     
+
+    //QDR setting for the Drupal URL
+    private String drupalUrl;
+    
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         logger.fine(AuthFilter.class.getName() + "initialized. filterConfig.getServletContext().getServerInfo(): " + filterConfig.getServletContext().getServerInfo());
+        drupalUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
+        logger.fine("Setting Drupal URl to : " + drupalUrl);
     }
 
     @Override
@@ -64,6 +74,9 @@ public class AuthFilter implements Filter {
             //If the origin were configurable, this might be useful in general
             boolean ssoResetPath = path.equals("/ssoreset");
             if(!isCheck && ssoResetPath) {
+                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", drupalUrl);
+                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET");
+
                 logger.fine("passiveChecked flag check");
                 if ((httpSession != null) && (httpSession.getAttribute("passiveChecked") != null)) {
                     logger.fine("resetting passiveChecked flag");
