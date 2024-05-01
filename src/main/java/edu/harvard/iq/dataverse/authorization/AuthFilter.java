@@ -63,9 +63,16 @@ public class AuthFilter implements Filter {
             //~QDR specific - a means to reset the passiveChecked flag so the next access will try passive login again
             //If the origin were configurable, this might be useful in general
             boolean ssoResetPath = path.equals("/ssoreset");
-            if(ssoResetPath) {
+            if(!isCheck && ssoResetPath) {
+                logger.fine("passiveChecked flag check");
                 if ((httpSession != null) && (httpSession.getAttribute("passiveChecked") != null)) {
+                    logger.fine("resetting passiveChecked flag");
                     httpSession.removeAttribute("passiveChecked");
+                }
+                if(httpSession==null) {
+                    logger.fine("No session");
+                } else if (httpSession.getAttribute("passiveChecked") != null) {
+                    logger.warning("passiveChecked flag still set");
                 }
                 //After resetting, just return with no content
                 HttpServletResponse httpServletResponse = (HttpServletResponse) response;
