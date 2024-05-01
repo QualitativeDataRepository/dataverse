@@ -54,23 +54,13 @@ public class AuthFilter implements Filter {
     @ClockUtil.LocalTime
     Clock clock;
 
-    private final String dvUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
+    private String dvUrl;
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         logger.fine(AuthFilter.class.getName() + "initialized. filterConfig.getServletContext().getServerInfo(): " + filterConfig.getServletContext().getServerInfo());
-
-        try {
-            FileHandler logFile = new FileHandler( System.getProperty("com.sun.aas.instanceRoot") + File.separator + "logs" + File.separator + "authfilter.log");
-            SimpleFormatter formatterTxt = new SimpleFormatter();
-            logFile.setFormatter(formatterTxt);
-            // logger.addHandler(logFile);
-        } catch (IOException ex) {
-            Logger.getLogger(AuthFilter.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SecurityException ex) {
-            Logger.getLogger(AuthFilter.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+        dvUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
+        logger.fine("Setting Drupal URl to : " + dvUrl);
     }
 
     @Override
