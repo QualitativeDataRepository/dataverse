@@ -76,6 +76,7 @@ public class AuthFilter implements Filter {
             if(!isCheck && ssoResetPath) {
                 ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", drupalUrl);
                 ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET");
+                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Credentials", "true");
 
                 logger.fine("passiveChecked flag check");
                 if ((httpSession != null) && (httpSession.getAttribute("passiveChecked") != null)) {
