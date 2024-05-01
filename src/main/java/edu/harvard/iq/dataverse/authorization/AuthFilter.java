@@ -8,17 +8,12 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 
 import static edu.harvard.iq.dataverse.util.StringUtil.toOption;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-
 import org.apache.commons.lang3.StringUtils;
 
 import jakarta.ejb.EJB;
@@ -42,29 +37,17 @@ public class AuthFilter implements Filter {
 
     @EJB
     SystemConfig systemConfig;
-
+    
     @Inject
     AuthenticationServiceBean authenticationSvc;
 
     @Inject
     @ClockUtil.LocalTime
     Clock clock;
-
+    
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         logger.fine(AuthFilter.class.getName() + "initialized. filterConfig.getServletContext().getServerInfo(): " + filterConfig.getServletContext().getServerInfo());
-
-        try {
-            FileHandler logFile = new FileHandler( System.getProperty("com.sun.aas.instanceRoot") + File.separator + "logs" + File.separator + "authfilter.log");
-            SimpleFormatter formatterTxt = new SimpleFormatter();
-            logFile.setFormatter(formatterTxt);
-            // logger.addHandler(logFile);
-        } catch (IOException ex) {
-            Logger.getLogger(AuthFilter.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SecurityException ex) {
-            Logger.getLogger(AuthFilter.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
     }
 
     @Override
@@ -77,10 +60,23 @@ public class AuthFilter implements Filter {
             //Nagios uses a user-agent starting with check_http and we don't want to do a passive login check in that case.
             boolean isCheck = (uaHeader != null) && (uaHeader.contains("check_http") || StringUtils.containsIgnoreCase(uaHeader, "bot") || StringUtils.containsIgnoreCase(uaHeader, "google"));
             //boolean hasAuthToken = httpServletRequest.getParameter("key") != null) || (httpServletRequest.getParameter("token")!= null)  || httpServletRequest.getHeader('X-Dataverse-key');
+            //~QDR specific - a means to reset the passiveChecked flag so the next access will try passive login again
+            //If the origin were configurable, this might be useful in general
+            boolean ssoResetPath = path.equals("/ssoreset");
+            if(ssoResetPath) {
+                if ((httpSession != null) && (httpSession.getAttribute("passiveChecked") != null)) {
+                    httpSession.removeAttribute("passiveChecked");
+                }
+                //After resetting, just return with no content
+                HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+                httpServletResponse.setStatus(200);
+                return;
+            }
             if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.fine("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
-                if ((sso != null) || (httpSession == null) || (httpSession.getAttribute("passiveChecked") == null)) {
+                //Going to /
+                if ((httpSession == null) || (httpSession.getAttribute("passiveChecked") == null) || (sso != null)) {
                     if (httpSession != null) {
                         logger.fine("check OIDC: " + httpSession.getAttribute("passiveChecked"));
                     }
@@ -91,7 +87,7 @@ public class AuthFilter implements Filter {
                     // Drop sso parameter if present
                     String qp = httpServletRequest.getQueryString();
                     if (qp != null) {
-                        qp = qp.replaceFirst("[&]*sso=true", "");
+                        qp = qp.replaceFirst("[&?]sso=true", "");
                     }
                     String finalDestination = (qp == null || qp.isBlank()) ? httpServletRequest.getRequestURL().toString() : httpServletRequest.getRequestURL().append("?").append(qp).toString();
 
@@ -104,7 +100,6 @@ public class AuthFilter implements Filter {
                         httpSession = httpServletRequest.getSession(true);
                     }
                     httpSession.setAttribute("passiveChecked", true);
-
                     String remoteAddr = httpServletRequest.getRemoteAddr();
                     String requestUri = httpServletRequest.getRequestURI();
                     String userAgent = httpServletRequest.getHeader("User-Agent");
@@ -117,7 +112,6 @@ public class AuthFilter implements Filter {
                     }
 
                     logger.fine(sb.toString());
-
                     httpServletResponse.sendRedirect(redirectUrl);
                     return;
 
