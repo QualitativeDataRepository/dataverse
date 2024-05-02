@@ -161,6 +161,9 @@ public class OAuth2LoginBackingBean implements Serializable {
                     } 
                         // login the user and redirect to HOME of intended page (if any).
                         // setUser checks for deactivated users.
+                        if(dvUser.isDeactivated()) {
+                            throw new OAuth2Exception(-1, "", BundleUtil.getStringFromBundle("deactivated.error"));
+                        }
                         session.setUser(dvUser);
                         final OAuth2TokenData tokenData = oauthUser.getTokenData();
                         if (tokenData != null) {
