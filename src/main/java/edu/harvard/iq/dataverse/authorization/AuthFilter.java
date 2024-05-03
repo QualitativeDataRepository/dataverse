@@ -108,7 +108,7 @@ public class AuthFilter implements Filter {
                     // Drop sso parameter if present
                     String qp = httpServletRequest.getQueryString();
                     if (qp != null) {
-                        qp = qp.replaceFirst("[&?]sso=true", "");
+                        qp = qp.replaceFirst("[&]*sso=true", "");
                     }
                     String finalDestination = (qp == null || qp.isBlank()) ? httpServletRequest.getRequestURL().toString() : httpServletRequest.getRequestURL().append("?").append(qp).toString();
 
