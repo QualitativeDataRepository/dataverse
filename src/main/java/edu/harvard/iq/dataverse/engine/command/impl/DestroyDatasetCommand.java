@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.engine.command.impl;
 
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataset;
+import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.GlobalId;
 import edu.harvard.iq.dataverse.authorization.DataverseRole;
@@ -94,6 +95,7 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
         // deleted too!)
         
         Iterator <DataFile> dfIt = managedDoomed.getFiles().iterator();
+        DatasetVersion dv = managedDoomed.getLatestVersion();
         while (dfIt.hasNext()){
             DataFile df = dfIt.next();
             // Gather potential Solr IDs of files. As of this writing deaccessioned files are never indexed.
@@ -102,6 +104,7 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             String solrIdOfDraftFile = IndexServiceBean.solrDocIdentifierFile + df.getId() + IndexServiceBean.draftSuffix;
             datasetAndFileSolrIdsToDelete.add(solrIdOfDraftFile);
             logger.info("Calling delete for file: " + df.getId() + " " + df.getDisplayName());
+            
             //DeleteDataFileCommand deleteDataFileCommand = new DeleteDataFileCommand(df, getRequest(), true);
             //deleteDataFileCommand.execute(ctxt);
             ctxt.em().remove(df);
@@ -109,6 +112,7 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             logger.info("Done with delete for file");
             dfIt.remove();
         }
+        dv.setFileMetadatas(null);
         managedDoomed = ctxt.em().merge(managedDoomed);
         //also, lets delete the uploaded thumbnails!
         if (!managedDoomed.isHarvested()) {
