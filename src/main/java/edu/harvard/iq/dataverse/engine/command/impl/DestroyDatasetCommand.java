@@ -102,8 +102,9 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             String solrIdOfDraftFile = IndexServiceBean.solrDocIdentifierFile + df.getId() + IndexServiceBean.draftSuffix;
             datasetAndFileSolrIdsToDelete.add(solrIdOfDraftFile);
             logger.info("Calling delete for file: " + df.getId() + " " + df.getDisplayName());
-            DeleteDataFileCommand deleteDataFileCommand = new DeleteDataFileCommand(df, getRequest(), true);
-            deleteDataFileCommand.execute(ctxt);
+            //DeleteDataFileCommand deleteDataFileCommand = new DeleteDataFileCommand(df, getRequest(), true);
+            //deleteDataFileCommand.execute(ctxt);
+            ctxt.em().remove(df);
             //ctxt.engine().submit(new DeleteDataFileCommand(df, getRequest(), true));
             logger.info("Done with delete for file");
             dfIt.remove();
