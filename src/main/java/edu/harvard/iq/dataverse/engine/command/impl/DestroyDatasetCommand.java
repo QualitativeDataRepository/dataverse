@@ -105,7 +105,7 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             DeleteDataFileCommand deleteDataFileCommand = new DeleteDataFileCommand(df, getRequest(), true);
             deleteDataFileCommand.execute(ctxt);
             //ctxt.engine().submit(new DeleteDataFileCommand(df, getRequest(), true));
-            logger.info("Done with delete for file: " + df.getId() + " " + df.getDisplayName());
+            logger.info("Done with delete for file");
             dfIt.remove();
         }
         
