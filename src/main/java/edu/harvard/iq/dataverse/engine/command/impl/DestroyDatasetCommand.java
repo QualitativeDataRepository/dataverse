@@ -70,11 +70,30 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
         doomed.setThumbnailFile(null);
         final Dataset managedDoomed = ctxt.em().merge(doomed);
         
+        
+        if (!managedDoomed.isHarvested()) {
+            GlobalId pid = managedDoomed.getGlobalId();
+            if (pid != null) {
+                PidProvider pidProvider = PidUtil.getPidProvider(pid.getProviderId());
+                try {
+                    if (pidProvider.alreadyRegistered(managedDoomed)) {
+                        pidProvider.deleteIdentifier(managedDoomed);
+                        for (DataFile df : managedDoomed.getFiles()) {
+                            pidProvider.deleteIdentifier(df);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.WARNING, "Identifier deletion was not successful:", e.getMessage());
+                }
+            }
+        }
+        logger.info("After PIDs");
+        
         // files need to iterate through and remove 'by hand' to avoid
         // optimistic lock issues... (plus the physical files need to be 
         // deleted too!)
         
-        Iterator <DataFile> dfIt = doomed.getFiles().iterator();
+        Iterator <DataFile> dfIt = managedDoomed.getFiles().iterator();
         while (dfIt.hasNext()){
             DataFile df = dfIt.next();
             // Gather potential Solr IDs of files. As of this writing deaccessioned files are never indexed.
@@ -91,40 +110,24 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
         }
         
         //also, lets delete the uploaded thumbnails!
-        if (!doomed.isHarvested()) {
-            deleteDatasetLogo(doomed);
+        if (!managedDoomed.isHarvested()) {
+            deleteDatasetLogo(managedDoomed);
         }
         
         logger.info("Before getting RAs");
         // ASSIGNMENTS
-        for (RoleAssignment ra : ctxt.roles().directRoleAssignments(doomed)) {
+        for (RoleAssignment ra : ctxt.roles().directRoleAssignments(managedDoomed)) {
             ctxt.em().remove(ra);
         }
         logger.info("After getting RAs");
         
         // ROLES
-        for (DataverseRole ra : ctxt.roles().findByOwnerId(doomed.getId())) {
+        for (DataverseRole ra : ctxt.roles().findByOwnerId(managedDoomed.getId())) {
             ctxt.em().remove(ra);
         }   
         logger.info("After getting DRs");
         
-        if (!doomed.isHarvested()) {
-            GlobalId pid = doomed.getGlobalId();
-            if (pid != null) {
-                PidProvider pidProvider = PidUtil.getPidProvider(pid.getProviderId());
-                try {
-                    if (pidProvider.alreadyRegistered(doomed)) {
-                        pidProvider.deleteIdentifier(doomed);
-                        for (DataFile df : doomed.getFiles()) {
-                            pidProvider.deleteIdentifier(df);
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.log(Level.WARNING, "Identifier deletion was not successful:", e.getMessage());
-                }
-            }
-        }
-        logger.info("After PIDs");
+
         
         toReIndex = managedDoomed.getOwner();
         logger.info("Removing dataset");
