@@ -109,7 +109,7 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             logger.info("Done with delete for file");
             dfIt.remove();
         }
-        
+        managedDoomed = ctxt.em().merge(managedDoomed);
         //also, lets delete the uploaded thumbnails!
         if (!managedDoomed.isHarvested()) {
             deleteDatasetLogo(managedDoomed);
