@@ -68,7 +68,7 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
         // If there is a dedicated thumbnail DataFile, it needs to be reset
         // explicitly, or we'll get a constraint violation when deleting:
         doomed.setThumbnailFile(null);
-        final Dataset managedDoomed = ctxt.em().merge(doomed);
+        Dataset managedDoomed = ctxt.em().merge(doomed);
         
         
         if (!managedDoomed.isHarvested()) {
@@ -132,21 +132,23 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
         toReIndex = managedDoomed.getOwner();
         logger.info("Removing dataset");
         
+       
+
+        // add potential Solr IDs of datasets to list for deletion
+        String solrIdOfPublishedDatasetVersion = IndexServiceBean.solrDocIdentifierDataset + managedDoomed.getId();
+        datasetAndFileSolrIdsToDelete.add(solrIdOfPublishedDatasetVersion);
+        String solrIdOfDraftDatasetVersion = IndexServiceBean.solrDocIdentifierDataset + managedDoomed.getId() + IndexServiceBean.draftSuffix;
+        datasetAndFileSolrIdsToDelete.add(solrIdOfDraftDatasetVersion);
+        String solrIdOfDraftDatasetVersionPermission = solrIdOfDraftDatasetVersion + IndexServiceBean.discoverabilityPermissionSuffix;
+        datasetAndFileSolrIdsToDelete.add(solrIdOfDraftDatasetVersionPermission);
+        String solrIdOfDeaccessionedDatasetVersion = IndexServiceBean.solrDocIdentifierDataset + managedDoomed.getId() + IndexServiceBean.deaccessionedSuffix;
+        datasetAndFileSolrIdsToDelete.add(solrIdOfDeaccessionedDatasetVersion);
+        
         // dataset
         ctxt.em().remove(managedDoomed);
         
         logger.info("Dataset removed");
         
-
-        // add potential Solr IDs of datasets to list for deletion
-        String solrIdOfPublishedDatasetVersion = IndexServiceBean.solrDocIdentifierDataset + doomed.getId();
-        datasetAndFileSolrIdsToDelete.add(solrIdOfPublishedDatasetVersion);
-        String solrIdOfDraftDatasetVersion = IndexServiceBean.solrDocIdentifierDataset + doomed.getId() + IndexServiceBean.draftSuffix;
-        datasetAndFileSolrIdsToDelete.add(solrIdOfDraftDatasetVersion);
-        String solrIdOfDraftDatasetVersionPermission = solrIdOfDraftDatasetVersion + IndexServiceBean.discoverabilityPermissionSuffix;
-        datasetAndFileSolrIdsToDelete.add(solrIdOfDraftDatasetVersionPermission);
-        String solrIdOfDeaccessionedDatasetVersion = IndexServiceBean.solrDocIdentifierDataset + doomed.getId() + IndexServiceBean.deaccessionedSuffix;
-        datasetAndFileSolrIdsToDelete.add(solrIdOfDeaccessionedDatasetVersion);
     }
 
     @Override 
