@@ -82,7 +82,9 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             datasetAndFileSolrIdsToDelete.add(solrIdOfPublishedFile);
             String solrIdOfDraftFile = IndexServiceBean.solrDocIdentifierFile + df.getId() + IndexServiceBean.draftSuffix;
             datasetAndFileSolrIdsToDelete.add(solrIdOfDraftFile);
+            logger.info("Calling delete for file: " + df.getId() + " " + df.getDisplayName());
             ctxt.engine().submit(new DeleteDataFileCommand(df, getRequest(), true));
+            logger.info("Done with delete for file: " + df.getId() + " " + df.getDisplayName());
             dfIt.remove();
         }
         
@@ -91,15 +93,18 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             deleteDatasetLogo(doomed);
         }
         
-        
+        logger.info("Before getting RAs");
         // ASSIGNMENTS
         for (RoleAssignment ra : ctxt.roles().directRoleAssignments(doomed)) {
             ctxt.em().remove(ra);
         }
+        logger.info("After getting RAs");
+        
         // ROLES
         for (DataverseRole ra : ctxt.roles().findByOwnerId(doomed.getId())) {
             ctxt.em().remove(ra);
         }   
+        logger.info("After getting DRs");
         
         if (!doomed.isHarvested()) {
             GlobalId pid = doomed.getGlobalId();
@@ -117,11 +122,16 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
                 }
             }
         }
+        logger.info("After PIDs");
         
         toReIndex = managedDoomed.getOwner();
-
+        logger.info("Removing dataset");
+        
         // dataset
         ctxt.em().remove(managedDoomed);
+        
+        logger.info("Dataset removed");
+        
 
         // add potential Solr IDs of datasets to list for deletion
         String solrIdOfPublishedDatasetVersion = IndexServiceBean.solrDocIdentifierDataset + doomed.getId();
@@ -136,7 +146,8 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
 
     @Override 
     public boolean onSuccess(CommandContext ctxt, Object r) {
-
+        logger.info("In success");
+        
         boolean retVal = true;
         
        // all the real Solr work is done here
