@@ -65,34 +65,17 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             throw new PermissionException("Destroy can only be called by superusers.",
                 this,  Collections.singleton(Permission.DeleteDatasetDraft), doomed);                
         }
+        Dataset managedDoomed = ctxt.em().merge(doomed);
         
         // If there is a dedicated thumbnail DataFile, it needs to be reset
         // explicitly, or we'll get a constraint violation when deleting:
-        doomed.setThumbnailFile(null);
-        Dataset managedDoomed = ctxt.em().merge(doomed);
-        
-        
-        if (!managedDoomed.isHarvested()) {
-            GlobalId pid = managedDoomed.getGlobalId();
-            if (pid != null) {
-                PidProvider pidProvider = PidUtil.getPidProvider(pid.getProviderId());
-                try {
-                    if (pidProvider.alreadyRegistered(managedDoomed)) {
-                        pidProvider.deleteIdentifier(managedDoomed);
-                        //Files handled in DeleteDataFileCommand
-                    }
-                } catch (Exception e) {
-                    logger.log(Level.WARNING, "Identifier deletion was not successful:", e.getMessage());
-                }
-            }
-        }
-        
+        managedDoomed.setThumbnailFile(null);
+
         // files need to iterate through and remove 'by hand' to avoid
         // optimistic lock issues... (plus the physical files need to be 
         // deleted too!)
-        
-        Iterator <DataFile> dfIt = managedDoomed.getFiles().iterator();
         DatasetVersion dv = managedDoomed.getLatestVersion();
+        Iterator <DataFile> dfIt = managedDoomed.getFiles().iterator();
         while (dfIt.hasNext()){
             DataFile df = dfIt.next();
             // Gather potential Solr IDs of files. As of this writing deaccessioned files are never indexed.
@@ -100,27 +83,38 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             datasetAndFileSolrIdsToDelete.add(solrIdOfPublishedFile);
             String solrIdOfDraftFile = IndexServiceBean.solrDocIdentifierFile + df.getId() + IndexServiceBean.draftSuffix;
             datasetAndFileSolrIdsToDelete.add(solrIdOfDraftFile);
-            
             ctxt.engine().submit(new DeleteDataFileCommand(df, getRequest(), true));
             dfIt.remove();
         }
         dv.setFileMetadatas(null);
-        // managedDoomed = ctxt.em().merge(managedDoomed);
-        //also, lets delete the uploaded thumbnails!
-        if (!managedDoomed.isHarvested()) {
-            deleteDatasetLogo(managedDoomed);
-        }
+        
         
         // ASSIGNMENTS
         for (RoleAssignment ra : ctxt.roles().directRoleAssignments(managedDoomed)) {
             ctxt.em().remove(ra);
         }
-        
         // ROLES
         for (DataverseRole ra : ctxt.roles().findByOwnerId(managedDoomed.getId())) {
             ctxt.em().remove(ra);
         }   
         
+        if (!managedDoomed.isHarvested()) {
+            //also, lets delete the uploaded thumbnails!
+            deleteDatasetLogo(managedDoomed);
+            // and remove the PID (perhaps should be after the remove in case that causes a roll-back?)
+            GlobalId pid = managedDoomed.getGlobalId();
+            if (pid != null) {
+                PidProvider pidProvider = PidUtil.getPidProvider(pid.getProviderId());
+                try {
+                    if (pidProvider.alreadyRegistered(managedDoomed)) {
+                        pidProvider.deleteIdentifier(managedDoomed);
+                        //Files are handled in DeleteDataFileCommand
+                    }
+                } catch (Exception e) {
+                    logger.log(Level.WARNING, "Identifier deletion was not successful:", e.getMessage());
+                }
+            }
+        }
         
         toReIndex = managedDoomed.getOwner();
 
@@ -136,13 +130,13 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
         
         // dataset
         ctxt.em().remove(managedDoomed);
-        
+
+
     }
 
     @Override 
     public boolean onSuccess(CommandContext ctxt, Object r) {
-        logger.info("In success");
-        
+
         boolean retVal = true;
         
        // all the real Solr work is done here
