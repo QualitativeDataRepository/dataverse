@@ -79,16 +79,13 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
                 try {
                     if (pidProvider.alreadyRegistered(managedDoomed)) {
                         pidProvider.deleteIdentifier(managedDoomed);
-                        for (DataFile df : managedDoomed.getFiles()) {
-                            pidProvider.deleteIdentifier(df);
-                        }
+                        //Files handled in DeleteDataFileCommand
                     }
                 } catch (Exception e) {
                     logger.log(Level.WARNING, "Identifier deletion was not successful:", e.getMessage());
                 }
             }
         }
-        logger.info("After PIDs");
         
         // files need to iterate through and remove 'by hand' to avoid
         // optimistic lock issues... (plus the physical files need to be 
@@ -113,7 +110,7 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             dfIt.remove();
         }
         dv.setFileMetadatas(null);
-        managedDoomed = ctxt.em().merge(managedDoomed);
+        // managedDoomed = ctxt.em().merge(managedDoomed);
         //also, lets delete the uploaded thumbnails!
         if (!managedDoomed.isHarvested()) {
             deleteDatasetLogo(managedDoomed);
