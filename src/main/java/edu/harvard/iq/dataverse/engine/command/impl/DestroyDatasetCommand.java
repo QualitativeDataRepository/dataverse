@@ -100,13 +100,8 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             datasetAndFileSolrIdsToDelete.add(solrIdOfPublishedFile);
             String solrIdOfDraftFile = IndexServiceBean.solrDocIdentifierFile + df.getId() + IndexServiceBean.draftSuffix;
             datasetAndFileSolrIdsToDelete.add(solrIdOfDraftFile);
-            logger.info("Calling delete for file: " + df.getId() + " " + df.getDisplayName());
             
-            //DeleteDataFileCommand deleteDataFileCommand = new DeleteDataFileCommand(df, getRequest(), true);
-            //deleteDataFileCommand.execute(ctxt);
-            ctxt.em().remove(df);
-            //ctxt.engine().submit(new DeleteDataFileCommand(df, getRequest(), true));
-            logger.info("Done with delete for file");
+            ctxt.engine().submit(new DeleteDataFileCommand(df, getRequest(), true));
             dfIt.remove();
         }
         dv.setFileMetadatas(null);
@@ -116,25 +111,18 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
             deleteDatasetLogo(managedDoomed);
         }
         
-        logger.info("Before getting RAs");
         // ASSIGNMENTS
         for (RoleAssignment ra : ctxt.roles().directRoleAssignments(managedDoomed)) {
             ctxt.em().remove(ra);
         }
-        logger.info("After getting RAs");
         
         // ROLES
         for (DataverseRole ra : ctxt.roles().findByOwnerId(managedDoomed.getId())) {
             ctxt.em().remove(ra);
         }   
-        logger.info("After getting DRs");
         
-
         
         toReIndex = managedDoomed.getOwner();
-        logger.info("Removing dataset");
-        
-       
 
         // add potential Solr IDs of datasets to list for deletion
         String solrIdOfPublishedDatasetVersion = IndexServiceBean.solrDocIdentifierDataset + managedDoomed.getId();
@@ -148,8 +136,6 @@ public class DestroyDatasetCommand extends AbstractVoidCommand {
         
         // dataset
         ctxt.em().remove(managedDoomed);
-        
-        logger.info("Dataset removed");
         
     }
 
