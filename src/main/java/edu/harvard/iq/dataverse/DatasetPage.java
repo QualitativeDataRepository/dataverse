@@ -5791,7 +5791,11 @@ public class DatasetPage implements java.io.Serializable {
         if (thisLatestReleasedVersion != null) {
             return thisLatestReleasedVersion;
         }
-
+        if (workingVersion == null) {
+            //Returning false w/o setting thisLatestReleasedVersion in case workingVersion will be set later
+            logger.warning("Null working version for dataset: " + (dataset==null? "null dataset": dataset.getId()));
+            return false;
+        }
         if (!workingVersion.isPublished()) {
             thisLatestReleasedVersion = false;
             return false;

@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import static java.util.stream.Collectors.toList;
 import jakarta.ejb.EJB;
 import jakarta.inject.Named;
@@ -253,6 +254,7 @@ public class OAuth2LoginBackingBean implements Serializable {
         }
         
         // Verify the response by decrypting values and check for state valid timeout
+        try {
         String raw = StringUtil.decrypt(topFields[1], idp.clientSecret);
         String[] stateFields = raw.split("~", -1);
         if (idp.getId().equals(stateFields[0])) {
@@ -269,6 +271,10 @@ public class OAuth2LoginBackingBean implements Serializable {
             }
         } else {
             logger.log(Level.INFO, "Invalid id field: ''{0}''", stateFields[0]);
+            return Optional.empty();
+        }
+        } catch (RuntimeException ex) {
+            logger.warning("Bad state - possible penetration test");
             return Optional.empty();
         }
     }
