@@ -21,7 +21,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
@@ -99,14 +98,14 @@ public class XmlMetadataTemplate {
     private void generateXML(DvObject dvObject, OutputStream outputStream) throws XMLStreamException {
         // Could/should use dataset metadata language for metadata from DvObject itself?
         String language = null; // machine locale? e.g. for Publisher which is global
-        String metadataLanguage = null; // when set, otherwise  = language?
+        String metadataLanguage = null; // when set, otherwise = language?
         XMLStreamWriter xmlw = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
         xmlw.writeStartElement("resource");
-        
+
         xmlw.writeDefaultNamespace(XML_NAMESPACE);
         xmlw.writeAttribute("xmlns:xsi", XML_XSI);
         xmlw.writeAttribute("xsi:schemaLocation", XML_SCHEMA_LOCATION);
-        
+
         writeIdentifier(xmlw, dvObject);
         writeCreators(xmlw, doiMetadata.getAuthors());
         writeTitles(xmlw, dvObject, language);
@@ -244,7 +243,7 @@ public class XmlMetadataTemplate {
                 String nameIdentifierScheme = null;
                 if (StringUtils.isNotBlank(author.getIdValue()) && StringUtils.isNotBlank(author.getIdType())) {
                     nameIdentifier = author.getIdValue();
-                    if(nameIdentifier != null) {
+                    if (nameIdentifier != null) {
                         // Normalizes to the URL form of the identifier, returns null if the identifier
                         // is not valid given the type
                         nameIdentifier = author.getIdentifierAsUrl();
@@ -394,14 +393,16 @@ public class XmlMetadataTemplate {
     }
 
     /**
-     * 7, Contributor (with optional given name, family name, name identifier
-     * and affiliation sub-properties)
+     * 7, Contributor (with optional given name, family name, name identifier and
+     * affiliation sub-properties)
      *
      * @see #writeContributorElement(javax.xml.stream.XMLStreamWriter,
-     * java.lang.String, java.lang.String, java.lang.String)
+     *      java.lang.String, java.lang.String, java.lang.String)
      *
-     * @param xmlw The stream writer
-     * @param dvObject The Dataset/DataFile
+     * @param xmlw
+     *            The stream writer
+     * @param dvObject
+     *            The Dataset/DataFile
      * @throws XMLStreamException
      */
     private void writeContributors(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
@@ -412,11 +413,11 @@ public class XmlMetadataTemplate {
         List<DatasetFieldCompoundValue> compoundContributors = new ArrayList<DatasetFieldCompoundValue>();
         // Dataset Subject= Dataverse subject, keyword, and/or topic classification
         // fields
-        //ToDo Include for files?
-        /*if(dvObject instanceof DataFile df) {
-            dvObject = df.getOwner();
-        }*/
-    
+        // ToDo Include for files?
+        /*
+         * if(dvObject instanceof DataFile df) { dvObject = df.getOwner(); }
+         */
+
         if (dvObject instanceof Dataset d) {
             DatasetVersion dv = d.getLatestVersionForCopy();
             for (DatasetField dsf : dv.getDatasetFields()) {
@@ -435,8 +436,7 @@ public class XmlMetadataTemplate {
                 }
             }
         }
-        
-        
+
         for (DatasetFieldCompoundValue producerFieldValue : compoundProducers) {
             String producer = null;
             String affiliation = null;
@@ -459,7 +459,7 @@ public class XmlMetadataTemplate {
             }
 
         }
-        
+
         for (DatasetFieldCompoundValue distributorFieldValue : compoundDistributors) {
             String distributor = null;
             String affiliation = null;
@@ -519,7 +519,7 @@ public class XmlMetadataTemplate {
                     break;
                 }
             }
-            // QDR - doesn't have Funder in the contributor type list. 
+            // QDR - doesn't have Funder in the contributor type list.
             // Using a string isn't i18n
             if (StringUtils.isNotBlank(contributor) && !StringUtils.equalsIgnoreCase("Funder", contributorType)) {
                 contributorsCreated = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "contributors", contributorsCreated);
@@ -528,7 +528,7 @@ public class XmlMetadataTemplate {
             }
 
         }
-        
+
         if (contributorsCreated) {
             xmlw.writeEndElement();
         }
@@ -570,7 +570,7 @@ public class XmlMetadataTemplate {
                 logger.warning("DatasetAuthor.getIdentifierAsUrl returned a Malformed URL: " + nameIdentifier);
             }
         }
-        
+
         if (StringUtils.isNotBlank(affiliation)) {
             attributeMap.clear();
             if (affiliation.startsWith("https://ror.org/")) {
@@ -586,8 +586,10 @@ public class XmlMetadataTemplate {
     /**
      * 8, Date (with type sub-property) (R)
      *
-     * @param xmlw The Steam writer
-     * @param dvObject The dataset/datafile
+     * @param xmlw
+     *            The Steam writer
+     * @param dvObject
+     *            The dataset/datafile
      * @throws XMLStreamException
      */
     private void writeDates(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
@@ -670,15 +672,16 @@ public class XmlMetadataTemplate {
         }
     }
 
-
     // 9, Language (MA), language
     private void writeLanguage(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
-        //Currently not supported. Spec indicates one 'primary' language. Could send the first entry in DatasetFieldConstant.language or send iff there is only one entry, and/or default to the machine's default lang?
+        // Currently not supported. Spec indicates one 'primary' language. Could send
+        // the first entry in DatasetFieldConstant.language or send iff there is only
+        // one entry, and/or default to the machine's default lang?
         return;
     }
-    
-    // 10, ResourceType (with mandatory general type 
-    //      description sub- property) (M)
+
+    // 10, ResourceType (with mandatory general type
+    // description sub- property) (M)
     private void writeResourceType(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
         List<ControlledVocabularyValue> kindOfDataValues = new ArrayList<ControlledVocabularyValue>();
         Map<String, String> attributes = new HashMap<String, String>();
@@ -713,8 +716,10 @@ public class XmlMetadataTemplate {
     /**
      * 11 AlternateIdentifier (with type sub-property) (O)
      *
-     * @param xmlw The Steam writer
-     * @param dvObject The dataset/datafile
+     * @param xmlw
+     *            The Steam writer
+     * @param dvObject
+     *            The dataset/datafile
      * @throws XMLStreamException
      */
     private void writeAlternateIdentifiers(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
@@ -733,7 +738,7 @@ public class XmlMetadataTemplate {
                 }
             }
         }
-        
+
         if (altPids != null && !altPids.isEmpty()) {
             alternatesWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "alternativeIdentifiers", alternatesWritten);
             for (AlternativePersistentIdentifier altPid : altPids) {
@@ -790,8 +795,10 @@ public class XmlMetadataTemplate {
     /**
      * 12, RelatedIdentifier (with type and relation type sub-properties) (R)
      *
-     * @param xmlw The Steam writer
-     * @param dvObject the dataset/datafile
+     * @param xmlw
+     *            The Steam writer
+     * @param dvObject
+     *            the dataset/datafile
      * @throws XMLStreamException
      */
     private void writeRelatedIdentifiers(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
@@ -814,6 +821,7 @@ public class XmlMetadataTemplate {
                      * way those two fields are used for all identifier types. The code here is
                      * ~best effort to interpret those fields.
                      */
+
                     pubIdType = getCanonicalPublicationType(pubIdType);
 
                     // Prefer url if set, otherwise check identifier
@@ -822,49 +830,52 @@ public class XmlMetadataTemplate {
                         relatedIdentifier = identifier;
                     }
                     // For types where we understand the protocol, get the canonical form
-                    switch (pubIdType) {
-                    case "DOI":
-                        if (!relatedIdentifier.startsWith("doi:") || relatedIdentifier.startsWith("http")) {
-                            relatedIdentifier = "doi:" + relatedIdentifier;
-                        }
-                        try {
-                            GlobalId pid = PidUtil.parseAsGlobalID(relatedIdentifier);
-                            relatedIdentifier = pid.asRawIdentifier();
-                        } catch (IllegalArgumentException e) {
-                            relatedIdentifier = null;
-                        }
-                        break;
-                    case "Handle":
-                        if (!relatedIdentifier.startsWith("hdl:") || relatedIdentifier.startsWith("http")) {
-                            relatedIdentifier = "hdl:" + relatedIdentifier;
-                        }
-                        try {
-                            GlobalId pid = PidUtil.parseAsGlobalID(relatedIdentifier);
-                            relatedIdentifier = pid.asRawIdentifier();
-                        } catch (IllegalArgumentException e) {
-                            relatedIdentifier = null;
-                        }
-                        break;
-                    case "URL":
-                        break;
-                    default:
+                    if (pubIdType != null) {
+                        switch (pubIdType) {
+                        case "DOI":
+                            if (!relatedIdentifier.startsWith("doi:") || relatedIdentifier.startsWith("http")) {
+                                relatedIdentifier = "doi:" + relatedIdentifier;
+                            }
+                            try {
+                                GlobalId pid = PidUtil.parseAsGlobalID(relatedIdentifier);
+                                relatedIdentifier = pid.asRawIdentifier();
+                            } catch (IllegalArgumentException e) {
+                                relatedIdentifier = null;
+                            }
+                            break;
+                        case "Handle":
+                            if (!relatedIdentifier.startsWith("hdl:") || relatedIdentifier.startsWith("http")) {
+                                relatedIdentifier = "hdl:" + relatedIdentifier;
+                            }
+                            try {
+                                GlobalId pid = PidUtil.parseAsGlobalID(relatedIdentifier);
+                                relatedIdentifier = pid.asRawIdentifier();
+                            } catch (IllegalArgumentException e) {
+                                relatedIdentifier = null;
+                            }
+                            break;
+                        case "URL":
+                            break;
+                        default:
 
-                        // For non-URL types, if a URL is given, split the string to get a schemeUri
-                        try {
-                            URL relatedUrl = new URL(relatedIdentifier);
-                            String protocol = relatedUrl.getProtocol();
-                            String authority = relatedUrl.getAuthority();
-                            String site = String.format("%s://%s", protocol, authority);
-                            relatedIdentifier = relatedIdentifier.substring(site.length());
-                            attributes.put("schemeURI", site);
-                        } catch (MalformedURLException e) {
-                            // Just an identifier
+                            // For non-URL types, if a URL is given, split the string to get a schemeUri
+                            try {
+                                URL relatedUrl = new URL(relatedIdentifier);
+                                String protocol = relatedUrl.getProtocol();
+                                String authority = relatedUrl.getAuthority();
+                                String site = String.format("%s://%s", protocol, authority);
+                                relatedIdentifier = relatedIdentifier.substring(site.length());
+                                attributes.put("schemeURI", site);
+                            } catch (MalformedURLException e) {
+                                // Just an identifier
+                            }
                         }
                     }
-
                     if (StringUtils.isNotBlank(relatedIdentifier)) {
                         // Still have a valid entry
-                        attributes.put("relatedIdentifierType", pubIdType);
+                        if (pubIdType != null) {
+                            attributes.put("relatedIdentifierType", pubIdType);
+                        }
                         attributes.put("relationType", "IsSupplementTo");
                         relatedIdentifiersWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "relatedIdentifiers", relatedIdentifiersWritten);
                         XmlWriterUtil.writeFullElementWithAttributes(xmlw, "relatedIdentifier", attributes, relatedIdentifier);
@@ -905,7 +916,7 @@ public class XmlMetadataTemplate {
     }
 
     static HashMap<String, String> relatedIdentifierTypeMap = new HashMap<String, String>();
-    
+
     private static String getCanonicalPublicationType(String pubIdType) {
         if (relatedIdentifierTypeMap.isEmpty()) {
             relatedIdentifierTypeMap.put("ARK".toLowerCase(), "ARK");
@@ -976,13 +987,12 @@ public class XmlMetadataTemplate {
                     formatsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "formats", formatsWritten);
                     XmlWriterUtil.writeFullElement(xmlw, "format", format);
                 }
-                /* Should original formats be sent? What about original sizes above?
-                if(dataFile.isTabularData()) {
-                    String originalFormat = dataFile.getOriginalFileFormat();
-                    if(StringUtils.isNotBlank(originalFormat)) {
-                        XmlWriterUtil.writeFullElement(xmlw, "format", format);
-                    }
-                }*/
+                /*
+                 * Should original formats be sent? What about original sizes above?
+                 * if(dataFile.isTabularData()) { String originalFormat =
+                 * dataFile.getOriginalFileFormat(); if(StringUtils.isNotBlank(originalFormat))
+                 * { XmlWriterUtil.writeFullElement(xmlw, "format", format); } }
+                 */
             }
         }
         if (formatsWritten) {
@@ -993,19 +1003,19 @@ public class XmlMetadataTemplate {
 
     private void writeVersion(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
         Dataset d = null;
-        if(dvObject instanceof Dataset) {
+        if (dvObject instanceof Dataset) {
             d = (Dataset) dvObject;
         } else if (dvObject instanceof DataFile) {
             d = ((DataFile) dvObject).getOwner();
         }
-        if(d !=null) {
+        if (d != null) {
             DatasetVersion dv = d.getLatestVersionForCopy();
-        String version = dv.getFriendlyVersionNumber();
+            String version = dv.getFriendlyVersionNumber();
             if (StringUtils.isNotBlank(version)) {
                 XmlWriterUtil.writeFullElement(xmlw, "version", version);
             }
         }
-        
+
     }
 
     private void writeAccessRights(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
@@ -1243,7 +1253,6 @@ public class XmlMetadataTemplate {
         }
 
     }
-
 
     private void writeFundingReferences(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
         // fundingReferences -> fundingReference -> funderName, awardNumber
