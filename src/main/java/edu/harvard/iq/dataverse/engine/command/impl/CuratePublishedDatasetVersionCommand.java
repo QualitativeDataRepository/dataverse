@@ -179,9 +179,14 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         cmd.execute(ctxt);
 
         // And update metadata at PID provider
-        ctxt.engine().submit(
+        try {
+            ctxt.engine().submit(
                 new UpdateDvObjectPIDMetadataCommand(savedDataset, getRequest()));
-
+        } catch (CommandException ex) {
+            //Make this non-fatal as after the DeleteDatasetVersionCommand, we can't roll back - for some reason no datasetfields remain in the DB
+            //(The old version doesn't need them and the new version doesn't get updated to include them?)
+            logger.log(Level.WARNING, "Curate Published DatasetVersion: exception while updating PID metadata:{0}", ex.getMessage());
+        }
         // Update so that getDataset() in updateDatasetUser will get the up-to-date copy
         // (with no draft version)
         setDataset(savedDataset);
