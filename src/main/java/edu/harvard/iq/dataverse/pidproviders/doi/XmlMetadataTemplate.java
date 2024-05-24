@@ -757,7 +757,7 @@ public class XmlMetadataTemplate {
         }
 
         if (altPids != null && !altPids.isEmpty()) {
-            alternatesWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "alternativeIdentifiers", alternatesWritten);
+            alternatesWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "alternateIdentifiers", alternatesWritten);
             for (AlternativePersistentIdentifier altPid : altPids) {
                 String identifierType = null;
                 String identifier = null;
@@ -777,7 +777,7 @@ public class XmlMetadataTemplate {
                     identifier = altPid.getAuthority() + altPid.getIdentifier();
                     break;
                 }
-                attributes.put("alternativeIdentifierType", identifierType);
+                attributes.put("alternateIdentifierType", identifierType);
                 XmlWriterUtil.writeFullElementWithAttributes(xmlw, "alternateIdentifier", attributes, identifier);
 
             }
@@ -797,9 +797,9 @@ public class XmlMetadataTemplate {
                     break;
                 }
             }
-            attributes.put("alternativeIdentifierType", identifierType);
+            attributes.put("alternateIdentifierType", identifierType);
             if (!StringUtils.isBlank(identifier)) {
-                alternatesWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "alternativeIdentifiers", alternatesWritten);
+                alternatesWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "alternateIdentifiers", alternatesWritten);
 
                 XmlWriterUtil.writeFullElementWithAttributes(xmlw, "alternateIdentifier", attributes, identifier);
             }
@@ -852,7 +852,7 @@ logger.info("Canonical type: " + pubIdType);
                     if (pubIdType != null) {
                         switch (pubIdType) {
                         case "DOI":
-                            if (!relatedIdentifier.startsWith("doi:") || relatedIdentifier.startsWith("http")) {
+                            if (!relatedIdentifier.startsWith("doi:") || !relatedIdentifier.startsWith("http")) {
                                 relatedIdentifier = "doi:" + relatedIdentifier;
                             }
                             logger.info("Intermediate Related identifier: " + relatedIdentifier);
@@ -866,7 +866,7 @@ logger.info("Canonical type: " + pubIdType);
                             logger.info("Final Related identifier: " + relatedIdentifier);
                             break;
                         case "Handle":
-                            if (!relatedIdentifier.startsWith("hdl:") || relatedIdentifier.startsWith("http")) {
+                            if (!relatedIdentifier.startsWith("hdl:") || !relatedIdentifier.startsWith("http")) {
                                 relatedIdentifier = "hdl:" + relatedIdentifier;
                             }
                             try {
@@ -1158,7 +1158,7 @@ logger.info("Canonical type: " + pubIdType);
                         List<DatasetField> childDsfs = dsfcv.getChildDatasetFields();
                         for (DatasetField childDsf : childDsfs) {
 
-                            if (DatasetFieldConstant.seriesInformation.equals(childDsf.getDatasetFieldType().getName())) {
+                            if (DatasetFieldConstant.seriesName.equals(childDsf.getDatasetFieldType().getName())) {
                                 String seriesInformation = childDsf.getValue();
                                 if (StringUtils.isNotBlank(seriesInformation)) {
                                     descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
