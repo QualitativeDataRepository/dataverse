@@ -287,7 +287,9 @@ public class XmlMetadataTemplate {
         }
         if (nothingWritten) {
             // Authors unavailable
-            XmlWriterUtil.writeFullElement(xmlw, "creator", AbstractPidProvider.UNAVAILABLE);
+            xmlw.writeStartElement("creator");
+            XmlWriterUtil.writeFullElement(xmlw, "creatorName", AbstractPidProvider.UNAVAILABLE);
+            xmlw.writeEndElement("creator");
         }
         xmlw.writeEndElement(); // </creators>
     }
