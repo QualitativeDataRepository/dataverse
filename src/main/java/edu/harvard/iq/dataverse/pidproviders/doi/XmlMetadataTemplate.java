@@ -252,8 +252,10 @@ public class XmlMetadataTemplate {
         // write all creators
         xmlw.writeStartElement("creators"); // <creators>
         if(deaccessioned) {
+            //skip the loop below
             authorList = null;
         }
+        boolean nothingWritten = true;
         if (authorList != null && !authorList.isEmpty()) {
             for (DatasetAuthor author : authorList) {
                 String creatorName = StringEscapeUtils.escapeXml10(author.getName().getDisplayValue());
@@ -276,14 +278,16 @@ public class XmlMetadataTemplate {
                 if (StringUtils.isNotBlank(creatorName)) {
                     JsonObject creatorObj = PersonOrOrgUtil.getPersonOrOrganization(creatorName, false,
                             StringUtils.containsIgnoreCase(nameIdentifierScheme, "orcid"));
+                    nothingWritten = false;
                     writeEntityElements(xmlw, "creator", null, creatorObj, affiliation, nameIdentifier, nameIdentifierScheme);
                 }
 
-                else {
-                    // Authors unavailable
-                    XmlWriterUtil.writeFullElement(xmlw, "creator", "creatorName", AbstractPidProvider.UNAVAILABLE);
-                }
+                
             }
+        }
+        if (nothingWritten) {
+            // Authors unavailable
+            XmlWriterUtil.writeFullElement(xmlw, "creator", "creatorName", AbstractPidProvider.UNAVAILABLE);
         }
         xmlw.writeEndElement(); // </creators>
     }
