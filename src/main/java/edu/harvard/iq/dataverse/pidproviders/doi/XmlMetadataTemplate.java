@@ -159,7 +159,7 @@ public class XmlMetadataTemplate {
         List<String> altTitles = new ArrayList<>();
 
         if (!deaccessioned) {
-            doiMetadata.getTitle();
+            title = doiMetadata.getTitle();
 
             // Only Datasets can have a subtitle or alternative titles
             if (dvObject instanceof Dataset d) {
