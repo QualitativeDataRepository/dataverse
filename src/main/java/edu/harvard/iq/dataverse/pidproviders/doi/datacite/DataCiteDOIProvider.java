@@ -335,6 +335,7 @@ public class DataCiteDOIProvider extends AbstractDOIProvider {
                 return false; //No update needed
             }
         } catch (Exception e) {
+            logger.log(Level.WARNING, "Failure for id: " + dvObject.getId() + ", " + identifier);
             logger.log(Level.WARNING, "updateIdentifier failed: " + e.getMessage(), e);
             return false;
         }
