@@ -615,7 +615,7 @@ public class OpenAireExportUtilTest {
 
         //then
         assertEquals("<relatedIdentifiers>"
-                + "<relatedIdentifier relationType=\"IsCitedBy\" relatedIdentifierType=\"ARK\">"
+                + "<relatedIdentifier relationType=\"IsSupplementTo\" relatedIdentifierType=\"ARK\">"
                 + "RelatedPublicationIDNumber1</relatedIdentifier>"
                 + "<relatedIdentifier relationType=\"IsCitedBy\" relatedIdentifierType=\"arXiv\">"
                 + "RelatedPublicationIDNumber2</relatedIdentifier>"
