@@ -1498,7 +1498,7 @@ a {
   color: #0039f5;
 }
 
-.label-warning a, .bg-citation a, .terms .help-block a, #panelCollapseTOU .help-block a {
+.label-warning a, .bg-citation a, .terms .help-block a, #panelCollapseTOU .help-block a,  #dataset-summary-metadata a {
   text-decoration: underline;
 }
 
