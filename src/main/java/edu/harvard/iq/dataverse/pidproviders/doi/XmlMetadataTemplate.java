@@ -997,7 +997,7 @@ logger.info("Canonical type: " + pubIdType);
                                 String site = String.format("%s://%s", protocol, authority);
                                 relatedIdentifier = relatedIdentifier.substring(site.length());
                                 attributes.put("schemeURI", site);
-                            } catch (URISyntaxException | MalformedURLException e) {
+                            } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
                                 // Just an identifier
                             }
                         }
