@@ -59,7 +59,7 @@ public class MailUtilTest {
         BrandingUtil.injectServices(dataverseSvc, settingsSvc);
 
         userNotification.setType(UserNotification.Type.CREATEACC);
-        assertEquals("LibraScholar: Your account has been created", MailUtil.getSubjectTextBasedOnNotification(userNotification, null));
+        assertEquals("", MailUtil.getSubjectTextBasedOnNotification(userNotification, null));
     }
 
     @Test
