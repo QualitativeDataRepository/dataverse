@@ -71,7 +71,7 @@ public class MailUtilTest {
     @Test
     public void testSubjectCreateDataverse() {
         userNotification.setType(UserNotification.Type.CREATEDV);
-        assertEquals("LibraScholar: Your dataverse has been created", MailUtil.getSubjectTextBasedOnNotification(userNotification, null));
+        assertEquals("LibraScholar: Your collection has been created", MailUtil.getSubjectTextBasedOnNotification(userNotification, null));
     }
     
     @Test
@@ -88,7 +88,7 @@ public class MailUtilTest {
         requestor.setLastName("Jones");
         requestor.setUserIdentifier("TJ-1234");
         userNotification.setRequestor(requestor);
-        assertEquals("LibraScholar: Tom Jones (@TJ-1234) requested access to data project \"\"", MailUtil.getSubjectTextBasedOnNotification(userNotification, null));
+        assertEquals("LibraScholar: Tom Jones (@TJ-1234) requested access to a file(s) in data project \"\"", MailUtil.getSubjectTextBasedOnNotification(userNotification, null));
     }
     
     @Test
