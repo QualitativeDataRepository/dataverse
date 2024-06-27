@@ -34,9 +34,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @ViewScoped
 @Named("Shib")
@@ -46,10 +44,6 @@ public class Shib implements java.io.Serializable {
 
     @Inject
     DataverseSession session;
-    @Inject
-    SettingsWrapper settingsWrapper;
-    @Inject
-    NavigationWrapper navigationWrapper;
 
     @EJB
     AuthenticationServiceBean authSvc;
@@ -62,12 +56,13 @@ public class Shib implements java.io.Serializable {
     @EJB
     UserNotificationServiceBean userNotificationService;
     @EJB
-    SystemConfig systemConfig;
-    @EJB
     SettingsServiceBean settingsService;
+	@EJB
+	SystemConfig systemConfig;
+    @EJB
+    UserServiceBean userService;
 
     HttpServletRequest request;
-    HttpServletResponse response;
 
     private String userPersistentId;
     private String internalUserIdentifier;
@@ -266,6 +261,7 @@ public class Shib implements java.io.Serializable {
             state = State.REGULAR_LOGIN_INTO_EXISTING_SHIB_ACCOUNT;
             logger.fine("Found user based on " + userPersistentId + ". Logging in.");
             logger.fine("Updating display info for " + au.getName());
+            userService.updateLastLogin(au);
             authSvc.updateAuthenticatedUser(au, displayInfo);
             logInUserAndSetShibAttributes(au);
             String prettyFacesHomePageString = getPrettyFacesHomePageString(false);

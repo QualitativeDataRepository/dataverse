@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.authorization.providers.oauth2;
 
 import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserIdentifier;
@@ -20,7 +21,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import static java.util.stream.Collectors.toList;
 import jakarta.ejb.EJB;
 import jakarta.inject.Named;
@@ -67,6 +67,9 @@ public class OAuth2LoginBackingBean implements Serializable {
 
     @EJB
     SystemConfig systemConfig;
+
+    @EJB
+    UserServiceBean userService;
 
     @Inject
     DataverseSession session;
@@ -165,6 +168,7 @@ public class OAuth2LoginBackingBean implements Serializable {
                         if(dvUser.isDeactivated()) {
                             throw new OAuth2Exception(-1, "", BundleUtil.getStringFromBundle("deactivated.error"));
                         }
+                        dvUser = userService.updateLastLogin(dvUser);
                         session.setUser(dvUser);
                         final OAuth2TokenData tokenData = oauthUser.getTokenData();
                         if (tokenData != null) {
@@ -177,7 +181,6 @@ public class OAuth2LoginBackingBean implements Serializable {
                         }
 
                         Faces.redirect(redirectPage.orElse("/"));
-                    
                 }
             }
         } catch (OAuth2Exception ex) {
@@ -255,24 +258,24 @@ public class OAuth2LoginBackingBean implements Serializable {
         
         // Verify the response by decrypting values and check for state valid timeout
         try {
-        String raw = StringUtil.decrypt(topFields[1], idp.clientSecret);
-        String[] stateFields = raw.split("~", -1);
-        if (idp.getId().equals(stateFields[0])) {
-            long timeOrigin = Long.parseLong(stateFields[1]);
-            long timeDifference = this.clock.millis() - timeOrigin;
-            if (timeDifference > 0 && timeDifference < STATE_TIMEOUT) {
-                if ( stateFields.length > 3) {
-                    this.redirectPage = Optional.ofNullable(stateFields[3]);
+            String raw = StringUtil.decrypt(topFields[1], idp.clientSecret);
+            String[] stateFields = raw.split("~", -1);
+            if (idp.getId().equals(stateFields[0])) {
+                long timeOrigin = Long.parseLong(stateFields[1]);
+                long timeDifference = this.clock.millis() - timeOrigin;
+                if (timeDifference > 0 && timeDifference < STATE_TIMEOUT) {
+                    if (stateFields.length > 3) {
+                        this.redirectPage = Optional.ofNullable(stateFields[3]);
+                    }
+                    return Optional.of(idp);
+                } else {
+                    logger.info("State timeout");
+                    return Optional.empty();
                 }
-                return Optional.of(idp);
             } else {
-                logger.info("State timeout");
+                logger.log(Level.INFO, "Invalid id field: ''{0}''", stateFields[0]);
                 return Optional.empty();
             }
-        } else {
-            logger.log(Level.INFO, "Invalid id field: ''{0}''", stateFields[0]);
-            return Optional.empty();
-        }
         } catch (RuntimeException ex) {
             logger.warning("Bad state - possible penetration test");
             return Optional.empty();
