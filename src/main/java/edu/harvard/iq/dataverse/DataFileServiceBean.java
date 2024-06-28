@@ -1405,4 +1405,16 @@ public class DataFileServiceBean implements java.io.Serializable {
         
         return new UploadSessionQuotaLimit(quota.getAllocation(), currentSize);
     }
+
+    public boolean isInReleasedVersion(Long id) {
+        Query query = em.createNamedQuery("DataFile.fileMetadataInReleasedVersion");
+        query.setParameter("fid", id);
+        
+        try {
+            query.getSingleResult();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
 }
