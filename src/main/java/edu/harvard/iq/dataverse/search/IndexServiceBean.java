@@ -2208,6 +2208,7 @@ public class IndexServiceBean {
      * @throws SearchException 
      */
     public List<String> findPermissionsInSolrOnly() throws SearchException {
+        logger.info("Checking for solr-only permissions");
         List<String> permissionInSolrOnly = new ArrayList<>();
         try {
             int rows = 100;
@@ -2218,6 +2219,7 @@ public class IndexServiceBean {
                 q.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
                 QueryResponse rsp = solrServer.query(q);
                 String nextCursorMark = rsp.getNextCursorMark();
+                logger.info("Next cursor mark: " + nextCursorMark);
                 SolrDocumentList list = rsp.getResults();
                 for (SolrDocument doc: list) {
                     long id = Long.parseLong((String) doc.getFieldValue(SearchFields.DEFINITION_POINT_DVOBJECT_ID));
@@ -2275,6 +2277,9 @@ public class IndexServiceBean {
         } catch (SolrServerException | IOException ex) {
            throw new SearchException("Error searching Solr for permissions" , ex);
  
+        } catch (Exception e) {
+            logger.warning(e.getLocalizedMessage());
+            e.printStackTrace();
         }
         return permissionInSolrOnly;
     }
