@@ -339,7 +339,7 @@ public class SearchUtil {
     }
 
     private static Object expandPart(String part, boolean joinNeeded, boolean avoidJoin) {
-        String permClause = avoidJoin ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
+        String permClause = (avoidJoin  && joinNeeded) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
         if (joinNeeded) {
             if (!permClause.isEmpty()) {
                 permClause = "(" + permClause + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1})))";

@@ -62,6 +62,8 @@ public class SearchServiceBean {
 
     private static final Logger logger = Logger.getLogger(SearchServiceBean.class.getCanonicalName());
 
+    private static final String ALL_GROUPS = "*";
+
     /**
      * We're trying to make the SearchServiceBean lean, mean, and fast, with as
      * few injections of EJBs as possible.
@@ -195,7 +197,7 @@ public class SearchServiceBean {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, onlyDatatRelatedToMe, addFacets, avoidJoin);
         if(settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups!=null, avoidJoin);
+            query = SearchUtil.expandQuery(query, permissionFilterGroups!=null && !permissionFilterGroups.equals(ALL_GROUPS), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String q1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
             solrQuery.add("q1",  q1Query);
@@ -973,7 +975,7 @@ public class SearchServiceBean {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, false, !(facets == null || facets.isEmpty()), avoidJoin);
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups != null, avoidJoin);
+            query = SearchUtil.expandQuery(query, permissionFilterGroups != null && !permissionFilterGroups.equals(ALL_GROUPS), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String finalQ1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
             solrQuery.add("q1", finalQ1Query);
@@ -1040,8 +1042,8 @@ public class SearchServiceBean {
 
     
     private String buildPermissionFilterQuery(boolean avoidJoin, String permissionFilterGroups) {
-        String query = avoidJoin ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
-        if (permissionFilterGroups != null) {
+        String query = (avoidJoin&& !permissionFilterGroups.equals(ALL_GROUPS)) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
+        if (permissionFilterGroups != null && !permissionFilterGroups.equals(ALL_GROUPS)) {
             if (!query.isEmpty()) {
                 query = "(" + query + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups + ")";
             } else {
@@ -1053,10 +1055,10 @@ public class SearchServiceBean {
 
     private String buildPermissionGroupQuery(boolean avoidJoin, String fullTextSearchableBy, String permissionFilterGroups) {
         StringBuilder q1Query = new StringBuilder();
-        if(avoidJoin) {
+        if(avoidJoin && !permissionFilterGroups.equals(ALL_GROUPS)) {
             q1Query.append(SearchFields.PUBLIC_OBJECT + ":" + true);
         }
-        if (permissionFilterGroups != null) {
+        if (permissionFilterGroups != null && !permissionFilterGroups.equals(ALL_GROUPS)) {
             if(!q1Query.isEmpty()) {
                 q1Query.append(" OR ");
             }
@@ -1109,8 +1111,6 @@ public class SearchServiceBean {
             throw new NullPointerException("solrQuery cannot be null");
         }
         
-        String dangerZoneNoSolrJoin = null;
-
         if (user instanceof PrivateUrlUser) {
             user = GuestUser.get();
         }
@@ -1120,7 +1120,6 @@ public class SearchServiceBean {
         Set<Group> groups;
 
         if (user instanceof AuthenticatedUser) {
-
             au = (AuthenticatedUser) user;
 
             // ----------------------------------------------------
@@ -1132,7 +1131,7 @@ public class SearchServiceBean {
                 // to see everything in Solr with no regard to permissions. But it's
                 // been this way since Dataverse 4.0. So relax. :)
 
-                return dangerZoneNoSolrJoin;
+                return ALL_GROUPS;
             }
 
             // ----------------------------------------------------
@@ -1143,7 +1142,7 @@ public class SearchServiceBean {
             if (onlyDatatRelatedToMe == true) {
                 if (systemConfig.myDataDoesNotUsePermissionDocs()) {
                     logger.fine("old 4.2 behavior: MyData is not using Solr permission docs");
-                    return dangerZoneNoSolrJoin;
+                    return ALL_GROUPS;
                 } else {
                     // fall-through
                     logger.fine("new post-4.2 behavior: MyData is using Solr permission docs");
