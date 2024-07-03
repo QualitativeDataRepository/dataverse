@@ -197,7 +197,7 @@ public class SearchServiceBean {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, onlyDatatRelatedToMe, addFacets, avoidJoin);
         if(settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups!=null && !permissionFilterGroups.equals(ALL_GROUPS), avoidJoin);
+            query = SearchUtil.expandQuery(query, permissionFilterGroups!=null && !isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String q1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
             solrQuery.add("q1",  q1Query);
@@ -975,7 +975,7 @@ public class SearchServiceBean {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, false, !(facets == null || facets.isEmpty()), avoidJoin);
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups != null && !permissionFilterGroups.equals(ALL_GROUPS), avoidJoin);
+            query = SearchUtil.expandQuery(query, permissionFilterGroups != null && !isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String finalQ1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
             solrQuery.add("q1", finalQ1Query);
@@ -1042,8 +1042,8 @@ public class SearchServiceBean {
 
     
     private String buildPermissionFilterQuery(boolean avoidJoin, String permissionFilterGroups) {
-        String query = (avoidJoin&& !permissionFilterGroups.equals(ALL_GROUPS)) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
-        if (permissionFilterGroups != null && !permissionFilterGroups.equals(ALL_GROUPS)) {
+        String query = (avoidJoin&& !isAllGroups(permissionFilterGroups)) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
+        if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
             if (!query.isEmpty()) {
                 query = "(" + query + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups + ")";
             } else {
@@ -1055,10 +1055,10 @@ public class SearchServiceBean {
 
     private String buildPermissionGroupQuery(boolean avoidJoin, String fullTextSearchableBy, String permissionFilterGroups) {
         StringBuilder q1Query = new StringBuilder();
-        if(avoidJoin && !permissionFilterGroups.equals(ALL_GROUPS)) {
+        if(avoidJoin && !isAllGroups(permissionFilterGroups)) {
             q1Query.append(SearchFields.PUBLIC_OBJECT + ":" + true);
         }
-        if (permissionFilterGroups != null && !permissionFilterGroups.equals(ALL_GROUPS)) {
+        if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
             if(!q1Query.isEmpty()) {
                 q1Query.append(" OR ");
             }
@@ -1066,6 +1066,8 @@ public class SearchServiceBean {
         }
         return q1Query.toString(); 
     }
+
+
 
     public String getLocaleTitle(String title,  String controlledvoc , String propertyfile) {
 
@@ -1185,4 +1187,7 @@ public class SearchServiceBean {
         return groupString;
     }
 
+    private boolean isAllGroups(String groups) {
+        return (groups!=null &&groups.equals(ALL_GROUPS));
+    }
 }
