@@ -333,14 +333,6 @@ public class SearchServiceBean {
             solrFieldsToHightlightOnMap.put(SearchFields.FILENAME_WITHOUT_EXTENSION, "Filename Without Extension");
             solrFieldsToHightlightOnMap.put(SearchFields.FILE_TAG_SEARCHABLE, "File Tag");
 
-            // -----------------------------------
-            // PERMISSION FILTER QUERY
-            // -----------------------------------
-            String permFilterQuery = buildPermissionFilterQuery(avoidJoin, permissionFilterGroups);
-            logger.fine("Permission Filter Query: " + permFilterQuery);
-            if (!permFilterQuery.isEmpty()) {
-                solrQuery.addFilterQuery(permFilterQuery);
-            }
 
             for (DatasetFieldType datasetFieldType : datasetFields) {
                 String solrField = datasetFieldType.getSolrField().getNameSearchable();
@@ -354,13 +346,14 @@ public class SearchServiceBean {
             }
         }
 
-        //I'm not sure if just adding null here is good for the permissions system... i think it needs something
-        if(dataverses != null) {
-            for(Dataverse dataverse : dataverses) {
-
-                    }
-        } 
-        
+        // -----------------------------------
+        // PERMISSION FILTER QUERY
+        // -----------------------------------
+        String permFilterQuery = buildPermissionFilterQuery(avoidJoin, permissionFilterGroups);
+        logger.fine("Permission Filter Query: " + permFilterQuery);
+        if (!permFilterQuery.isEmpty()) {
+            solrQuery.addFilterQuery(permFilterQuery);
+        }
         
         /**
          * @todo: do sanity checking... throw error if negative
@@ -432,13 +425,9 @@ public class SearchServiceBean {
             //If it is a syntax error, tell the user rather than silently showing no results
             if(messageFromSolr.contains(stringToHide)) {
                 throw new SearchException(BundleUtil.getStringFromBundle("dataverse.search.syntax.error"));
-            }
+            } else {
             // (May be a better option for other types of errors as well?)
             // e.g. throw new SearchException(BundleUtil.getStringFromBundle("dataverse.results.solrIsDown"));
-            if (messageFromSolr.startsWith(stringToHide)) {
-                // hide "org.apache.solr..."
-                error += messageFromSolr.substring(stringToHide.length());
-            } else {
                 error += messageFromSolr;
             }
             logger.info(error);
@@ -528,33 +517,33 @@ public class SearchServiceBean {
             SolrSearchResult solrSearchResult = new SolrSearchResult(query, name);
             
             if (addHighlights) {
-            List<Highlight> highlights = new ArrayList<>();
-            Map<SolrField, Highlight> highlightsMap = new HashMap<>();
-            Map<SolrField, List<String>> highlightsMap2 = new HashMap<>();
-            Map<String, Highlight> highlightsMap3 = new HashMap<>();
-            if (queryResponse.getHighlighting().get(id) != null) {
-                for (Map.Entry<String, String> entry : solrFieldsToHightlightOnMap.entrySet()) {
-                    String field = entry.getKey();
-                    String displayName = entry.getValue();
+                List<Highlight> highlights = new ArrayList<>();
+                Map<SolrField, Highlight> highlightsMap = new HashMap<>();
+                Map<SolrField, List<String>> highlightsMap2 = new HashMap<>();
+                Map<String, Highlight> highlightsMap3 = new HashMap<>();
+                if (queryResponse.getHighlighting().get(id) != null) {
+                    for (Map.Entry<String, String> entry : solrFieldsToHightlightOnMap.entrySet()) {
+                        String field = entry.getKey();
+                        String displayName = entry.getValue();
 
-                    List<String> highlightSnippets = queryResponse.getHighlighting().get(id).get(field);
-                    if (highlightSnippets != null) {
-                        matchedFields.add(field);
-                        /**
-                         * @todo only SolrField.SolrType.STRING? that's not
-                         * right... knit the SolrField object more into the
-                         * highlighting stuff
-                         */
-                        SolrField solrField = new SolrField(field, SolrField.SolrType.STRING, true, true);
-                        Highlight highlight = new Highlight(solrField, highlightSnippets, displayName);
-                        highlights.add(highlight);
-                        highlightsMap.put(solrField, highlight);
-                        highlightsMap2.put(solrField, highlightSnippets);
-                        highlightsMap3.put(field, highlight);
+                        List<String> highlightSnippets = queryResponse.getHighlighting().get(id).get(field);
+                        if (highlightSnippets != null) {
+                            matchedFields.add(field);
+                            /**
+                             * @todo only SolrField.SolrType.STRING? that's not
+                             * right... knit the SolrField object more into the
+                             * highlighting stuff
+                             */
+                            SolrField solrField = new SolrField(field, SolrField.SolrType.STRING, true, true);
+                            Highlight highlight = new Highlight(solrField, highlightSnippets, displayName);
+                            highlights.add(highlight);
+                            highlightsMap.put(solrField, highlight);
+                            highlightsMap2.put(solrField, highlightSnippets);
+                            highlightsMap3.put(field, highlight);
+                        }
                     }
-                }
 
-            }
+                }
 
                 solrSearchResult.setHighlightsAsList(highlights);
                 solrSearchResult.setHighlightsMap(highlightsMap);
