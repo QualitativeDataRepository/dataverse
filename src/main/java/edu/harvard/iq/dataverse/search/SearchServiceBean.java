@@ -335,6 +335,7 @@ public class SearchServiceBean {
             // PERMISSION FILTER QUERY
             // -----------------------------------
             String permFilterQuery = buildPermissionFilterQuery(avoidJoin, permissionFilterGroups);
+            logger.fine("Permission Filter Query: " + permFilterQuery);
             if (!permFilterQuery.isEmpty()) {
                 solrQuery.addFilterQuery(permFilterQuery);
             }
@@ -1004,6 +1005,7 @@ public class SearchServiceBean {
         // PERMISSION FILTER QUERY
         // -----------------------------------
         String permFilterQuery = buildPermissionFilterQuery(avoidJoin, permissionFilterGroups);
+        logger.fine("simpleSearch permFilterQuery: " + permFilterQuery);
         if (!permFilterQuery.isEmpty()) {
             solrQuery.addFilterQuery(permFilterQuery);
         }
@@ -1151,6 +1153,7 @@ public class SearchServiceBean {
             // Work with Authenticated User who is not a Superuser
             // ----------------------------------------------------
             groupList.add(IndexServiceBean.getGroupPerUserPrefix() + au.getId());
+            logger.fine("Added " + groupList.get(0) + " to groupList");
         }
         
         // In addition to the user referenced directly, we will also
@@ -1160,7 +1163,6 @@ public class SearchServiceBean {
         // Authenticated users and GuestUser may be part of one or more groups; such
         // as IP Groups.
         groups = groupService.collectAncestors(groupService.groupsFor(dataverseRequest));
-
         for (Group group : groups) {
             String groupAlias = group.getAlias();
             if (groupAlias != null && !groupAlias.isEmpty() && (!avoidJoin || !groupAlias.startsWith("builtIn"))) {
@@ -1172,7 +1174,7 @@ public class SearchServiceBean {
             // Add the public group
             groupList.add(0, IndexServiceBean.getPublicGroupString());
         } 
-        
+        logger.fine("GroupList size: " + groupList.size());
         String groupString = null;
         //If we have additional groups, format them correctly into a search string, with parens if there is more than one
         if (groupList.size() > 1) {
