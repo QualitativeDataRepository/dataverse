@@ -650,8 +650,8 @@
                                                     <td jsf:rendered="#{!DatasetPage.anonymizedAccess or !settingsWrapper.shouldBeAnonymized(dsf)}">
                                                         <h:outputText value="#{DatasetPage.datasetVersionUI.relPublicationRelationType}#{MarkupChecker:sanitizeBasicHTML(DatasetPage.datasetVersionUI.relPublicationCitation)}" escape="false"/>
                                                         
-                                                        <span jsf:rendered="#{!empty DatasetPage.datasetVersionUI.relPublicationUrl}"><a href="#{DatasetPage.datasetVersionUI.relPublicationUrl}" title="#{DatasetPage.datasetVersionUI.relPublicationUrl}" target="_blank" rel="noopener">#{empty DatasetPage.datasetVersionUI.relPublicationId ?  DatasetPage.datasetVersionUI.relPublicationUrl:DatasetPage.datasetVersionUI.relPublicationId}</a></span>
-                                                        <h:outputText rendered="#{empty DatasetPage.datasetVersionUI.relPublicationUrl}" value="#{DatasetPage.datasetVersionUI.relPublicationId}"/>
+                                                        <span jsf:rendered="#{!empty DatasetPage.datasetVersionUI.relPublicationUrl}"> <a href="#{DatasetPage.datasetVersionUI.relPublicationUrl}" title="#{DatasetPage.datasetVersionUI.relPublicationUrl}" target="_blank" rel="noopener">#{empty DatasetPage.datasetVersionUI.relPublicationId ?  DatasetPage.datasetVersionUI.relPublicationUrl:DatasetPage.datasetVersionUI.relPublicationId}</a></span>
+                                                        <h:outputText rendered="#{empty DatasetPage.datasetVersionUI.relPublicationUrl}" value=" #{DatasetPage.datasetVersionUI.relPublicationId}"/>
                                                     </td>
                                                     <td jsf:rendered="#{DatasetPage.anonymizedAccess and settingsWrapper.shouldBeAnonymized(dsf)}">
                                                         <h:outputText value="#{bundle['dataset.anonymized.withheld']}"/>
