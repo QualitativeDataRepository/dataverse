@@ -1373,7 +1373,7 @@ public class IndexServiceBean {
                     }
                     /* Full-text indexing using Apache Tika */
                     if (doFullTextIndexing) {
-                        if (!dataset.isHarvested() && !fileMetadata.getDataFile().isRestricted()
+                        if (!dataset.isHarvested()
                                 && !fileMetadata.getDataFile().isFilePackage()
                                 && fileMetadata.getDataFile().getFilesize()!=0
                                 && fileMetadata.getDataFile().getRetention() == null) {
