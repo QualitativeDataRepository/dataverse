@@ -501,7 +501,13 @@ public class OREMap {
                 for (String prefix : context.keySet()) {
                     localContext.putIfAbsent(prefix, context.getString(prefix));
                 }
-                JsonObjectBuilder job = Json.createObjectBuilder(datasetFieldService.getExternalVocabularyValue(val));
+                JsonObjectBuilder job;
+                JsonObject cvv = datasetFieldService.getExternalVocabularyValue(val);
+                if (cvv == null) {
+                    job = Json.createObjectBuilder();
+                } else {
+                    job = Json.createObjectBuilder(cvv);
+                }
                 job.add("@id", val);
                 JsonObject extVal = job.build();
                 logger.fine("Adding: " + extVal);
