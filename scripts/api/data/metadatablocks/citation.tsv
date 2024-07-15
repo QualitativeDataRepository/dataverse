@@ -11,7 +11,7 @@
 	authorName	Name	The name of the author, such as the person's name or the name of an organization	1) Family Name, Given Name or 2) Organization XYZ	text	7	#VALUE	TRUE	FALSE	FALSE	TRUE	TRUE	TRUE	author	citation	
 	authorAffiliation	Affiliation	The name of the entity affiliated with the author, e.g. an organization's name	Organization XYZ	text	8	(#VALUE)	TRUE	FALSE	FALSE	TRUE	TRUE	FALSE	author	citation	
 	authorIdentifierScheme	Identifier Type	The type of identifier that uniquely identifies the author (e.g. ORCID, ISNI)		text	9	ORCID	FALSE	TRUE	FALSE	FALSE	TRUE	FALSE	author	citation	http://purl.org/spar/datacite/AgentIdentifierScheme
-	authorIdentifier	ORCID	Creator's ORCID ID	QDR strongly encourages the use of ORCIDs	text	10	#VALUE	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	author	citation	http://purl.org/spar/datacite/AgentIdentifier
+	authorIdentifier	Identifier	Creator's ID	QDR strongly encourages the use of ORCIDs	text	10	#VALUE	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	author	citation	http://purl.org/spar/datacite/AgentIdentifier
 	datasetContact	Point of Contact	The entity, e.g. a person or organization, that users of the Data Project can contact with questions		none	11		FALSE	FALSE	TRUE	FALSE	TRUE	TRUE		citation	
 	datasetContactName	Name	The name of the point of contact, e.g. the person's name or the name of an organization	1) FamilyName, GivenName or 2) Organization	text	12	#VALUE	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	datasetContact	citation	
 	datasetContactAffiliation	Affiliation	The name of the entity affiliated with the point of contact, e.g. an organization's name	Organization XYZ	text	13	(#VALUE)	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	datasetContact	citation	
