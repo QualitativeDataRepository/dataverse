@@ -120,12 +120,10 @@ public class DatasetUtil {
         if (dataset == null || dataset.getStorageIdentifier()==null) {
             return null;
         }
-        try {
-        if(size == 0) {
-            throw new Exception("Bad!");
-        }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (size == 0) {
+            //Size 0 will fail (and set the failure flag) and should never be sent
+            logger.warning("getThumbnail called with size 0");
+            return null;
         }
         StorageIO<Dataset> dataAccess = null;
                 
