@@ -753,6 +753,7 @@ public class SystemConfig {
          * DCM stands for Data Capture Module. Right now it supports upload over
          * rsync+ssh but DCM may support additional methods in the future.
          */
+        @Deprecated(forRemoval = true, since = "2024-07-07")
         RSYNC("dcm/rsync+ssh"),
         /**
          * Traditional Dataverse file handling, which tends to involve users
@@ -810,6 +811,7 @@ public class SystemConfig {
          * RSAL stands for Repository Storage Abstraction Layer. Downloads don't
          * go through Glassfish.
          */
+        @Deprecated(forRemoval = true, since = "2024-07-07")
         RSYNC("rsal/rsync"),
         NATIVE("native/http"),
         GLOBUS("globus")
@@ -863,6 +865,7 @@ public class SystemConfig {
      */
     public enum TransferProtocols {
 
+        @Deprecated(forRemoval = true, since = "2024-07-07")
         RSYNC("rsync"),
         /**
          * POSIX includes NFS. This is related to Key.LocalDataAccessPath in
@@ -899,7 +902,8 @@ public class SystemConfig {
         boolean saneDefault = false;
         return settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall, saneDefault);
     }
-    
+
+    @Deprecated(forRemoval = true, since = "2024-07-07")
     public boolean isRsyncUpload(){
         return getMethodAvailable(SystemConfig.FileUploadMethods.RSYNC.toString(), true);
     }
@@ -916,7 +920,8 @@ public class SystemConfig {
     public boolean isHTTPUpload(){       
         return getMethodAvailable(SystemConfig.FileUploadMethods.NATIVE.toString(), true);
     }
-    
+
+    @Deprecated(forRemoval = true, since = "2024-07-07")
     public boolean isRsyncOnly(){
         String downloadMethods = settingsService.getValueForKey(SettingsServiceBean.Key.DownloadMethods);
         if(downloadMethods == null){
@@ -932,11 +937,12 @@ public class SystemConfig {
            return  Arrays.asList(uploadMethods.toLowerCase().split("\\s*,\\s*")).size() == 1 && uploadMethods.toLowerCase().equals(SystemConfig.FileUploadMethods.RSYNC.toString());
         }
     }
-    
+
+    @Deprecated(forRemoval = true, since = "2024-07-07")
     public boolean isRsyncDownload() {
         return getMethodAvailable(SystemConfig.FileUploadMethods.RSYNC.toString(), false);
     }
-    
+
     public boolean isHTTPDownload() {
         return getMethodAvailable(SystemConfig.FileUploadMethods.NATIVE.toString(), false);
     }

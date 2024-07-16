@@ -1342,7 +1342,7 @@ public class DatasetVersion implements Serializable {
                     }
                     geoCoverages.add(coverageItem);
                 }
-
+                break;
             }
         }
         return geoCoverages;
@@ -1356,37 +1356,37 @@ public class DatasetVersion implements Serializable {
                 for (DatasetFieldCompoundValue publication : dsf.getDatasetFieldCompoundValues()) {
                     DatasetRelPublication relatedPublication = new DatasetRelPublication();
                     for (DatasetField subField : publication.getChildDatasetFields()) {
-                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.publicationCitation)) {
-                            String citation = subField.getDisplayValue();
-                            relatedPublication.setText(citation);
-                        }
-
-                        
-                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.publicationURL)) {
-                            // We have to avoid using subField.getDisplayValue() here - because the DisplayFormatType 
-                            // for this url metadata field is likely set up so that the display value is automatically 
-                            // turned into a clickable HTML HREF block, which we don't want to end in our Schema.org JSON-LD output.
-                            // So we want to use the raw value of the field instead, with 
-                            // minimal HTML sanitation, just in case (this would be done on all URLs in getDisplayValue()).
+                        switch (subField.getDatasetFieldType().getName()) {
+                        case DatasetFieldConstant.publicationCitation:
+                            relatedPublication.setText(subField.getDisplayValue());
+                            break;
+                        case DatasetFieldConstant.publicationURL:
+                            // We have to avoid using subField.getDisplayValue() here - because the DisplayFormatType
+                            // for this url metadata field is likely set up so that the display value is automatically
+                            // turned into a clickable HTML HREF block, which we don't want to end in our Schema.org 
+                            // JSON-LD output. So we want to use the raw value of the field instead, with minimal HTML
+                            // sanitation, just in case (this would be done on all URLs in getDisplayValue()).
                             String url = subField.getValue();
                             if (StringUtils.isBlank(url) || DatasetField.NA_VALUE.equals(url)) {
                                 relatedPublication.setUrl("");
                             } else {
                                 relatedPublication.setUrl(MarkupChecker.sanitizeBasicHTML(url));
                             }
-                        }
-                        //QDR idType has a trailing : now (Aug 2021)
-                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.publicationIDType)) {
+                            break;
+                        case DatasetFieldConstant.publicationIDType:
+                            // QDR idType has a trailing : now (Aug 2021)
                             // Get sanitized value without any display modifications
                             subField.getDatasetFieldType().setDisplayFormat("#VALUE");
-                            String idType = subField.getDisplayValue();
-                            relatedPublication.setIdType(idType);
-                        }
-                        if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.publicationIDNumber)) {
-                         // Get sanitized value without any display modifications
+                            relatedPublication.setIdType(subField.getDisplayValue());
+                            break;
+                        case DatasetFieldConstant.publicationIDNumber:
+                            // Get sanitized value without any display modifications
                             subField.getDatasetFieldType().setDisplayFormat("#VALUE");
-                            String idNum = subField.getDisplayValue();
-                            relatedPublication.setIdNumber(idNum);
+                            relatedPublication.setIdNumber(subField.getDisplayValue());
+                            break;
+                        case DatasetFieldConstant.publicationRelationType:
+                            relatedPublication.setRelationType(subField.getDisplayValue());
+                            break;
                         }
                     }
                     relatedPublications.add(relatedPublication);
@@ -1741,7 +1741,36 @@ public class DatasetVersion implements Serializable {
     }
     
     public boolean isValid() {
-        return validate().isEmpty();
+        // first clone to leave the original untouched
+        final DatasetVersion newVersion = this.cloneDatasetVersion();
+        // initDatasetFields
+        newVersion.setDatasetFields(newVersion.initDatasetFields());
+        // remove special "N/A" values and empty values
+        newVersion.removeEmptyValues();
+        // check validity of present fields and detect missing mandatory fields
+        return newVersion.validate().isEmpty();
+    }
+
+    private void removeEmptyValues() {
+        if (this.getDatasetFields() != null) {
+            for (DatasetField dsf : this.getDatasetFields()) {
+                removeEmptyValues(dsf);
+            }
+        }
+    }
+
+    private void removeEmptyValues(DatasetField dsf) {
+        if (dsf.getDatasetFieldType().isPrimitive()) { // primitive
+            final Iterator<DatasetFieldValue> i = dsf.getDatasetFieldValues().iterator();
+            while (i.hasNext()) {
+                final String v = i.next().getValue();
+                if (StringUtils.isBlank(v) || DatasetField.NA_VALUE.equals(v)) {
+                    i.remove();
+                }
+            }
+        } else {
+            dsf.getDatasetFieldCompoundValues().forEach(cv -> cv.getChildDatasetFields().forEach(v -> removeEmptyValues(v)));
+        }
     }
 
     public Set<ConstraintViolation> validate() {

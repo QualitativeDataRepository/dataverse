@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.pidproviders.doi;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,6 +27,25 @@ public abstract class AbstractDOIProvider extends AbstractPidProvider {
 
     public AbstractDOIProvider(String id, String label, String providerAuthority, String providerShoulder, String identifierGenerationStyle, String datafilePidFormat, String managedList, String excludedList) {
         super(id, label, DOI_PROTOCOL, providerAuthority, providerShoulder, identifierGenerationStyle, datafilePidFormat, managedList, excludedList);
+        //Create case insensitive (converted toUpperCase) managedSet and excludedSet
+        HashSet<String> cleanManagedSet = new HashSet<String>();
+        for(String entry: managedSet) {
+            if(entry.startsWith(DOI_PROTOCOL)) {
+                cleanManagedSet.add(DOI_PROTOCOL + entry.substring(DOI_PROTOCOL.length()).toUpperCase());
+            } else {
+                logger.warning("Non-DOI found in managedSet of pidProvider id: " + getId() + ": " + entry + ". Entry is being dropped.");
+            }
+        }
+        managedSet = cleanManagedSet;
+        HashSet<String> cleanExcludedSet = new HashSet<String>();
+        for(String entry: excludedSet) {
+            if(entry.startsWith(DOI_PROTOCOL)) {
+                cleanExcludedSet.add(DOI_PROTOCOL + entry.substring(DOI_PROTOCOL.length()).toUpperCase());
+            } else {
+                logger.warning("Non-DOI found in excludedSet of pidProvider id: " + getId() + ": " + entry + ". Entry is being dropped.");
+            }
+        }
+        excludedSet = cleanExcludedSet;
     }
 
     //For Unmanged provider
@@ -67,7 +87,7 @@ public abstract class AbstractDOIProvider extends AbstractPidProvider {
         if (!DOI_PROTOCOL.equals(protocol)) {
             return null;
         }
-        return super.parsePersistentId(protocol, authority, identifier);
+        return super.parsePersistentId(protocol, authority, identifier, true);
     }
 
     public String getUrlPrefix() {
@@ -91,31 +111,30 @@ public abstract class AbstractDOIProvider extends AbstractPidProvider {
         } else {
             dataset = (Dataset) dvObject.getOwner();
         }
-
-        XmlMetadataTemplate metadataTemplate = new XmlMetadataTemplate();
-        metadataTemplate.setIdentifier(identifier.substring(identifier.indexOf(':') + 1));
-        metadataTemplate.setCreators(Arrays.asList(metadata.get("datacite.creator").split("; ")));
-        metadataTemplate.setAuthors(dataset.getLatestVersion().getDatasetAuthors());
+        DoiMetadata doiMetadata = new DoiMetadata();
+        doiMetadata.setIdentifier(identifier.substring(identifier.indexOf(':') + 1));
+        doiMetadata.setCreators(Arrays.asList(metadata.get("datacite.creator").split("; ")));
+        doiMetadata.setAuthors(dataset.getLatestVersion().getDatasetAuthors());
         if (dvObject.isInstanceofDataset()) {
-            metadataTemplate.setDescription(dataset.getLatestVersion().getDescriptionPlainText());
+            doiMetadata.setDescription(dataset.getLatestVersion().getDescriptionPlainText());
         }
         if (dvObject.isInstanceofDataFile()) {
             DataFile df = (DataFile) dvObject;
             String fileDescription = df.getDescription();
-            metadataTemplate.setDescription(fileDescription == null ? "" : fileDescription);
+            doiMetadata.setDescription(fileDescription == null ? "" : fileDescription);
         }
 
-        metadataTemplate.setContacts(dataset.getLatestVersion().getDatasetContacts());
-        metadataTemplate.setProducers(dataset.getLatestVersion().getDatasetProducers());
-        metadataTemplate.setTitle(dvObject.getCurrentName());
+        doiMetadata.setContacts(dataset.getLatestVersion().getDatasetContacts());
+        doiMetadata.setProducers(dataset.getLatestVersion().getDatasetProducers());
+        doiMetadata.setTitle(dvObject.getCurrentName());
         String producerString = pidProviderService.getProducer();
         if (producerString.isEmpty() || producerString.equals(DatasetField.NA_VALUE)) {
             producerString = UNAVAILABLE;
         }
-        metadataTemplate.setPublisher(producerString);
-        metadataTemplate.setPublisherYear(metadata.get("datacite.publicationyear"));
+        doiMetadata.setPublisher(producerString);
+        doiMetadata.setPublisherYear(metadata.get("datacite.publicationyear"));
 
-        String xmlMetadata = metadataTemplate.generateXML(dvObject);
+        String xmlMetadata = new XmlMetadataTemplate(doiMetadata).generateXML(dvObject);
         logger.log(Level.FINE, "XML to send to DataCite: {0}", xmlMetadata);
         return xmlMetadata;
     }

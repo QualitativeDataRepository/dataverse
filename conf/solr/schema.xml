@@ -163,6 +163,7 @@
     <field name="publicationStatus" type="string" stored="true" indexed="true" multiValued="true"/>
     <field name="externalStatus" type="string" stored="true" indexed="true" multiValued="false"/>
     <field name="embargoEndDate" type="plong" stored="true" indexed="true" multiValued="false"/>
+    <field name="retentionEndDate" type="plong" stored="true" indexed="true" multiValued="false"/>
     
     <field name="subtreePaths" type="string" stored="true" indexed="true" multiValued="true"/>
 
@@ -330,11 +331,11 @@
     <field name="distributor" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="distributorAbbreviation" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="distributorAffiliation" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="distributorLogoURL" type="text_en" multiValued="false" stored="true" indexed="true"/>
+    <field name="distributorLogoURL" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="distributorName" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="distributorURL" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="dsDescription" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="dsDescriptionDate" type="text_en" multiValued="false" stored="true" indexed="true"/>
+    <field name="dsDescriptionDate" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="dsDescriptionValue" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="eastLongitude" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="findings" type="text_en" multiValued="false" stored="true" indexed="true"/>
@@ -362,6 +363,7 @@
     <field name="journalVolumeIssue" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="keyword" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="keywordValue" type="text_en" multiValued="true" stored="true" indexed="true"/>
+    <field name="keywordTermURI" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="keywordVocabulary" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="keywordVocabularyURI" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="kindOfData" type="text_en" multiValued="true" stored="true" indexed="true"/>
@@ -390,6 +392,7 @@
     <field name="productionDate" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="productionPlace" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="publication" type="text_en" multiValued="true" stored="true" indexed="true"/>
+    <field name="publicationRelationType" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="publicationCitation" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="publicationIDNumber" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="publicationIDType" type="text_en" multiValued="true" stored="true" indexed="true"/>
@@ -435,9 +438,13 @@
     <field name="studyAssayOtherMeasurmentType" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="studyAssayOtherOrganism" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="studyAssayPlatform" type="text_en" multiValued="true" stored="true" indexed="true"/>
+    <field name="studyAssayOtherPlatform" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="studyAssayTechnologyType" type="text_en" multiValued="true" stored="true" indexed="true"/>
+    <field name="studyAssayOtherTechnologyType" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="studyDesignType" type="text_en" multiValued="true" stored="true" indexed="true"/>
+    <field name="studyOtherDesignType" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="studyFactorType" type="text_en" multiValued="true" stored="true" indexed="true"/>
+    <field name="studyOtherFactorType" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="study_collection_status" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="study_collections" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="study_observational_or_experimental" type="text_en" multiValued="true" stored="true" indexed="true"/>
@@ -669,6 +676,7 @@
     <copyField source="journalVolumeIssue" dest="_text_" maxChars="3000"/>
     <copyField source="keyword" dest="_text_" maxChars="3000"/>
     <copyField source="keywordValue" dest="_text_" maxChars="3000"/>
+    <copyField source="keywordTermURI" dest="_text_" maxChars="3000"/>
     <copyField source="keywordVocabulary" dest="_text_" maxChars="3000"/>
     <copyField source="keywordVocabularyURI" dest="_text_" maxChars="3000"/>
     <copyField source="kindOfData" dest="_text_" maxChars="3000"/>
@@ -697,6 +705,7 @@
     <copyField source="productionDate" dest="_text_" maxChars="3000"/>
     <copyField source="productionPlace" dest="_text_" maxChars="3000"/>
     <copyField source="publication" dest="_text_" maxChars="3000"/>
+    <copyField source="publicationRelationType" dest="_text_" maxChars="3000"/>
     <copyField source="publicationCitation" dest="_text_" maxChars="3000"/>
     <copyField source="publicationIDNumber" dest="_text_" maxChars="3000"/>
     <copyField source="publicationIDType" dest="_text_" maxChars="3000"/>
@@ -742,9 +751,13 @@
     <copyField source="studyAssayOtherMeasurmentType" dest="_text_" maxChars="3000"/>
     <copyField source="studyAssayOtherOrganism" dest="_text_" maxChars="3000"/>
     <copyField source="studyAssayPlatform" dest="_text_" maxChars="3000"/>
+    <copyField source="studyAssayOtherPlatform" dest="_text_" maxChars="3000"/>
     <copyField source="studyAssayTechnologyType" dest="_text_" maxChars="3000"/>
+    <copyField source="studyAssayOtherTechnologyType" dest="_text_" maxChars="3000"/>
     <copyField source="studyDesignType" dest="_text_" maxChars="3000"/>
+    <copyField source="studyOtherDesignType" dest="_text_" maxChars="3000"/>
     <copyField source="studyFactorType" dest="_text_" maxChars="3000"/>
+    <copyField source="studyOtherFactorType" dest="_text_" maxChars="3000"/>
     <copyField source="study_collection_status" dest="_text_" maxChars="3000"/>
     <copyField source="study_collections" dest="_text_" maxChars="3000"/>
     <copyField source="study_observational_or_experimental" dest="_text_" maxChars="3000"/>

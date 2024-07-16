@@ -41,7 +41,7 @@ public class DatasetVersionFilesServiceBean implements Serializable {
     public enum FileDownloadSizeMode {
         All, Original, Archival
     }
-    
+
     /**
      * Given a DatasetVersion, returns its total file metadata count
      *
@@ -224,7 +224,7 @@ public class DatasetVersionFilesServiceBean implements Serializable {
         Long count = em.createQuery(criteriaQuery).getSingleResult();
         return count != null && count > 0;
     }
-    
+
     private void addAccessStatusCountToTotal(DatasetVersion datasetVersion, Map<FileAccessStatus, Long> totalCounts, FileAccessStatus dataFileAccessStatus, FileSearchCriteria searchCriteria) {
         long fileMetadataCount = getFileMetadataCountByAccessStatus(datasetVersion, dataFileAccessStatus, searchCriteria);
         if (fileMetadataCount > 0) {
@@ -246,6 +246,8 @@ public class DatasetVersionFilesServiceBean implements Serializable {
 
     private Predicate createSearchCriteriaAccessStatusPredicate(FileAccessStatus accessStatus, CriteriaBuilder criteriaBuilder, Root<FileMetadata> fileMetadataRoot) {
         Path<Object> dataFile = fileMetadataRoot.get("dataFile");
+        Path<Object> retention = dataFile.get("retention");
+        Predicate retentionExpiredPredicate = criteriaBuilder.lessThan(retention.<Date>get("dateUnavailable"), criteriaBuilder.currentDate());
         Path<Object> embargo = dataFile.get("embargo");
         Predicate activelyEmbargoedPredicate = criteriaBuilder.greaterThanOrEqualTo(embargo.<Date>get("dateAvailable"), criteriaBuilder.currentDate());
         Predicate inactivelyEmbargoedPredicate = criteriaBuilder.isNull(embargo);
@@ -253,6 +255,7 @@ public class DatasetVersionFilesServiceBean implements Serializable {
         Predicate isRestrictedPredicate = criteriaBuilder.isTrue(isRestricted);
         Predicate isUnrestrictedPredicate = criteriaBuilder.isFalse(isRestricted);
         return switch (accessStatus) {
+            case RetentionPeriodExpired -> criteriaBuilder.and(retentionExpiredPredicate);
             case EmbargoedThenRestricted -> criteriaBuilder.and(activelyEmbargoedPredicate, isRestrictedPredicate);
             case EmbargoedThenPublic -> criteriaBuilder.and(activelyEmbargoedPredicate, isUnrestrictedPredicate);
             case Restricted -> criteriaBuilder.and(inactivelyEmbargoedPredicate, isRestrictedPredicate);

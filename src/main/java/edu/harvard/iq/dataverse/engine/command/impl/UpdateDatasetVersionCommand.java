@@ -8,7 +8,6 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.DatasetFieldUtil;
 import edu.harvard.iq.dataverse.util.FileMetadataUtil;
 
@@ -115,8 +114,11 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
         
         //Will throw an IllegalCommandException if a system metadatablock is changed and the appropriate key is not supplied.
         checkSystemMetadataKeyIfNeeded(getDataset().getOrCreateEditVersion(fmVarMet), persistedVersion);
-        
-        
+
+        getDataset().getOrCreateEditVersion().setLastUpdateTime(getTimestamp());
+
+        registerExternalVocabValuesIfAny(ctxt, getDataset().getOrCreateEditVersion(fmVarMet));
+
         try {
             // Invariant: Dataset has no locks preventing the update
             String lockInfoMessage = "saving current edits";
@@ -179,9 +181,6 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
                     recalculateUNF = true;
                 }
             }
-            
-            theDataset.getOrCreateEditVersion().setLastUpdateTime(getTimestamp());
-            
             // we have to merge to update the database but not flush because
             // we don't want to create two draft versions!
             // Although not completely tested, it looks like this merge handles the
@@ -260,7 +259,6 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
             if (recalculateUNF) {
                 ctxt.ingest().recalculateDatasetVersionUNF(theDataset.getOrCreateEditVersion());
             }
-
 
             theDataset.setModificationTime(getTimestamp());
 

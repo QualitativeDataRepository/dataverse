@@ -255,10 +255,11 @@ public class SearchUtil {
      * 
      * @param query
      * @param joinNeeded
+     * @param avoidJoin 
      * @return
      * @throws SearchException
      */
-    public static String expandQuery(String query, boolean joinNeeded) throws SearchException {
+    public static String expandQuery(String query, boolean joinNeeded, boolean avoidJoin) throws SearchException {
         // If it isn't 'find all'
         // Note that this query is used to populate the main Dataverse view and, without
         // this check, Dataverse assumes its a real search and displays the hit hints
@@ -310,19 +311,19 @@ public class SearchUtil {
                     
                 if (!(specialTokenPattern.matcher(part).matches())) {
                     if (part.startsWith("+")) {
-                        ftQuery.append(expandPart(part + " OR (+" + SearchFields.FULL_TEXT + ":" + part.substring(1), joinNeeded));
+                        ftQuery.append(expandPart(part + " OR (+" + SearchFields.FULL_TEXT + ":" + part.substring(1), joinNeeded, avoidJoin));
                     } else if (part.startsWith("-")) {
-                        ftQuery.append(expandPart(part + " OR (-" + SearchFields.FULL_TEXT + ":" + part.substring(1), joinNeeded));
+                        ftQuery.append(expandPart(part + " OR (-" + SearchFields.FULL_TEXT + ":" + part.substring(1), joinNeeded, avoidJoin));
                     } else if (part.startsWith("!")) {
-                        ftQuery.append(expandPart(part + " OR (!" + SearchFields.FULL_TEXT + ":" + part.substring(1), joinNeeded));
+                        ftQuery.append(expandPart(part + " OR (!" + SearchFields.FULL_TEXT + ":" + part.substring(1), joinNeeded, avoidJoin));
                     } else {
-                        ftQuery.append(expandPart(part + " OR (" + SearchFields.FULL_TEXT + ":" + part, joinNeeded));
+                        ftQuery.append(expandPart(part + " OR (" + SearchFields.FULL_TEXT + ":" + part, joinNeeded, avoidJoin));
                     }
                 } else {
                     if (part.contains(SearchFields.FULL_TEXT + ":")) {
                         // Any reference to the FULL_TEXT field has to be joined with the permission
                         // term
-                        ftQuery.append(expandPart("(" + part, joinNeeded));
+                        ftQuery.append(expandPart("(" + part, joinNeeded, avoidJoin));
                     } else {
                         if(!(part.equals("\\") || part.equals("/"))) {
                         ftQuery.append(part);
@@ -337,9 +338,15 @@ public class SearchUtil {
         return ftQuery.toString();
     }
 
-    private static Object expandPart(String part, boolean joinNeeded) {
-        // TODO Auto-generated method stub
-        return "(" + part + (joinNeeded ? " AND {!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1}))" : "))");
+    private static Object expandPart(String part, boolean joinNeeded, boolean avoidJoin) {
+        String permClause = (avoidJoin  && joinNeeded) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
+        if (joinNeeded) {
+            if (!permClause.isEmpty()) {
+                permClause = "(" + permClause + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1})))";
+            } else {
+                permClause = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1}))";
+            }
+        }
+        return "(" + part + (permClause.isEmpty() ? "))" : " AND " + permClause);
     }
-
 }

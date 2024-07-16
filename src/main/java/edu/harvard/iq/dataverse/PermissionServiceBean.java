@@ -99,6 +99,7 @@ public class PermissionServiceBean {
 
     @Inject
     DatasetVersionFilesServiceBean datasetVersionFilesServiceBean;
+
     /**
      * A request-level permission query (e.g includes IP ras).
      */
@@ -448,7 +449,6 @@ public class PermissionServiceBean {
             // unrestricted files that are part of a release dataset 
             // automatically get download permission for everybody:
             //      -- L.A. 4.0 beta12
-
             if (!df.isRestricted()) {
                 DatasetVersion releasedVersion = df.getOwner().getReleasedVersion();
                 if (releasedVersion != null) {

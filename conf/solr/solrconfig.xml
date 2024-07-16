@@ -35,7 +35,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>9.8</luceneMatchVersion>
+  <luceneMatchVersion>9.10</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in
@@ -290,7 +290,7 @@
          have some sort of hard autoCommit to limit the log size.
       -->
     <autoCommit>
-      <maxTime>${solr.autoCommit.maxTime:15000}</maxTime>
+      <maxTime>${solr.autoCommit.maxTime:30000}</maxTime>
       <openSearcher>false</openSearcher>
     </autoCommit>
 
@@ -301,7 +301,7 @@
       -->
 
     <autoSoftCommit>
-      <maxTime>${solr.autoSoftCommit.maxTime:3000}</maxTime>
+      <maxTime>${solr.autoSoftCommit.maxTime:1000}</maxTime>
     </autoSoftCommit>
 
     <!-- Update Related Event Listeners
@@ -494,23 +494,6 @@
       -->
     <queryResultMaxDocsCached>200</queryResultMaxDocsCached>
 
-  <!-- Use Filter For Sorted Query
-
-   A possible optimization that attempts to use a filter to
-   satisfy a search.  If the requested sort does not include
-   score, then the filterCache will be checked for a filter
-   matching the query. If found, the filter will be used as the
-   source of document ids, and then the sort will be applied to
-   that.
-
-   For most situations, this will not be useful unless you
-   frequently get the same search repeatedly with different sort
-   options, and none of them ever use "score"
--->
-    <!--
-       <useFilterForSortedQuery>true</useFilterForSortedQuery>
-      -->
-
     <!-- Query Related Event Listeners
 
          Various IndexSearcher related events can trigger Listeners to
@@ -571,7 +554,9 @@
      The enabled flag here controls the activation/deactivation of all circuit
      breakers specified within.
   -->
+  <!--
   <circuitBreaker class="solr.CircuitBreakerManager" enabled="true">
+  -->
     <!-- Memory Circuit Breaker
 
      Specific configuration for max JVM heap usage circuit breaker. This configuration defines

@@ -1,14 +1,8 @@
 package edu.harvard.iq.dataverse.api;
 
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.DatasetVersionFilesServiceBean;
-import edu.harvard.iq.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.api.auth.AuthRequired;
 import edu.harvard.iq.dataverse.search.SearchFields;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.DvObject;
-import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.search.FacetCategory;
 import edu.harvard.iq.dataverse.search.FacetLabel;
 import edu.harvard.iq.dataverse.search.SolrSearchResult;
@@ -20,7 +14,6 @@ import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchUtil;
-import edu.harvard.iq.dataverse.search.SolrIndexServiceBean;
 import edu.harvard.iq.dataverse.search.SortBy;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import java.io.IOException;
@@ -56,10 +49,6 @@ public class Search extends AbstractApiBean {
     SearchServiceBean searchService;
     @EJB
     DataverseServiceBean dataverseService;
-    @EJB
-    DvObjectServiceBean dvObjectService;
-    @EJB
-    SolrIndexServiceBean SolrIndexService;
     @Inject
     DatasetVersionFilesServiceBean datasetVersionFilesServiceBean;
 
@@ -194,13 +183,13 @@ public class Search extends AbstractApiBean {
                 spelling_alternatives.add(entry.getKey(), entry.getValue().toString());
             }
 
-
             JsonObjectBuilder value = Json.createObjectBuilder()
                     .add("q", query)
                     .add("total_count", solrQueryResponse.getNumResultsFound())
                     .add("start", solrQueryResponse.getResultsStart())
                     .add("spelling_alternatives", spelling_alternatives)
                     .add("items", itemsArrayBuilder.build());
+
             if (showFacets) {
                 JsonArrayBuilder facets = Json.createArrayBuilder();
                 JsonObjectBuilder facetCategoryBuilder = Json.createObjectBuilder();
@@ -217,9 +206,9 @@ public class Search extends AbstractApiBean {
                     facetCategoryBuilder.add(facetCategory.getName(), facetCategoryBuilderFriendlyPlusData);
                 }
                 facets.add(facetCategoryBuilder);
-
                 value.add("facets", facets);
             }
+
             value.add("count_in_response", solrSearchResults.size());
             /**
              * @todo Returning the fq might be useful as a troubleshooting aid
@@ -248,7 +237,7 @@ public class Search extends AbstractApiBean {
         }
         return null;
     }
-    
+
     private User getUser(ContainerRequestContext crc) throws WrappedResponse {
         User userToExecuteSearchAs = GuestUser.get();
         try {
