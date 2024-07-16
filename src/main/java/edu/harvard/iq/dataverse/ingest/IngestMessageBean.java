@@ -75,7 +75,7 @@ public class IngestMessageBean implements MessageListener {
             ObjectMessage om = (ObjectMessage) message;
             ingestMessage = (IngestMessage) om.getObject();
 
-            // if the lock was removed while an ingest was queued, ratake the lock
+            // if the lock was removed while an ingest was queued, retake the lock
             // The "if" is the first thing that addDatasetLock method does.
             // It has some complexity and would result in the code duplication if repeated here.
             // If that check would be removed from the addDatasetLock method in the future without
