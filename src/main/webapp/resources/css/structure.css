@@ -1288,6 +1288,11 @@ ul > li:not(.ui-selectonemenu-item) {
 #metadata_author img {
         vertical-align: text-top;
         margin-right:1px;
+        margin-left: 3px;
+}
+
+#metadata_author img.ror {
+  vertical-align: middle;
 }
 
 #metadata_dsDescription ul > li {
