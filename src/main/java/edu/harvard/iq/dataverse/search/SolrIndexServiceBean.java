@@ -410,7 +410,11 @@ public class SolrIndexServiceBean {
                         reindexFilesInBatches(filesToReindexAsBatch);
                         filesToReindexAsBatch.clear();
                     }
+                    if (i % 1000 == 0) {
+                        logger.info("Progress: " +i + "files permissions reindexed");
+                    }
                 }
+                logger.info("Progress : dataset " + dataset.getId() + " permissions reindexed");
             }
         } else if (definitionPoint.isInstanceofDataset()) {
             indexPermissionsForOneDvObject(definitionPoint);
@@ -437,7 +441,7 @@ public class SolrIndexServiceBean {
          *       https://github.com/IQSS/dataverse/issues/2421
          */
         reindexFilesInBatches(filesToReindexAsBatch);
-        logger.fine("Reindexed permissions for " + i + " files");
+        logger.info("Reindexed permissions for " + i + " files and " + numObjects + "datasets/collections");
         return new IndexResponse("Number of dvObject permissions indexed for " + definitionPoint
                 + ": " + numObjects);
     }
