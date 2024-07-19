@@ -590,9 +590,9 @@
     <str name="cpuEnabled">true</str>
     <str name="cpuThreshold">75</str>
     -->
-
+<!--
   </circuitBreaker>
-
+-->
   <!-- Request Dispatcher
 
        This section contains instructions for how the SolrDispatchFilter
