@@ -197,7 +197,7 @@ public class SearchServiceBean {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, onlyDatatRelatedToMe, addFacets, avoidJoin);
         if(settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups!=null && !isAllGroups(permissionFilterGroups), avoidJoin);
+            query = SearchUtil.expandQuery(query, permissionFilterGroups==null, isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String q1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
             solrQuery.add("q1",  q1Query);
@@ -964,7 +964,7 @@ public class SearchServiceBean {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, false, !(facets == null || facets.isEmpty()), avoidJoin);
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups != null && !isAllGroups(permissionFilterGroups), avoidJoin);
+            query = SearchUtil.expandQuery(query, permissionFilterGroups == null, isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String finalQ1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
             solrQuery.add("q1", finalQ1Query);
