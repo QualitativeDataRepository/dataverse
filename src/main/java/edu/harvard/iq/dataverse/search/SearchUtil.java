@@ -311,15 +311,14 @@ public class SearchUtil {
                     
                 boolean joinNeeded = !publicOnly && !allGroups;
                 if (!(specialTokenPattern.matcher(part).matches())) {
-                    String andClause = (avoidJoin && publicOnly) ? " AND " + SearchFields.ACCESS + ":" + SearchConstants.PUBLIC :"";
                     if (part.startsWith("+")) {
-                        ftQuery.append(expandPart(part + " OR (+" + SearchFields.FULL_TEXT + ":" + part.substring(1) + andClause, publicOnly, joinNeeded, avoidJoin));
+                        ftQuery.append(expandPart(part + " OR (+" + SearchFields.FULL_TEXT + ":" + part.substring(1), publicOnly, joinNeeded, avoidJoin));
                     } else if (part.startsWith("-")) {
-                        ftQuery.append(expandPart(part + " OR (-" + SearchFields.FULL_TEXT + ":" + part.substring(1) + andClause, publicOnly, joinNeeded, avoidJoin));
+                        ftQuery.append(expandPart(part + " OR (-" + SearchFields.FULL_TEXT + ":" + part.substring(1), publicOnly, joinNeeded, avoidJoin));
                     } else if (part.startsWith("!")) {
-                        ftQuery.append(expandPart(part + " OR (!" + SearchFields.FULL_TEXT + ":" + part.substring(1) + andClause, publicOnly, joinNeeded, avoidJoin));
+                        ftQuery.append(expandPart(part + " OR (!" + SearchFields.FULL_TEXT + ":" + part.substring(1), publicOnly, joinNeeded, avoidJoin));
                     } else {
-                        ftQuery.append(expandPart(part + " OR (" + SearchFields.FULL_TEXT + ":" + part + andClause, publicOnly, joinNeeded, avoidJoin));
+                        ftQuery.append(expandPart(part + " OR (" + SearchFields.FULL_TEXT + ":" + part, publicOnly, joinNeeded, avoidJoin));
                     }
                 } else {
                     if (part.contains(SearchFields.FULL_TEXT + ":")) {
@@ -344,11 +343,11 @@ public class SearchUtil {
         String permClause = (avoidJoin  && publicOnly) ? SearchFields.ACCESS + ":" + SearchConstants.PUBLIC : "";
         if (joinNeeded) {
             if (!permClause.isEmpty()) {
-                permClause = "(" + permClause + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1})))";
+                permClause = "(" + permClause + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1})";
             } else {
-                permClause = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1}))";
+                permClause = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1}";
             }
         }
-        return "(" + part + (permClause.isEmpty() ? "))" : " AND " + permClause);
+        return "(" + part + (permClause.isEmpty() ? "))" : " AND " + permClause + "))");
     }
 }
