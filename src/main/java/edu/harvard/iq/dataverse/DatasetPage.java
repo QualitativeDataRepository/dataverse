@@ -2004,8 +2004,11 @@ public class DatasetPage implements java.io.Serializable {
             // ... And now the "real" working version lookup: 
             
             if (versionId != null) {
+                logger.info("Start time: " + System.currentTimeMillis());
                 this.workingVersion = datasetVersionService.findDeep(versionId);
+                logger.info("End time: " + System.currentTimeMillis());
                 dataset = workingVersion.getDataset();
+                logger.info("Dataset time: " + System.currentTimeMillis());
             }
             
             if (workingVersion == null) {

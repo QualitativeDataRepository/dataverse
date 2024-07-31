@@ -383,7 +383,6 @@ public class SolrIndexServiceBean {
      * inheritance
      */
     public IndexResponse indexPermissionsOnSelfAndChildren(DvObject definitionPoint) {
-        List<DvObject> dvObjectsToReindexPermissionsFor = new ArrayList<>();
         List<DataFile> filesToReindexAsBatch = new ArrayList<>();
         /**
          * @todo Re-indexing the definition point itself seems to be necessary for
@@ -393,14 +392,17 @@ public class SolrIndexServiceBean {
         // We don't create a Solr "primary/content" doc for the root dataverse
         // so don't create a Solr "permission" doc either.
         int i = 0;
+        int numObjects = 0;
         if (definitionPoint.isInstanceofDataverse()) {
             Dataverse selfDataverse = (Dataverse) definitionPoint;
             if (!selfDataverse.equals(dataverseService.findRootDataverse())) {
-                dvObjectsToReindexPermissionsFor.add(definitionPoint);
+                indexPermissionsForOneDvObject(definitionPoint);
+                numObjects++;
             }
             List<Dataset> directChildDatasetsOfDvDefPoint = datasetService.findByOwnerId(selfDataverse.getId());
             for (Dataset dataset : directChildDatasetsOfDvDefPoint) {
-                dvObjectsToReindexPermissionsFor.add(dataset);
+                indexPermissionsForOneDvObject(dataset);
+                numObjects++;
                 for (DataFile datafile : filesToReIndexPermissionsFor(dataset)) {
                     filesToReindexAsBatch.add(datafile);
                     i++;
@@ -408,10 +410,15 @@ public class SolrIndexServiceBean {
                         reindexFilesInBatches(filesToReindexAsBatch);
                         filesToReindexAsBatch.clear();
                     }
+                    if (i % 1000 == 0) {
+                        logger.info("Progress: " +i + "files permissions reindexed");
+                    }
                 }
+                logger.info("Progress : dataset " + dataset.getId() + " permissions reindexed");
             }
         } else if (definitionPoint.isInstanceofDataset()) {
-            dvObjectsToReindexPermissionsFor.add(definitionPoint);
+            indexPermissionsForOneDvObject(definitionPoint);
+            numObjects++;
             // index files
             Dataset dataset = (Dataset) definitionPoint;
             for (DataFile datafile : filesToReIndexPermissionsFor(dataset)) {
@@ -423,7 +430,8 @@ public class SolrIndexServiceBean {
                 }
             }
         } else {
-            dvObjectsToReindexPermissionsFor.add(definitionPoint);
+            indexPermissionsForOneDvObject(definitionPoint);
+            numObjects++;
         }
 
         /**
@@ -432,17 +440,10 @@ public class SolrIndexServiceBean {
          * @todo Should update timestamps, probably, even thought these are files, see
          *       https://github.com/IQSS/dataverse/issues/2421
          */
-        String response = reindexFilesInBatches(filesToReindexAsBatch);
-        logger.fine("Reindexed permissions for " + i + " files");
-        for (DvObject dvObject : dvObjectsToReindexPermissionsFor) {
-            /**
-             * @todo do something with this response
-             */
-            IndexResponse indexResponse = indexPermissionsForOneDvObject(dvObject);
-        }
-
+        reindexFilesInBatches(filesToReindexAsBatch);
+        logger.info("Reindexed permissions for " + i + " files and " + numObjects + "datasets/collections");
         return new IndexResponse("Number of dvObject permissions indexed for " + definitionPoint
-                + ": " + dvObjectsToReindexPermissionsFor.size());
+                + ": " + numObjects);
     }
 
     private String reindexFilesInBatches(List<DataFile> filesToReindexPermissionsFor) {
