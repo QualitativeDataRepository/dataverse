@@ -310,14 +310,15 @@ public class SearchUtil {
                 // it is field-specific
                     
                 if (!(specialTokenPattern.matcher(part).matches())) {
+                    String andClause = (avoidJoin&& !joinNeeded) ? " AND " + SearchFields.ACCESS + ":" + SearchConstants.PUBLIC :"";
                     if (part.startsWith("+")) {
-                        ftQuery.append(expandPart(part + " OR (+" + SearchFields.FULL_TEXT + ":" + part.substring(1), joinNeeded, avoidJoin));
+                        ftQuery.append(expandPart(part + " OR (+" + SearchFields.FULL_TEXT + ":" + part.substring(1) + andClause, joinNeeded, avoidJoin));
                     } else if (part.startsWith("-")) {
-                        ftQuery.append(expandPart(part + " OR (-" + SearchFields.FULL_TEXT + ":" + part.substring(1), joinNeeded, avoidJoin));
+                        ftQuery.append(expandPart(part + " OR (-" + SearchFields.FULL_TEXT + ":" + part.substring(1) + andClause, joinNeeded, avoidJoin));
                     } else if (part.startsWith("!")) {
-                        ftQuery.append(expandPart(part + " OR (!" + SearchFields.FULL_TEXT + ":" + part.substring(1), joinNeeded, avoidJoin));
+                        ftQuery.append(expandPart(part + " OR (!" + SearchFields.FULL_TEXT + ":" + part.substring(1) + andClause, joinNeeded, avoidJoin));
                     } else {
-                        ftQuery.append(expandPart(part + " OR (" + SearchFields.FULL_TEXT + ":" + part, joinNeeded, avoidJoin));
+                        ftQuery.append(expandPart(part + " OR (" + SearchFields.FULL_TEXT + ":" + part + andClause, joinNeeded, avoidJoin));
                     }
                 } else {
                     if (part.contains(SearchFields.FULL_TEXT + ":")) {
@@ -339,7 +340,7 @@ public class SearchUtil {
     }
 
     private static Object expandPart(String part, boolean joinNeeded, boolean avoidJoin) {
-        String permClause = (avoidJoin  && joinNeeded) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
+        String permClause = (avoidJoin  && joinNeeded) ? SearchFields.ACCESS + ":" + SearchConstants.PUBLIC : "";
         if (joinNeeded) {
             if (!permClause.isEmpty()) {
                 permClause = "(" + permClause + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1})))";
