@@ -28,8 +28,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -37,6 +40,8 @@ import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIInput;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.inject.Inject;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -176,28 +181,35 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
     }
 
     public String createNewAccount() {
+        try {
+            AuthenticatedUserDisplayInfo newAud = new AuthenticatedUserDisplayInfo(newUser.getDisplayInfo().getFirstName(),
+                    newUser.getDisplayInfo().getLastName(),
+                    getSelectedEmail(),
+                    newUser.getDisplayInfo().getAffiliation(),
+                    newUser.getDisplayInfo().getPosition());
+            final AuthenticatedUser user = authenticationSvc.createAuthenticatedUser(newUser.getUserRecordIdentifier(), getUsername(), newAud, true);
+            session.setUser(user);
+            /**
+             * @todo Move this to AuthenticationServiceBean.createAuthenticatedUser
+             */
+            userNotificationService.sendNotification(user,
+                    new Timestamp(new Date().getTime()),
+                    UserNotification.Type.CREATEACC, null);
 
-        AuthenticatedUserDisplayInfo newAud = new AuthenticatedUserDisplayInfo(newUser.getDisplayInfo().getFirstName(),
-                newUser.getDisplayInfo().getLastName(),
-                getSelectedEmail(),
-                newUser.getDisplayInfo().getAffiliation(),
-                newUser.getDisplayInfo().getPosition());
-        final AuthenticatedUser user = authenticationSvc.createAuthenticatedUser(newUser.getUserRecordIdentifier(), getUsername(), newAud, true);
-        session.setUser(user);
-        /**
-         * @todo Move this to AuthenticationServiceBean.createAuthenticatedUser
-         */
-        userNotificationService.sendNotification(user,
-                new Timestamp(new Date().getTime()),
-                UserNotification.Type.CREATEACC, null);
-        
-        final OAuth2TokenData tokenData = newUser.getTokenData();
-        if (tokenData != null) {
-            tokenData.setUser(user);
-            tokenData.setOauthProviderId(newUser.getServiceId());
-            oauth2Tokens.store(tokenData);
+            final OAuth2TokenData tokenData = newUser.getTokenData();
+            if (tokenData != null) {
+                tokenData.setUser(user);
+                tokenData.setOauthProviderId(newUser.getServiceId());
+                oauth2Tokens.store(tokenData);
+            }
+        } catch (ConstraintViolationException cvex) {
+            Set<ConstraintViolation<?>> errors = cvex.getConstraintViolations();
+            String errorStr = errors.stream()
+                    .map(er -> er.getMessage() + er.getPropertyPath())
+                    .collect(Collectors.joining(", "));
+            logger.info(errorStr);
+            throw (cvex);
         }
-        
         return "/dataverse.xhtml?faces-redirect=true";
     }
 
