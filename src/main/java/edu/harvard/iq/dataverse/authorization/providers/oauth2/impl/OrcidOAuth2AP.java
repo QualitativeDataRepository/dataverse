@@ -111,6 +111,7 @@ public class OrcidOAuth2AP extends AbstractOAuth2AuthenticationProvider {
     
     @Override
     protected ParsedUserResponse parseUserResponse(String responseBody) {
+        logger.info("Response Body: " + responseBody);
         DocumentBuilderFactory dbFact = DocumentBuilderFactory.newInstance();
         try ( StringReader reader = new StringReader(responseBody)) {
             DocumentBuilder db = dbFact.newDocumentBuilder();
