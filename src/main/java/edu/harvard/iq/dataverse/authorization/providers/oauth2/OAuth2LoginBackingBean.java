@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse.authorization.providers.oauth2;
 
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.UserServiceBean;
+import edu.harvard.iq.dataverse.api.errorhandlers.ConstraintViolationExceptionHandler.ValidationError;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserIdentifier;
@@ -18,9 +19,12 @@ import java.time.Clock;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.toList;
 import jakarta.ejb.EJB;
 import jakarta.inject.Named;
@@ -28,6 +32,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.NotNull;
 
 import static edu.harvard.iq.dataverse.util.StringUtil.toOption;
@@ -187,9 +193,16 @@ public class OAuth2LoginBackingBean implements Serializable {
             error = ex;
             logger.log(Level.INFO, "OAuth2Exception caught. HTTP return code: {0}. Message: {1}. Message body: {2}", new Object[]{error.getHttpReturnCode(), error.getLocalizedMessage(), error.getMessageBody()});
             Logger.getLogger(OAuth2LoginBackingBean.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException | ExecutionException ex) {
+        } catch (InterruptedException | ExecutionException ex2) {
             error = new OAuth2Exception(-1, "Please see server logs for more details", "Could not login due to threading exceptions.");
-            logger.log(Level.WARNING, "Threading exception caught. Message: {0}", ex.getLocalizedMessage());
+            logger.log(Level.WARNING, "Threading exception caught. Message: {0}", ex2.getLocalizedMessage());
+        } catch (ConstraintViolationException cvex) {
+            Set<ConstraintViolation<?>> errors = cvex.getConstraintViolations();
+            String errorStr = errors.stream()
+                    .map(er -> er.getMessage() + er.getPropertyPath())
+                    .collect(Collectors.joining(", "));
+                    logger.info(errorStr);
+                    throw(cvex);
         }
     }
     
