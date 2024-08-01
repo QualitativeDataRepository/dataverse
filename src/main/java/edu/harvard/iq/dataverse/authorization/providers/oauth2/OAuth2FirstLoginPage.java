@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBException;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.UIComponent;
@@ -202,7 +203,18 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
                 tokenData.setOauthProviderId(newUser.getServiceId());
                 oauth2Tokens.store(tokenData);
             }
-        } catch (ConstraintViolationException cvex) {
+        } catch (EJBException ejbex) {
+            Exception e = ejbex.getCausedByException();
+            if (e instanceof ConstraintViolationException cvex) {
+                    Set<ConstraintViolation<?>> errors = cvex.getConstraintViolations();
+                String errorStr = errors.stream()
+                        .map(er -> er.getMessage() + er.getPropertyPath())
+                        .collect(Collectors.joining(", "));
+                logger.info(errorStr);
+                throw (ejbex);
+            }
+        }
+        catch (ConstraintViolationException cvex) {
             Set<ConstraintViolation<?>> errors = cvex.getConstraintViolations();
             String errorStr = errors.stream()
                     .map(er -> er.getMessage() + er.getPropertyPath())
