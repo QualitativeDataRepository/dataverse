@@ -315,7 +315,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
         // Parse/Extract
         try {
             
-            logger.info(JsonUtil.prettyPrint(response.getContentAsJSONObject().toJSONString()));
+            logger.fine(JsonUtil.prettyPrint(response.getContentAsJSONObject().toJSONString()));
             UserInfoResponse infoResponse = UserInfoResponse.parse(response);
     
             // If error --> oauth2 ex

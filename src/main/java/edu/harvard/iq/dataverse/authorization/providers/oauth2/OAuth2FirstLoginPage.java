@@ -210,7 +210,7 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
                 String errorStr = errors.stream()
                         .map(er -> er.getMessage() + er.getPropertyPath())
                         .collect(Collectors.joining(", "));
-                logger.info(errorStr);
+                logger.warning(errorStr);
                 throw (ejbex);
             }
         }
@@ -219,7 +219,7 @@ public class OAuth2FirstLoginPage implements java.io.Serializable {
             String errorStr = errors.stream()
                     .map(er -> er.getMessage() + er.getPropertyPath())
                     .collect(Collectors.joining(", "));
-            logger.info(errorStr);
+            logger.warning(errorStr);
             throw (cvex);
         }
         return "/dataverse.xhtml?faces-redirect=true";

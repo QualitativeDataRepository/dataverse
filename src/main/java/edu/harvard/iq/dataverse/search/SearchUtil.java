@@ -339,27 +339,38 @@ public class SearchUtil {
         return ftQuery.toString();
     }
 
-/**
- * This function is used to expand a part of a query for full-text search.
- * It constructs a permission clause based on the given parameters and appends it to the given part of the query.
- *
- * @param part The part of the query to be expanded.
- * @param publicOnly A flag indicating whether to restrict the search to public datasets only.
- * @param joinNeeded A flag indicating whether a join with the permission term is needed.
- * @param avoidJoin A flag indicating whether the avoidJoin feature flag is enabled (and therefore Full text needs to be restricted further since all files in published datasets will be included by default, while only files that are public should allow full-text search when there is no join query and the user is in no groups)
- *
- * @return The expanded part of the query, including the permission clause if necessary.
- * The expanded part is enclosed in parentheses.
- */
-private static Object expandPart(String part, boolean publicOnly, boolean joinNeeded, boolean avoidJoin) {
-    String permClause = (avoidJoin  && publicOnly) ? SearchFields.ACCESS + ":" + SearchConstants.PUBLIC : "";
-    if (joinNeeded) {
-        if (!permClause.isEmpty()) {
-            permClause = "(" + permClause + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1})";
-        } else {
-            permClause = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1}";
+    /**
+     * This function is used to expand a part of a query for full-text search. It
+     * constructs a permission clause based on the given parameters and appends it
+     * to the given part of the query.
+     *
+     * @param part
+     *            The part of the query to be expanded.
+     * @param publicOnly
+     *            A flag indicating whether to restrict the search to public
+     *            datasets only.
+     * @param joinNeeded
+     *            A flag indicating whether a join with the permission term is
+     *            needed.
+     * @param avoidJoin
+     *            A flag indicating whether the avoidJoin feature flag is enabled
+     *            (and therefore Full text needs to be restricted further since all
+     *            files in published datasets will be included by default, while
+     *            only files that are public should allow full-text search when
+     *            there is no join query and the user is in no groups)
+     *
+     * @return The expanded part of the query, including the permission clause if
+     *         necessary. The expanded part is enclosed in parentheses.
+     */
+    private static Object expandPart(String part, boolean publicOnly, boolean joinNeeded, boolean avoidJoin) {
+        String permClause = (avoidJoin && publicOnly) ? SearchFields.ACCESS + ":" + SearchConstants.PUBLIC : "";
+        if (joinNeeded) {
+            if (!permClause.isEmpty()) {
+                permClause = "(" + permClause + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1})";
+            } else {
+                permClause = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1}";
+            }
         }
+        return "(" + part + (permClause.isEmpty() ? "))" : " AND " + permClause + "))");
     }
-    return "(" + part + (permClause.isEmpty() ? "))" : " AND " + permClause + "))");
-}
 }
