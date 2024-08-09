@@ -42,6 +42,7 @@ import edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2Exception;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2UserRecord;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.json.JsonUtil;
 
 import java.io.IOException;
 import java.net.URI;
@@ -313,6 +314,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
         
         // Parse/Extract
         try {
+            
+            logger.fine(JsonUtil.prettyPrint(response.getContentAsJSONObject().toJSONString()));
             UserInfoResponse infoResponse = UserInfoResponse.parse(response);
     
             // If error --> oauth2 ex

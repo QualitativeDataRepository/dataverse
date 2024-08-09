@@ -187,9 +187,9 @@ public class OAuth2LoginBackingBean implements Serializable {
             error = ex;
             logger.log(Level.INFO, "OAuth2Exception caught. HTTP return code: {0}. Message: {1}. Message body: {2}", new Object[]{error.getHttpReturnCode(), error.getLocalizedMessage(), error.getMessageBody()});
             Logger.getLogger(OAuth2LoginBackingBean.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException | ExecutionException ex) {
+        } catch (InterruptedException | ExecutionException ex2) {
             error = new OAuth2Exception(-1, "Please see server logs for more details", "Could not login due to threading exceptions.");
-            logger.log(Level.WARNING, "Threading exception caught. Message: {0}", ex.getLocalizedMessage());
+            logger.log(Level.WARNING, "Threading exception caught. Message: {0}", ex2.getLocalizedMessage());
         }
     }
     
