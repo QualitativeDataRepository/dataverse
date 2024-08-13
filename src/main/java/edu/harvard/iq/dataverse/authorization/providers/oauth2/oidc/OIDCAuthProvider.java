@@ -31,6 +31,7 @@ import com.nimbusds.openid.connect.sdk.Prompt;
 import com.nimbusds.openid.connect.sdk.Prompt.Type;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
+import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderConfigurationRequest;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
@@ -66,7 +67,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
     
     protected String id = "oidc";
     protected String title = "Open ID Connect";
-    protected List<String> scope = Arrays.asList("openid", "email", "profile");
+    protected List<String> scope = Arrays.asList("openid", "email", "profile", "acr");
     
     final Issuer issuer;
     final ClientAuthentication clientAuth;
@@ -187,7 +188,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
         URI callback = URI.create(callbackUrl);
         Nonce nonce = new Nonce();
         CodeVerifier pkceVerifier = pkceEnabled ? new CodeVerifier() : null;
-        
+        ACR l2 = new ACR("level2");
+
         AuthenticationRequest req = new AuthenticationRequest.Builder(new ResponseType("code"),
                                                                       Scope.parse(this.scope),
                                                                       this.clientAuth.getClientID(),
@@ -197,7 +199,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             // Called method is nullsafe - will disable sending a PKCE challenge in case the verifier is not present
             .codeChallenge(pkceVerifier, pkceMethod)
             .nonce(nonce).prompt(promptType==null ? null : new Prompt(promptType))
-            .maxAge(maxAge)
+            .maxAge(maxAge).acrValues(Arrays.asList(l2))
             .build();
         
         // Cache the PKCE verifier, as we need the secret in it for verification later again, after the client sends us
@@ -233,9 +235,13 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
         // Get Access Token first
         Optional<BearerAccessToken> accessToken = getAccessToken(codeGrant);
         
+
+        
         // Now retrieve User Info
         if (accessToken.isPresent()) {
-            Optional<UserInfo> userInfo = getUserInfo(accessToken.get());
+            BearerAccessToken bat = accessToken.get();
+            logger.info("AT: " + bat.toJSONString());
+            Optional<UserInfo> userInfo = getUserInfo(bat);
             
             // Construct our internal user representation
             if (userInfo.isPresent()) {

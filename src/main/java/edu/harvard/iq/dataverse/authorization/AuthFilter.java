@@ -113,7 +113,8 @@ public class AuthFilter implements Filter {
                     String finalDestination = (qp == null || qp.isBlank()) ? httpServletRequest.getRequestURL().toString() : httpServletRequest.getRequestURL().append("?").append(qp).toString();
 
                     String state = createState(oidcidp, toOption(finalDestination));
-                    String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
+                    //String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.NONE, -1);
+                    String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.LOGIN, -1);
                     logger.fine(redirectUrl);
                     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
                     if (httpSession == null) {
