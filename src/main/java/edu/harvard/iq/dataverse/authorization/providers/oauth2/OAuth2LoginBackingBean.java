@@ -1,12 +1,16 @@
 package edu.harvard.iq.dataverse.authorization.providers.oauth2;
 
 import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.authorization.DataverseRole;
 import edu.harvard.iq.dataverse.authorization.UserIdentifier;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
+import edu.harvard.iq.dataverse.authorization.providers.oauth2.oidc.OIDCAuthProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.ClockUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
@@ -18,10 +22,13 @@ import java.time.Clock;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
 import jakarta.ejb.EJB;
 import jakarta.inject.Named;
 import jakarta.faces.view.ViewScoped;
@@ -35,6 +42,8 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import org.omnifaces.util.Faces;
+
+import com.nimbusds.openid.connect.sdk.Prompt;
 
 /**
  * Backing bean of the oauth2 login process. Used from the login and the
@@ -70,6 +79,9 @@ public class OAuth2LoginBackingBean implements Serializable {
 
     @EJB
     UserServiceBean userService;
+    
+    @EJB
+    RoleAssigneeServiceBean roleAssigneeService;
 
     @Inject
     DataverseSession session;
@@ -80,6 +92,7 @@ public class OAuth2LoginBackingBean implements Serializable {
     @Inject
     @ClockUtil.LocalTime
     Clock clock;
+   
     
     /**
      * Generate the OAuth2 Provider URL to be used in the login page link for the provider.
@@ -168,18 +181,34 @@ public class OAuth2LoginBackingBean implements Serializable {
                         if(dvUser.isDeactivated()) {
                             throw new OAuth2Exception(-1, "", BundleUtil.getStringFromBundle("deactivated.error"));
                         }
-                        dvUser = userService.updateLastLogin(dvUser);
-                        session.setUser(dvUser);
-                        final OAuth2TokenData tokenData = oauthUser.getTokenData();
-                        if (tokenData != null) {
-                            tokenData.setUser(dvUser);
-                            tokenData.setOauthProviderId(idp.getId());
-                            oauth2Tokens.store(tokenData);
+                        
+                        
+                        Set<String> roleList = roleAssigneeService.getAssigneeDataverseRoleFor(new DataverseRequest(dvUser, req)).stream()
+                                .map(dvr -> dvr.getName())
+                                .collect( toSet());;
+                        logger.info("ACR for ouathUser: " + oauthUser.getAcr());
+                        if (((roleList.contains(DataverseRole.CURATOR)) ||
+                        (roleList.contains(DataverseRole.ADMIN)) ||
+                        dvUser.isSuperuser()) && !OIDCAuthProvider.ACR_LEVEL_2.equals(oauthUser.getAcr())) {
+                            //request L2 auth
+                            OIDCAuthProvider oidcidp = (OIDCAuthProvider) idp;
+                            String state = createState(oidcidp, toOption(redirectPage.orElse("/")));
+                            String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.LOGIN, -1, OIDCAuthProvider.ACR_LEVEL_2);
+                            redirectPage = Optional.of(redirectUrl);
+                            logger.fine("Redirecting for level2 login");
+                        } else {
+                            dvUser = userService.updateLastLogin(dvUser);
+                            session.setUser(dvUser);
+                            final OAuth2TokenData tokenData = oauthUser.getTokenData();
+                            if (tokenData != null) {
+                                tokenData.setUser(dvUser);
+                                tokenData.setOauthProviderId(idp.getId());
+                                oauth2Tokens.store(tokenData);
+                            }
+                            if (dvUser != null) {
+                                logger.fine("Found user: " + dvUser.getEmail());
+                            }
                         }
-                        if(dvUser!=null) {
-                           logger.fine("Found user: " + dvUser.getEmail());
-                        }
-
                         Faces.redirect(redirectPage.orElse("/"));
                 }
             }

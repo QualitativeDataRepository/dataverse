@@ -1,8 +1,21 @@
 package edu.harvard.iq.dataverse.authorization.providers.oauth2.oidc;
 
+import java.io.IOException;
+import java.net.URI;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
@@ -35,6 +48,7 @@ import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderConfigurationRequest;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.exceptions.AuthorizationSetupException;
@@ -45,19 +59,6 @@ import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
 
-import java.io.IOException;
-import java.net.URI;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * TODO: this should not EXTEND, but IMPLEMENT the contract to be used in {@link edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean}
  */
@@ -65,6 +66,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
     
     private static final Logger logger = Logger.getLogger(OIDCAuthProvider.class.getName());
     
+    public final static String ACR_LEVEL_1 = "level1";
+    public final static String ACR_LEVEL_2 = "level2";
     protected String id = "oidc";
     protected String title = "Open ID Connect";
     protected List<String> scope = Arrays.asList("openid", "email", "profile", "acr");
@@ -179,16 +182,16 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      */
     @Override
     public String buildAuthzUrl(String state, String callbackUrl) {
-        return buildAuthzUrl(state, callbackUrl, null, 0);
+        return buildAuthzUrl(state, callbackUrl, null, 0, ACR_LEVEL_1);
     }
 
-    public String buildAuthzUrl(String state, String callbackUrl, Type promptType, int maxAge) {
+    public String buildAuthzUrl(String state, String callbackUrl, Type promptType, int maxAge, String acrLevel) {
 
         State stateObject = new State(state);
         URI callback = URI.create(callbackUrl);
         Nonce nonce = new Nonce();
         CodeVerifier pkceVerifier = pkceEnabled ? new CodeVerifier() : null;
-        ACR l2 = new ACR("level2");
+        ACR level = new ACR(acrLevel);
 
         AuthenticationRequest req = new AuthenticationRequest.Builder(new ResponseType("code"),
                                                                       Scope.parse(this.scope),
@@ -199,7 +202,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             // Called method is nullsafe - will disable sending a PKCE challenge in case the verifier is not present
             .codeChallenge(pkceVerifier, pkceMethod)
             .nonce(nonce).prompt(promptType==null ? null : new Prompt(promptType))
-            .maxAge(maxAge).acrValues(Arrays.asList(l2))
+            .maxAge(maxAge).acrValues(Arrays.asList(level))
             .build();
         
         // Cache the PKCE verifier, as we need the secret in it for verification later again, after the client sends us
@@ -239,13 +242,25 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
         
         // Now retrieve User Info
         if (accessToken.isPresent()) {
-            BearerAccessToken bat = accessToken.get();
-            logger.info("AT: " + bat.toJSONString());
-            Optional<UserInfo> userInfo = getUserInfo(bat);
+            BearerAccessToken token = accessToken.get();
+            
+            logger.info("AT: " + token.toJSONString());
+            Optional<UserInfo> userInfo = getUserInfo(token);
             
             // Construct our internal user representation
             if (userInfo.isPresent()) {
-                return getUserRecord(userInfo.get());
+                UserInfo user = userInfo.get();
+                
+                String acr = null;
+                try {
+                    JWSObject jwsObject = JWSObject.parse(token.toJSONObject().getAsString("access_token"));
+                    JWTClaimsSet  claimsSet =  JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
+                    acr =claimsSet.getStringClaim("acr");
+                    logger.info("ACR: " + acr);
+                } catch (java.text.ParseException e) {
+                    logger.info("Unable to parse JWT claims: " + e.getMessage());
+                }
+                return getUserRecord(user, acr);
             }
         }
         
@@ -259,7 +274,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @param userInfo
      * @return the usable user record for processing ing {@link edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean}
      */
-    OAuth2UserRecord getUserRecord(UserInfo userInfo) {
+    OAuth2UserRecord getUserRecord(UserInfo userInfo, String acr) {
         String role = userInfo.getStringClaim("role");
         role = role == null ? "" : role;
         String affiliation = userInfo.getStringClaim("organization");
@@ -270,7 +285,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             userInfo.getPreferredUsername(),
             null,
             new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), affiliation, role),
-            null
+            null,
+            acr
         );
     }
     
@@ -360,7 +376,13 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             
             if (userInfo.isPresent()) {
                 // Take this detour to avoid code duplication and potentially hard to track conversion errors.
-                userRecord = getUserRecord(userInfo.get());
+                String acr = "level1";
+                try {
+                    acr = JWTClaimsSet.parse(accessToken.toJSONObject()).getStringClaim("acr");
+                } catch (java.text.ParseException e) {
+                    logger.warning("Could not parse access token: " + accessToken.toJSONString() + ", err: " + e.getLocalizedMessage());
+                }
+                userRecord = getUserRecord(userInfo.get(), acr);
             } else {
                 // This should not happen - an error at the provider side will lead to an exception.
                 logger.log(Level.WARNING,

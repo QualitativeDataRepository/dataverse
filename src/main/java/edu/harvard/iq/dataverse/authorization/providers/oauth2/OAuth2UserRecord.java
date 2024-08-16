@@ -25,6 +25,8 @@ public class OAuth2UserRecord implements java.io.Serializable {
     private final List<String> availableEmailAddresses;
     
     private final OAuth2TokenData tokenData;
+
+    private String acr;
     
     public OAuth2UserRecord(String aServiceId, String anIdInService, String aUsername,
                             OAuth2TokenData someTokenData,  AuthenticatedUserDisplayInfo aDisplayInfo,
@@ -35,6 +37,18 @@ public class OAuth2UserRecord implements java.io.Serializable {
         tokenData = someTokenData;
         displayInfo = aDisplayInfo;
         availableEmailAddresses = someAvailableEmailAddresses;
+    }
+
+    public OAuth2UserRecord(String aServiceId, String anIdInService, String aUsername,
+            OAuth2TokenData someTokenData,  AuthenticatedUserDisplayInfo aDisplayInfo,
+            List<String> someAvailableEmailAddresses, String anAcr) {
+        serviceId = aServiceId;
+        idInService = anIdInService;
+        username = aUsername;
+        tokenData = someTokenData;
+        displayInfo = aDisplayInfo;
+        availableEmailAddresses = someAvailableEmailAddresses;
+        acr = anAcr;
     }
 
     public String getServiceId() {
@@ -68,5 +82,9 @@ public class OAuth2UserRecord implements java.io.Serializable {
     
     public UserRecordIdentifier getUserRecordIdentifier() {
         return new UserRecordIdentifier(serviceId, idInService);
+    }
+
+    public String getAcr() {
+        return acr;
     }
 }
