@@ -249,11 +249,13 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
         // the original to be able to quickly test if machine config changes fix the
         // problem.
 
-        List<RoleAssignment> oldList = em.createNamedQuery("RoleAssignment.listByAssigneeIdentifier_DefinitionPointId", RoleAssignment.class).
+        return em.createNamedQuery("RoleAssignment.listByAssigneeIdentifier_DefinitionPointId", RoleAssignment.class).
                 setParameter("assigneeIdentifier", roas.getIdentifier()).
                 setParameter("definitionPointId", dvo.getId())
                 .getResultList();
-        try {
+        //This appears to be much less efficient when called for :authenticateduser (where there can be 10K+ entries) so just using the original query (above)
+        //Keeping the notes and newer code here until discussion on the IQSS slack concludes whether this is a change that should go back to the community version
+        /*try {
         List<RoleAssignment> unfiltered = em.createNamedQuery("RoleAssignment.listByAssigneeIdentifier", RoleAssignment.class).
                             setParameter("assigneeIdentifier", roas.getIdentifier())
                             .getResultList();
@@ -263,7 +265,7 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
             logger.severe("Exception " + e.getClass().getCanonicalName() + " " + e.getMessage());
             e.printStackTrace();
             return oldList;
-        }
+        }*/
     }
     
     /**
