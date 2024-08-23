@@ -199,7 +199,7 @@ public class DatasetVersion implements Serializable {
     @Transient 
     private String jsonLd;
 
-    @OneToMany(mappedBy="datasetVersion", orphanRemoval = true, cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy="datasetVersion", cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<DatasetVersionUser> datasetVersionUsers;
     
     // Is this the right mapping and cascading for when the workflowcomments table is being used for objects other than DatasetVersion?
