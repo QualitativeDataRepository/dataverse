@@ -1,14 +1,12 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
 import edu.harvard.iq.dataverse.authorization.Permission;
-import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.export.ExportService;
-import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import io.gdcc.spi.export.ExportException;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.DatasetFieldUtil;
@@ -55,41 +53,33 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
             throw new IllegalCommandException("Only superusers can curate published dataset versions", this);
         }
         Dataset savedDataset = null;
-        try {
-            setDataset(ctxt.em().merge(getDataset()));
+        // Merge the dataset into our JPA context
+        setDataset(ctxt.em().merge(getDataset()));
+
         ctxt.permissions().checkEditDatasetLock(getDataset(), getRequest(), this);
         // Invariant: Dataset has no locks preventing the update
         DatasetVersion updateVersion = getDataset().getLatestVersionForCopy();
-DatasetVersion testVersion = getDataset().getLatestVersion();
-logger.info("Update ID: " + updateVersion.getId());
-logger.info("Test ID: " + testVersion.getId());
+
         DatasetVersion newVersion = getDataset().getOrCreateEditVersion();
-        logger.info("New ID: " + newVersion.getId());
         // Copy metadata from draft version to latest published version
         updateVersion.setDatasetFields(newVersion.initDatasetFields());
         newVersion.setDatasetFields(new ArrayList<DatasetField>());
 
-        
-
         // final DatasetVersion editVersion = getDataset().getEditVersion();
         DatasetFieldUtil.tidyUpFields(updateVersion.getDatasetFields(), true);
-
-        // Merge the new version into our JPA context
-        updateVersion = ctxt.em().merge(updateVersion);
 
         TermsOfUseAndAccess oldTerms = updateVersion.getTermsOfUseAndAccess();
         TermsOfUseAndAccess newTerms = newVersion.getTermsOfUseAndAccess();
         newTerms.setDatasetVersion(updateVersion);
         updateVersion.setTermsOfUseAndAccess(newTerms);
-        //Put old terms on version that will be deleted....
+        // Clear unnecessary terms relationships ....
         newVersion.setTermsOfUseAndAccess(null);
         oldTerms.setDatasetVersion(null);
-        ctxt.em().merge(oldTerms);
+        // Without this there's a db exception related to the oldTerms being referenced
+        // by the datasetversion table at the flush around line 212
         ctxt.em().flush();
-        ctxt.em().remove(oldTerms);
-        
-        
-        //Validate metadata and TofA conditions
+
+        // Validate metadata and TofA conditions
         validateOrDie(updateVersion, isValidateLenient());
         
         //Also set the fileaccessrequest boolean on the dataset to match the new terms
@@ -102,21 +92,20 @@ logger.info("Test ID: " + testVersion.getId());
             updateVersion.getWorkflowComments().addAll(newComments);
         }
 
-        
         // we have to merge to update the database but not flush because
         // we don't want to create two draft versions!
-       // Dataset tempDataset = ctxt.em().merge(getDataset());
         Dataset tempDataset = getDataset();
         updateVersion = tempDataset.getLatestVersionForCopy();
         
-        logger.info("Version to be updated dsf size: " + updateVersion.getDatasetFields().size());
-        updateVersion.getDatasetFields().forEach(dsf -> logger.info("UV FieldId: " + dsf.getId()));
         // Look for file metadata changes and update published metadata if needed
         List<FileMetadata> pubFmds = updateVersion.getFileMetadatas();
         int pubFileCount = pubFmds.size();
         int newFileCount = tempDataset.getOrCreateEditVersion().getFileMetadatas().size();
-        /* The policy for this command is that it should only be used when the change is a 'minor update' with no file changes.
-         * Nominally we could call .isMinorUpdate() for that but we're making the same checks as we go through the update here. 
+        /*
+         * The policy for this command is that it should only be used when the change is
+         * a 'minor update' with no file changes. Nominally we could call
+         * .isMinorUpdate() for that but we're making the same checks as we go through
+         * the update here.
          */
         if (pubFileCount != newFileCount) {
             logger.severe("Draft version of dataset: " + tempDataset.getId() + " has: " + newFileCount + " while last published version has " + pubFileCount);
@@ -125,7 +114,10 @@ logger.info("Test ID: " + testVersion.getId());
         Long thumbId = null;
         if(tempDataset.getThumbnailFile()!=null) {
             thumbId = tempDataset.getThumbnailFile().getId();
-        };
+        }
+
+        // Note - Curate allows file metadata changes but not adding/deleting files. If
+        // that ever changes, this command needs to be updated.
         for (FileMetadata publishedFmd : pubFmds) {
             DataFile dataFile = publishedFmd.getDataFile();
             FileMetadata draftFmd = dataFile.getLatestFileMetadata();
@@ -176,90 +168,53 @@ logger.info("Test ID: " + testVersion.getId());
         // Update modification time on the published version and the dataset
         updateVersion.setLastUpdateTime(getTimestamp());
         tempDataset.setModificationTime(getTimestamp());
-        updateVersion = ctxt.em().merge(updateVersion);
-        //For now just remove these from draft version - todo - add/update on published version
-        newVersion.setUserDatasets(null);
         newVersion = ctxt.em().merge(newVersion);
         savedDataset = ctxt.em().merge(tempDataset);
 
-        // Flush before calling DeleteDatasetVersion which calls
-        // PrivateUrlServiceBean.getPrivateUrlFromDatasetId() that will query the DB and
-        // fail if our changes aren't there
-       
-        logger.info("Version to be updated dsf size: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
-        //logger.info("Version to be deleted toua id: " + savedDataset.getLatestVersion().getTermsOfUseAndAccess().getId());
         // Now delete draft version
-        
-        
+
         ctxt.em().remove(newVersion);
-        
+
         Iterator<DatasetVersion> dvIt = savedDataset.getVersions().iterator();
         while (dvIt.hasNext()) {
             DatasetVersion dv = dvIt.next();
             if (dv.isDraft()) {
-                logger.info("Removing dv id: " + dv.getId());
-                //logger.info("With toua: " + dv.getTermsOfUseAndAccess().getId());
                 dvIt.remove();
-                //maybe? ctxt.em().remove(dv);
                 break; // We've removed the draft version, no need to continue iterating
             }
         }
-        logger.info("Numver: " + savedDataset.getVersions().size());
+
         savedDataset = ctxt.em().merge(savedDataset);
         ctxt.em().flush();
-        
-       // Long id = savedDataset.getId();
+
         RoleAssignment ra = ctxt.privateUrl().getPrivateUrlRoleAssignmentFromDataset(savedDataset);
-        if(ra!=null) {
+        if (ra != null) {
             ctxt.roles().revoke(ra);
         }
-        /*
-        PrivateUrl privateUrl = ctxt.privateUrl().getPrivateUrlFromDatasetId(id);
-        if (privateUrl != null) {
-            logger.fine("Deleting Private URL for dataset id " + id);
-            PrivateUrlUser privateUrlUser = new PrivateUrlUser(id, privateUrl.isAnonymizedAccess());
-            List<RoleAssignment> roleAssignments = ctxt.roles().directRoleAssignments(privateUrlUser, savedDataset);
-            for (RoleAssignment roleAssignment : roleAssignments) {
-                ctxt.roles().revoke(roleAssignment);
-            }
-        }
-        */
-        
-        
-        
-        
-       /* 
-        DeleteDatasetVersionCommand cmd;
 
-        cmd = new DeleteDatasetVersionCommand(getRequest(), savedDataset);
-        cmd.execute(ctxt);
-        logger.info("AM Version to be updated dsf size: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
-        logger.info("AM Version id: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
-        */
-        
         // And update metadata at PID provider
         try {
             ctxt.engine().submit(
-                new UpdateDvObjectPIDMetadataCommand(savedDataset, getRequest()));
+                    new UpdateDvObjectPIDMetadataCommand(savedDataset, getRequest()));
         } catch (CommandException ex) {
-            //Make this non-fatal as after the DeleteDatasetVersionCommand, we can't roll back - for some reason no datasetfields remain in the DB
-            //(The old version doesn't need them and the new version doesn't get updated to include them?)
+            // Make this non-fatal? This can be corrected by running the update PID API
+            // later, but who will look in the log?
+            // With the change to not use the DeleteDatasetVersionCommand above and other
+            // fixes, this error may now cleanly restore the initial state
+            // with the draft and last published versions unchanged.
             logger.log(Level.WARNING, "Curate Published DatasetVersion: exception while updating PID metadata:{0}", ex.getMessage());
         }
-        // Update so that getDataset() in updateDatasetUser will get the up-to-date copy
-        // (with no draft version)
+        // Update so that getDataset() in updateDatasetUser() will get the up-to-date
+        // copy (with no draft version)
         setDataset(savedDataset);
+
         updateDatasetUser(ctxt);
         
-        logger.info("AM Version to be updated dsf size: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
-        logger.info("AM Version id: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
-        ctxt.em().merge(savedDataset);
-        ctxt.em().flush();
-        }
-        catch (Throwable t) {
-            logger.severe("Something went wrong: " + t.getLocalizedMessage());
-            t.printStackTrace();
-        }
+        // ToDo - see if there are other DatasetVersionUser entries unique to the draft
+        // version that should be moved to the last published version
+        // As this command is intended for minor fixes, often done by the person pushing
+        // the update-current-version button, this is probably a minor issue.
+
         return savedDataset;
     }
 
