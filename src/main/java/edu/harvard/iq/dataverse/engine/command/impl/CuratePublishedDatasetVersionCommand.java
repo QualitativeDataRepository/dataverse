@@ -1,24 +1,30 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
 import edu.harvard.iq.dataverse.authorization.Permission;
+import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import io.gdcc.spi.export.ExportException;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.DatasetFieldUtil;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
 import edu.harvard.iq.dataverse.Dataset;
+import edu.harvard.iq.dataverse.DatasetField;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.FileMetadata;
+import edu.harvard.iq.dataverse.RoleAssignment;
 import edu.harvard.iq.dataverse.DataFileCategory;
 import edu.harvard.iq.dataverse.DatasetVersionDifference;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,6 +67,7 @@ logger.info("Test ID: " + testVersion.getId());
         logger.info("New ID: " + newVersion.getId());
         // Copy metadata from draft version to latest published version
         updateVersion.setDatasetFields(newVersion.initDatasetFields());
+        newVersion.setDatasetFields(new ArrayList<DatasetField>());
 
         
 
@@ -75,8 +82,12 @@ logger.info("Test ID: " + testVersion.getId());
         newTerms.setDatasetVersion(updateVersion);
         updateVersion.setTermsOfUseAndAccess(newTerms);
         //Put old terms on version that will be deleted....
-        newVersion.setTermsOfUseAndAccess(oldTerms);
-        oldTerms.setDatasetVersion(newVersion);
+        newVersion.setTermsOfUseAndAccess(null);
+        oldTerms.setDatasetVersion(null);
+        ctxt.em().merge(oldTerms);
+        ctxt.em().flush();
+        ctxt.em().remove(oldTerms);
+        
         
         //Validate metadata and TofA conditions
         validateOrDie(updateVersion, isValidateLenient());
@@ -166,22 +177,66 @@ logger.info("Test ID: " + testVersion.getId());
         updateVersion.setLastUpdateTime(getTimestamp());
         tempDataset.setModificationTime(getTimestamp());
         updateVersion = ctxt.em().merge(updateVersion);
-        ctxt.em().merge(newVersion);
+        //For now just remove these from draft version - todo - add/update on published version
+        newVersion.setUserDatasets(null);
+        newVersion = ctxt.em().merge(newVersion);
         savedDataset = ctxt.em().merge(tempDataset);
 
         // Flush before calling DeleteDatasetVersion which calls
         // PrivateUrlServiceBean.getPrivateUrlFromDatasetId() that will query the DB and
         // fail if our changes aren't there
-        ctxt.em().flush();
+       
         logger.info("Version to be updated dsf size: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
-        logger.info("Version to be deleted toua id: " + savedDataset.getLatestVersion().getTermsOfUseAndAccess().getId());
+        //logger.info("Version to be deleted toua id: " + savedDataset.getLatestVersion().getTermsOfUseAndAccess().getId());
         // Now delete draft version
+        
+        
+        ctxt.em().remove(newVersion);
+        
+        Iterator<DatasetVersion> dvIt = savedDataset.getVersions().iterator();
+        while (dvIt.hasNext()) {
+            DatasetVersion dv = dvIt.next();
+            if (dv.isDraft()) {
+                logger.info("Removing dv id: " + dv.getId());
+                //logger.info("With toua: " + dv.getTermsOfUseAndAccess().getId());
+                dvIt.remove();
+                //maybe? ctxt.em().remove(dv);
+                break; // We've removed the draft version, no need to continue iterating
+            }
+        }
+        logger.info("Numver: " + savedDataset.getVersions().size());
+        savedDataset = ctxt.em().merge(savedDataset);
+        ctxt.em().flush();
+        
+       // Long id = savedDataset.getId();
+        RoleAssignment ra = ctxt.privateUrl().getPrivateUrlRoleAssignmentFromDataset(savedDataset);
+        if(ra!=null) {
+            ctxt.roles().revoke(ra);
+        }
+        /*
+        PrivateUrl privateUrl = ctxt.privateUrl().getPrivateUrlFromDatasetId(id);
+        if (privateUrl != null) {
+            logger.fine("Deleting Private URL for dataset id " + id);
+            PrivateUrlUser privateUrlUser = new PrivateUrlUser(id, privateUrl.isAnonymizedAccess());
+            List<RoleAssignment> roleAssignments = ctxt.roles().directRoleAssignments(privateUrlUser, savedDataset);
+            for (RoleAssignment roleAssignment : roleAssignments) {
+                ctxt.roles().revoke(roleAssignment);
+            }
+        }
+        */
+        
+        
+        
+        
+       /* 
         DeleteDatasetVersionCommand cmd;
 
         cmd = new DeleteDatasetVersionCommand(getRequest(), savedDataset);
         cmd.execute(ctxt);
         logger.info("AM Version to be updated dsf size: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
         logger.info("AM Version id: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
+        */
+        
         // And update metadata at PID provider
         try {
             ctxt.engine().submit(
@@ -195,6 +250,11 @@ logger.info("Test ID: " + testVersion.getId());
         // (with no draft version)
         setDataset(savedDataset);
         updateDatasetUser(ctxt);
+        
+        logger.info("AM Version to be updated dsf size: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
+        logger.info("AM Version id: " + savedDataset.getLatestVersionForCopy().getDatasetFields().size());
+        ctxt.em().merge(savedDataset);
+        ctxt.em().flush();
         }
         catch (Throwable t) {
             logger.severe("Something went wrong: " + t.getLocalizedMessage());
