@@ -253,7 +253,6 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
             for(FileMetadata fmd: theDataset.getOrCreateEditVersion().getFileMetadatas()) {
                 logger.fine("FMD: " + fmd.getId() + " for file: " + fmd.getDataFile().getId() + "is in final draft version");    
             }
-
             registerFilePidsIfNeeded(theDataset, ctxt, true);
             
             if (recalculateUNF) {

@@ -19,6 +19,7 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
 import jakarta.json.Json;
 import jakarta.json.JsonObjectBuilder;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -200,7 +201,16 @@ public class BuiltinUsers extends AbstractApiBean {
                 return error(Status.INTERNAL_SERVER_ERROR, "Can't save user: " + errorMessage);
             }
             
-        } catch (Exception e) {
+        } catch (ConstraintViolationException e) {
+            logger.log(Level.SEVERE,"Exception: ");
+            e.getConstraintViolations().forEach(err->logger.log(Level.SEVERE,err.toString()));
+            alr.setActionResult(ActionLogRecord.Result.InternalError);
+            alr.setInfo( alr.getInfo() + "// " + e.getMessage());
+            
+            //Something other than internal error? 400?
+            return error(Status.INTERNAL_SERVER_ERROR, "Can't save user due to constraint violations: " + e.getMessage());
+         } 
+        catch (Exception e) {
             logger.log(Level.WARNING, "Error saving user", e);
             alr.setActionResult(ActionLogRecord.Result.InternalError);
             alr.setInfo( alr.getInfo() + "// " + e.getMessage());

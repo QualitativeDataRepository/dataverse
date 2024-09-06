@@ -59,7 +59,7 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         ctxt.permissions().checkEditDatasetLock(getDataset(), getRequest(), this);
         // Invariant: Dataset has no locks preventing the update
         DatasetVersion updateVersion = getDataset().getLatestVersionForCopy();
-        DatasetVersion testVersion = getDataset().getLatestVersion();
+
         DatasetVersion newVersion = getDataset().getOrCreateEditVersion();
         // Copy metadata from draft version to latest published version
         updateVersion.setDatasetFields(newVersion.initDatasetFields());
@@ -72,7 +72,7 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         TermsOfUseAndAccess newTerms = newVersion.getTermsOfUseAndAccess();
         newTerms.setDatasetVersion(updateVersion);
         updateVersion.setTermsOfUseAndAccess(newTerms);
-        // Put old terms on version that will be deleted....
+        // Clear unnecessary terms relationships ....
         newVersion.setTermsOfUseAndAccess(null);
         oldTerms.setDatasetVersion(null);
         // Without this there's a db exception related to the oldTerms being referenced
@@ -81,7 +81,7 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
 
         // Validate metadata and TofA conditions
         validateOrDie(updateVersion, isValidateLenient());
-
+        
         // Also set the fileaccessrequest boolean on the dataset to match the new terms
         getDataset().setFileAccessRequest(updateVersion.getTermsOfUseAndAccess().isFileAccessRequest());
         List<WorkflowComment> newComments = newVersion.getWorkflowComments();
@@ -94,7 +94,6 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
 
         // we have to merge to update the database but not flush because
         // we don't want to create two draft versions!
-        // Dataset tempDataset = ctxt.em().merge(getDataset());
         Dataset tempDataset = getDataset();
         updateVersion = tempDataset.getLatestVersionForCopy();
 
@@ -198,18 +197,17 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
             ctxt.engine().submit(
                     new UpdateDvObjectPIDMetadataCommand(savedDataset, getRequest()));
         } catch (CommandException ex) {
-            // Make this non-fatal? This can be corrected by running the update PID API
-            // later, but who will look in the log?
+            // The try/catch makes this non-fatal. Should it be non-fatal - it's different from what we do in publish?
+            // This can be corrected by running the update PID API later, but who will look in the log?
             // With the change to not use the DeleteDatasetVersionCommand above and other
             // fixes, this error may now cleanly restore the initial state
-            // with the draft and last published versions unchanged.
+            // with the draft and last published versions unchanged, but this has not yet bee tested.
+            // (Alternately this could move to onSuccess if we intend it to stay non-fatal.)
             logger.log(Level.WARNING, "Curate Published DatasetVersion: exception while updating PID metadata:{0}", ex.getMessage());
         }
         // Update so that getDataset() in updateDatasetUser() will get the up-to-date
-        // copy
-        // (with no draft version)
+        // copy (with no draft version)
         setDataset(savedDataset);
-
         updateDatasetUser(ctxt);
 
         // ToDo - see if there are other DatasetVersionUser entries unique to the draft
