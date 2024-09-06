@@ -224,21 +224,18 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
     protected void registerFilePidsIfNeeded(Dataset theDataset, CommandContext ctxt, boolean b) throws CommandException {
      // Register file PIDs if needed
         PidProvider pidGenerator = theDataset.getEffectivePidGenerator();
+        boolean shouldRegister = !pidGenerator.registerWhenPublished() && // The provider can pre-register and
+                ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner()) && // We use file PIDs and
+                (pidGenerator.canCreatePidsLike(theDataset.getGlobalId()) // the dataset PID is a protocol/authority Dataverse can create new PIDs in
+                  || pidGenerator.getDatafilePidFormat().equals(SystemConfig.DataFilePIDFormat.INDEPENDENT.toString())); // or the files can use a different protocol/authority
         
-        boolean shouldRegister = ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner()) // We use file PIDs
-                && !pidGenerator.registerWhenPublished()                                                  // The provider can pre-register
-                &&(pidGenerator.canCreatePidsLike(theDataset.getGlobalId())  // the dataset PID is a protocol/authority Dataverse can create new PIDs in
-                        || pidGenerator.getDatafilePidFormat().equals(SystemConfig.DataFilePIDFormat.INDEPENDENT.toString()));    // or the files can use a different protocol/authority
-        logger.fine("IsFilePIDsEnabled: " + ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner()));
-        logger.fine("RegWhenPub: " +  !pidGenerator.registerWhenPublished());
-        logger.fine("OK provider: " + (pidGenerator.canCreatePidsLike(theDataset.getGlobalId()) // the dataset PID is a protocol/authority Dataverse can create new PIDs in
-                        || pidGenerator.getDatafilePidFormat().equals(SystemConfig.DataFilePIDFormat.INDEPENDENT.toString())));
-        logger.fine("Should register: " + shouldRegister);
-        for (DataFile dataFile : theDataset.getFiles()) {
-            logger.fine(dataFile.getId() + " is registered?: " + dataFile.isIdentifierRegistered());
-            if (shouldRegister && !dataFile.isIdentifierRegistered()) {
-                // pre-register a persistent id
-                registerFileExternalIdentifier(dataFile, pidGenerator, ctxt, true);
+        if (shouldRegister) {
+            for (DataFile dataFile : theDataset.getFiles()) {
+                logger.fine(dataFile.getId() + " is registered?: " + dataFile.isIdentifierRegistered());
+                if (!dataFile.isIdentifierRegistered()) {
+                    // pre-register a persistent id
+                    registerFileExternalIdentifier(dataFile, pidGenerator, ctxt, true);
+                }
             }
         }
     }
