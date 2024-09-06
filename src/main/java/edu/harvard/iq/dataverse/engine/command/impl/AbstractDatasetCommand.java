@@ -3,7 +3,6 @@ package edu.harvard.iq.dataverse.engine.command.impl;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetField;
-import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.DatasetVersionDifference;
 import edu.harvard.iq.dataverse.DatasetVersionUser;
@@ -31,7 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.joining;
 
-import jakarta.ejb.EJB;
 import jakarta.validation.ConstraintViolation;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 
@@ -46,7 +44,7 @@ import edu.harvard.iq.dataverse.settings.JvmSettings;
 public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
 
     private static final Logger logger = Logger.getLogger(AbstractDatasetCommand.class.getName());
-    protected static final int FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT = 2 ^ 8;
+    private static final int FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT = 2 ^ 8;
     private Dataset dataset;
     private final Timestamp timestamp = new Timestamp(new Date().getTime());
 
@@ -225,44 +223,44 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
 
     protected void registerFilePidsIfNeeded(Dataset theDataset, CommandContext ctxt, boolean b) throws CommandException {
      // Register file PIDs if needed
-        PidProvider pidProvider = theDataset.getEffectivePidGenerator();
+        PidProvider pidGenerator = theDataset.getEffectivePidGenerator();
         
         boolean shouldRegister = ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner()) // We use file PIDs
-                && !pidProvider.registerWhenPublished()                                                  // The provider can pre-register
-                &&(pidProvider.canCreatePidsLike(theDataset.getGlobalId())  // the dataset PID is a protocol/authority Dataverse can create new PIDs in
-                        || pidProvider.getDatafilePidFormat().equals(SystemConfig.DataFilePIDFormat.INDEPENDENT.toString()));    // or the files can use a different protocol/authority
+                && !pidGenerator.registerWhenPublished()                                                  // The provider can pre-register
+                &&(pidGenerator.canCreatePidsLike(theDataset.getGlobalId())  // the dataset PID is a protocol/authority Dataverse can create new PIDs in
+                        || pidGenerator.getDatafilePidFormat().equals(SystemConfig.DataFilePIDFormat.INDEPENDENT.toString()));    // or the files can use a different protocol/authority
         logger.fine("IsFilePIDsEnabled: " + ctxt.systemConfig().isFilePIDsEnabledForCollection(theDataset.getOwner()));
-        logger.fine("RegWhenPub: " +  !pidProvider.registerWhenPublished());
-        logger.fine("OK provider: " + (pidProvider.canCreatePidsLike(theDataset.getGlobalId()) // the dataset PID is a protocol/authority Dataverse can create new PIDs in
-                        || pidProvider.getDatafilePidFormat().equals(SystemConfig.DataFilePIDFormat.INDEPENDENT.toString())));
+        logger.fine("RegWhenPub: " +  !pidGenerator.registerWhenPublished());
+        logger.fine("OK provider: " + (pidGenerator.canCreatePidsLike(theDataset.getGlobalId()) // the dataset PID is a protocol/authority Dataverse can create new PIDs in
+                        || pidGenerator.getDatafilePidFormat().equals(SystemConfig.DataFilePIDFormat.INDEPENDENT.toString())));
         logger.fine("Should register: " + shouldRegister);
         for (DataFile dataFile : theDataset.getFiles()) {
             logger.fine(dataFile.getId() + " is registered?: " + dataFile.isIdentifierRegistered());
             if (shouldRegister && !dataFile.isIdentifierRegistered()) {
                 // pre-register a persistent id
-                registerFileExternalIdentifier(dataFile, pidProvider, ctxt, true);
+                registerFileExternalIdentifier(dataFile, pidGenerator, ctxt, true);
             }
         }
     }
 
-    private void registerFileExternalIdentifier(DataFile dataFile, PidProvider pidProvider, CommandContext ctxt, boolean retry) throws CommandException {
+    private void registerFileExternalIdentifier(DataFile dataFile, PidProvider pidGenerator, CommandContext ctxt, boolean retry) throws CommandException {
     
         if (!dataFile.isIdentifierRegistered()) {
 
-                if (pidProvider instanceof FakeDOIProvider) {
+                if (pidGenerator instanceof FakeDOIProvider) {
                     retry = false; // No reason to allow a retry with the FakeProvider (even if it allows
                                    // pre-registration someday), so set false for efficiency
                 }
                 try {
-                    if (pidProvider.alreadyRegistered(dataFile)) {
+                    if (pidGenerator.alreadyRegistered(dataFile)) {
                         int attempts = 0;
                         if (retry) {
                             do {
-                                pidProvider.generatePid(dataFile);
+                                pidGenerator.generatePid(dataFile);
                                 logger.log(Level.INFO, "Attempting to register external identifier for datafile {0} (trying: {1}).",
                                         new Object[] { dataFile.getId(), dataFile.getIdentifier() });
                                 attempts++;
-                            } while (pidProvider.alreadyRegistered(dataFile) && attempts <= FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT);
+                            } while (pidGenerator.alreadyRegistered(dataFile) && attempts <= FOOLPROOF_RETRIAL_ATTEMPTS_LIMIT);
                         }
                         if (!retry) {
                             logger.warning("Reserving File PID for: " + getDataset().getId() + ", fileId: " + dataFile.getId() + ", during publication failed.");
@@ -276,7 +274,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                     }
                     // Invariant: DataFile identifier does not exist in the remote registry
                     try {
-                        pidProvider.createIdentifier(dataFile);
+                        pidGenerator.createIdentifier(dataFile);
                         dataFile.setGlobalIdCreateTime(getTimestamp());
                         dataFile.setIdentifierRegistered(true);
                     } catch (Throwable ex) {
@@ -287,7 +285,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
                     if (e instanceof CommandException) {
                         throw (CommandException) e;
                     }
-                    throw new CommandException(BundleUtil.getStringFromBundle("file.register.error", pidProvider.getProviderInformation()), this);
+                    throw new CommandException(BundleUtil.getStringFromBundle("file.register.error", pidGenerator.getProviderInformation()), this);
                 }
             } else {
                 throw new IllegalCommandException("This datafile may not have a PID because its id registry service is not supported.", this);

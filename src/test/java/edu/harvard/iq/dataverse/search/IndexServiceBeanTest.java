@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.search;
 import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.Dataverse.DataverseType;
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
+import edu.harvard.iq.dataverse.dataset.DatasetType;
 import edu.harvard.iq.dataverse.mocks.MocksFactory;
 import edu.harvard.iq.dataverse.pidproviders.doi.AbstractDOIProvider;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
@@ -11,8 +12,8 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.testing.JvmSetting;
 import edu.harvard.iq.dataverse.util.testing.LocalJvmSettings;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrInputDocument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +53,7 @@ public class IndexServiceBeanTest {
         indexService.dataverseService = Mockito.mock(DataverseServiceBean.class);
         indexService.datasetFieldService = Mockito.mock(DatasetFieldServiceBean.class);
         indexService.solrClientService = Mockito.mock(SolrClientService.class);
+        indexService.datasetVersionService = Mockito.mock(DatasetVersionServiceBean.class);
         BrandingUtil.injectServices(indexService.dataverseService, indexService.settingsService);
 
         Mockito.when(indexService.dataverseService.findRootDataverse()).thenReturn(dataverse);
@@ -142,6 +144,9 @@ public class IndexServiceBeanTest {
         datasetVersion.getDatasetFields().add(field);
         final IndexableDataset indexableDataset = new IndexableDataset(datasetVersion);
         indexableDataset.getDatasetVersion().getDataset().setOwner(dataverse);
+        DatasetType datasetType = new DatasetType();
+        datasetType.setName(DatasetType.DEFAULT_DATASET_TYPE);
+        indexableDataset.getDatasetVersion().getDataset().setDatasetType(datasetType);
         return indexableDataset;
     }
 
