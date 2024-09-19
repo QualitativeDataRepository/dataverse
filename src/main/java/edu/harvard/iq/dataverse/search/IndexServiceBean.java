@@ -279,6 +279,7 @@ public class IndexServiceBean {
             if (dataverse.getOwner() != null) {
                 solrInputDocument.addField(SearchFields.PARENT_ID, dataverse.getOwner().getId());
                 solrInputDocument.addField(SearchFields.PARENT_NAME, dataverse.getOwner().getName());
+                solrInputDocument.addField(SearchFields.DATAVERSE_PARENT_ALIAS, dataverse.getOwner().getAlias());
             }
         }
         List<String> dataversePathSegmentsAccumulator = new ArrayList<>();
@@ -2236,7 +2237,7 @@ public class IndexServiceBean {
                 q.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
                 QueryResponse rsp = solrServer.query(q);
                 String nextCursorMark = rsp.getNextCursorMark();
-                logger.info("Next cursor mark: " + nextCursorMark);
+                logger.fine("Next cursor mark (1K entries): " + nextCursorMark);
                 SolrDocumentList list = rsp.getResults();
                 for (SolrDocument doc: list) {
                     long id = Long.parseLong((String) doc.getFieldValue(SearchFields.DEFINITION_POINT_DVOBJECT_ID));

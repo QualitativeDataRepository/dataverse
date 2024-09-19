@@ -1090,7 +1090,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             hdLogger.warning("Failed to destroy the dataset");
         }
     }
-
+    
     public List<String> getVersionStates(long id) {
         try {
             Query query = em.createNativeQuery("SELECT dv.versionState FROM datasetversion dv WHERE dataset_id=? ORDER BY id");
