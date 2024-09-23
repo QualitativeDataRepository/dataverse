@@ -252,15 +252,19 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
                 UserInfo user = userInfo.get();
                 
                 String acr = null;
+                int consentVersion = 0;
                 try {
                     JWSObject jwsObject = JWSObject.parse(token.toJSONObject().getAsString("access_token"));
                     JWTClaimsSet  claimsSet =  JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
                     acr =claimsSet.getStringClaim("acr");
                     logger.info("ACR: " + acr);
-                } catch (java.text.ParseException e) {
+                    consentVersion = Integer.parseInt(claimsSet.getStringClaim("consentver"));
+                    logger.info("Consent Version: " + consentVersion);
+                    
+                } catch (java.text.ParseException | NumberFormatException e) {
                     logger.info("Unable to parse JWT claims: " + e.getMessage());
                 }
-                return getUserRecord(user, acr);
+                return getUserRecord(user, acr, consentVersion);
             }
         }
         
@@ -274,7 +278,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @param userInfo
      * @return the usable user record for processing ing {@link edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean}
      */
-    OAuth2UserRecord getUserRecord(UserInfo userInfo, String acr) {
+    OAuth2UserRecord getUserRecord(UserInfo userInfo, String acr, int consentVersion) {
         String role = userInfo.getStringClaim("role");
         role = role == null ? "" : role;
         String affiliation = userInfo.getStringClaim("organization");
@@ -286,7 +290,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             null,
             new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), affiliation, role),
             null,
-            acr
+            acr,
+            consentVersion
         );
     }
     
@@ -377,12 +382,15 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             if (userInfo.isPresent()) {
                 // Take this detour to avoid code duplication and potentially hard to track conversion errors.
                 String acr = "level1";
+                int consentVersion = 0;
                 try {
-                    acr = JWTClaimsSet.parse(accessToken.toJSONObject()).getStringClaim("acr");
-                } catch (java.text.ParseException e) {
+                    JWTClaimsSet claims = JWTClaimsSet.parse(accessToken.toJSONObject());
+                    acr = claims.getStringClaim("acr");
+                    consentVersion = Integer.parseInt(claims.getStringClaim("consentver"));
+                } catch (java.text.ParseException | NumberFormatException e) {
                     logger.warning("Could not parse access token: " + accessToken.toJSONString() + ", err: " + e.getLocalizedMessage());
                 }
-                userRecord = getUserRecord(userInfo.get(), acr);
+                userRecord = getUserRecord(userInfo.get(), acr, consentVersion);
             } else {
                 // This should not happen - an error at the provider side will lead to an exception.
                 logger.log(Level.WARNING,

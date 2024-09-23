@@ -28,6 +28,8 @@ public class OAuth2UserRecord implements java.io.Serializable {
 
     private String acr;
     
+    private int termsConsentedToVersion;
+    
     public OAuth2UserRecord(String aServiceId, String anIdInService, String aUsername,
                             OAuth2TokenData someTokenData,  AuthenticatedUserDisplayInfo aDisplayInfo,
                             List<String> someAvailableEmailAddresses) {
@@ -41,7 +43,7 @@ public class OAuth2UserRecord implements java.io.Serializable {
 
     public OAuth2UserRecord(String aServiceId, String anIdInService, String aUsername,
             OAuth2TokenData someTokenData,  AuthenticatedUserDisplayInfo aDisplayInfo,
-            List<String> someAvailableEmailAddresses, String anAcr) {
+            List<String> someAvailableEmailAddresses, String anAcr, int theTermsConsentedToVersion) {
         serviceId = aServiceId;
         idInService = anIdInService;
         username = aUsername;
@@ -49,6 +51,7 @@ public class OAuth2UserRecord implements java.io.Serializable {
         displayInfo = aDisplayInfo;
         availableEmailAddresses = someAvailableEmailAddresses;
         acr = anAcr;
+        termsConsentedToVersion = theTermsConsentedToVersion;
     }
 
     public String getServiceId() {
@@ -86,5 +89,9 @@ public class OAuth2UserRecord implements java.io.Serializable {
 
     public String getAcr() {
         return acr;
+    }
+
+    public int getTermsConsentedToVersion() {
+        return termsConsentedToVersion;
     }
 }

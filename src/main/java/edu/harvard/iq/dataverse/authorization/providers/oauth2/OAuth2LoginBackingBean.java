@@ -11,6 +11,7 @@ import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.oidc.OIDCAuthProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.ClockUtil;
 import edu.harvard.iq.dataverse.util.StringUtil;
@@ -82,6 +83,9 @@ public class OAuth2LoginBackingBean implements Serializable {
     
     @EJB
     RoleAssigneeServiceBean roleAssigneeService;
+    
+    @EJB
+    SettingsServiceBean settingsService;
 
     @Inject
     DataverseSession session;
@@ -137,6 +141,18 @@ public class OAuth2LoginBackingBean implements Serializable {
                     if (isProviderDisabled(idp.getId())) {
                         disabled = true;
                         throw new OAuth2Exception(-1, "", MessageFormat.format(BundleUtil.getStringFromBundle("oauth2.callback.error.providerDisabled"), idp.getId()));
+                    }
+                    if(oauthUser.getTermsConsentedToVersion() < Integer.parseInt(settingsService.getValueForKey(SettingsServiceBean.Key.QDRRequiredTermsVersion, "13"))) {
+
+                        //Delete passive check attribute
+                        if(httpSession!=null) {
+                            httpSession.removeAttribute("passiveChecked");
+                        }
+                        // Redirect to terms page in Drupal
+                        // If you're here, you skipped this when logging into Drupal (on purpose), so perhaps not worth it to try and deal with
+                        // trying to track any ongoing redirect.
+                        Faces.redirect(settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL, "") + "/qdr_oidc_sso/terms");
+                        return;
                     }
 
                     UserRecordIdentifier idtf = oauthUser.getUserRecordIdentifier();

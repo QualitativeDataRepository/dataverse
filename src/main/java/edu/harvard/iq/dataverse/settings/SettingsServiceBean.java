@@ -479,6 +479,8 @@ public class SettingsServiceBean {
         QDRDrupalSiteURL,
         /** Base Url of this Dataverse Site */
         QDRDataverseBaseURL,
+        /** Required Terms Version */
+        QDRRequiredTermsVersion,
         
         /** Make Data Count Logging, Display, and Start Date */
         MDCLogPath, 
