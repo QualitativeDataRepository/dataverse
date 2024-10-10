@@ -67,12 +67,10 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
     
     private static final Logger logger = Logger.getLogger(OIDCAuthProvider.class.getName());
     
-    public final static String ACR_LEVEL_1 = "level1";
-    public final static String ACR_LEVEL_2 = "level2";
-    protected String id = "oidc";
-    protected String title = "Open ID Connect";
-    protected List<String> scopeWithAcr = Arrays.asList("openid", "email", "profile", "acr");
-    protected List<String> scope = Arrays.asList("openid", "email", "profile");
+    protected static final String id = "oidc";
+    protected static final String title = "Open ID Connect";
+    protected static final List<String> scope = Arrays.asList("openid", "email", "profile");
+    private static final String MFA_USER="MFA User";
     
     final Issuer issuer;
     final ClientAuthentication clientAuth;
@@ -184,33 +182,27 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      */
     @Override
     public String buildAuthzUrl(String state, String callbackUrl) {
-        return buildAuthzUrl(state, callbackUrl, null, 0, ACR_LEVEL_1);
+        return buildAuthzUrl(state, callbackUrl, null, 0);
     }
 
-    public String buildAuthzUrl(String state, String callbackUrl, Type promptType, int maxAge, String acrLevel) {
+    public String buildAuthzUrl(String state, String callbackUrl, Type promptType, int maxAge) {
 
         State stateObject = new State(state);
         URI callback = URI.create(callbackUrl);
         Nonce nonce = new Nonce();
         CodeVerifier pkceVerifier = pkceEnabled ? new CodeVerifier() : null;
         
-        Scope requestedScope = (acrLevel == null)? Scope.parse(scope) : Scope.parse(scopeWithAcr);
-        Builder builder = new AuthenticationRequest.Builder(new ResponseType("code"),
-                                                                      requestedScope,
-                                                                      this.clientAuth.getClientID(),
-                                                                      callback)
-            .endpointURI(idpMetadata.getAuthorizationEndpointURI())
-            .state(stateObject)
-            // Called method is nullsafe - will disable sending a PKCE challenge in case the verifier is not present
-            .codeChallenge(pkceVerifier, pkceMethod)
-            .nonce(nonce).prompt(promptType==null ? null : new Prompt(promptType))
-            .maxAge(maxAge);
-            if(acrLevel!=null) {
-                ACR level = new ACR(acrLevel);
-                builder.acrValues(Arrays.asList(level));
-            }
-        
-            AuthenticationRequest req = builder.build();
+        AuthenticationRequest req = new AuthenticationRequest.Builder(new ResponseType("code"),
+                Scope.parse(scope),
+                this.clientAuth.getClientID(),
+                callback)
+                        .endpointURI(idpMetadata.getAuthorizationEndpointURI())
+                        .state(stateObject)
+                        // Called method is nullsafe - will disable sending a PKCE challenge in case the
+                        // verifier is not present
+                        .codeChallenge(pkceVerifier, pkceMethod)
+                        .nonce(nonce).prompt(promptType == null ? null : new Prompt(promptType))
+                        .maxAge(maxAge).build();
         
         // Cache the PKCE verifier, as we need the secret in it for verification later again, after the client sends us
         // the auth code! We use the state to cache the verifier, as the state is unique per authentication event.
@@ -258,20 +250,17 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             if (userInfo.isPresent()) {
                 UserInfo user = userInfo.get();
                 
-                String acr = null;
                 int consentVersion = 0;
                 try {
                     JWSObject jwsObject = JWSObject.parse(token.toJSONObject().getAsString("access_token"));
                     JWTClaimsSet  claimsSet =  JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
-                    acr =claimsSet.getStringClaim("acr");
-                    logger.info("ACR: " + acr);
                     consentVersion = Integer.parseInt(claimsSet.getStringClaim("consentver"));
                     logger.info("Consent Version: " + consentVersion);
                     
                 } catch (java.text.ParseException | NumberFormatException e) {
                     logger.info("Unable to parse JWT claims: " + e.getMessage());
                 }
-                return getUserRecord(user, acr, consentVersion);
+                return getUserRecord(user, consentVersion);
             }
         }
         
@@ -285,14 +274,15 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @param userInfo
      * @return the usable user record for processing ing {@link edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean}
      */
-    OAuth2UserRecord getUserRecord(UserInfo userInfo, String acr, int consentVersion) {
+    OAuth2UserRecord getUserRecord(UserInfo userInfo, int consentVersion) {
+        boolean usesMFA = false;
         String role = userInfo.getStringClaim("role");
         role = role == null ? "" : role;
         String affiliation = userInfo.getStringClaim("organization");
         // Assume MFA is done when it's an MFA User and fake level 2 to avoid repeating MFA
         String description = userInfo.getStringClaim("mfastatus");
-        if("MFA User".equals(description)) {
-            acr = OIDCAuthProvider.ACR_LEVEL_2;
+        if(MFA_USER.equals(description)) {
+            usesMFA = true;
         }
         affiliation = affiliation == null ? "" : affiliation;
         return new OAuth2UserRecord(
@@ -302,7 +292,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             null,
             new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), affiliation, role),
             null,
-            acr,
+            usesMFA,
             consentVersion
         );
     }
@@ -393,16 +383,14 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             
             if (userInfo.isPresent()) {
                 // Take this detour to avoid code duplication and potentially hard to track conversion errors.
-                String acr = "level1";
                 int consentVersion = 0;
                 try {
                     JWTClaimsSet claims = JWTClaimsSet.parse(accessToken.toJSONObject());
-                    acr = claims.getStringClaim("acr");
                     consentVersion = Integer.parseInt(claims.getStringClaim("consentver"));
                 } catch (java.text.ParseException | NumberFormatException e) {
                     logger.warning("Could not parse access token: " + accessToken.toJSONString() + ", err: " + e.getLocalizedMessage());
                 }
-                userRecord = getUserRecord(userInfo.get(), acr, consentVersion);
+                userRecord = getUserRecord(userInfo.get(), consentVersion);
             } else {
                 // This should not happen - an error at the provider side will lead to an exception.
                 logger.log(Level.WARNING,
