@@ -14,6 +14,7 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.ClockUtil;
+import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,6 +43,8 @@ import static edu.harvard.iq.dataverse.util.StringUtil.toOption;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+
 import org.omnifaces.util.Faces;
 
 import com.nimbusds.openid.connect.sdk.Prompt;
@@ -197,21 +200,11 @@ public class OAuth2LoginBackingBean implements Serializable {
                         if(dvUser.isDeactivated()) {
                             throw new OAuth2Exception(-1, "", BundleUtil.getStringFromBundle("deactivated.error"));
                         }
-                        
-                        
-                        Set<String> roleList = roleAssigneeService.getAssigneeDataverseRoleFor(new DataverseRequest(dvUser, req)).stream()
-                                .map(dvr -> dvr.getName())
-                                .collect( toSet());;
-                        logger.info("ACR for ouathUser: " + oauthUser.getAcr());
-                        if (((roleList.contains(DataverseRole.CURATOR)) ||
-                        (roleList.contains(DataverseRole.ADMIN)) ||
-                        dvUser.isSuperuser()) && !OIDCAuthProvider.ACR_LEVEL_2.equals(oauthUser.getAcr())) {
-                            //request L2 auth
-                            OIDCAuthProvider oidcidp = (OIDCAuthProvider) idp;
-                            String state = createState(oidcidp, toOption(redirectPage.orElse("/")));
-                            String redirectUrl = oidcidp.buildAuthzUrl(state, systemConfig.getOAuth2CallbackUrl(), Prompt.Type.LOGIN, -1, OIDCAuthProvider.ACR_LEVEL_2);
-                            redirectPage = Optional.of(redirectUrl);
-                            logger.fine("Redirecting for level2 login");
+                        if ((dvUser.isSuperuser() || roleAssigneeService.isPrivilegedUser(dvUser.getIdentifier())) && !OIDCAuthProvider.ACR_LEVEL_2.equals(oauthUser.getAcr())) {
+                            //Post a message, don't login
+                            String drupalUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
+                            String message = BundleUtil.getStringFromBundle("oauth2.callback.mfaRequired",Collections.singletonList(drupalUrl));
+                            JsfHelper.addWarningMessage(message);
                         } else {
                             dvUser = userService.updateLastLogin(dvUser);
                             session.setUser(dvUser);
