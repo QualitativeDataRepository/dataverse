@@ -5,12 +5,9 @@ import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.authorization.DataverseRole;
 import edu.harvard.iq.dataverse.authorization.UserIdentifier;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
-import edu.harvard.iq.dataverse.authorization.providers.oauth2.oidc.OIDCAuthProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.ClockUtil;
@@ -24,13 +21,10 @@ import java.time.Clock;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-
 import jakarta.ejb.EJB;
 import jakarta.inject.Named;
 import jakarta.faces.view.ViewScoped;
@@ -46,8 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.omnifaces.util.Faces;
-
-import com.nimbusds.openid.connect.sdk.Prompt;
 
 /**
  * Backing bean of the oauth2 login process. Used from the login and the
