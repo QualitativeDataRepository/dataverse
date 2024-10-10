@@ -37,6 +37,7 @@ import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest.Builder;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
@@ -70,7 +71,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
     public final static String ACR_LEVEL_2 = "level2";
     protected String id = "oidc";
     protected String title = "Open ID Connect";
-    protected List<String> scope = Arrays.asList("openid", "email", "profile", "acr");
+    protected List<String> scopeWithAcr = Arrays.asList("openid", "email", "profile", "acr");
+    protected List<String> scope = Arrays.asList("openid", "email", "profile");
     
     final Issuer issuer;
     final ClientAuthentication clientAuth;
@@ -191,10 +193,10 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
         URI callback = URI.create(callbackUrl);
         Nonce nonce = new Nonce();
         CodeVerifier pkceVerifier = pkceEnabled ? new CodeVerifier() : null;
-        ACR level = new ACR(acrLevel);
-
-        AuthenticationRequest req = new AuthenticationRequest.Builder(new ResponseType("code"),
-                                                                      Scope.parse(this.scope),
+        
+        Scope requestedScope = (acrLevel == null)? Scope.parse(scope) : Scope.parse(scopeWithAcr);
+        Builder builder = new AuthenticationRequest.Builder(new ResponseType("code"),
+                                                                      requestedScope,
                                                                       this.clientAuth.getClientID(),
                                                                       callback)
             .endpointURI(idpMetadata.getAuthorizationEndpointURI())
@@ -202,8 +204,13 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             // Called method is nullsafe - will disable sending a PKCE challenge in case the verifier is not present
             .codeChallenge(pkceVerifier, pkceMethod)
             .nonce(nonce).prompt(promptType==null ? null : new Prompt(promptType))
-            .maxAge(maxAge).acrValues(Arrays.asList(level))
-            .build();
+            .maxAge(maxAge);
+            if(acrLevel!=null) {
+                ACR level = new ACR(acrLevel);
+                builder.acrValues(Arrays.asList(level));
+            }
+        
+            AuthenticationRequest req = builder.build();
         
         // Cache the PKCE verifier, as we need the secret in it for verification later again, after the client sends us
         // the auth code! We use the state to cache the verifier, as the state is unique per authentication event.
@@ -282,6 +289,11 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
         String role = userInfo.getStringClaim("role");
         role = role == null ? "" : role;
         String affiliation = userInfo.getStringClaim("organization");
+        // Assume MFA is done when it's an MFA User and fake level 2 to avoid repeating MFA
+        String description = userInfo.getStringClaim("mfastatus");
+        if("MFA User".equals(description)) {
+            acr = OIDCAuthProvider.ACR_LEVEL_2;
+        }
         affiliation = affiliation == null ? "" : affiliation;
         return new OAuth2UserRecord(
             this.getId(),
