@@ -1,11 +1,13 @@
 package edu.harvard.iq.dataverse.authorization.providers.oauth2;
 
 import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.impl.GitHubOAuth2APTest;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.hamcrest.Matchers;
@@ -50,6 +52,8 @@ class OAuth2LoginBackingBeanTest {
     @Mock AuthenticationServiceBean authenticationServiceBean;
     @Mock SystemConfig systemConfig;
     @Mock UserServiceBean userService;
+    @Mock SettingsServiceBean settingsService;
+    @Mock RoleAssigneeServiceBean roleAssigneeService;
     
     Clock constantClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     
@@ -73,6 +77,8 @@ class OAuth2LoginBackingBeanTest {
         this.loginBackingBean.authenticationSvc = this.authenticationServiceBean;
         this.loginBackingBean.systemConfig = this.systemConfig;
         this.loginBackingBean.userService = this.userService;
+        this.loginBackingBean.settingsService = this.settingsService;
+        this.loginBackingBean.roleAssigneeService = this.roleAssigneeService;
         lenient().when(this.authenticationServiceBean.getOAuth2Provider(testIdp.getId())).thenReturn(testIdp);
     }
     
@@ -156,7 +162,10 @@ class OAuth2LoginBackingBeanTest {
             // capture the redirect target from the faces context
             ArgumentCaptor<String> redirectUrlCaptor = ArgumentCaptor.forClass(String.class);
             doNothing().when(externalContextMock).redirect(redirectUrlCaptor.capture());
-            
+            //QDR
+            doReturn(13).when(userRecord).getTermsConsentedToVersion();
+            when(settingsService.getValueForKey(SettingsServiceBean.Key.QDRRequiredTermsVersion, "13")).thenReturn("13");
+
             assertDoesNotThrow(() -> loginBackingBean.exchangeCodeForToken());
             
             // THEN
@@ -184,6 +193,9 @@ class OAuth2LoginBackingBeanTest {
             doReturn(tokenData).when(userRecord).getTokenData();
             // also fake the result of the lookup in the auth service
             doReturn(userIdentifier).when(userRecord).getUserRecordIdentifier();
+            //QDR
+            doReturn(13).when(userRecord).getTermsConsentedToVersion();
+            
             doReturn(user).when(authenticationServiceBean).lookupUser(userIdentifier);
             doReturn(user).when(userService).updateLastLogin(user);
         
@@ -191,7 +203,10 @@ class OAuth2LoginBackingBeanTest {
             // capture the redirect target from the faces context
             ArgumentCaptor<String> redirectUrlCaptor = ArgumentCaptor.forClass(String.class);
             doNothing().when(externalContextMock).redirect(redirectUrlCaptor.capture());
-    
+            //QDR
+            when(settingsService.getValueForKey(SettingsServiceBean.Key.QDRRequiredTermsVersion, "13")).thenReturn("13");
+            doReturn("@user").when(user).getIdentifier();
+            when(roleAssigneeService.isPrivilegedUser("@user")).thenReturn(false);
             assertDoesNotThrow(() -> loginBackingBean.exchangeCodeForToken());
         
             // THEN
