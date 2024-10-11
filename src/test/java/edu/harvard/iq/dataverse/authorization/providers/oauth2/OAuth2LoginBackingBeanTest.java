@@ -7,9 +7,14 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.impl.GitHubOAuth2APTest;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.settings.FeatureFlags;
+import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import edu.harvard.iq.dataverse.util.testing.JvmSetting;
+import edu.harvard.iq.dataverse.util.testing.LocalJvmSettings;
+
 import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.*;
@@ -42,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
+
 
 @ExtendWith(MockitoExtension.class)
 class OAuth2LoginBackingBeanTest {
@@ -177,6 +183,7 @@ class OAuth2LoginBackingBeanTest {
         }
     
         @Test
+//        @JvmSetting(key = JvmSettings.FEATURE_FLAG, value = "true", varArgs = "qdr-require-mfa-for-privileged-users")
         void existingUser() throws Exception {
             // GIVEN
             String code = "randomstring";
@@ -203,7 +210,8 @@ class OAuth2LoginBackingBeanTest {
             // capture the redirect target from the faces context
             ArgumentCaptor<String> redirectUrlCaptor = ArgumentCaptor.forClass(String.class);
             doNothing().when(externalContextMock).redirect(redirectUrlCaptor.capture());
-            //QDR
+            //QDR - with setting true
+            System.setProperty("dataverse.feature.qdr-require-mfa-for-privileged-users", "true");
             when(settingsService.getValueForKey(SettingsServiceBean.Key.QDRRequiredTermsVersion, "13")).thenReturn("13");
             doReturn("@user").when(user).getIdentifier();
             when(roleAssigneeService.isPrivilegedUser("@user")).thenReturn(false);
@@ -214,6 +222,19 @@ class OAuth2LoginBackingBeanTest {
             verify(session, times(1)).setUser(user);
             // verify that the user is redirected to the first login page
             assertThat(redirectUrlCaptor.getValue(), equalTo(redirect.get()));
+            
+            //QDR - with setting false
+            System.setProperty("dataverse.feature.qdr-require-mfa-for-privileged-users", "false");
+            when(settingsService.getValueForKey(SettingsServiceBean.Key.QDRRequiredTermsVersion, "13")).thenReturn("13");
+            assertDoesNotThrow(() -> loginBackingBean.exchangeCodeForToken());
+        
+            // THEN
+            // verify session handling: set the looked up user
+            //QDR - this is cumulative with the first time, so - once per call to exchangeCodeForToken
+            verify(session, times(2)).setUser(user);
+            // verify that the user is redirected to the first login page
+            assertThat(redirectUrlCaptor.getValue(), equalTo(redirect.get()));
+
         }
     }
     

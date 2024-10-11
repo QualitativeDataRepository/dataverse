@@ -105,6 +105,10 @@ public enum FeatureFlags {
      * Feature flag for the new Globus upload framework.
      */
     GLOBUS_USE_EXPERIMENTAL_ASYNC_FRAMEWORK("globus-use-experimental-async-framework"),
+    /**
+     * QDR Feature flag to require MFA for privileged users
+     */
+    QDR_REQUIRE_MFA_FOR_PRIVILEGED_USERS("qdr-require-mfa-for-privileged-users"),
     ;
     
     final String flag;

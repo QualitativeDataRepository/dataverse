@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserIdentifier;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.settings.FeatureFlags;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.ClockUtil;
@@ -192,7 +193,7 @@ public class OAuth2LoginBackingBean implements Serializable {
                         if(dvUser.isDeactivated()) {
                             throw new OAuth2Exception(-1, "", BundleUtil.getStringFromBundle("deactivated.error"));
                         }
-                        if ((dvUser.isSuperuser() || roleAssigneeService.isPrivilegedUser(dvUser.getIdentifier())) && !oauthUser.usesMFA()) {
+                        if ( FeatureFlags.QDR_REQUIRE_MFA_FOR_PRIVILEGED_USERS.enabled() && ((dvUser.isSuperuser() || roleAssigneeService.isPrivilegedUser(dvUser.getIdentifier()) && !oauthUser.usesMFA()))) {
                             //Post a message, don't login
                             String drupalUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
                             String message = BundleUtil.getStringFromBundle("oauth2.callback.mfaRequired",Collections.singletonList(drupalUrl));
