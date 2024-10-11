@@ -7,14 +7,9 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.impl.GitHubOAuth2APTest;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.settings.FeatureFlags;
-import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import edu.harvard.iq.dataverse.util.testing.JvmSetting;
-import edu.harvard.iq.dataverse.util.testing.LocalJvmSettings;
-
 import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.*;
@@ -183,7 +178,6 @@ class OAuth2LoginBackingBeanTest {
         }
     
         @Test
-//        @JvmSetting(key = JvmSettings.FEATURE_FLAG, value = "true", varArgs = "qdr-require-mfa-for-privileged-users")
         void existingUser() throws Exception {
             // GIVEN
             String code = "randomstring";
