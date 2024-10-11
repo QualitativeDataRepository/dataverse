@@ -193,7 +193,8 @@ public class OAuth2LoginBackingBean implements Serializable {
                         if(dvUser.isDeactivated()) {
                             throw new OAuth2Exception(-1, "", BundleUtil.getStringFromBundle("deactivated.error"));
                         }
-                        if ( FeatureFlags.QDR_REQUIRE_MFA_FOR_PRIVILEGED_USERS.enabled() && ((dvUser.isSuperuser() || roleAssigneeService.isPrivilegedUser(dvUser.getIdentifier()) && !oauthUser.usesMFA()))) {
+                        if ( FeatureFlags.QDR_REQUIRE_MFA_FOR_PRIVILEGED_USERS.enabled() && 
+                                ((dvUser.isSuperuser() || roleAssigneeService.isPrivilegedUser(dvUser.getIdentifier())) && !oauthUser.usesMFA())) {
                             //Post a message, don't login
                             String drupalUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
                             String message = BundleUtil.getStringFromBundle("oauth2.callback.mfaRequired",Collections.singletonList(drupalUrl));
