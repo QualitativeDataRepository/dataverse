@@ -82,11 +82,11 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         // Validate metadata and TofA conditions
         validateOrDie(updateVersion, isValidateLenient());
         
-        //Also set the fileaccessrequest boolean on the dataset to match the new terms
+        // Also set the fileaccessrequest boolean on the dataset to match the new terms
         getDataset().setFileAccessRequest(updateVersion.getTermsOfUseAndAccess().isFileAccessRequest());
         List<WorkflowComment> newComments = newVersion.getWorkflowComments();
-        if (newComments!=null && newComments.size() >0) {
-            for(WorkflowComment wfc: newComments) {
+        if (newComments != null && newComments.size() > 0) {
+            for (WorkflowComment wfc : newComments) {
                 wfc.setDatasetVersion(updateVersion);
             }
             updateVersion.getWorkflowComments().addAll(newComments);
@@ -96,7 +96,7 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         // we don't want to create two draft versions!
         Dataset tempDataset = getDataset();
         updateVersion = tempDataset.getLatestVersionForCopy();
-        
+
         // Look for file metadata changes and update published metadata if needed
         List<FileMetadata> pubFmds = updateVersion.getFileMetadatas();
         int pubFileCount = pubFmds.size();
@@ -112,7 +112,7 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
             throw new IllegalCommandException(BundleUtil.getStringFromBundle("datasetversion.update.failure"), this);
         }
         Long thumbId = null;
-        if(tempDataset.getThumbnailFile()!=null) {
+        if (tempDataset.getThumbnailFile() != null) {
             thumbId = tempDataset.getThumbnailFile().getId();
         }
 
@@ -155,13 +155,13 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
             for (DataFileCategory cat : tempDataset.getCategories()) {
                 cat.getFileMetadatas().remove(draftFmd);
             }
-            //And any thumbnail reference
-            if(publishedFmd.getDataFile().getId()==thumbId) {
+            // And any thumbnail reference
+            if (publishedFmd.getDataFile().getId() == thumbId) {
                 tempDataset.setThumbnailFile(publishedFmd.getDataFile());
             }
         }
-        if(logger.isLoggable(Level.FINE)) {
-            for(FileMetadata fmd: updateVersion.getFileMetadatas()) {
+        if (logger.isLoggable(Level.FINE)) {
+            for (FileMetadata fmd : updateVersion.getFileMetadatas()) {
                 logger.fine("Id: " + fmd.getId() + " label: " + fmd.getLabel());
             }
         }
@@ -197,34 +197,35 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
             ctxt.engine().submit(
                     new UpdateDvObjectPIDMetadataCommand(savedDataset, getRequest()));
         } catch (CommandException ex) {
-            // Make this non-fatal? This can be corrected by running the update PID API
-            // later, but who will look in the log?
+            // The try/catch makes this non-fatal. Should it be non-fatal - it's different from what we do in publish?
+            // This can be corrected by running the update PID API later, but who will look in the log?
             // With the change to not use the DeleteDatasetVersionCommand above and other
             // fixes, this error may now cleanly restore the initial state
-            // with the draft and last published versions unchanged.
+            // with the draft and last published versions unchanged, but this has not yet been tested.
+            // (Alternately this could move to onSuccess if we intend it to stay non-fatal.)
             logger.log(Level.WARNING, "Curate Published DatasetVersion: exception while updating PID metadata:{0}", ex.getMessage());
         }
         // Update so that getDataset() in updateDatasetUser() will get the up-to-date
         // copy (with no draft version)
         setDataset(savedDataset);
-
         updateDatasetUser(ctxt);
-        
+
         // ToDo - see if there are other DatasetVersionUser entries unique to the draft
         // version that should be moved to the last published version
         // As this command is intended for minor fixes, often done by the person pushing
         // the update-current-version button, this is probably a minor issue.
 
         return savedDataset;
+
     }
 
     @Override
     public boolean onSuccess(CommandContext ctxt, Object r) {
         boolean retVal = true;
         Dataset d = (Dataset) r;
-        
+
         ctxt.index().asyncIndexDataset(d, true);
-        
+
         // And the exported metadata files
         try {
             ExportService instance = ExportService.getInstance();

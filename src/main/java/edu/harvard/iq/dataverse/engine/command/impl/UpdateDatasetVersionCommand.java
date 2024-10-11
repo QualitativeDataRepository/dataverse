@@ -109,7 +109,7 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
          */
         if(persistedVersion==null) {
             Long id = getDataset().getLatestVersion().getId();
-            persistedVersion = ctxt.datasetVersion().find(id!=null ? id: getDataset().getLatestVersionForCopy().getId());
+            persistedVersion = ctxt.datasetVersion().find(id!=null ? id : getDataset().getLatestVersionForCopy(true).getId());
         }
         
         //Will throw an IllegalCommandException if a system metadatablock is changed and the appropriate key is not supplied.
@@ -253,7 +253,6 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
             for(FileMetadata fmd: theDataset.getOrCreateEditVersion().getFileMetadatas()) {
                 logger.fine("FMD: " + fmd.getId() + " for file: " + fmd.getDataFile().getId() + "is in final draft version");    
             }
-
             registerFilePidsIfNeeded(theDataset, ctxt, true);
             
             if (recalculateUNF) {
@@ -292,5 +291,5 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
         ctxt.index().asyncIndexDataset((Dataset) r, true);
         return true;
     }
-
+    
 }

@@ -1,14 +1,18 @@
 package edu.harvard.iq.dataverse.authorization.providers.oauth2;
 
 import edu.harvard.iq.dataverse.DataverseSession;
+import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserIdentifier;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.settings.FeatureFlags;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.ClockUtil;
+import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,6 +38,8 @@ import static edu.harvard.iq.dataverse.util.StringUtil.toOption;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+
 import org.omnifaces.util.Faces;
 
 /**
@@ -70,6 +76,12 @@ public class OAuth2LoginBackingBean implements Serializable {
 
     @EJB
     UserServiceBean userService;
+    
+    @EJB
+    RoleAssigneeServiceBean roleAssigneeService;
+    
+    @EJB
+    SettingsServiceBean settingsService;
 
     @Inject
     DataverseSession session;
@@ -80,6 +92,7 @@ public class OAuth2LoginBackingBean implements Serializable {
     @Inject
     @ClockUtil.LocalTime
     Clock clock;
+   
     
     /**
      * Generate the OAuth2 Provider URL to be used in the login page link for the provider.
@@ -125,6 +138,18 @@ public class OAuth2LoginBackingBean implements Serializable {
                         disabled = true;
                         throw new OAuth2Exception(-1, "", MessageFormat.format(BundleUtil.getStringFromBundle("oauth2.callback.error.providerDisabled"), idp.getId()));
                     }
+                    if(oauthUser.getTermsConsentedToVersion() < Integer.parseInt(settingsService.getValueForKey(SettingsServiceBean.Key.QDRRequiredTermsVersion, "13"))) {
+
+                        //Delete passive check attribute
+                        if(httpSession!=null) {
+                            httpSession.removeAttribute("passiveChecked");
+                        }
+                        // Redirect to terms page in Drupal
+                        // If you're here, you skipped this when logging into Drupal (on purpose), so perhaps not worth it to try and deal with
+                        // trying to track any ongoing redirect.
+                        Faces.redirect(settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL, "") + "/qdr_oidc_sso/terms");
+                        return;
+                    }
 
                     UserRecordIdentifier idtf = oauthUser.getUserRecordIdentifier();
                     AuthenticatedUser dvUser = authenticationSvc.lookupUser(idtf);
@@ -168,18 +193,24 @@ public class OAuth2LoginBackingBean implements Serializable {
                         if(dvUser.isDeactivated()) {
                             throw new OAuth2Exception(-1, "", BundleUtil.getStringFromBundle("deactivated.error"));
                         }
-                        dvUser = userService.updateLastLogin(dvUser);
-                        session.setUser(dvUser);
-                        final OAuth2TokenData tokenData = oauthUser.getTokenData();
-                        if (tokenData != null) {
-                            tokenData.setUser(dvUser);
-                            tokenData.setOauthProviderId(idp.getId());
-                            oauth2Tokens.store(tokenData);
+                        if ( FeatureFlags.QDR_REQUIRE_MFA_FOR_PRIVILEGED_USERS.enabled() && ((dvUser.isSuperuser() || roleAssigneeService.isPrivilegedUser(dvUser.getIdentifier()) && !oauthUser.usesMFA()))) {
+                            //Post a message, don't login
+                            String drupalUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
+                            String message = BundleUtil.getStringFromBundle("oauth2.callback.mfaRequired",Collections.singletonList(drupalUrl));
+                            JsfHelper.addWarningMessage(message);
+                        } else {
+                            dvUser = userService.updateLastLogin(dvUser);
+                            session.setUser(dvUser);
+                            final OAuth2TokenData tokenData = oauthUser.getTokenData();
+                            if (tokenData != null) {
+                                tokenData.setUser(dvUser);
+                                tokenData.setOauthProviderId(idp.getId());
+                                oauth2Tokens.store(tokenData);
+                            }
+                            if (dvUser != null) {
+                                logger.fine("Found user: " + dvUser.getEmail());
+                            }
                         }
-                        if(dvUser!=null) {
-                           logger.fine("Found user: " + dvUser.getEmail());
-                        }
-
                         Faces.redirect(redirectPage.orElse("/"));
                 }
             }

@@ -44,6 +44,7 @@ import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.GlobalId;
 import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.api.Util;
+import edu.harvard.iq.dataverse.dataset.DatasetType;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.license.License;
 import edu.harvard.iq.dataverse.pidproviders.AbstractPidProvider;
@@ -545,15 +546,15 @@ public class XmlMetadataTemplate {
             for (DatasetField subField : contributorFieldValue.getChildDatasetFields()) {
 
                 switch (subField.getDatasetFieldType().getName()) {
-                case DatasetFieldConstant.contributorName:
-                    contributor = subField.getValue();
-                    break;
-                case DatasetFieldConstant.contributorType:
-                    contributorType = subField.getValue();
-                    if(contributorType!=null) {
-                        contributorType = contributorType.replace(" ", "");
-                    }
-                    break;
+                    case DatasetFieldConstant.contributorName:
+                        contributor = subField.getValue();
+                        break;
+                    case DatasetFieldConstant.contributorType:
+                        contributorType = subField.getValue();
+                        if (contributorType != null) {
+                            contributorType = contributorType.replace(" ", "");
+                        }
+                        break;
                 }
             }
             // QDR - doesn't have Funder in the contributor type list.
@@ -836,8 +837,17 @@ public class XmlMetadataTemplate {
     private void writeResourceType(XMLStreamWriter xmlw, DvObject dvObject) throws XMLStreamException {
         List<String> kindOfDataValues = new ArrayList<String>();
         Map<String, String> attributes = new HashMap<String, String>();
-
-        attributes.put("resourceTypeGeneral", "Dataset");
+        String resourceType = "Dataset";
+        if (dvObject instanceof Dataset dataset) {
+            String datasetTypeName = dataset.getDatasetType().getName();
+            resourceType = switch (datasetTypeName) {
+            case DatasetType.DATASET_TYPE_DATASET -> "Dataset";
+            case DatasetType.DATASET_TYPE_SOFTWARE -> "Software";
+            case DatasetType.DATASET_TYPE_WORKFLOW -> "Workflow";
+            default -> "Dataset";
+            };
+        }
+        attributes.put("resourceTypeGeneral", resourceType);
         if (dvObject instanceof Dataset d) {
             DatasetVersion dv = d.getLatestVersionForCopy();
             for (DatasetField dsf : dv.getDatasetFields()) {
@@ -1016,8 +1026,22 @@ public class XmlMetadataTemplate {
                             }
                             break;
                         case "URL":
+                            // If a URL is given, split the string to get a schemeUri
+                            try {
+                                URL relatedUrl = new URI(relatedIdentifier).toURL();
+                                String protocol = relatedUrl.getProtocol();
+                                String authority = relatedUrl.getAuthority();
+                                String site = String.format("%s://%s", protocol, authority);
+                                relatedIdentifier = relatedIdentifier.substring(site.length());
+                                attributes.put("schemeURI", site);
+                            } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
+                                // Just an identifier but without a pubIdType we won't include it
+                                logger.warning("Invalid Identifier of type URL: " + relatedIdentifier);
+                                relatedIdentifier = null;
+                            }
                             break;
-                        default:
+                        case "none":
+                            //Try to identify PIDs and URLs and send them as related identifiers
                             if (relatedIdentifier != null) {
                                 // See if it is a GlobalID we know
                                 try {
@@ -1038,8 +1062,14 @@ public class XmlMetadataTemplate {
                                 } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
                                     // Just an identifier but without a pubIdType we won't include it
                                     logger.warning("Related Identifier found without type: " + relatedIdentifier);
+                                    //Won't be sent since pubIdType is null - could also set relatedIdentifier to null
                                 }
                             }
+                            break;
+                        default:
+                            //Some other valid type - we just send the identifier w/o optional attributes
+                            //To Do - validation for other types?
+                            break;
                         }
                     }
                     if (StringUtils.isNotBlank(relatedIdentifier) && StringUtils.isNotBlank(pubIdType)) {
@@ -1269,71 +1299,71 @@ public class XmlMetadataTemplate {
             for (DatasetField dsf : dsfs) {
 
                 switch (dsf.getDatasetFieldType().getName()) {
-                case DatasetFieldConstant.software:
-                    attributes.clear();
-                    attributes.put("descriptionType", "TechnicalInfo");
-                    List<DatasetFieldCompoundValue> dsfcvs = dsf.getDatasetFieldCompoundValues();
-                    for (DatasetFieldCompoundValue dsfcv : dsfcvs) {
+                    case DatasetFieldConstant.software:
+                        attributes.clear();
+                        attributes.put("descriptionType", "TechnicalInfo");
+                        List<DatasetFieldCompoundValue> dsfcvs = dsf.getDatasetFieldCompoundValues();
+                        for (DatasetFieldCompoundValue dsfcv : dsfcvs) {
 
-                        String softwareName = null;
-                        String softwareVersion = null;
-                        List<DatasetField> childDsfs = dsfcv.getChildDatasetFields();
-                        for (DatasetField childDsf : childDsfs) {
-                            if (DatasetFieldConstant.softwareName.equals(childDsf.getDatasetFieldType().getName())) {
-                                softwareName = childDsf.getValue();
-                            } else if (DatasetFieldConstant.softwareVersion.equals(childDsf.getDatasetFieldType().getName())) {
-                                softwareVersion = childDsf.getValue();
-                            }
-                        }
-                        if (StringUtils.isNotBlank(softwareName)) {
-                            if (StringUtils.isNotBlank(softwareVersion)) {
-                            }
-                            softwareName = softwareName + ", " + softwareVersion;
-                            descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
-                            XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, softwareName);
-                        }
-                    }
-                    break;
-                case DatasetFieldConstant.originOfSources:
-                case DatasetFieldConstant.characteristicOfSources:
-                case DatasetFieldConstant.accessToSources:
-                    attributes.clear();
-                    attributes.put("descriptionType", "Methods");
-                    String method = dsf.getValue();
-                    if (StringUtils.isNotBlank(method)) {
-                        descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
-                        XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, method);
-
-                    }
-                    break;
-                case DatasetFieldConstant.series:
-                    attributes.clear();
-                    attributes.put("descriptionType", "SeriesInformation");
-                    dsfcvs = dsf.getDatasetFieldCompoundValues();
-                    for (DatasetFieldCompoundValue dsfcv : dsfcvs) {
-                        List<DatasetField> childDsfs = dsfcv.getChildDatasetFields();
-                        for (DatasetField childDsf : childDsfs) {
-
-                            if (DatasetFieldConstant.seriesName.equals(childDsf.getDatasetFieldType().getName())) {
-                                String seriesInformation = childDsf.getValue();
-                                if (StringUtils.isNotBlank(seriesInformation)) {
-                                    descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
-                                    XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, seriesInformation);
+                            String softwareName = null;
+                            String softwareVersion = null;
+                            List<DatasetField> childDsfs = dsfcv.getChildDatasetFields();
+                            for (DatasetField childDsf : childDsfs) {
+                                if (DatasetFieldConstant.softwareName.equals(childDsf.getDatasetFieldType().getName())) {
+                                    softwareName = childDsf.getValue();
+                                } else if (DatasetFieldConstant.softwareVersion.equals(childDsf.getDatasetFieldType().getName())) {
+                                    softwareVersion = childDsf.getValue();
                                 }
-                                break;
+                            }
+                            if (StringUtils.isNotBlank(softwareName)) {
+                                if (StringUtils.isNotBlank(softwareVersion)) {
+                                }
+                                softwareName = softwareName + ", " + softwareVersion;
+                                descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
+                                XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, softwareName);
                             }
                         }
-                    }
-                    break;
-                case DatasetFieldConstant.notesText:
-                    attributes.clear();
-                    attributes.put("descriptionType", "Other");
-                    String notesText = dsf.getValue();
-                    if (StringUtils.isNotBlank(notesText)) {
-                        descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
-                        XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, notesText);
-                    }
-                    break;
+                        break;
+                    case DatasetFieldConstant.originOfSources:
+                    case DatasetFieldConstant.characteristicOfSources:
+                    case DatasetFieldConstant.accessToSources:
+                        attributes.clear();
+                        attributes.put("descriptionType", "Methods");
+                        String method = dsf.getValue();
+                        if (StringUtils.isNotBlank(method)) {
+                            descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
+                            XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, method);
+
+                        }
+                        break;
+                    case DatasetFieldConstant.series:
+                        attributes.clear();
+                        attributes.put("descriptionType", "SeriesInformation");
+                        dsfcvs = dsf.getDatasetFieldCompoundValues();
+                        for (DatasetFieldCompoundValue dsfcv : dsfcvs) {
+                            List<DatasetField> childDsfs = dsfcv.getChildDatasetFields();
+                            for (DatasetField childDsf : childDsfs) {
+
+                                if (DatasetFieldConstant.seriesName.equals(childDsf.getDatasetFieldType().getName())) {
+                                    String seriesInformation = childDsf.getValue();
+                                    if (StringUtils.isNotBlank(seriesInformation)) {
+                                        descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
+                                        XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, seriesInformation);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case DatasetFieldConstant.notesText:
+                        attributes.clear();
+                        attributes.put("descriptionType", "Other");
+                        String notesText = dsf.getValue();
+                        if (StringUtils.isNotBlank(notesText)) {
+                            descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
+                            XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, notesText);
+                        }
+                        break;
 
                 }
             }

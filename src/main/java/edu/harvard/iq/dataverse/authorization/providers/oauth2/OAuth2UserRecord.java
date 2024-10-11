@@ -25,6 +25,10 @@ public class OAuth2UserRecord implements java.io.Serializable {
     private final List<String> availableEmailAddresses;
     
     private final OAuth2TokenData tokenData;
+
+    private int termsConsentedToVersion;
+
+    private boolean usesMFA;
     
     public OAuth2UserRecord(String aServiceId, String anIdInService, String aUsername,
                             OAuth2TokenData someTokenData,  AuthenticatedUserDisplayInfo aDisplayInfo,
@@ -35,6 +39,19 @@ public class OAuth2UserRecord implements java.io.Serializable {
         tokenData = someTokenData;
         displayInfo = aDisplayInfo;
         availableEmailAddresses = someAvailableEmailAddresses;
+    }
+
+    public OAuth2UserRecord(String aServiceId, String anIdInService, String aUsername,
+            OAuth2TokenData someTokenData,  AuthenticatedUserDisplayInfo aDisplayInfo,
+            List<String> someAvailableEmailAddresses, boolean mfa, int theTermsConsentedToVersion) {
+        serviceId = aServiceId;
+        idInService = anIdInService;
+        username = aUsername;
+        tokenData = someTokenData;
+        displayInfo = aDisplayInfo;
+        availableEmailAddresses = someAvailableEmailAddresses;
+        usesMFA = mfa;
+        termsConsentedToVersion = theTermsConsentedToVersion;
     }
 
     public String getServiceId() {
@@ -69,4 +86,13 @@ public class OAuth2UserRecord implements java.io.Serializable {
     public UserRecordIdentifier getUserRecordIdentifier() {
         return new UserRecordIdentifier(serviceId, idInService);
     }
+
+    public int getTermsConsentedToVersion() {
+        return termsConsentedToVersion;
+    }
+
+    public boolean usesMFA() {
+        return usesMFA;
+    }
+
 }
