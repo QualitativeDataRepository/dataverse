@@ -109,6 +109,15 @@ public enum FeatureFlags {
      * QDR Feature flag to require MFA for privileged users
      */
     QDR_REQUIRE_MFA_FOR_PRIVILEGED_USERS("qdr-require-mfa-for-privileged-users"),
+    /**
+     * This flag adds a note field to input/display a reason explaining why a version was created.
+     * 
+     * @apiNote Raise flag by setting
+     * "dataverse.feature.version-creation-note"
+     * @since Dataverse 6.5
+     */
+    VERSION_CREATION_NOTE("disable-dataset-thumbnail-autoselect"),
+
     ;
     
     final String flag;
