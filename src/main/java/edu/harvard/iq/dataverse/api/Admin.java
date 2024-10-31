@@ -1292,6 +1292,25 @@ public class Admin extends AbstractApiBean {
 
 		return ok(arr);
 	}
+	
+    @Path("assignments/assignees/{raIdtf: .*}/privileged")
+    @GET
+    public Response isRAprivileged(@PathParam("raIdtf") String raIdtf) {
+
+        RoleAssignee ra = roleAssigneeSvc.getRoleAssignee(raIdtf);
+        if(ra == null) {
+            return error(Response.Status.NOT_FOUND, "No Such Role Assignee");
+        }
+        boolean privileged = false;
+        if (ra instanceof AuthenticatedUser au) {
+            privileged = au.isSuperuser();
+        }
+        if (!privileged) {
+            privileged = roleAssigneeSvc.isPrivilegedUser(raIdtf);
+        }
+
+        return ok(privileged);
+    }
 
 	/**
 	 * This method is used in integration tests.

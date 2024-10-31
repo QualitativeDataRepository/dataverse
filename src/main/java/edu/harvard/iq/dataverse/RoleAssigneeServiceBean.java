@@ -28,6 +28,8 @@ import jakarta.ejb.Stateless;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -120,6 +122,15 @@ public class RoleAssigneeServiceBean {
                 .setParameter("assigneeIdentifier", roleAssigneeIdentifier)
                 .getResultList();
     }
+
+    //QDR - Being a superuser or having these roles means MFA is required for login. The list of roles could be made configurable.
+    public boolean isPrivilegedUser(String roleAssigneeIdentifier) {
+        TypedQuery<Long> amountQry = em.createNamedQuery("RoleAssignment.isCuratorOrAdmin", Long.class)
+                .setParameter("assigneeIdentifier", roleAssigneeIdentifier);
+
+        return (amountQry.getSingleResult() > 0);
+    }
+    
 
     public List<AuthenticatedUser> getExplicitUsers(RoleAssignee ra) {
         List<AuthenticatedUser> explicitUsers = new ArrayList<>();

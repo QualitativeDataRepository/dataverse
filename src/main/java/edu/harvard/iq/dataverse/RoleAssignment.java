@@ -50,7 +50,10 @@ import jakarta.persistence.UniqueConstraint;
         @NamedQuery( name = "RoleAssignment.deleteAllByAssigneeIdentifier",
 				 query = "DELETE FROM RoleAssignment r WHERE r.assigneeIdentifier=:assigneeIdentifier"),
         @NamedQuery( name = "RoleAssignment.deleteAllByAssigneeIdentifier_Definition_PointId_RoleType",
-				 query = "DELETE FROM RoleAssignment r WHERE r.assigneeIdentifier=:assigneeIdentifier AND r.role.id=:roleId and r.definitionPoint.id=:definitionPointId")
+				 query = "DELETE FROM RoleAssignment r WHERE r.assigneeIdentifier=:assigneeIdentifier AND r.role.id=:roleId and r.definitionPoint.id=:definitionPointId"),
+        //QDR - Being a superuser or having these roles means MFA is required for login. The list of roles could be made configurable.
+        @NamedQuery( name  = "RoleAssignment.isCuratorOrAdmin",
+        query = " SELECT COUNT(r) FROM RoleAssignment r WHERE r.assigneeIdentifier=:assigneeIdentifier AND r.role.id IN (SELECT d.id FROM DataverseRole d WHERE d.alias IN ('admin', 'curator'))" )
 })
 public class RoleAssignment implements java.io.Serializable {
 	@Id

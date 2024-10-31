@@ -1,8 +1,6 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
 import edu.harvard.iq.dataverse.authorization.Permission;
-import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
-import edu.harvard.iq.dataverse.datavariable.VarGroup;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
@@ -84,11 +82,11 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         // Validate metadata and TofA conditions
         validateOrDie(updateVersion, isValidateLenient());
         
-        //Also set the fileaccessrequest boolean on the dataset to match the new terms
+        // Also set the fileaccessrequest boolean on the dataset to match the new terms
         getDataset().setFileAccessRequest(updateVersion.getTermsOfUseAndAccess().isFileAccessRequest());
         List<WorkflowComment> newComments = newVersion.getWorkflowComments();
-        if (newComments!=null && newComments.size() >0) {
-            for(WorkflowComment wfc: newComments) {
+        if (newComments != null && newComments.size() > 0) {
+            for (WorkflowComment wfc : newComments) {
                 wfc.setDatasetVersion(updateVersion);
             }
             updateVersion.getWorkflowComments().addAll(newComments);
@@ -98,7 +96,7 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         // we don't want to create two draft versions!
         Dataset tempDataset = getDataset();
         updateVersion = tempDataset.getLatestVersionForCopy();
-        
+
         // Look for file metadata changes and update published metadata if needed
         List<FileMetadata> pubFmds = updateVersion.getFileMetadatas();
         int pubFileCount = pubFmds.size();
@@ -114,7 +112,7 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
             throw new IllegalCommandException(BundleUtil.getStringFromBundle("datasetversion.update.failure"), this);
         }
         Long thumbId = null;
-        if(tempDataset.getThumbnailFile()!=null) {
+        if (tempDataset.getThumbnailFile() != null) {
             thumbId = tempDataset.getThumbnailFile().getId();
         }
 
@@ -157,13 +155,13 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
             for (DataFileCategory cat : tempDataset.getCategories()) {
                 cat.getFileMetadatas().remove(draftFmd);
             }
-            //And any thumbnail reference
-            if(publishedFmd.getDataFile().getId()==thumbId) {
+            // And any thumbnail reference
+            if (publishedFmd.getDataFile().getId() == thumbId) {
                 tempDataset.setThumbnailFile(publishedFmd.getDataFile());
             }
         }
-        if(logger.isLoggable(Level.FINE)) {
-            for(FileMetadata fmd: updateVersion.getFileMetadatas()) {
+        if (logger.isLoggable(Level.FINE)) {
+            for (FileMetadata fmd : updateVersion.getFileMetadatas()) {
                 logger.fine("Id: " + fmd.getId() + " label: " + fmd.getLabel());
             }
         }
@@ -211,22 +209,23 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         // copy (with no draft version)
         setDataset(savedDataset);
         updateDatasetUser(ctxt);
-        
+
         // ToDo - see if there are other DatasetVersionUser entries unique to the draft
         // version that should be moved to the last published version
         // As this command is intended for minor fixes, often done by the person pushing
         // the update-current-version button, this is probably a minor issue.
 
         return savedDataset;
+
     }
 
     @Override
     public boolean onSuccess(CommandContext ctxt, Object r) {
         boolean retVal = true;
         Dataset d = (Dataset) r;
-        
+
         ctxt.index().asyncIndexDataset(d, true);
-        
+
         // And the exported metadata files
         try {
             ExportService instance = ExportService.getInstance();

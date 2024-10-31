@@ -102,6 +102,14 @@ public enum FeatureFlags {
      */
     DISABLE_DATASET_THUMBNAIL_AUTOSELECT("disable-dataset-thumbnail-autoselect"),
     /**
+     * Feature flag for the new Globus upload framework.
+     */
+    GLOBUS_USE_EXPERIMENTAL_ASYNC_FRAMEWORK("globus-use-experimental-async-framework"),
+    /**
+     * QDR Feature flag to require MFA for privileged users
+     */
+    QDR_REQUIRE_MFA_FOR_PRIVILEGED_USERS("qdr-require-mfa-for-privileged-users"),
+    /**
      * This flag adds a note field to input/display a reason explaining why a version was created.
      * 
      * @apiNote Raise flag by setting
@@ -109,7 +117,6 @@ public enum FeatureFlags {
      * @since Dataverse 6.5
      */
     VERSION_CREATION_NOTE("enable-version-creation-note"),
-
     ;
     
     final String flag;

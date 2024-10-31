@@ -338,6 +338,12 @@
               },
             "value": [
               {
+                "publicationRelationType" : {
+                  "typeName" : "publicationRelationType",
+                  "multiple" : false,
+                  "typeClass" : "controlledVocabulary",
+                  "value" : "IsSupplementTo"
+                },
                 "publicationCitation": {
                   "typeName": "publicationCitation",
                   "multiple": false,

@@ -279,6 +279,7 @@ public class IndexServiceBean {
             if (dataverse.getOwner() != null) {
                 solrInputDocument.addField(SearchFields.PARENT_ID, dataverse.getOwner().getId());
                 solrInputDocument.addField(SearchFields.PARENT_NAME, dataverse.getOwner().getName());
+                solrInputDocument.addField(SearchFields.DATAVERSE_PARENT_ALIAS, dataverse.getOwner().getAlias());
             }
         }
         List<String> dataversePathSegmentsAccumulator = new ArrayList<>();
@@ -1128,7 +1129,7 @@ public class IndexServiceBean {
                                 if(dsfType.getParentDatasetFieldType()!=null) {
                                     List<DatasetField> childDatasetFields = dsf.getParentDatasetFieldCompoundValue().getChildDatasetFields();
                                     for (DatasetField df : childDatasetFields) {
-                                        if(cvocManagedFieldMap.get(dsfType.getId()).contains(df.getDatasetFieldType().getName())) {
+                                        if(cvocManagedFieldMap.containsKey(dsfType.getId()) && cvocManagedFieldMap.get(dsfType.getId()).contains(df.getDatasetFieldType().getName())) {
                                             String solrManagedFieldSearchable = df.getDatasetFieldType().getSolrField().getNameSearchable();
                                             // Try to get string values from externalvocabularyvalue but for a managed fields of the CVOCConf
                                             Set<String> stringsForManagedField = datasetFieldService.getIndexableStringsByTermUri(val, cvocMap.get(dsfType.getId()), df.getDatasetFieldType().getName());
@@ -2236,7 +2237,7 @@ public class IndexServiceBean {
                 q.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
                 QueryResponse rsp = solrServer.query(q);
                 String nextCursorMark = rsp.getNextCursorMark();
-                logger.info("Next cursor mark: " + nextCursorMark);
+                logger.fine("Next cursor mark (1K entries): " + nextCursorMark);
                 SolrDocumentList list = rsp.getResults();
                 for (SolrDocument doc: list) {
                     long id = Long.parseLong((String) doc.getFieldValue(SearchFields.DEFINITION_POINT_DVOBJECT_ID));

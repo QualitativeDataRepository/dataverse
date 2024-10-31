@@ -10,16 +10,15 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -27,22 +26,16 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.ocpsoft.common.util.Strings;
 
 import edu.harvard.iq.dataverse.AlternativePersistentIdentifier;
-import edu.harvard.iq.dataverse.ControlledVocabularyValue;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetAuthor;
 import edu.harvard.iq.dataverse.DatasetField;
 import edu.harvard.iq.dataverse.DatasetFieldCompoundValue;
 import edu.harvard.iq.dataverse.DatasetFieldConstant;
-import edu.harvard.iq.dataverse.DatasetFieldType;
-import edu.harvard.iq.dataverse.DatasetFieldValue;
+import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
 import edu.harvard.iq.dataverse.DatasetRelPublication;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.DvObject;
@@ -51,25 +44,19 @@ import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.GlobalId;
 import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.api.Util;
-import edu.harvard.iq.dataverse.api.dto.DatasetDTO;
-import edu.harvard.iq.dataverse.api.dto.FieldDTO;
-import edu.harvard.iq.dataverse.api.dto.MetadataBlockDTO;
 import edu.harvard.iq.dataverse.dataset.DatasetType;
 import edu.harvard.iq.dataverse.dataset.DatasetUtil;
-import edu.harvard.iq.dataverse.export.DDIExporter;
 import edu.harvard.iq.dataverse.license.License;
 import edu.harvard.iq.dataverse.pidproviders.AbstractPidProvider;
 import edu.harvard.iq.dataverse.pidproviders.PidProvider;
 import edu.harvard.iq.dataverse.pidproviders.PidUtil;
-import edu.harvard.iq.dataverse.pidproviders.doi.AbstractDOIProvider;
-import edu.harvard.iq.dataverse.pidproviders.doi.datacite.DataCiteDOIProvider;
 import edu.harvard.iq.dataverse.pidproviders.handle.HandlePidProvider;
 import edu.harvard.iq.dataverse.pidproviders.perma.PermaLinkPidProvider;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.PersonOrOrgUtil;
-import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.xml.XmlPrinter;
 import edu.harvard.iq.dataverse.util.xml.XmlWriterUtil;
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.JsonObject;
 
 public class XmlMetadataTemplate {
@@ -97,7 +84,7 @@ public class XmlMetadataTemplate {
             generateXML(dvObject, outputStream);
 
             String xml = outputStream.toString();
-            logger.info(xml);
+            logger.fine(xml);
             return XmlPrinter.prettyPrintXml(xml);
         } catch (XMLStreamException | IOException e) {
             logger.severe("Unable to generate DataCite XML for DOI: " + dvObject.getGlobalId().asString() + " : " + e.getMessage());
@@ -559,20 +546,21 @@ public class XmlMetadataTemplate {
             for (DatasetField subField : contributorFieldValue.getChildDatasetFields()) {
 
                 switch (subField.getDatasetFieldType().getName()) {
-                case DatasetFieldConstant.contributorName:
-                    contributor = subField.getValue();
-                    break;
-                case DatasetFieldConstant.contributorType:
-                    contributorType = subField.getValue();
-                    if(contributorType!=null) {
-                        contributorType = contributorType.replace(" ", "");
-                    }
-                    break;
+                    case DatasetFieldConstant.contributorName:
+                        contributor = subField.getValue();
+                        break;
+                    case DatasetFieldConstant.contributorType:
+                        contributorType = subField.getValue();
+                        if (contributorType != null) {
+                            contributorType = contributorType.replace(" ", "");
+                        }
+                        break;
                 }
             }
             // QDR - doesn't have Funder in the contributor type list.
             // Using a string isn't i18n
             if (StringUtils.isNotBlank(contributor) && !StringUtils.equalsIgnoreCase("Funder", contributorType)) {
+                contributorType = getCanonicalContributorType(contributorType);
                 contributorsCreated = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "contributors", contributorsCreated);
                 JsonObject entityObject = PersonOrOrgUtil.getPersonOrOrganization(contributor, false, false);
                 writeEntityElements(xmlw, "contributor", contributorType, entityObject, null, null, null);
@@ -583,6 +571,18 @@ public class XmlMetadataTemplate {
         if (contributorsCreated) {
             xmlw.writeEndElement();
         }
+    }
+
+    //List from https://schema.datacite.org/meta/kernel-4/include/datacite-contributorType-v4.xsd
+    private Set<String> contributorTypes = new HashSet<>(Arrays.asList("ContactPerson", "DataCollector", "DataCurator", "DataManager", "Distributor", "Editor", 
+                "HostingInstitution", "Other", "Producer", "ProjectLeader", "ProjectManager", "ProjectMember", "RegistrationAgency", "RegistrationAuthority", 
+                "RelatedPerson", "ResearchGroup", "RightsHolder", "Researcher", "Sponsor", "Supervisor", "WorkPackageLeader"));
+
+    private String getCanonicalContributorType(String contributorType) {
+        if(StringUtils.isBlank(contributorType) || !contributorTypes.contains(contributorType)) {
+            return "Other";
+        }
+        return contributorType;
     }
 
     private void writeEntityElements(XMLStreamWriter xmlw, String elementName, String type, JsonObject entityObject, String affiliation, String nameIdentifier, String nameIdentifierScheme) throws XMLStreamException {
@@ -623,29 +623,32 @@ public class XmlMetadataTemplate {
         }
 
         if (StringUtils.isNotBlank(affiliation)) {
+            attributeMap.clear();
             boolean isROR=false;
             String orgName = affiliation;
             ExternalIdentifier externalIdentifier = ExternalIdentifier.ROR;
-            if (externalIdentifier.isValidIdentifier(affiliation)) {
-                isROR=true; 
-                if(pidProvider instanceof DataCiteDOIProvider dcProvider) {
-                    JsonObject jo = dcProvider.getExternalVocabularyValue(affiliation);
-                    if(jo!=null) {
-                        orgName = jo.getString("termName");
-                    }
+            if (externalIdentifier.isValidIdentifier(orgName)) {
+                isROR = true;
+                JsonObject jo = getExternalVocabularyValue(orgName);
+                if (jo != null) {
+                    orgName = jo.getString("termName");
                 }
             }
           
-            attributeMap.clear();
             if (isROR) {
 
                 attributeMap.put("schemeURI", "https://ror.org");
                 attributeMap.put("affiliationIdentifierScheme", "ROR");
-                attributeMap.put("affiliationIdentifier", affiliation);
+                attributeMap.put("affiliationIdentifier", orgName);
             }
+
             XmlWriterUtil.writeFullElementWithAttributes(xmlw, "affiliation", attributeMap, StringEscapeUtils.escapeXml10(orgName));
         }
         xmlw.writeEndElement();
+    }
+
+    private JsonObject getExternalVocabularyValue(String id) {
+        return CDI.current().select(DatasetFieldServiceBean.class).get().getExternalVocabularyValue(id);
     }
 
     /**
@@ -984,24 +987,24 @@ public class XmlMetadataTemplate {
                      * way those two fields are used for all identifier types. The code here is
                      * ~best effort to interpret those fields.
                      */
-                    logger.info("Found relpub: " + pubIdType + " " + identifier + " " + url);
+                    logger.fine("Found relpub: " + pubIdType + " " + identifier + " " + url);
 
                     pubIdType = getCanonicalPublicationType(pubIdType);
-logger.info("Canonical type: " + pubIdType);
-                    // Prefer url if set, otherwise check identifier
-                    String relatedIdentifier = url;
+                    logger.fine("Canonical type: " + pubIdType);
+                    // Prefer identifier if set, otherwise check url
+                    String relatedIdentifier = identifier;
                     if (StringUtils.isBlank(relatedIdentifier)) {
-                        relatedIdentifier = identifier;
+                        relatedIdentifier = url;
                     }
-                    logger.info("Related identifier: " + relatedIdentifier);
+                    logger.fine("Related identifier: " + relatedIdentifier);
                     // For types where we understand the protocol, get the canonical form
-                    if (pubIdType != null) {
-                        switch (pubIdType) {
+                    if (StringUtils.isNotBlank(relatedIdentifier)) {
+                        switch (pubIdType != null ? pubIdType : "none") {
                         case "DOI":
                             if (!(relatedIdentifier.startsWith("doi:") || relatedIdentifier.startsWith("http"))) {
                                 relatedIdentifier = "doi:" + relatedIdentifier;
                             }
-                            logger.info("Intermediate Related identifier: " + relatedIdentifier);
+                            logger.fine("Intermediate Related identifier: " + relatedIdentifier);
                             try {
                                 GlobalId pid = PidUtil.parseAsGlobalID(relatedIdentifier);
                                 relatedIdentifier = pid.asRawIdentifier();
@@ -1009,7 +1012,7 @@ logger.info("Canonical type: " + pubIdType);
                                 logger.warning("Invalid DOI: " + e.getLocalizedMessage());
                                 relatedIdentifier = null;
                             }
-                            logger.info("Final Related identifier: " + relatedIdentifier);
+                            logger.fine("Final Related identifier: " + relatedIdentifier);
                             break;
                         case "Handle":
                             if (!relatedIdentifier.startsWith("hdl:") || !relatedIdentifier.startsWith("http")) {
@@ -1023,10 +1026,7 @@ logger.info("Canonical type: " + pubIdType);
                             }
                             break;
                         case "URL":
-                            break;
-                        default:
-
-                            // For non-URL types, if a URL is given, split the string to get a schemeUri
+                            // If a URL is given, split the string to get a schemeUri
                             try {
                                 URL relatedUrl = new URI(relatedIdentifier).toURL();
                                 String protocol = relatedUrl.getProtocol();
@@ -1035,15 +1035,46 @@ logger.info("Canonical type: " + pubIdType);
                                 relatedIdentifier = relatedIdentifier.substring(site.length());
                                 attributes.put("schemeURI", site);
                             } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
-                                // Just an identifier
+                                // Just an identifier but without a pubIdType we won't include it
+                                logger.warning("Invalid Identifier of type URL: " + relatedIdentifier);
+                                relatedIdentifier = null;
                             }
+                            break;
+                        case "none":
+                            //Try to identify PIDs and URLs and send them as related identifiers
+                            if (relatedIdentifier != null) {
+                                // See if it is a GlobalID we know
+                                try {
+                                    GlobalId pid = PidUtil.parseAsGlobalID(relatedIdentifier);
+                                    relatedIdentifier = pid.asRawIdentifier();
+                                    pubIdType = getCanonicalPublicationType(pid.getProtocol());
+                                } catch (IllegalArgumentException e) {
+                                }
+                                // For non-URL types, if a URL is given, split the string to get a schemeUri
+                                try {
+                                    URL relatedUrl = new URI(relatedIdentifier).toURL();
+                                    String protocol = relatedUrl.getProtocol();
+                                    String authority = relatedUrl.getAuthority();
+                                    String site = String.format("%s://%s", protocol, authority);
+                                    relatedIdentifier = relatedIdentifier.substring(site.length());
+                                    attributes.put("schemeURI", site);
+                                    pubIdType = "URL";
+                                } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
+                                    // Just an identifier but without a pubIdType we won't include it
+                                    logger.warning("Related Identifier found without type: " + relatedIdentifier);
+                                    //Won't be sent since pubIdType is null - could also set relatedIdentifier to null
+                                }
+                            }
+                            break;
+                        default:
+                            //Some other valid type - we just send the identifier w/o optional attributes
+                            //To Do - validation for other types?
+                            break;
                         }
                     }
-                    if (StringUtils.isNotBlank(relatedIdentifier)) {
+                    if (StringUtils.isNotBlank(relatedIdentifier) && StringUtils.isNotBlank(pubIdType)) {
                         // Still have a valid entry
-                        if (pubIdType != null) {
-                            attributes.put("relatedIdentifierType", pubIdType);
-                        }
+                        attributes.put("relatedIdentifierType", pubIdType);
                         attributes.put("relationType", relationType);
                         relatedIdentifiersWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "relatedIdentifiers", relatedIdentifiersWritten);
                         XmlWriterUtil.writeFullElementWithAttributes(xmlw, "relatedIdentifier", attributes, relatedIdentifier);
@@ -1110,8 +1141,10 @@ logger.info("Canonical type: " + pubIdType);
             relatedIdentifierTypeMap.put("URL".toLowerCase(), "URL");
             relatedIdentifierTypeMap.put("URN".toLowerCase(), "URN");
             relatedIdentifierTypeMap.put("WOS".toLowerCase(), "WOS");
-            // Add entry for Handle protocol so this can be used with GlobalId/getProtocol()
+            // Add entry for Handle,Perma protocols so this can be used with GlobalId/getProtocol()
             relatedIdentifierTypeMap.put("hdl".toLowerCase(), "Handle");
+            relatedIdentifierTypeMap.put("perma".toLowerCase(), "URL");
+            
         }
         return relatedIdentifierTypeMap.get(pubIdType);
     }
@@ -1266,71 +1299,71 @@ logger.info("Canonical type: " + pubIdType);
             for (DatasetField dsf : dsfs) {
 
                 switch (dsf.getDatasetFieldType().getName()) {
-                case DatasetFieldConstant.software:
-                    attributes.clear();
-                    attributes.put("descriptionType", "TechnicalInfo");
-                    List<DatasetFieldCompoundValue> dsfcvs = dsf.getDatasetFieldCompoundValues();
-                    for (DatasetFieldCompoundValue dsfcv : dsfcvs) {
+                    case DatasetFieldConstant.software:
+                        attributes.clear();
+                        attributes.put("descriptionType", "TechnicalInfo");
+                        List<DatasetFieldCompoundValue> dsfcvs = dsf.getDatasetFieldCompoundValues();
+                        for (DatasetFieldCompoundValue dsfcv : dsfcvs) {
 
-                        String softwareName = null;
-                        String softwareVersion = null;
-                        List<DatasetField> childDsfs = dsfcv.getChildDatasetFields();
-                        for (DatasetField childDsf : childDsfs) {
-                            if (DatasetFieldConstant.softwareName.equals(childDsf.getDatasetFieldType().getName())) {
-                                softwareName = childDsf.getValue();
-                            } else if (DatasetFieldConstant.softwareVersion.equals(childDsf.getDatasetFieldType().getName())) {
-                                softwareVersion = childDsf.getValue();
-                            }
-                        }
-                        if (StringUtils.isNotBlank(softwareName)) {
-                            if (StringUtils.isNotBlank(softwareVersion)) {
-                            }
-                            softwareName = softwareName + ", " + softwareVersion;
-                            descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
-                            XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, softwareName);
-                        }
-                    }
-                    break;
-                case DatasetFieldConstant.originOfSources:
-                case DatasetFieldConstant.characteristicOfSources:
-                case DatasetFieldConstant.accessToSources:
-                    attributes.clear();
-                    attributes.put("descriptionType", "Methods");
-                    String method = dsf.getValue();
-                    if (StringUtils.isNotBlank(method)) {
-                        descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
-                        XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, method);
-
-                    }
-                    break;
-                case DatasetFieldConstant.series:
-                    attributes.clear();
-                    attributes.put("descriptionType", "SeriesInformation");
-                    dsfcvs = dsf.getDatasetFieldCompoundValues();
-                    for (DatasetFieldCompoundValue dsfcv : dsfcvs) {
-                        List<DatasetField> childDsfs = dsfcv.getChildDatasetFields();
-                        for (DatasetField childDsf : childDsfs) {
-
-                            if (DatasetFieldConstant.seriesName.equals(childDsf.getDatasetFieldType().getName())) {
-                                String seriesInformation = childDsf.getValue();
-                                if (StringUtils.isNotBlank(seriesInformation)) {
-                                    descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
-                                    XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, seriesInformation);
+                            String softwareName = null;
+                            String softwareVersion = null;
+                            List<DatasetField> childDsfs = dsfcv.getChildDatasetFields();
+                            for (DatasetField childDsf : childDsfs) {
+                                if (DatasetFieldConstant.softwareName.equals(childDsf.getDatasetFieldType().getName())) {
+                                    softwareName = childDsf.getValue();
+                                } else if (DatasetFieldConstant.softwareVersion.equals(childDsf.getDatasetFieldType().getName())) {
+                                    softwareVersion = childDsf.getValue();
                                 }
-                                break;
+                            }
+                            if (StringUtils.isNotBlank(softwareName)) {
+                                if (StringUtils.isNotBlank(softwareVersion)) {
+                                }
+                                softwareName = softwareName + ", " + softwareVersion;
+                                descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
+                                XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, softwareName);
                             }
                         }
-                    }
-                    break;
-                case DatasetFieldConstant.notesText:
-                    attributes.clear();
-                    attributes.put("descriptionType", "Other");
-                    String notesText = dsf.getValue();
-                    if (StringUtils.isNotBlank(notesText)) {
-                        descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
-                        XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, notesText);
-                    }
-                    break;
+                        break;
+                    case DatasetFieldConstant.originOfSources:
+                    case DatasetFieldConstant.characteristicOfSources:
+                    case DatasetFieldConstant.accessToSources:
+                        attributes.clear();
+                        attributes.put("descriptionType", "Methods");
+                        String method = dsf.getValue();
+                        if (StringUtils.isNotBlank(method)) {
+                            descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
+                            XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, method);
+
+                        }
+                        break;
+                    case DatasetFieldConstant.series:
+                        attributes.clear();
+                        attributes.put("descriptionType", "SeriesInformation");
+                        dsfcvs = dsf.getDatasetFieldCompoundValues();
+                        for (DatasetFieldCompoundValue dsfcv : dsfcvs) {
+                            List<DatasetField> childDsfs = dsfcv.getChildDatasetFields();
+                            for (DatasetField childDsf : childDsfs) {
+
+                                if (DatasetFieldConstant.seriesName.equals(childDsf.getDatasetFieldType().getName())) {
+                                    String seriesInformation = childDsf.getValue();
+                                    if (StringUtils.isNotBlank(seriesInformation)) {
+                                        descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
+                                        XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, seriesInformation);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case DatasetFieldConstant.notesText:
+                        attributes.clear();
+                        attributes.put("descriptionType", "Other");
+                        String notesText = dsf.getValue();
+                        if (StringUtils.isNotBlank(notesText)) {
+                            descriptionsWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "descriptions", descriptionsWritten);
+                            XmlWriterUtil.writeFullElementWithAttributes(xmlw, "description", attributes, notesText);
+                        }
+                        break;
 
                 }
             }
@@ -1493,8 +1526,26 @@ logger.info("Canonical type: " + pubIdType);
                         }
                         if (!StringUtils.isBlank(funder)) {
                             fundingReferenceWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "fundingReferences", fundingReferenceWritten);
+                            boolean isROR=false;
+                            String funderIdentifier = null;
+                            ExternalIdentifier externalIdentifier = ExternalIdentifier.ROR;
+                            if (externalIdentifier.isValidIdentifier(funder)) {
+                                isROR = true;
+                                JsonObject jo = getExternalVocabularyValue(funder);
+                                if (jo != null) {
+                                    funderIdentifier = funder;
+                                    funder = jo.getString("termName");
+                                }
+                            }
+                          
                             xmlw.writeStartElement("fundingReference"); // <fundingReference>
                             XmlWriterUtil.writeFullElement(xmlw, "funderName", StringEscapeUtils.escapeXml10(funder));
+                            if (isROR) {
+                                Map<String, String> attributeMap = new HashMap<>();
+                                attributeMap.put("schemeURI", "https://ror.org");
+                                attributeMap.put("funderIdentifierType", "ROR");
+                                XmlWriterUtil.writeFullElementWithAttributes(xmlw, "funderIdentifier", attributeMap, StringEscapeUtils.escapeXml10(funderIdentifier));
+                            }
                             if (StringUtils.isNotBlank(awardNumber)) {
                                 XmlWriterUtil.writeFullElement(xmlw, "awardNumber", StringEscapeUtils.escapeXml10(awardNumber));
                             }
