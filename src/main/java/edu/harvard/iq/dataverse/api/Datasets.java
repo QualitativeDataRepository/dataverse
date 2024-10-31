@@ -5207,6 +5207,9 @@ public class Datasets extends AbstractApiBean {
     @AuthRequired
     @Path("{id}/versions/{versionId}/creationNote")
     public Response addVersionCreationNote(@Context ContainerRequestContext crc, @PathParam("id") String datasetId, @PathParam("versionId") String versionId, String note, @Context UriInfo uriInfo, @Context HttpHeaders headers) throws WrappedResponse {
+        if(!FeatureFlags.VERSION_CREATION_NOTE.enabled()) {
+            return notFound(BundleUtil.getStringFromBundle("datasets.api.addCreationNote.notEnabled")); 
+        }
         if (!(DS_VERSION_DRAFT.equals(versionId) || DS_VERSION_LATEST.equals(versionId))) {
             AuthenticatedUser user = getRequestAuthenticatedUserOrDie(crc);
             if (!user.isSuperuser()) {
@@ -5226,6 +5229,9 @@ public class Datasets extends AbstractApiBean {
     @AuthRequired
     @Path("{id}/versions/{versionId}/creationNote")
     public Response deleteVersionCreationNote(@Context ContainerRequestContext crc, @PathParam("id") String datasetId, @PathParam("versionId") String versionId, @Context UriInfo uriInfo, @Context HttpHeaders headers) throws WrappedResponse {
+        if(!FeatureFlags.VERSION_CREATION_NOTE.enabled()) {
+            return notFound(BundleUtil.getStringFromBundle("datasets.api.addCreationNote.notEnabled")); 
+        }
         if (!(DS_VERSION_DRAFT.equals(versionId) || DS_VERSION_LATEST.equals(versionId))) {
             AuthenticatedUser user = getRequestAuthenticatedUserOrDie(crc);
             if (!user.isSuperuser()) {
