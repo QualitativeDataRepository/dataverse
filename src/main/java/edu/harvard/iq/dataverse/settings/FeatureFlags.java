@@ -101,6 +101,15 @@ public enum FeatureFlags {
      * @since Dataverse 6.4
      */
     DISABLE_DATASET_THUMBNAIL_AUTOSELECT("disable-dataset-thumbnail-autoselect"),
+    /**
+     * This flag adds a note field to input/display a reason explaining why a version was created.
+     * 
+     * @apiNote Raise flag by setting
+     * "dataverse.feature.version-creation-note"
+     * @since Dataverse 6.5
+     */
+    VERSION_CREATION_NOTE("disable-dataset-thumbnail-autoselect"),
+
     ;
     
     final String flag;
