@@ -87,7 +87,6 @@ import java.util.logging.Logger;
 import jakarta.activation.MimetypesFileTypeMap;
 import jakarta.ejb.EJBException;
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import javax.xml.stream.XMLStreamConstants;
@@ -531,15 +530,18 @@ public class FileUtil implements java.io.Serializable  {
             // Check for shapefile extensions as described here: http://en.wikipedia.org/wiki/Shapefile
             //logger.info("Checking for shapefile");
 
-            ShapefileHandler shp_handler = new ShapefileHandler(new FileInputStream(f));
+            ShapefileHandler shp_handler = new ShapefileHandler(f);
             if (shp_handler.containsShapefile()){
                 //  logger.info("------- shapefile FOUND ----------");
                 fileType = ShapefileHandler.SHAPEFILE_FILE_TYPE; //"application/zipped-shapefile";
             }
-
+             try {
             Optional<BagItFileHandler> bagItFileHandler = CDI.current().select(BagItFileHandlerFactory.class).get().getBagItFileHandler();
              if(bagItFileHandler.isPresent() && bagItFileHandler.get().isBagItPackage(fileName, f)) {
                  fileType = BagItFileHandler.FILE_TYPE;
+             }
+             } catch (Exception e) {
+                 logger.warning("Error checking for BagIt package: " + e.getMessage());
              }
         } 
 
