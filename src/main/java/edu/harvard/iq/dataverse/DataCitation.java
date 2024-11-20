@@ -612,7 +612,7 @@ public class DataCitation {
         // QDR - use institution name
         String producerString = getPublisher();
 
-        if (producerString.isEmpty()) {
+        if (StringUtils.isBlank(producerString)) {
             producerString =  AbstractPidProvider.UNAVAILABLE;
         }
 
