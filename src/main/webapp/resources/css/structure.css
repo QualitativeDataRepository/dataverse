@@ -732,15 +732,20 @@ div.edit-field div.ui-message {margin:6px 0;}
     white-space: pre-wrap !important;
 }
 
-#metadata_author img {
+
+img[alt='ORCID logo'], img[alt='ROR logo'] {
         vertical-align: text-top;
         margin-right:1px;
         margin-left: 3px;
 }
 
-#metadata_author img.ror {
+img.ror {
   vertical-align: middle;
 }
+.expanded[data-cvoc-protocol='ror'] span {
+  margin: 0px 5px 0px 5px;
+}
+
 /* TRUNCATION */
 div.more-block {text-align:center; padding-top:250px; width:100%; position:absolute; bottom:0; background:linear-gradient(180deg,hsla(0,0%,100%,0),#fff 80%);}
 button.desc-more-link {margin:0; padding:0;}
@@ -1293,16 +1298,6 @@ ul > li:not(.ui-selectonemenu-item) {
   font-size: 21px;
   font-family: 'AntoniaH2Heavy';
   font-weight: bold;
-}
-
-#metadata_author img {
-        vertical-align: text-top;
-        margin-right:1px;
-        margin-left: 3px;
-}
-
-#metadata_author img.ror {
-  vertical-align: middle;
 }
 
 #metadata_dsDescription ul > li {
