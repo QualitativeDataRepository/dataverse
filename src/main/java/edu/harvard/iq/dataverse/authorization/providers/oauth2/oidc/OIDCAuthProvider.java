@@ -243,7 +243,6 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
         if (accessToken.isPresent()) {
             BearerAccessToken token = accessToken.get();
             
-            logger.info("AT: " + token.toJSONString());
             Optional<UserInfo> userInfo = getUserInfo(token);
             
             // Construct our internal user representation
@@ -255,7 +254,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
                     JWSObject jwsObject = JWSObject.parse(token.toJSONObject().getAsString("access_token"));
                     JWTClaimsSet  claimsSet =  JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
                     consentVersion = Integer.parseInt(claimsSet.getStringClaim("consentver"));
-                    logger.info("Consent Version: " + consentVersion);
+                    logger.fine("Consent Version: " + consentVersion);
                     
                 } catch (java.text.ParseException | NumberFormatException e) {
                     logger.info("Unable to parse JWT claims: " + e.getMessage());
