@@ -53,7 +53,7 @@ import static edu.harvard.iq.dataverse.datasetutility.FileSizeChecker.bytesToHum
 import static edu.harvard.iq.dataverse.util.FileUtil.MIME_TYPE_UNDETERMINED_DEFAULT;
 import static edu.harvard.iq.dataverse.util.FileUtil.createIngestFailureReport;
 import static edu.harvard.iq.dataverse.util.FileUtil.determineFileType;
-import static edu.harvard.iq.dataverse.util.FileUtil.determineFileTypeByNameAndExtension;
+import static edu.harvard.iq.dataverse.util.FileUtil.determineRemoteFileType;
 import static edu.harvard.iq.dataverse.util.FileUtil.getFilesTempDirectory;
 import static edu.harvard.iq.dataverse.util.FileUtil.saveInputStreamInTempFile;
 import static edu.harvard.iq.dataverse.util.FileUtil.useRecognizedType;
@@ -557,6 +557,8 @@ public class CreateNewDataFilesCommand extends AbstractCommand<CreateDataFileRes
         } else {
             // Direct upload.
             
+            finalType = StringUtils.isBlank(suppliedContentType) ? FileUtil.MIME_TYPE_UNDETERMINED_DEFAULT : suppliedContentType;
+            
             // Since this is a direct upload, and therefore no temp file associated 
             // with it, we may, OR MAY NOT know the size of the file. If this is 
             // a direct upload via the UI, the page must have already looked up 
@@ -576,16 +578,7 @@ public class CreateNewDataFilesCommand extends AbstractCommand<CreateDataFileRes
                 }
             }
             
-            // Default to suppliedContentType if set or the overall undetermined default if a contenttype isn't supplied
-            finalType = StringUtils.isBlank(suppliedContentType) ? FileUtil.MIME_TYPE_UNDETERMINED_DEFAULT : suppliedContentType;
-            String type = determineFileTypeByNameAndExtension(fileName);
-            if (!StringUtils.isBlank(type)) {
-                //Use rules for deciding when to trust browser supplied type
-                if (useRecognizedType(finalType, type)) {
-                    finalType = type;
-                }
-                logger.fine("Supplied type: " + suppliedContentType + ", finalType: " + finalType);
-            }
+            
         }
         
         // Finally, if none of the special cases above were applicable (or 
@@ -615,7 +608,21 @@ public class CreateNewDataFilesCommand extends AbstractCommand<CreateDataFileRes
         
         DataFile datafile = FileUtil.createSingleDataFile(version, newFile, newStorageIdentifier, fileName, finalType, newCheckSumType, newCheckSum);
 
+        
         if (datafile != null) {
+         if(newStorageIdentifier != null) {
+             //Direct upload case
+             //Improve the MIMEType
+            String type = determineRemoteFileType(datafile, fileName);
+            if (!StringUtils.isBlank(type)) {
+                //Use rules for deciding when to trust browser supplied type
+                if (useRecognizedType(finalType, type)) {
+                    datafile.setContentType(type);
+                }
+                logger.fine("Supplied type: " + suppliedContentType + ", finalType: " + finalType);
+            }
+         }
+            
 
             if (warningMessage != null) {
                 createIngestFailureReport(datafile, warningMessage);
