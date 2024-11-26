@@ -463,7 +463,7 @@ public class FileUtil implements java.io.Serializable  {
 
     }
 
-    public static String determineFileType(File f, String fileName) {
+    public static String determineFileType(File f, String fileName) throws IOException {
         String fileType = lookupFileTypeByFileName(fileName);
         if (fileType != null) {
             return fileType;
