@@ -130,6 +130,19 @@
                                                     <ui:repeat value="#{compoundValue.displayValueMap.entrySet().toArray()}" var="cvPart" varStatus="partStatus">
                                                         <c:set var="cvocOnCvPart" value="#{cvocConf.containsKey(cvPart.key.datasetFieldType.id)}"/>
                                                         <h:outputText value="#{dsf.datasetFieldType.displayFormat} " rendered="${!partStatus.first and !settingsWrapper.isCvocField(cvPart.key.datasetFieldType.id)}"/>
+                                                        <ui:remove>
+                                                          <!--
+                                                          this fragment is supposed to show when no script will be changing it, which occurs when:
+                                                            * the child field itself is not a term-uri field (cvocOnCvPart == false), and
+                                                            * either
+                                                              * there isn't a script configured on the parent field and there is a value for 
+                                                                that script's term-uri field (!cvocOnDsfApplies) or
+                                                              * the child field itself is not listed as a managed field 
+                                                                (!settingsWrapper.isCvocField(cvPart.key.datasetFieldType.id) - 
+                                                                isCvocField is technically true if it's a term-uri or managed field, 
+                                                                but it can't be true from the field being a term-uri when cvocOnCvPart is false)
+                                                          -->
+                                                        </ui:remove>
                                                         <ui:fragment rendered="#{!cvocOnCvPart and (!cvocOnDsfApplies or !settingsWrapper.isCvocField(cvPart.key.datasetFieldType.id))}">
                                                             <ui:fragment rendered="#{compoundValue.isLink(cvPart.key)}">
                                                                 <h:outputLink value="#{compoundValue.getLink()}" target="_blank">
