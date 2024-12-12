@@ -165,7 +165,7 @@
     <field name="externalStatus" type="string" stored="true" indexed="true" multiValued="false"/>
     <field name="embargoEndDate" type="plong" stored="true" indexed="true" multiValued="false"/>
     <field name="retentionEndDate" type="plong" stored="true" indexed="true" multiValued="false"/>
-    
+
     <field name="subtreePaths" type="string" stored="true" indexed="true" multiValued="true"/>
 
     <field name="fileName" type="text_en_splitting" stored="true" indexed="true" multiValued="true"/>
@@ -240,7 +240,8 @@
     <field name="datasetValid" type="boolean" stored="true" indexed="true" multiValued="false"/>
 
     <field name="license" type="string" stored="true" indexed="true" multiValued="false"/>
-
+    <field name="fileCount" type="plong" stored="true" indexed="true" multiValued="false"/>
+    
     <!--
         METADATA SCHEMA FIELDS
         Now following: any fields generated from the metadata schemas loaded into Dataverse.
@@ -261,7 +262,7 @@
     <field name="all_other_condition" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="all_outcome_condition" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="all_treatment_or_study_target_condition" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="alternativeTitle" type="text_en" multiValued="false" stored="true" indexed="true"/>
+    <field name="alternativeTitle" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="alternativeURL" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="astroFacility" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="astroInstrument" type="text_en" multiValued="true" stored="true" indexed="true"/>
@@ -277,7 +278,7 @@
     <field name="city" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="cleaningOperations" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="clinical_trials_study_ID" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="collectionMode" type="text_en" multiValued="false" stored="true" indexed="true"/>
+    <field name="collectionMode" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="collectorTraining" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="condition_category" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="condition_investigation_stage_or_type" type="text_en" multiValued="true" stored="true" indexed="true"/>
@@ -394,8 +395,8 @@
     <field name="productionDate" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="productionPlace" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="publication" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="publicationRelationType" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="publicationCitation" type="text_en" multiValued="true" stored="true" indexed="true"/>
+    <field name="publicationRelationType" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="publicationIDNumber" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="publicationIDType" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="publicationURL" type="text_en" multiValued="true" stored="true" indexed="true"/>
