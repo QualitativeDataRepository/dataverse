@@ -809,8 +809,10 @@ a.popoverHTML {display:inline-block;}
 /* TERMS */
 .waiver-CC0-inline {display:inline-block; margin-left:1em;}
 
+/* VERSIONS */
 div[id$="versionsTable"] th.col-select-width * {display:none;}
 div[id$="versionsTable"] th span {color:white;text-shadow:none;}
+div[id$="versionsTable"] tbody {word-break:break-word;}
 
 /* FILES */
 div[id$="filesTable"].ui-datatable.ui-widget div.ui-datatable-tablewrapper {overflow:visible;}

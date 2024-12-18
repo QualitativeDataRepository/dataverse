@@ -35,7 +35,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>9.10</luceneMatchVersion>
+  <luceneMatchVersion>9.11</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in
@@ -360,6 +360,21 @@
       -->
     <maxBooleanClauses>${solr.max.booleanClauses:1024}</maxBooleanClauses>
 
+    <!-- Minimum acceptable prefix-size for prefix-based queries.
+
+         Prefix-based queries consume memory in proportion to the number of terms in the index
+         that start with that prefix.  Short prefixes tend to match many many more indexed-terms
+         and consume more memory as a result, sometimes causing stability issues on the node.
+
+         This setting allows administrators to require that prefixes meet or exceed a specified
+         minimum length requirement.  Prefix queries that don't meet this requirement return an
+         error to users.  The limit may be overridden on a per-query basis by specifying a
+         'minPrefixQueryTermLength' local-param value.
+
+         The flag value of '-1' can be used to disable enforcement of this limit.
+    -->
+    <minPrefixQueryTermLength>${solr.query.minPrefixLength:-1}</minPrefixQueryTermLength>
+
     <!-- Solr Internal Query Caches
          Starting with Solr 9.0 the default cache implementation used is CaffeineCache.
     -->
@@ -573,7 +588,7 @@
      check for "Circuit Breakers tripped" in logs and the corresponding error message should tell
      you what transpired (if the failure was caused by tripped circuit breakers).
     -->
-    
+
     <!--
     <str name="memEnabled">true</str>
     <str name="memThreshold">75</str>
@@ -585,7 +600,7 @@
      whether the circuit breaker is enabled and the average load over the last minute at which the
      circuit breaker should start rejecting queries.
     -->
-    
+
     <!--
     <str name="cpuEnabled">true</str>
     <str name="cpuThreshold">75</str>
@@ -703,15 +718,15 @@
       <str name="echoParams">explicit</str>
       <int name="rows">10</int>
       <!--
-        QDR - USes lucense parser and does not use the IQSS standard edismax + boosting configuration as it interferes 
-        with the custom code to allow full-text search for restricted/unpublished files. 
-        
+        QDR - Uses lucense parser and does not use the IQSS standard edismax + boosting configuration as it interferes
+        with the custom code to allow full-text search for restricted/unpublished files.
+
         This boosting configuration has been
         - first introduced in 2015, see https://github.com/IQSS/dataverse/issues/1928#issuecomment-91651853,
         - been re-introduced in 2018 for Solr 7.2.1 update, see https://github.com/IQSS/dataverse/issues/4158,
         - and finally evolved to the current state later in 2018 https://github.com/IQSS/dataverse/issues/4938
           (merged with https://github.com/IQSS/dataverse/commit/3843e5366845d55c327cdb252dd9b4e4125b9b88)
-                
+
         Since then, this has not been touched again (2021-12-21).
       -->
       <str name="defType">lucene</str>
@@ -963,6 +978,10 @@
     <str name="pattern">[^\w-\.]</str>
     <str name="replacement">_</str>
   </updateProcessor>
+  <updateProcessor class="solr.NumFieldLimitingUpdateRequestProcessorFactory" name="max-fields">
+    <int name="maxFields">1000</int>
+    <bool name="warnOnly">true</bool>
+  </updateProcessor>
   <updateProcessor class="solr.ParseBooleanFieldUpdateProcessorFactory" name="parse-boolean"/>
   <updateProcessor class="solr.ParseLongFieldUpdateProcessorFactory" name="parse-long"/>
   <updateProcessor class="solr.ParseDoubleFieldUpdateProcessorFactory" name="parse-double"/>
@@ -977,16 +996,18 @@
       <str>EEE MMM ppd HH:mm:ss [z ]yyyy</str>
     </arr>
   </updateProcessor>
-  <updateProcessor class="solr.AddSchemaFieldsUpdateProcessorFactory" name="add-schema-fields">
+  <!-- QDR - It may be OK to leave this here given that update.autoCreateFields:false is set below
+       and I've also removed it fom the list of processors below -->
+  <!--updateProcessor class="solr.AddSchemaFieldsUpdateProcessorFactory" name="add-schema-fields">
     <lst name="typeMapping">
       <str name="valueClass">java.lang.String</str>
       <str name="fieldType">text_general</str>
       <lst name="copyField">
         <str name="dest">*_str</str>
         <int name="maxChars">256</int>
-      </lst>
+      </lst-->
       <!-- Use as default mapping instead of defaultFieldType -->
-      <bool name="default">true</bool>
+      <!--bool name="default">true</bool>
     </lst>
     <lst name="typeMapping">
       <str name="valueClass">java.lang.Boolean</str>
@@ -1005,11 +1026,12 @@
       <str name="valueClass">java.lang.Number</str>
       <str name="fieldType">pdoubles</str>
     </lst>
-  </updateProcessor>
+  </updateProcessor-->
+
 
   <!-- The update.autoCreateFields property can be turned to false to disable schemaless mode -->
   <updateRequestProcessorChain name="add-unknown-fields-to-the-schema" default="${update.autoCreateFields:false}"
-           processor="uuid,remove-blank,field-name-mutating,parse-boolean,parse-long,parse-double,parse-date,add-schema-fields">
+           processor="uuid,remove-blank,field-name-mutating,max-fields,parse-boolean,parse-long,parse-double,parse-date">
     <processor class="solr.LogUpdateProcessorFactory"/>
     <processor class="solr.DistributedUpdateProcessorFactory"/>
     <processor class="solr.RunUpdateProcessorFactory"/>

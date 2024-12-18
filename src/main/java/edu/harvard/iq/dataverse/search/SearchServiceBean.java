@@ -80,7 +80,7 @@ public class SearchServiceBean {
     SolrClientService solrClientService;
     @Inject
     ThumbnailServiceWrapper thumbnailServiceWrapper;
-
+    
     /**
      * Import note: "onlyDatatRelatedToMe" relies on filterQueries for providing
      * access to Private Data for the correct user
@@ -329,7 +329,6 @@ public class SearchServiceBean {
             solrFieldsToHightlightOnMap.put(SearchFields.FILENAME_WITHOUT_EXTENSION, "Filename Without Extension");
             solrFieldsToHightlightOnMap.put(SearchFields.FILE_TAG_SEARCHABLE, "File Tag");
 
-
             for (DatasetFieldType datasetFieldType : datasetFields) {
                 String solrField = datasetFieldType.getSolrField().getNameSearchable();
                 String displayName = datasetFieldType.getDisplayName();
@@ -392,8 +391,10 @@ public class SearchServiceBean {
         // Make the solr query
         // -----------------------------------
         QueryResponse queryResponse = null;
+        
         try {
             queryResponse = solrClientService.getSolrClient().query(solrQuery);
+
         } catch (RemoteSolrException ex) {
             String messageFromSolr = ex.getLocalizedMessage();
             
@@ -445,7 +446,7 @@ public class SearchServiceBean {
         } catch (SolrServerException | IOException ex) {
             throw new SearchException("Internal Dataverse Search Engine Error " + BundleUtil.getStringFromBundle("dataverse.results.solrIsDown"), ex);
         }
-
+        
         int statusCode = queryResponse.getStatus();
         
         logger.fine("status code of the query response: "+statusCode);
@@ -511,7 +512,8 @@ public class SearchServiceBean {
             Long retentionEndDate = (Long) solrDocument.getFieldValue(SearchFields.RETENTION_END_DATE);
             //
             Boolean datasetValid = (Boolean) solrDocument.getFieldValue(SearchFields.DATASET_VALID);
-
+            Long fileCount = (Long) solrDocument.getFieldValue(SearchFields.FILE_COUNT);
+            
             List<String> matchedFields = new ArrayList<>();
             
             SolrSearchResult solrSearchResult = new SolrSearchResult(query, name);
@@ -584,11 +586,12 @@ public class SearchServiceBean {
             solrSearchResult.setDeaccessionReason(deaccessionReason);
             solrSearchResult.setDvTree(dvTree);
             solrSearchResult.setDatasetValid(datasetValid);
-            
+            solrSearchResult.setFileCount(fileCount);
+
             if (Boolean.TRUE.equals((Boolean) solrDocument.getFieldValue(SearchFields.IS_HARVESTED))) {
                 solrSearchResult.setHarvested(true);
             }
-            
+
             solrSearchResult.setEmbargoEndDate(embargoEndDate);
             solrSearchResult.setRetentionEndDate(retentionEndDate);
 
@@ -635,10 +638,10 @@ public class SearchServiceBean {
 
                 solrSearchResult.setCitation(citation);
                 solrSearchResult.setCitationHtml(citationPlainHtml);
-                
+
                 solrSearchResult.setIdentifierOfDataverse(identifierOfDataverse);
                 solrSearchResult.setNameOfDataverse(nameOfDataverse);
-                
+
                 if (title != null) {
 //                    solrSearchResult.setTitle((String) titles.get(0));
                     solrSearchResult.setTitle(title);
@@ -1047,34 +1050,6 @@ public class SearchServiceBean {
         return queryResponse;
     }
 
-    
-    private String buildPermissionFilterQuery(boolean avoidJoin, String permissionFilterGroups) {
-        String query = (avoidJoin&& !isAllGroups(permissionFilterGroups)) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
-        if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
-            if (!query.isEmpty()) {
-                query = "(" + query + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups + ")";
-            } else {
-                query = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups;
-            }
-        }
-        return query;
-    }
-
-    private String buildPermissionGroupQuery(boolean avoidJoin, String fullTextSearchableBy, String permissionFilterGroups) {
-        StringBuilder q1Query = new StringBuilder();
-        if(avoidJoin && !isAllGroups(permissionFilterGroups)) {
-            q1Query.append(SearchFields.PUBLIC_OBJECT + ":" + true);
-        }
-        if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
-            if(!q1Query.isEmpty()) {
-                q1Query.append(" OR ");
-            }
-            q1Query.append(SearchFields.FULL_TEXT_SEARCHABLE_BY + ":" + permissionFilterGroups);
-        }
-        return q1Query.toString(); 
-    }
-
-
 
     public String getLocaleTitle(String title,  String controlledvoc , String propertyfile) {
 
@@ -1167,10 +1142,11 @@ public class SearchServiceBean {
         // In addition to the user referenced directly, we will also
         // add joins on all the non-public groups that may exist for the
         // user:
-        
-        // Authenticated users and GuestUser may be part of one or more groups; such
+
+        // Authenticated users, *and the GuestUser*, may be part of one or more groups; such
         // as IP Groups.
         groups = groupService.collectAncestors(groupService.groupsFor(dataverseRequest));
+
         for (Group group : groups) {
             String groupAlias = group.getAlias();
             if (groupAlias != null && !groupAlias.isEmpty() && (!avoidJoin || !groupAlias.startsWith("builtIn"))) {
@@ -1193,8 +1169,35 @@ public class SearchServiceBean {
         logger.fine("Returning groups: " + groupString);
         return groupString;
     }
+    
+    private String buildPermissionFilterQuery(boolean avoidJoin, String permissionFilterGroups) {
+        String query = (avoidJoin&& !isAllGroups(permissionFilterGroups)) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
+        if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
+            if (!query.isEmpty()) {
+                query = "(" + query + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups + ")";
+            } else {
+                query = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups;
+            }
+        }
+        return query;
+    }
+
+    private String buildPermissionGroupQuery(boolean avoidJoin, String fullTextSearchableBy, String permissionFilterGroups) {
+        StringBuilder q1Query = new StringBuilder();
+        if(avoidJoin && !isAllGroups(permissionFilterGroups)) {
+            q1Query.append(SearchFields.PUBLIC_OBJECT + ":" + true);
+        }
+        if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
+            if(!q1Query.isEmpty()) {
+                q1Query.append(" OR ");
+            }
+            q1Query.append(SearchFields.FULL_TEXT_SEARCHABLE_BY + ":" + permissionFilterGroups);
+        }
+        return q1Query.toString(); 
+    }
 
     private boolean isAllGroups(String groups) {
         return (groups!=null &&groups.equals(ALL_GROUPS));
     }
 }
+

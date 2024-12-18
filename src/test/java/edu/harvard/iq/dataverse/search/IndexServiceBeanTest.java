@@ -54,6 +54,7 @@ public class IndexServiceBeanTest {
         indexService.datasetFieldService = Mockito.mock(DatasetFieldServiceBean.class);
         indexService.solrClientService = Mockito.mock(SolrClientService.class);
         indexService.datasetVersionService = Mockito.mock(DatasetVersionServiceBean.class);
+        indexService.datasetVersionFilesServiceBean = Mockito.mock(DatasetVersionFilesServiceBean.class);
         BrandingUtil.injectServices(indexService.dataverseService, indexService.settingsService);
 
         Mockito.when(indexService.dataverseService.findRootDataverse()).thenReturn(dataverse);
