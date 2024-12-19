@@ -1151,4 +1151,12 @@ public class DataFile extends DvObject implements Comparable {
         }
         return inDeaccessionedVersions; // since any published version would have already returned
     }
+    public boolean isInDatasetVersion(DatasetVersion version) {
+        for (FileMetadata fmd : getFileMetadatas()) {
+            if (fmd.getDatasetVersion().equals(version)) {
+                return true;
+            }
+        }
+        return false;
+    }
 } // end of class
