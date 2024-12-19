@@ -1418,8 +1418,8 @@ public class IndexServiceBean {
                             } catch (Exception e) {
                                 // Needs better logging of what went wrong in order to
                                 // track down "bad" documents.
-                                logger.warning(String.format("Full-text indexing for %s failed",
-                                        fileMetadata.getDataFile().getDisplayName()));
+                                logger.warning(String.format("Full-text indexing for %s failed: %s",
+                                        fileMetadata.getDataFile().getDisplayName(), e.getLocalizedMessage()));
                                 if (logger.isLoggable(Level.FINE)) {
                                     e.printStackTrace();
                                 }
