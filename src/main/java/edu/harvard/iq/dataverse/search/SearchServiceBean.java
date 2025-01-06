@@ -349,7 +349,9 @@ public class SearchServiceBean {
         if (!permFilterQuery.isEmpty()) {
             String[] filterParts = permFilterQuery.split("&q2=");
             solrQuery.addFilterQuery(filterParts[0]);
-            solrQuery.add("q2", filterParts[1]);
+            if(filterParts.length > 1 ) {
+                solrQuery.add("q2", filterParts[1]);
+            }
         }
         
         /**
@@ -1023,7 +1025,9 @@ public class SearchServiceBean {
         if (!permFilterQuery.isEmpty()) {
             String[] filterParts = permFilterQuery.split("&q2=");
             solrQuery.addFilterQuery(filterParts[0]);
-            solrQuery.add("q2", filterParts[1]);
+            if(filterParts.length > 1 ) {
+                solrQuery.add("q2", filterParts[1]);
+            }
         }
 
         solrQuery.setStart(paginationStart);
