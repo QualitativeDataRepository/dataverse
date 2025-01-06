@@ -1174,9 +1174,9 @@ public class SearchServiceBean {
         String query = (avoidJoin&& !isAllGroups(permissionFilterGroups)) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
         if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
             if (!query.isEmpty()) {
-                query = "(" + query + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups + ")";
+                query = "(" + query + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1}&q1=" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups + ")";
             } else {
-                query = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups;
+                query = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q1}&q1=" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups;
             }
         }
         return query;
