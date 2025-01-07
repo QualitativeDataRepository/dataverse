@@ -347,7 +347,11 @@ public class SearchServiceBean {
         String permFilterQuery = buildPermissionFilterQuery(avoidJoin, permissionFilterGroups);
         logger.fine("Permission Filter Query: " + permFilterQuery);
         if (!permFilterQuery.isEmpty()) {
-            solrQuery.addFilterQuery(permFilterQuery);
+            String[] filterParts = permFilterQuery.split("&q2=");
+            solrQuery.addFilterQuery(filterParts[0]);
+            if(filterParts.length > 1 ) {
+                solrQuery.add("q2", filterParts[1]);
+            }
         }
         
         /**
@@ -1019,7 +1023,11 @@ public class SearchServiceBean {
         String permFilterQuery = buildPermissionFilterQuery(avoidJoin, permissionFilterGroups);
         logger.fine("simpleSearch permFilterQuery: " + permFilterQuery);
         if (!permFilterQuery.isEmpty()) {
-            solrQuery.addFilterQuery(permFilterQuery);
+            String[] filterParts = permFilterQuery.split("&q2=");
+            solrQuery.addFilterQuery(filterParts[0]);
+            if(filterParts.length > 1 ) {
+                solrQuery.add("q2", filterParts[1]);
+            }
         }
 
         solrQuery.setStart(paginationStart);
@@ -1174,9 +1182,9 @@ public class SearchServiceBean {
         String query = (avoidJoin&& !isAllGroups(permissionFilterGroups)) ? SearchFields.PUBLIC_OBJECT + ":" + true : "";
         if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
             if (!query.isEmpty()) {
-                query = "(" + query + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups + ")";
+                query = "(" + query + " OR " + "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q2})&q2=" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups;
             } else {
-                query = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id}" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups;
+                query = "{!join from=" + SearchFields.DEFINITION_POINT + " to=id v=$q2}&q2=" + SearchFields.DISCOVERABLE_BY + ":" + permissionFilterGroups;
             }
         }
         return query;
