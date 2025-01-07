@@ -6203,7 +6203,6 @@ public class DatasetPage implements java.io.Serializable {
 
     public String getFieldLanguage(String languages) {
         //Prevent NPE in Payara 6-2024-12 with CVoc
-        logger.info("Languages: " + languages);
         if(languages==null) {
             languages="";
         }
