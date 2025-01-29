@@ -55,8 +55,9 @@
        1.5: omitNorms defaults to true for primitive field types
             (int, float, boolean, string...)
        1.6: useDocValuesAsStored defaults to true.
-       1.7 QDR: use separate fulltext field
+       1.7: docValues defaults to true, uninvertible defaults to false.
     -->
+    <!-- QDR: use separate fulltext field-->
 
     <!-- Valid attributes for fields:
      name: mandatory - the name for the field
@@ -218,7 +219,7 @@
     <!-- https://redmine.hmdc.harvard.edu/issues/3482 -->
     <!-- 'Sorting can be done on the "score" of the document, or on any multiValued="false" indexed="true" field provided that field is either non-tokenized (ie: has no Analyzer) or uses an Analyzer that only produces a single Term (ie: uses the KeywordTokenizer)' http://wiki.apache.org/solr/CommonQueryParameters#sort -->
     <!-- http://stackoverflow.com/questions/13360706/solr-4-0-alphabetical-sorting-trouble/13361226#13361226 -->
-    <field name="nameSort" type="alphaOnlySort" indexed="true" stored="true"/>
+    <field name="nameSort" type="string" indexed="true" stored="true"/>
 
     <field name="dateSort" type="pdate" indexed="true" stored="true"/>
 
