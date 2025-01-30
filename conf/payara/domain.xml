@@ -104,7 +104,7 @@
     <configs>
         <config name="server-config">
             <system-property name="JMS_PROVIDER_PORT" value="7676" description="Port Number that JMS Service will listen for remote clients connection." />
-            
+
             <payara-executor-service-configuration />
             <http-service>
                 <access-log />
