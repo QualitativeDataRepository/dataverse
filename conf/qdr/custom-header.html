@@ -16,6 +16,11 @@
          $href = $href.substring(0, $href.indexOf('current_page=') + 13) + window.location.href;
          $href = $('#qdr-login').attr('href', $href);
       }
+      if($('#qdr-login-open').length) {
+	        $href = $('#qdr-login').attr('href');
+	         $href = $href.substring(0, $href.indexOf('current_page=') + 13) + window.location.href;
+	         $href = $('#qdr-login').attr('href', $href);
+	      }
     }
 </script>
 
