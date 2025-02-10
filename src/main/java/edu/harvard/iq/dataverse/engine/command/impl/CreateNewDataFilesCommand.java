@@ -582,7 +582,6 @@ public class CreateNewDataFilesCommand extends AbstractCommand<CreateDataFileRes
                 }
             }
             
-            
         }
         
         // Finally, if none of the special cases above were applicable (or 
@@ -619,7 +618,8 @@ public class CreateNewDataFilesCommand extends AbstractCommand<CreateDataFileRes
                 // Improve the MIMEType
                 // Need the owner for the StorageIO class to get the file/S3 path from the
                 // storageIdentifier
-                //Currently owner is null, but using this falg will avoid making changes here if that isn't true in the future
+                // Currently owner is null, but using this flag will avoid making changes here
+                // if that isn't true in the future
                 boolean ownerSet = datafile.getOwner() != null;
                 if (!ownerSet) {
                     datafile.setOwner(version.getDataset());

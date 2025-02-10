@@ -265,7 +265,7 @@ public class DataCitationTest {
             "<edition>V1</edition>" +
             "<publisher>LibraScholar</publisher>" +
             "<urls><related-urls><url>https://doi.org/10.5072/FK2/LK0D1H</url></related-urls></urls>" +
-            "<electronic-resource-num>doi/10.5072/FK2/LK0D1H</electronic-resource-num>" +
+            "<electronic-resource-num>10.5072/FK2/LK0D1H</electronic-resource-num>" +
             "</record>" +
             "</records>" +
             "</xml>";
@@ -294,7 +294,7 @@ public class DataCitationTest {
            "<edition>V1</edition>" +
            "<publisher>LibraScholar</publisher>" +
            "<urls><related-urls><url>https://doi.org/10.5072/FK2/LK0D1H</url></related-urls></urls>" +
-           "<electronic-resource-num>doi/10.5072/FK2/LK0D1H</electronic-resource-num>" +
+           "<electronic-resource-num>10.5072/FK2/LK0D1H</electronic-resource-num>" +
            "</record>" +
            "</records>" +
            "</xml>";

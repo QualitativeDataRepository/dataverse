@@ -273,7 +273,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * @param userInfo
      * @return the usable user record for processing ing {@link edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean}
      */
-    OAuth2UserRecord getUserRecord(UserInfo userInfo, int consentVersion) {
+    public OAuth2UserRecord getUserRecord(UserInfo userInfo, int consentVersion) {
         boolean usesMFA = false;
         String role = userInfo.getStringClaim("role");
         role = role == null ? "" : role;
@@ -334,7 +334,7 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
      * Retrieve User Info from provider. Encapsulate for testing.
      * @param accessToken The access token to enable reading data from userinfo endpoint
      */
-    Optional<UserInfo> getUserInfo(BearerAccessToken accessToken) throws IOException, OAuth2Exception {
+    public Optional<UserInfo> getUserInfo(BearerAccessToken accessToken) throws IOException, OAuth2Exception {
         // Retrieve data
         HTTPResponse response = new UserInfoRequest(this.idpMetadata.getUserInfoEndpointURI(), accessToken)
                                         .toHTTPRequest()
