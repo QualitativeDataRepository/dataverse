@@ -153,6 +153,7 @@ import org.primefaces.event.data.PageEvent;
 
 import edu.harvard.iq.dataverse.search.FacetLabel;
 import edu.harvard.iq.dataverse.search.SearchConstants;
+import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SearchServiceBean;
 import edu.harvard.iq.dataverse.search.SolrClientService;
@@ -1013,8 +1014,8 @@ public class DatasetPage implements java.io.Serializable {
 
         try {
             queryResponse = searchService.simpleSearch(dvRequestService.getDataverseRequest(), SearchFields.ENTITY_ID, pattern, filterQueries, facetList, 0, Integer.MAX_VALUE);
-        } catch (RemoteSolrException ex) {
-            logger.fine("Remote Solr Exception: " + ex.getLocalizedMessage());
+        } catch (RemoteSolrException | SearchException ex) {
+            logger.fine("Solr Exception: " + ex.getLocalizedMessage());
             String msg = ex.getLocalizedMessage();
             if (msg.contains(SearchFields.FILE_DELETED)) {
                 // This is a backward compatibility hook put in place many versions

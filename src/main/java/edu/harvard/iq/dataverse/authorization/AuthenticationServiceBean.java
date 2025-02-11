@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.authorization;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
@@ -1005,7 +1006,7 @@ public class AuthenticationServiceBean {
         try {
             BearerAccessToken accessToken = BearerAccessToken.parse(bearerToken);
             List<OIDCAuthProvider> providers = getAvailableOidcProviders();
-
+          
             // Ensure at least one OIDC provider is configured to validate the token.
             if (providers.isEmpty()) {
                 logger.log(Level.WARNING, "Bearer token detected, no OIDC provider configured");
@@ -1018,8 +1019,17 @@ public class AuthenticationServiceBean {
                     // Retrieve OAuth2UserRecord if UserInfo is present
                     Optional<UserInfo> userInfo = provider.getUserInfo(accessToken);
                     if (userInfo.isPresent()) {
+                            // Take this detour to avoid code duplication and potentially hard to track conversion errors.
+                            int consentVersion = 0;
+                            try {
+                                JWTClaimsSet claims = JWTClaimsSet.parse(accessToken.toJSONObject());
+                                consentVersion = Integer.parseInt(claims.getStringClaim("consentver"));
+                            } catch (java.text.ParseException | NumberFormatException e) {
+                                logger.warning("Could not parse access token: " + accessToken.toJSONString() + ", err: " + e.getLocalizedMessage());
+                            }
+
                         logger.log(Level.FINE, "Bearer token detected, provider {0} confirmed validity and provided user info", provider.getId());
-                        return provider.getUserRecord(userInfo.get());
+                        return provider.getUserRecord(userInfo.get(), consentVersion);
                     }
                 } catch (IOException | OAuth2Exception e) {
                     logger.log(Level.FINE, "Bearer token detected, provider " + provider.getId() + " indicates an invalid Token, skipping", e);
