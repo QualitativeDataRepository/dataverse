@@ -261,22 +261,6 @@
         WARNING: Do not remove the following include guards if you intend to use the neat helper scripts we provide.
     -->
     <!-- SCHEMA-FIELDS::BEGIN -->
-    <field name="LCProjectUrl" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="3d3DTechnique" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="3dAltText" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="3dEquipment" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="3dExportedFileFormat" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="3dExportedFilePolygonCount" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="3dHandling" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="3dHeight" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="3dLength" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="3dLightingSetup" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="3dMasterFilePolygonCount" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="3dMaterialComposition" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="3dObjectDimensions" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="3dUnit" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="3dWeight" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="3dWidth" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="accessToSources" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="actionsToMinimizeLoss" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="age_applicability" type="text_en" multiValued="true" stored="true" indexed="true"/>
@@ -299,7 +283,7 @@
     <field name="city" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="cleaningOperations" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="clinical_trials_study_ID" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="collectionMode" type="text_en" multiValued="true" stored="true" indexed="true"/>
+    <field name="collectionMode" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="collectorTraining" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="condition_category" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="condition_investigation_stage_or_type" type="text_en" multiValued="true" stored="true" indexed="true"/>
@@ -325,16 +309,16 @@
     <field name="coverage.Temporal" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="coverage.Temporal.StartTime" type="date_range" multiValued="true" stored="true" indexed="true"/>
     <field name="coverage.Temporal.StopTime" type="date_range" multiValued="true" stored="true" indexed="true"/>
-    <field name="creator" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="data" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="dataCollectionSituation" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="dataCollector" type="text_en" multiValued="false" stored="true" indexed="true"/>
+    <field name="dataSources" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="data_availability" type="text_en" multiValued="false" stored="true" indexed="true"/>
     <field name="data_available" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="data_collection_status" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="data_orientation" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="data_release_finish_date" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="data_release_start_date" type="text_en" multiValued="false" stored="true" indexed="true"/>
+    <field name="data_release_finish_date" type="date_range" multiValued="false" stored="true" indexed="true"/>
+    <field name="data_release_start_date" type="date_range" multiValued="false" stored="true" indexed="true"/>
     <field name="data_release_status" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="data_repositories" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="data_restricted" type="text_en" multiValued="true" stored="true" indexed="true"/>
@@ -345,7 +329,6 @@
     <field name="datasetContactEmail" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="datasetContactName" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="datasetLevelErrorNotes" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="dataSources" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="dateOfCollection" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="dateOfCollectionEnd" type="date_range" multiValued="true" stored="true" indexed="true"/>
     <field name="dateOfCollectionStart" type="date_range" multiValued="true" stored="true" indexed="true"/>
@@ -360,7 +343,7 @@
     <field name="distributorName" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="distributorURL" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="dsDescription" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="dsDescriptionDate" type="date_range" multiValued="true" stored="true" indexed="true"/>
+    <field name="dsDescriptionDate" type="date_range" multiValued="false" stored="true" indexed="true"/>
     <field name="dsDescriptionValue" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="eastLongitude" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="findings" type="text_en" multiValued="false" stored="true" indexed="true"/>
@@ -484,9 +467,9 @@
     <field name="subject" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="subject_data_level_available" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="subject_data_unit_of_analysis" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="subject_data_unit_of_analysis_expected_number" type="text_en" multiValued="false" stored="true" indexed="true"/>
+    <field name="subject_data_unit_of_analysis_expected_number" type="plong" multiValued="false" stored="true" indexed="true"/>
     <field name="subject_data_unit_of_collection" type="text_en" multiValued="true" stored="true" indexed="true"/>
-    <field name="subject_data_unit_of_collection_expected_number" type="text_en" multiValued="false" stored="true" indexed="true"/>
+    <field name="subject_data_unit_of_collection_expected_number" type="plong" multiValued="false" stored="true" indexed="true"/>
     <field name="subject_geographic_data_level_available" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="subject_geographic_data_level_collected" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="subtitle" type="text_en" multiValued="false" stored="true" indexed="true"/>
@@ -498,10 +481,10 @@
     <field name="timePeriodCoveredEnd" type="date_range" multiValued="true" stored="true" indexed="true"/>
     <field name="timePeriodCoveredStart" type="date_range" multiValued="true" stored="true" indexed="true"/>
     <field name="title" type="text_en" multiValued="false" stored="true" indexed="true"/>
-    <field name="topicClassification" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="topicClassValue" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="topicClassVocab" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="topicClassVocabURI" type="text_en" multiValued="true" stored="true" indexed="true"/>
+    <field name="topicClassification" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="treatment_application_level" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="treatment_investigation_stage_or_type" type="text_en" multiValued="true" stored="true" indexed="true"/>
     <field name="treatment_mode" type="text_en" multiValued="true" stored="true" indexed="true"/>
@@ -592,22 +575,6 @@
         WARNING: Do not remove the following include guards if you intend to use the neat helper scripts we provide.
     -->
     <!-- SCHEMA-COPY-FIELDS::BEGIN -->
-    <copyField source="LCProjectUrl" dest="_text_" maxChars="3000"/>
-    <copyField source="3d3DTechnique" dest="_text_" maxChars="3000"/>
-    <copyField source="3dAltText" dest="_text_" maxChars="3000"/>
-    <copyField source="3dEquipment" dest="_text_" maxChars="3000"/>
-    <copyField source="3dExportedFileFormat" dest="_text_" maxChars="3000"/>
-    <copyField source="3dExportedFilePolygonCount" dest="_text_" maxChars="3000"/>
-    <copyField source="3dHandling" dest="_text_" maxChars="3000"/>
-    <copyField source="3dHeight" dest="_text_" maxChars="3000"/>
-    <copyField source="3dLength" dest="_text_" maxChars="3000"/>
-    <copyField source="3dLightingSetup" dest="_text_" maxChars="3000"/>
-    <copyField source="3dMasterFilePolygonCount" dest="_text_" maxChars="3000"/>
-    <copyField source="3dMaterialComposition" dest="_text_" maxChars="3000"/>
-    <copyField source="3dObjectDimensions" dest="_text_" maxChars="3000"/>
-    <copyField source="3dUnit" dest="_text_" maxChars="3000"/>
-    <copyField source="3dWeight" dest="_text_" maxChars="3000"/>
-    <copyField source="3dWidth" dest="_text_" maxChars="3000"/>
     <copyField source="accessToSources" dest="_text_" maxChars="3000"/>
     <copyField source="actionsToMinimizeLoss" dest="_text_" maxChars="3000"/>
     <copyField source="age_applicability" dest="_text_" maxChars="3000"/>
@@ -656,10 +623,10 @@
     <copyField source="coverage.Temporal" dest="_text_" maxChars="3000"/>
     <copyField source="coverage.Temporal.StartTime" dest="_text_" maxChars="3000"/>
     <copyField source="coverage.Temporal.StopTime" dest="_text_" maxChars="3000"/>
-    <copyField source="creator" dest="_text_" maxChars="3000"/>
     <copyField source="data" dest="_text_" maxChars="3000"/>
     <copyField source="dataCollectionSituation" dest="_text_" maxChars="3000"/>
     <copyField source="dataCollector" dest="_text_" maxChars="3000"/>
+    <copyField source="dataSources" dest="_text_" maxChars="3000"/>
     <copyField source="data_availability" dest="_text_" maxChars="3000"/>
     <copyField source="data_available" dest="_text_" maxChars="3000"/>
     <copyField source="data_collection_status" dest="_text_" maxChars="3000"/>
@@ -676,7 +643,6 @@
     <copyField source="datasetContactEmail" dest="_text_" maxChars="3000"/>
     <copyField source="datasetContactName" dest="_text_" maxChars="3000"/>
     <copyField source="datasetLevelErrorNotes" dest="_text_" maxChars="3000"/>
-    <copyField source="dataSources" dest="_text_" maxChars="3000"/>
     <copyField source="dateOfCollection" dest="_text_" maxChars="3000"/>
     <copyField source="dateOfCollectionEnd" dest="_text_" maxChars="3000"/>
     <copyField source="dateOfCollectionStart" dest="_text_" maxChars="3000"/>
@@ -829,10 +795,10 @@
     <copyField source="timePeriodCoveredEnd" dest="_text_" maxChars="3000"/>
     <copyField source="timePeriodCoveredStart" dest="_text_" maxChars="3000"/>
     <copyField source="title" dest="_text_" maxChars="3000"/>
-    <copyField source="topicClassification" dest="_text_" maxChars="3000"/>
     <copyField source="topicClassValue" dest="_text_" maxChars="3000"/>
     <copyField source="topicClassVocab" dest="_text_" maxChars="3000"/>
     <copyField source="topicClassVocabURI" dest="_text_" maxChars="3000"/>
+    <copyField source="topicClassification" dest="_text_" maxChars="3000"/>
     <copyField source="treatment_application_level" dest="_text_" maxChars="3000"/>
     <copyField source="treatment_investigation_stage_or_type" dest="_text_" maxChars="3000"/>
     <copyField source="treatment_mode" dest="_text_" maxChars="3000"/>
