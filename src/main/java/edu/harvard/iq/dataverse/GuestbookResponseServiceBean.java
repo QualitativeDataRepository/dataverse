@@ -917,7 +917,7 @@ public class GuestbookResponseServiceBean {
         
     public Long getDownloadCountByDataFileId(Long dataFileId) {
         // datafile id is null, will return 0
-        Query query = em.createNativeQuery("select count(o.id) from GuestbookResponse  o  where o.datafile_id  = " + dataFileId + "and eventtype != '" + GuestbookResponse.ACCESS_REQUEST +"'");
+        Query query = em.createNativeQuery("select count(o.id) from GuestbookResponse  o  where o.datafile_id  = " + dataFileId + " and eventtype != '" + GuestbookResponse.ACCESS_REQUEST +"'");
         return (Long) query.getSingleResult();
     }
     
@@ -931,7 +931,7 @@ public class GuestbookResponseServiceBean {
         if(date != null) {
             query = em.createNativeQuery("select count(o.id) from GuestbookResponse  o  where o.dataset_id  = " + datasetId + " and responsetime < '" + date.toString() + "' and eventtype != '" + GuestbookResponse.ACCESS_REQUEST +"'");
         }else {
-            query = em.createNativeQuery("select count(o.id) from GuestbookResponse  o  where o.dataset_id  = " + datasetId+ "and eventtype != '" + GuestbookResponse.ACCESS_REQUEST +"'");
+            query = em.createNativeQuery("select count(o.id) from GuestbookResponse  o  where o.dataset_id  = " + datasetId+ " and eventtype != '" + GuestbookResponse.ACCESS_REQUEST +"'");
         }
         return (Long) query.getSingleResult();
     }    
