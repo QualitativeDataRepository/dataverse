@@ -4649,6 +4649,8 @@ public class Datasets extends AbstractApiBean {
                 BundleUtil.getStringFromBundle("datasets.api.creationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.modificationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.curationstatus"),
+                BundleUtil.getStringFromBundle("datasets.api.statuscreatetime"),
+                BundleUtil.getStringFromBundle("datasets.api.statussetter"),
                 String.join(",", assignees.keySet())));
         HashSet<Permission> permissions = new HashSet<Permission>();
         for (Dataset dataset : datasetSvc.findAllWithDraftVersion()) {
@@ -4666,7 +4668,23 @@ public class Datasets extends AbstractApiBean {
                 DatasetVersion dsv = dataset.getLatestVersion();
                 String name = dataset.getCurrentName().replace("\"", "\"\"");
                 CurationStatus status = dsv.getCurrentCurationStatus();
-                String label = (status!=null && Strings.isNotBlank(status.getLabel())) ? status.getLabel(): null;
+                String label = BundleUtil.getStringFromBundle("dataset.status.none");
+                String statusCreator = BundleUtil.getStringFromBundle("dataset.status.none");
+                String createTime = BundleUtil.getStringFromBundle("dataset.status.none");
+                
+                if (status!= null) {
+                    if(Strings.isNotBlank(status.getLabel())) {
+                        label = status.getLabel();
+                    }
+                    if(status.getAuthenticatedUser()!=null) {
+                        statusCreator = status.getAuthenticatedUser().getUserIdentifier();
+                    }
+                    if(status.getCreateTime()!=null) {
+                        createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(status.getCreateTime());
+                    }
+                }
+
+
                 String url = systemConfig.getDataverseSiteUrl() + dataset.getTargetUrl() + dataset.getGlobalId().asString();
                 String date = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getCreateTime());
                 String modDate = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getLastUpdateTime());
