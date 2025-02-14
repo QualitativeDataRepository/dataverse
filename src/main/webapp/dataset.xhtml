@@ -385,7 +385,7 @@
                                                                     <li>
                                                                         <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
                                                                         <p:commandLink action="#{DatasetPage.setCurationStatus(status)}" update=":datasetForm:topDatasetBlockFragment,:messagePanel">
-                                                                            #{DatasetUtil:getLocaleCurationStatusLabel(status)}
+                                                                            #{DatasetUtil:getLocaleCurationStatusLabelFromString(status)}
                                                                         </p:commandLink>
                                                                     </li>
                                                                 </ui:repeat>
