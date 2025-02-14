@@ -2141,6 +2141,11 @@
                       }
                     }
 
+                    var initialInterval = 10000; // 5 seconds
+                    var maxInterval = 300000; // 5 minutes
+                    var currentInterval = initialInterval;
+                    var backoffFactor = 1.2; // Exponential factor
+
                     function refreshIfStillLocked() {
                       if ($('input[id$="datasetLockedForAnyReasonVariable"]').val() === 'true') {
                         // if dataset is locked, instruct the page to
@@ -2151,7 +2156,10 @@
                         if ($('input[id$="datasetStateChangedVariable"]').val() === 'true') {
                           //Then refresh page
                           refreshAllCommand();
-                        } 
+                        } else {
+                          // Reset the interval if the dataset is unlocked
+                          currentInterval = initialInterval;
+                        }
                       }
                     }
 
@@ -2161,7 +2169,10 @@
                         // backing bean; i.e., check, if the ingest has
                         // already completed in the background:
                         refreshAllLocksCommand();
-                      }, 10000);
+                        
+                        // Increase the interval exponentially for the next check
+                        currentInterval = Math.min(currentInterval * backoffFactor, maxInterval);
+                      }, currentInterval);
                     }
                     
                     function updateOwnerDataverse() {
