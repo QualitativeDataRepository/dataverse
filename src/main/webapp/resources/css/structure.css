@@ -814,6 +814,10 @@ div[id$="versionsTable"] th.col-select-width * {display:none;}
 div[id$="versionsTable"] th span {color:white;text-shadow:none;}
 div[id$="versionsTable"] tbody {word-break:break-word;}
 
+/* CURATION STATUS HISTORY */
+div[id$="curationStatusHistoryDialog"] {max-width:800px;}
+div[id$="curationStatusHistoryDialog"] th span {color:white;text-shadow:none;}
+
 /* FILES */
 div[id$="filesTable"].ui-datatable.ui-widget div.ui-datatable-tablewrapper {overflow:visible;}
 div[id$="filesTable"].ui-datatable.ui-widget {margin-bottom:20px;}
