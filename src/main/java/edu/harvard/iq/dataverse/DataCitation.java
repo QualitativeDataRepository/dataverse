@@ -38,6 +38,10 @@ import edu.harvard.iq.dataverse.util.DateUtil;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import static edu.harvard.iq.dataverse.pidproviders.doi.AbstractDOIProvider.DOI_PROTOCOL;
+import static edu.harvard.iq.dataverse.pidproviders.handle.HandlePidProvider.HDL_PROTOCOL;
+import static edu.harvard.iq.dataverse.pidproviders.perma.PermaLinkPidProvider.PERMA_PROTOCOL;
+
 /**
  *
  * @author gdurand, qqmyers
@@ -272,11 +276,13 @@ public class DataCitation {
         out.write("version = {");
         out.write(version);
         out.write("},\r\n");
-        out.write("doi = {");
-        out.write(persistentId.getAuthority());
-        out.write("/");
-        out.write(persistentId.getIdentifier());
-        out.write("},\r\n");
+        if("doi".equals(persistentId.getProtocol())) {
+            out.write("doi = {");
+            out.write(persistentId.getAuthority());
+            out.write("/");
+            out.write(persistentId.getIdentifier());
+            out.write("},\r\n");
+        }
         out.write("url = {");
         out.write(persistentId.asURL());
         out.write("}\r\n");
@@ -571,11 +577,21 @@ public class DataCitation {
         }
 
         xmlw.writeStartElement("urls");
-        xmlw.writeStartElement("related-urls");
-        xmlw.writeStartElement("url");
-        xmlw.writeCharacters(getPersistentId().asURL());
-        xmlw.writeEndElement(); // url
-        xmlw.writeEndElement(); // related-urls
+        if (persistentId != null) {
+            if (PERMA_PROTOCOL.equals(persistentId.getProtocol()) || HDL_PROTOCOL.equals(persistentId.getProtocol())) {
+                xmlw.writeStartElement("web-urls");
+                xmlw.writeStartElement("url");
+                xmlw.writeCharacters(getPersistentId().asURL());
+                xmlw.writeEndElement(); // url
+                xmlw.writeEndElement(); // web-urls
+            } else if (DOI_PROTOCOL.equals(persistentId.getProtocol())) {
+                xmlw.writeStartElement("related-urls");
+                xmlw.writeStartElement("url");
+                xmlw.writeCharacters(getPersistentId().asURL());
+                xmlw.writeEndElement(); // url
+                xmlw.writeEndElement(); // related-urls
+            }
+        }
         xmlw.writeEndElement(); // urls
         
         // a DataFile citation also includes the filename and (for Tabular
@@ -587,10 +603,9 @@ public class DataCitation {
             xmlw.writeCharacters(fileTitle);
             xmlw.writeEndElement(); // custom1
         }
-        if (persistentId != null) {
+        if (persistentId != null && "doi".equals(persistentId.getProtocol())) {
             xmlw.writeStartElement("electronic-resource-num");
-            String electResourceNum = persistentId.getProtocol() + "/" + persistentId.getAuthority() + "/"
-                    + persistentId.getIdentifier();
+            String electResourceNum = persistentId.asRawIdentifier();
             xmlw.writeCharacters(electResourceNum);
             xmlw.writeEndElement();
         }

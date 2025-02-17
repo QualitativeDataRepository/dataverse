@@ -742,7 +742,7 @@ img[alt='ORCID logo'], img[alt='ROR logo'] {
 img.ror {
   vertical-align: middle;
 }
-.expanded[data-cvoc-protocol='ror'] span {
+.expanded.parenthetical[data-cvoc-protocol='ror'] span {
   margin: 0px 5px 0px 5px;
 }
 
@@ -813,6 +813,10 @@ a.popoverHTML {display:inline-block;}
 div[id$="versionsTable"] th.col-select-width * {display:none;}
 div[id$="versionsTable"] th span {color:white;text-shadow:none;}
 div[id$="versionsTable"] tbody {word-break:break-word;}
+
+/* CURATION STATUS HISTORY */
+div[id$="curationStatusHistoryDialog"] {max-width:800px;}
+div[id$="curationStatusHistoryDialog"] th span {color:white;text-shadow:none;}
 
 /* FILES */
 div[id$="filesTable"].ui-datatable.ui-widget div.ui-datatable-tablewrapper {overflow:visible;}
@@ -1423,7 +1427,7 @@ progress::-webkit-progress-value {
   background-image: none;
 }
 
-.external-status {
+.curation-status {
   background-color: #CE15D1
 }
 

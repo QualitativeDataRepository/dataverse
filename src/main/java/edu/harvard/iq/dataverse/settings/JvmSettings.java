@@ -52,6 +52,9 @@ public enum JvmSettings {
     GUESTBOOK_AT_REQUEST(SCOPE_FILES, "guestbook-at-request"),
     GLOBUS_CACHE_MAXAGE(SCOPE_FILES, "globus-cache-maxage"),
     GLOBUS_TASK_MONITORING_SERVER(SCOPE_FILES, "globus-monitoring-server"),
+    SCOPE_FEATURED_ITEMS(SCOPE_FILES, "featured-items"),
+    FEATURED_ITEMS_IMAGE_MAXSIZE(SCOPE_FEATURED_ITEMS, "image-maxsize"),
+    FEATURED_ITEMS_IMAGE_UPLOADS_DIRECTORY(SCOPE_FEATURED_ITEMS, "image-uploads"),
 
     //STORAGE DRIVER SETTINGS
     SCOPE_DRIVER(SCOPE_FILES),
@@ -241,6 +244,7 @@ public enum JvmSettings {
     UI_ALLOW_REVIEW_INCOMPLETE(SCOPE_UI, "allow-review-for-incomplete"),
     UI_SHOW_VALIDITY_FILTER(SCOPE_UI, "show-validity-filter"),
     UI_SHOW_VALIDITY_LABEL_WHEN_PUBLISHED(SCOPE_UI, "show-validity-label-when-published"),
+    UI_SHOW_CURATION_STATUS_TO_ALL(SCOPE_UI, "show-curation-status-to-all"),
 
     // NetCDF SETTINGS
     SCOPE_NETCDF(PREFIX, "netcdf"),

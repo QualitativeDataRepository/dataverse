@@ -7,6 +7,18 @@ This API changelog is experimental and we would love feedback on its usefulness.
     :local:
     :depth: 1
 
+v6.7
+----
+/api/datasets/{id}/curationStatus API now includes a JSON object with curation label, createtime, and assigner rather than a string 'label' and it supports a new boolean includeHistory parameter (default false) that returns a JSON array of statuses
+/api/datasets/{id}/listCurationStates includes new columns "Status Set Time" and "Status Set By" columns listing the time the current status was applied and by whom. It also supports the boolean includeHistory parameter. 
+
+v6.6
+----
+
+- **/api/metadatablocks** is no longer returning duplicated metadata properties and does not omit metadata properties when called.
+- **/api/roles**: :ref:`show-role` now properly returns 403 Forbidden instead of 401 Unauthorized when you pass a working API token that doesn't have the right permission.
+- The content type for the ``schema.org`` dataset metadata export format has been corrected. It was ``application/json`` and now it is ``application/ld+json``. See also :ref:`export-dataset-metadata-api`.
+
 v6.5
 ----
 

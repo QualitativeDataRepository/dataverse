@@ -69,8 +69,6 @@ public class XmlMetadataTemplate {
     public static final String XML_SCHEMA_VERSION = "4.5";
 
     private DoiMetadata doiMetadata;
-    //QDR - used to get ROR name from ExternalVocabularyValue via pidProvider.get
-    private PidProvider pidProvider = null;
 
     public XmlMetadataTemplate() {
     }
@@ -98,13 +96,6 @@ public class XmlMetadataTemplate {
         String language = null; // machine locale? e.g. for Publisher which is global
         String metadataLanguage = null; // when set, otherwise = language?
         
-        //QDR - used to get ROR name from ExternalVocabularyValue via pidProvider.get
-        GlobalId pid = null;
-        pid = dvObject.getGlobalId();
-        if ((pid == null) && (dvObject instanceof DataFile df)) {
-                pid = df.getOwner().getGlobalId();
-            }
-        pidProvider = PidUtil.getPidProvider(pid.getProviderId());
         XMLStreamWriter xmlw = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
         xmlw.writeStartElement("resource");
         boolean deaccessioned=false;
@@ -626,7 +617,7 @@ public class XmlMetadataTemplate {
             attributeMap.clear();
             boolean isROR=false;
             String orgName = affiliation;
-            ExternalIdentifier externalIdentifier = ExternalIdentifier.ROR;
+            ExternalIdentifier externalIdentifier = ExternalIdentifier.ROR_FULL_URL;
             if (externalIdentifier.isValidIdentifier(orgName)) {
                 isROR = true;
                 JsonObject jo = getExternalVocabularyValue(orgName);
@@ -1534,7 +1525,7 @@ public class XmlMetadataTemplate {
                             fundingReferenceWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "fundingReferences", fundingReferenceWritten);
                             boolean isROR=false;
                             String funderIdentifier = null;
-                            ExternalIdentifier externalIdentifier = ExternalIdentifier.ROR;
+                            ExternalIdentifier externalIdentifier = ExternalIdentifier.ROR_FULL_URL;
                             if (externalIdentifier.isValidIdentifier(funder)) {
                                 isROR = true;
                                 JsonObject jo = getExternalVocabularyValue(funder);

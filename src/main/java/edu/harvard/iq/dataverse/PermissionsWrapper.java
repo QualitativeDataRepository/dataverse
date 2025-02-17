@@ -11,6 +11,8 @@ import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.*;
+import edu.harvard.iq.dataverse.settings.JvmSettings;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -251,10 +253,11 @@ public class PermissionsWrapper implements java.io.Serializable {
         return canIssueCommand(dvo, DeleteDatasetCommand.class);
     }
     
-    // PLUBLISH DATASET
-    public boolean canIssuePublishDatasetCommand(DvObject dvo){
+    // PUBLISH DATASET
+    public boolean canIssuePublishDatasetCommand(DvObject dvo) {
         return canIssueCommand(dvo, PublishDatasetCommand.class);
     }
+
     
     // For the dataverse_header fragment (and therefore, most of the pages),
     // we need to know if authenticated users can add dataverses and datasets to the

@@ -143,6 +143,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.io.IOUtils;
 import org.primefaces.component.selectonemenu.SelectOneMenu;
@@ -153,6 +154,7 @@ import org.primefaces.event.data.PageEvent;
 
 import edu.harvard.iq.dataverse.search.FacetLabel;
 import edu.harvard.iq.dataverse.search.SearchConstants;
+import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SearchServiceBean;
 import edu.harvard.iq.dataverse.search.SolrClientService;
@@ -160,6 +162,7 @@ import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SignpostingResources;
 import edu.harvard.iq.dataverse.util.FileMetadataUtil;
 import java.util.Comparator;
+import org.apache.solr.client.solrj.impl.BaseHttpSolrClient.RemoteSolrException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -1012,8 +1015,8 @@ public class DatasetPage implements java.io.Serializable {
 
         try {
             queryResponse = searchService.simpleSearch(dvRequestService.getDataverseRequest(), SearchFields.ENTITY_ID, pattern, filterQueries, facetList, 0, Integer.MAX_VALUE);
-        } catch (Exception ex) {
-            logger.fine("Remote Solr Exception: " + ex.getLocalizedMessage());
+        } catch (RemoteSolrException | SearchException ex) {
+            logger.fine("Solr Exception: " + ex.getLocalizedMessage());
             String msg = ex.getLocalizedMessage();
             if (msg.contains(SearchFields.FILE_DELETED)) {
                 // This is a backward compatibility hook put in place many versions
@@ -1441,6 +1444,15 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean canViewUnpublishedDataset() {
         return permissionsWrapper.canViewUnpublishedDataset( dvRequestService.getDataverseRequest(), dataset);
+    }
+
+    public boolean canSeeCurationStatus() {
+        boolean creatorsCanSeeStatus = JvmSettings.UI_SHOW_CURATION_STATUS_TO_ALL.lookupOptional(Boolean.class).orElse(false);
+        if (creatorsCanSeeStatus) {
+            return canViewUnpublishedDataset();
+        } else {
+            return canPublishDataset();
+        }
     }
 
     /*
@@ -1951,6 +1963,7 @@ public class DatasetPage implements java.io.Serializable {
         setDataverseSiteUrl(systemConfig.getDataverseSiteUrl());
 
         guestbookResponse = new GuestbookResponse();
+        anonymizedAccess = null;
 
         String sortOrder = getSortOrder();
         if(sortOrder != null) {
@@ -2581,7 +2594,7 @@ public class DatasetPage implements java.io.Serializable {
                     }
                 }
 
-                String creatorOrcidId = au.getOrcidId();
+                String creatorOrcidId = au.getAuthenticatedOrcid();
                 if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.author) && dsf.isEmpty()) {
                     for (DatasetFieldCompoundValue authorValue : dsf.getDatasetFieldCompoundValues()) {
                         for (DatasetField subField : authorValue.getChildDatasetFields()) {
@@ -5669,7 +5682,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public boolean isAnonymizedAccess() {
         if (anonymizedAccess == null) {
-            if (session.getUser() instanceof PrivateUrlUser) {
+            if (session.getUser() instanceof PrivateUrlUser && workingVersion.isDraft()) {
                 anonymizedAccess = ((PrivateUrlUser) session.getUser()).hasAnonymizedAccess();
             } else {
                 anonymizedAccess = false;
@@ -5692,6 +5705,22 @@ public class DatasetPage implements java.io.Serializable {
         } else {
             return false;
         }
+    }
+    
+    String anonymizedFieldTypeNames = null;
+    
+    public String getAnonymizedFieldTypeNames() {
+        if (anonymizedFieldTypeNames != null) {
+            return anonymizedFieldTypeNames;
+        }
+        if (settingsWrapper.getValueForKey(SettingsServiceBean.Key.AnonymizedFieldTypeNames) != null) {
+            anonymizedFieldTypeNames = settingsWrapper.getValueForKey(SettingsServiceBean.Key.AnonymizedFieldTypeNames);
+
+        } else {
+            anonymizedFieldTypeNames = "";
+
+        }
+        return anonymizedFieldTypeNames;
     }
 
     // todo: we should be able to remove - this is passed in the html pages to other fragments, but they could just access this service bean directly.
@@ -6209,28 +6238,28 @@ public class DatasetPage implements java.io.Serializable {
         return fieldService.getFieldLanguage(languages,session.getLocaleCode());
     }
 
-    public void setExternalStatus(String status) {
+    public void setCurationStatus(String status) {
         try {
             dataset = commandEngine.submit(new SetCurationStatusCommand(dvRequestService.getDataverseRequest(), dataset, status));
             workingVersion=dataset.getLatestVersion();
-            if (status == null || status.isEmpty()) {
-                JsfHelper.addInfoMessage(BundleUtil.getStringFromBundle("dataset.externalstatus.removed"));
+            if (Strings.isBlank(status)) {
+                JsfHelper.addInfoMessage(BundleUtil.getStringFromBundle("dataset.status.removed"));
             } else {
-                JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.externalstatus.header"),
-                        BundleUtil.getStringFromBundle("dataset.externalstatus.info",
-                                Arrays.asList(DatasetUtil.getLocaleExternalStatus(status))
+                JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.status.header"),
+                        BundleUtil.getStringFromBundle("dataset.status.info",
+                                Arrays.asList(DatasetUtil.getLocaleCurationStatusLabelFromString(status))
                         ));
             }
 
         } catch (CommandException ex) {
-            String msg = BundleUtil.getStringFromBundle("dataset.externalstatus.cantchange");
+            String msg = BundleUtil.getStringFromBundle("dataset.status.cantchange");
             logger.warning("Unable to change external status to " + status + " for dataset id " + dataset.getId() + ". Message to user: " + msg + " Exception: " + ex);
             JsfHelper.addErrorMessage(msg);
         }
     }
 
-    public List<String> getAllowedExternalStatuses() {
-        return settingsWrapper.getAllowedExternalStatuses(dataset);
+    public List<String> getAllowedCurationStatuses() {
+        return settingsWrapper.getAllowedCurationStatuses(dataset);
     }
 
     public Embargo getSelectionEmbargo() {

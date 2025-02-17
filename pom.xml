@@ -147,12 +147,24 @@
             <groupId>org.apache.abdera</groupId>
             <artifactId>abdera-core</artifactId>
             <!-- no version here as managed in <dependencyManagement> above for convergence! -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Dependency to use sword2-server in our codebase -->
         <dependency>
             <groupId>org.apache.abdera</groupId>
             <artifactId>abdera-i18n</artifactId>
             <!-- no version here as managed in <dependencyManagement> above for convergence! -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
         <dependency>
@@ -262,7 +274,7 @@
         <dependency>
             <groupId>org.eclipse.parsson</groupId>
             <artifactId>jakarta.json</artifactId>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
         
         <!-- JSON-B -->
@@ -350,7 +362,7 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>9.7.0</version>
+            <version>9.8.0</version>
         </dependency>
         <dependency>
             <groupId>colt</groupId>
@@ -481,13 +493,23 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>10.13.2</version>
+            <version>11.22.1</version>
         </dependency>
         <!-- Caching library, current main use case is for OIDC authentication -->
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
             <version>3.1.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml.stream</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>stax</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
         <!-- New and Improved GDCC XOAI library! -->

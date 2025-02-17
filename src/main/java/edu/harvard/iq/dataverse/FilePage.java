@@ -357,7 +357,15 @@ public class FilePage implements java.io.Serializable {
     public boolean canPublishDataset(){
         return permissionsWrapper.canIssuePublishDatasetCommand(fileMetadata.getDatasetVersion().getDataset());
     }
-   
+    
+    public boolean canSeeCurationStatus() {
+        boolean creatorsCanSeeStatus = JvmSettings.UI_SHOW_CURATION_STATUS_TO_ALL.lookupOptional(Boolean.class).orElse(false);
+        if (creatorsCanSeeStatus) {
+            return canViewUnpublishedDataset();
+        } else {
+            return canPublishDataset();
+        }
+    }
 
     public FileMetadata getFileMetadata() {
         return fileMetadata;
@@ -719,7 +727,7 @@ public class FilePage implements java.io.Serializable {
                     FileMetadata fmd = datafileService.findFileMetadataByDatasetVersionIdAndDataFileId(versionLoop.getId(), df.getId());
                     if (fmd != null) {
                         fmd.setContributorNames(datasetVersionService.getContributorsNames(versionLoop));
-                        FileVersionDifference fvd = new FileVersionDifference(fmd, getPreviousFileMetadata(fmd));
+                        FileVersionDifference fvd = new FileVersionDifference(fmd, getPreviousFileMetadata(fmd), true);
                         fmd.setFileVersionDifference(fvd);
                         retList.add(fmd);
                         foundFmd = true;
@@ -731,7 +739,7 @@ public class FilePage implements java.io.Serializable {
                     FileMetadata dummy = new FileMetadata();
                     dummy.setDatasetVersion(versionLoop);
                     dummy.setDataFile(null);
-                    FileVersionDifference fvd = new FileVersionDifference(dummy, getPreviousFileMetadata(versionLoop));
+                    FileVersionDifference fvd = new FileVersionDifference(dummy, getPreviousFileMetadata(versionLoop), true);
                     dummy.setFileVersionDifference(fvd);
                     retList.add(dummy);
                 }

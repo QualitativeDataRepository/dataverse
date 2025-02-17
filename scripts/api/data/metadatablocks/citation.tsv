@@ -130,11 +130,12 @@
 	contributorType	Work Package Leader		15											
 	contributorType	Other		16											
 	authorIdentifierScheme	ORCID		0											
-	authorIdentifierScheme	ISNI		1											
-	authorIdentifierScheme	LCNA		2											
-	authorIdentifierScheme	DAI		3
-	authorIdentifierScheme	ResearcherID		4
-	authorIdentifierScheme	ScopusID		5
+	authorIdentifierScheme	ROR		1											
+	authorIdentifierScheme	ISNI		2											
+	authorIdentifierScheme	LCNA		3											
+	authorIdentifierScheme	DAI		4
+	authorIdentifierScheme	ResearcherID		5
+	authorIdentifierScheme	ScopusID		6
 	language	'Are'are	alu	0	alu
 	language	'Auhelawa	kud	1	kud
 	language	A'ou	aou	2	aou
