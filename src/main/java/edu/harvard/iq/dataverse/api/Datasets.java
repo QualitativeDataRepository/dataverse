@@ -58,6 +58,8 @@ import edu.harvard.iq.dataverse.workflow.WorkflowServiceBean;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.json.*;
 import jakarta.json.stream.JsonParsingException;
@@ -108,7 +110,6 @@ import static edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder.jsonObjectB
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 
-@Stateless
 @Path("datasets")
 public class Datasets extends AbstractApiBean {
 
@@ -5447,10 +5448,14 @@ public class Datasets extends AbstractApiBean {
     @GET
     @AuthRequired
     @Path("{id}/versions/{versionId}/versionNote")
-    public Response getVersionCreationNote(@Context ContainerRequestContext crc, @PathParam("id") String datasetId, @PathParam("versionId") String versionId, String note, @Context UriInfo uriInfo, @Context HttpHeaders headers) throws WrappedResponse {
+    public Response getVersionCreationNote(@Context ContainerRequestContext crc, @PathParam("id") String datasetId, @PathParam("versionId") String versionId, @Context UriInfo uriInfo, @Context HttpHeaders headers) throws WrappedResponse {
 
         return response(req -> {
             DatasetVersion datasetVersion = getDatasetVersionOrDie(req, versionId, findDatasetOrDie(datasetId), uriInfo, headers);
+            String note = datasetVersion.getCreationNote();
+            if(note == null) {
+                return ok(Json.createObjectBuilder());
+            }
             return ok(datasetVersion.getCreationNote());
         }, getRequestUser(crc));
     }
@@ -5472,8 +5477,7 @@ public class Datasets extends AbstractApiBean {
                 return response(req -> {
                     DatasetVersion datasetVersion = getDatasetVersionOrDie(req, versionId, findDatasetOrDie(datasetId), uriInfo, headers);
                     datasetVersion.setCreationNote(note);
-                    em.merge(datasetVersion);
-
+                    execCommand(new UpdatePublishedDatasetVersionCommand(req, datasetVersion));
                     return ok("Note added to version " + datasetVersion.getFriendlyVersionNumber());
                 }, getRequestUser(crc));
             } catch (WrappedResponse ex) {
