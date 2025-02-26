@@ -908,7 +908,7 @@ public class DataverseServiceBean implements java.io.Serializable {
     // with a dataverse and returns a list of (dataset_id, title) pairs. 
     public List<Object[]> getDatasetTitlesWithinDataverse(Long dataverseId) {
         String cqString = BASE_QUERY_DATASET_TITLES_WITHIN_DV
-                + "and o.owner_id = " + dataverseId;
+                + " and o.owner_id = " + dataverseId;
 
         return em.createNativeQuery(cqString).getResultList();
     }

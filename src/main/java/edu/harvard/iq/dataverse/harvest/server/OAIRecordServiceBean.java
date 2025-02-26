@@ -361,7 +361,7 @@ public class OAIRecordServiceBean implements java.io.Serializable {
         
         
         String queryString ="SELECT object(h) from OAIRecord as h WHERE (h.removed != true)";
-        queryString += setName != null ? " and (h.setName = :setName)" : "and (h.setName is null)";
+        queryString += setName != null ? " and (h.setName = :setName)" : " and (h.setName is null)";
         logger.fine("Query: "+queryString);
         
         TypedQuery<OAIRecord> query = em.createQuery(queryString, OAIRecord.class);
@@ -380,7 +380,7 @@ public class OAIRecordServiceBean implements java.io.Serializable {
         
         
         String queryString ="SELECT object(h) from OAIRecord as h WHERE (h.removed = true)";
-        queryString += setName != null ? " and (h.setName = :setName)" : "and (h.setName is null)";
+        queryString += setName != null ? " and (h.setName = :setName)" : " and (h.setName is null)";
         logger.fine("Query: "+queryString);
         
         TypedQuery<OAIRecord> query = em.createQuery(queryString, OAIRecord.class);
