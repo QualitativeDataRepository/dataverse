@@ -2177,13 +2177,6 @@ public class DatasetVersion implements Serializable {
         curationStatus.setDatasetVersion(null);
     }
 
-    public String getCreationNote() {
-        return creationNote;
-    }
-
-    public void setCreationNote(String creationNote) {
-        this.creationNote = creationNote;
-    }
     public CurationStatus getCurationStatusAsOfDate(Date date) {
         if (curationStatuses == null || curationStatuses.isEmpty()) {
             return null;
