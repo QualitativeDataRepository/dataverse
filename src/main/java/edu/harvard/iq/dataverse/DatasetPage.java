@@ -57,6 +57,7 @@ import edu.harvard.iq.dataverse.search.SortBy;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.CSLUtil;
 import edu.harvard.iq.dataverse.util.DataFileComparator;
 import edu.harvard.iq.dataverse.util.FileSortFieldAndOrder;
 import edu.harvard.iq.dataverse.util.FileUtil;
@@ -183,7 +184,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public enum EditMode {
 
-        CREATE, INFO, FILE, METADATA, LICENSE, CREATIONNOTE
+        CREATE, INFO, FILE, METADATA, LICENSE, VERSIONNOTE
     };
 
     public enum DisplayMode {
@@ -2098,7 +2099,7 @@ public class DatasetPage implements java.io.Serializable {
                 if (workingVersion.isDraft() && canUpdateDataset()) {
                     readOnly = false;
                 }
-                publishDialogCreationNote = workingVersion.getCreationNote();
+                publishDialogVersionNote = workingVersion.getVersionNote();
                 // As of v5.x (PF8?), having the variables initially set to true in their
                 // declarations doesn't result in them being true when a page is first viewed -
                 // need to set them here.
@@ -2817,7 +2818,7 @@ public class DatasetPage implements java.io.Serializable {
         if(!dataset.getOwner().isReleased()){
             releaseParentDV();
         }
-        workingVersion.setCreationNote(publishDialogCreationNote);
+        workingVersion.setVersionNote(publishDialogVersionNote);
         if(publishDatasetPopup()|| publishBothPopup() || !dataset.getLatestVersion().isMinorUpdate()){
             return releaseDataset(false);
         }
@@ -2884,35 +2885,35 @@ public class DatasetPage implements java.io.Serializable {
         String deacessionReasonDetail = getDeaccessionReasonText() != null ? ( getDeaccessionReasonText()).trim() : "";
         switch (deaccessionReasonCode) {
             case 1:
-                dvIn.setVersionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.identifiable") );
+                dvIn.setDeaccessionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.identifiable") );
                 break;
             case 2:
-                dvIn.setVersionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.beRetracted") );
+                dvIn.setDeaccessionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.beRetracted") );
                 break;
             case 3:
-                dvIn.setVersionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.beTransferred") );
+                dvIn.setDeaccessionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.beTransferred") );
                 break;
             case 4:
-                dvIn.setVersionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.IRB"));
+                dvIn.setDeaccessionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.IRB"));
                 break;
             case 5:
-                dvIn.setVersionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.legalIssue"));
+                dvIn.setDeaccessionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.legalIssue"));
                 break;
             case 6:
-                dvIn.setVersionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.notValid"));
+                dvIn.setDeaccessionNote(BundleUtil.getStringFromBundle("file.deaccessionDialog.reason.selectItem.notValid"));
                 break;
             case 7:
                 break;
         }
         if (!deacessionReasonDetail.isEmpty()){
-            if (!StringUtil.isEmpty(dvIn.getVersionNote())){
-                dvIn.setVersionNote(dvIn.getVersionNote() + " " + deacessionReasonDetail);
+            if (!StringUtil.isEmpty(dvIn.getDeaccessionNote())){
+                dvIn.setDeaccessionNote(dvIn.getDeaccessionNote() + " " + deacessionReasonDetail);
             } else {
-                dvIn.setVersionNote(deacessionReasonDetail);
+                dvIn.setDeaccessionNote(deacessionReasonDetail);
             }
         }
 
-        dvIn.setArchiveNote(getDeaccessionForwardURLFor());
+        dvIn.setDeaccessionLink(getDeaccessionForwardURLFor());
         return dvIn;
     }
 
@@ -3977,7 +3978,7 @@ public class DatasetPage implements java.io.Serializable {
             return;
         }
 
-        if (value.toString().length() <= DatasetVersion.ARCHIVE_NOTE_MAX_LENGTH) {
+        if (value.toString().length() <= DatasetVersion.DEACCESSION_NOTE_MAX_LENGTH) {
             ((UIInput) toValidate).setValid(true);
         } else {
             ((UIInput) toValidate).setValid(false);
@@ -4148,8 +4149,8 @@ public class DatasetPage implements java.io.Serializable {
             }
             if (editMode.equals(EditMode.FILE)) {
                 JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.filesSuccess"));
-            } if (editMode.equals(EditMode.CREATIONNOTE)) {
-                JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.creationNoteSuccess"));
+            } if (editMode.equals(EditMode.VERSIONNOTE)) {
+                JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.versionNoteSuccess"));
             }
         } else {
             // must have been a bulk file update or delete:
@@ -6769,20 +6770,30 @@ public class DatasetPage implements java.io.Serializable {
         return AbstractDOIProvider.DOI_PROTOCOL.equals(dataset.getGlobalId().getProtocol());
     }
     
-    public void saveCreationNote() {
-        this.editMode=EditMode.CREATIONNOTE;
-        publishDialogCreationNote = workingVersion.getCreationNote();
+    public void saveVersionNote() {
+        this.editMode=EditMode.VERSIONNOTE;
+        publishDialogVersionNote = workingVersion.getVersionNote();
         save();
     }
-    String publishDialogCreationNote = null;
+    String publishDialogVersionNote = null;
     
-    // Make separate property for creationNote - can't have two p:dialogs changing the same property
-    public String getPublishDialogCreationNote() {
-        return publishDialogCreationNote;
+    // Make separate property for versionNote - can't have two p:dialogs changing the same property
+    public String getPublishDialogVersionNote() {
+        return publishDialogVersionNote;
     }
     
-    public void setPublishDialogCreationNote(String note) {
-        publishDialogCreationNote =note;
+    public void setPublishDialogVersionNote(String note) {
+        publishDialogVersionNote =note;
+    }
+
+    String requestedCSL = CSLUtil.getDefaultStyle();
+
+    public String getRequestedCSL() {
+        return requestedCSL;
+    }
+
+    public void setRequestedCSL(String requestedCSL) {
+        this.requestedCSL = requestedCSL;
     }
 
 }

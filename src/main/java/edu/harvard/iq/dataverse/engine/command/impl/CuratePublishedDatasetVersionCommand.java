@@ -73,8 +73,8 @@ public class CuratePublishedDatasetVersionCommand extends AbstractDatasetCommand
         newTerms.setDatasetVersion(updateVersion);
         updateVersion.setTermsOfUseAndAccess(newTerms);
         
-        //Creation Note
-        updateVersion.setCreationNote(newVersion.getCreationNote());
+        //Version Note
+        updateVersion.setVersionNote(newVersion.getVersionNote());
         
         // Clear unnecessary terms relationships ....
         newVersion.setTermsOfUseAndAccess(null);
