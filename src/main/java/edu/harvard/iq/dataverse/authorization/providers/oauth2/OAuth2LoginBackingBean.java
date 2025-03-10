@@ -291,7 +291,6 @@ public class OAuth2LoginBackingBean implements Serializable {
             logger.log(Level.WARNING, "Threading exception caught. Message: {0}", ex.getLocalizedMessage());
         }
     }
-
     
     /**
      * TODO: Refactor this to be included in calling method.
