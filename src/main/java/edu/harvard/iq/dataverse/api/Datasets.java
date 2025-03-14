@@ -4162,7 +4162,7 @@ public class Datasets extends AbstractApiBean {
                     case 400:
                         return badRequest("Unable to grant permission");
                     case 409:
-                        return conflict("Permission already exists");
+                        return conflict("Permission already exists or no more permissions allowed");
                     default:
                         return error(null, "Unexpected error when granting permission");
                     }
@@ -4533,7 +4533,7 @@ public class Datasets extends AbstractApiBean {
             case 400:
                 return badRequest("Unable to grant permission");
             case 409:
-                return conflict("Permission already exists");
+                return conflict("Permission already exists or no more permissions allowed");
             default:
                 return error(null, "Unexpected error when granting permission");
             }
@@ -4587,8 +4587,17 @@ public class Datasets extends AbstractApiBean {
             return wr.getResponse();
         }
 
+        JsonObject jsonObject = null;
+        try {
+            jsonObject = JsonUtil.getJsonObject(jsonData);
+        } catch (Exception ex) {
+            logger.warning("Globus download monitoring: error parsing json: " + jsonData + " " + ex.getMessage());
+            return badRequest("Error parsing json body");
+
+        }
+        
         // Async Call
-        globusService.globusDownload(jsonData, dataset, authUser);
+        globusService.globusDownload(jsonObject, dataset, authUser);
 
         return ok("Async call to Globus Download started");
 

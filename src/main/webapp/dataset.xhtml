@@ -84,7 +84,6 @@
             </ui:define>
             <ui:define name="og_header">
                 <ui:fragment rendered="#{!DatasetPage.anonymizedAccess}">
-                    <!--o:importConstants type="edu.harvard.iq.dataverse.dataaccess.ImageThumbConverter" /-->
                     <meta property="og:title" content="#{DatasetPage.title}" />
                     <meta property="og:type" content="article" />
                     <meta property="og:url" content="#{DatasetPage.dataverseSiteUrl}/dataset.xhtml?persistentId=#{dataset.globalId}" />
@@ -2087,7 +2086,7 @@
                           </p:dataTable>
                         </h:form>
                     </p:dialog>
-                    <ui:fragment rendered="#{DatasetPage.editMode != 'CREATE'}">
+                    <ui:fragment rendered="#{empty DatasetPage.editMode}">
                       <script src="https://cdn.jsdelivr.net/npm/citation-js"
                           type="text/javascript"></script>
                       <script>
