@@ -67,7 +67,7 @@ public class HtmlFormatUtil  implements java.io.Serializable {
     }
     
     public static String formatLink(String name, String url) {
-        String href = HTML_HREF + "=\"" + url + "\" download=\"" + name + "\"";
+        String href = HTML_HREF + "=\"" + url + "\""; 
         
         return formatTag(name, HTML_LINK, href);
     }
