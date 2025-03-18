@@ -1834,6 +1834,10 @@ public class DatasetPage implements java.io.Serializable {
                 if (dsf != null){
                     // Yes, call "setInclude"
                     dsf.setInclude(oneDSFieldTypeInputLevel.isInclude());
+                    Boolean displayOnCreate = oneDSFieldTypeInputLevel.getDisplayOnCreate();
+                    if (displayOnCreate!= null) {
+                        dsf.getDatasetFieldType().setLocalDisplayOnCreate(displayOnCreate);
+                    }
                     // remove from hash
                     mapDatasetFields.remove(oneDSFieldTypeInputLevel.getDatasetFieldType().getId());
                 }
@@ -5850,38 +5854,41 @@ public class DatasetPage implements java.io.Serializable {
         return DatasetUtil.getDatasetSummaryFields(workingVersion, customFields);
     }
 
-    public boolean isShowPreviewButton(Long fileId) {
-        List<ExternalTool> previewTools = getPreviewToolsForDataFile(fileId);
+    public boolean isShowPreviewButton(DataFile dataFile) {
+        List<ExternalTool> previewTools = getPreviewToolsForDataFile(dataFile);
         return previewTools.size() > 0;
     }
     
     public boolean isShowQueryButton(DataFile dataFile) {
+
         if(dataFile.isRestricted()
                 || !dataFile.isReleased()
                 || FileUtil.isActivelyEmbargoed(dataFile)
                 || FileUtil.isRetentionExpired(dataFile)){
             return false;
         }
-        List<ExternalTool> fileQueryTools = getQueryToolsForDataFile(dataFile.getId());
+        List<ExternalTool> fileQueryTools = getQueryToolsForDataFile(dataFile);
         return fileQueryTools.size() > 0;
     }
 
-    public List<ExternalTool> getPreviewToolsForDataFile(Long fileId) {
-        return getCachedToolsForDataFile(fileId, ExternalTool.Type.PREVIEW);
+    public List<ExternalTool> getPreviewToolsForDataFile(DataFile dataFile) {
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.PREVIEW);
     }
 
-    public List<ExternalTool> getQueryToolsForDataFile(Long fileId) {
-        return getCachedToolsForDataFile(fileId, ExternalTool.Type.QUERY);
+    public List<ExternalTool> getQueryToolsForDataFile(DataFile dataFile) {
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.QUERY);
     }
-    public List<ExternalTool> getConfigureToolsForDataFile(Long fileId) {
-        return getCachedToolsForDataFile(fileId, ExternalTool.Type.CONFIGURE);
-    }
-
-    public List<ExternalTool> getExploreToolsForDataFile(Long fileId) {
-        return getCachedToolsForDataFile(fileId, ExternalTool.Type.EXPLORE);
+    
+    public List<ExternalTool> getConfigureToolsForDataFile(DataFile dataFile) {
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.CONFIGURE);
     }
 
-    public List<ExternalTool> getCachedToolsForDataFile(Long fileId, ExternalTool.Type type) {
+    public List<ExternalTool> getExploreToolsForDataFile(DataFile dataFile) {
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.EXPLORE);
+    }
+
+    public List<ExternalTool> getCachedToolsForDataFile(DataFile dataFile, ExternalTool.Type type) {
+        Long fileId = dataFile.getId();
         Map<Long, List<ExternalTool>> cachedToolsByFileId = new HashMap<>();
         List<ExternalTool> externalTools = new ArrayList<>();
         switch (type) {
@@ -5908,7 +5915,6 @@ public class DatasetPage implements java.io.Serializable {
         if (cachedTools != null) { //if already queried before and added to list
             return cachedTools;
         }
-        DataFile dataFile = datafileService.find(fileId);
         cachedTools = externalToolService.findExternalToolsByFile(externalTools, dataFile);
         cachedToolsByFileId.put(fileId, cachedTools); //add to map so we don't have to do the lifting again
         return cachedTools;
