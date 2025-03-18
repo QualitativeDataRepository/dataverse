@@ -2069,8 +2069,7 @@
                     </p:dialog>
                     <p:dialog id="curationStatusHistoryDialog" header="#{bundle['dataset.curationStatusHistory']}"
                             widgetVar="curationStatusHistoryDialog" modal="true" responsive="true">
-                        <h:form id="curationStatusHistoryForm">
-                          <p:dataTable value="#{DatasetPage.workingVersion.curationStatuses}" var="status"
+                        <p:dataTable value="#{DatasetPage.workingVersion.curationStatuses}" var="status"
                                  styleClass="margin-bottom-half" rowIndexVar="index">
                             <p:column headerText="#{bundle['dataset.curationStatus']}">
                                 <h:outputText value="#{status.label}"/>
@@ -2083,8 +2082,7 @@
                             <p:column headerText="#{bundle['dataset.curationAssigner']}">
                                 <h:outputText value="#{status.authenticatedUser.name}"/>
                             </p:column>
-                          </p:dataTable>
-                        </h:form>
+                        </p:dataTable>
                     </p:dialog>
                     <ui:fragment rendered="#{empty DatasetPage.editMode}">
                       <script src="https://cdn.jsdelivr.net/npm/citation-js"
