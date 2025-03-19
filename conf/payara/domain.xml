@@ -77,23 +77,9 @@
         <jdbc-connection-pool is-isolation-level-guaranteed="false" name="H2Pool" datasource-classname="org.h2.jdbcx.JdbcDataSource" res-type="javax.sql.DataSource">
             <property name="URL" value="jdbc:h2:${com.sun.aas.instanceRoot}/lib/databases/embedded_default;AUTO_SERVER=TRUE" />
         </jdbc-connection-pool>
-        <managed-executor-service object-type="system-all" jndi-name="concurrent/__defaultManagedExecutorService" />
-        <managed-scheduled-executor-service object-type="system-all" jndi-name="concurrent/__defaultManagedScheduledExecutorService" />
-        <connector-connection-pool max-pool-size="250" resource-adapter-name="jmsra" steady-pool-size="1" name="jms/__defaultConnectionFactory-Connection-Pool" connection-definition-name="jakarta.jms.ConnectionFactory" />
-        <connector-resource pool-name="jms/__defaultConnectionFactory-Connection-Pool" object-type="system-all-req" jndi-name="jms/__defaultConnectionFactory" />
-        <context-service object-type="system-all" jndi-name="concurrent/__defaultContextService" />
-        <managed-thread-factory object-type="system-all" jndi-name="concurrent/__defaultManagedThreadFactory" />
     </resources>
     <servers>
         <server name="server" config-ref="server-config">
-            <!-- Dataverse-instance-specific -->
-            <system-property name="dataverse.db.user" value="dvnuser" />
-            <system-property name="dataverse.db.host" value="localhost" />
-            <system-property name="dataverse.db.port" value="5432" />
-            <system-property name="dataverse.db.name" value="dvndb" />
-            <resource-ref ref="concurrent/__defaultManagedExecutorService" />
-            <resource-ref ref="concurrent/__defaultManagedScheduledExecutorService" />
-            <!-- End Dataverse-instance-specific -->
             <resource-ref ref="jdbc/__TimerPool" />
             <resource-ref ref="jdbc/__default" />
         </server>
@@ -104,11 +90,11 @@
     <configs>
         <config name="server-config">
             <system-property name="JMS_PROVIDER_PORT" value="7676" description="Port Number that JMS Service will listen for remote clients connection." />
-
+            
             <payara-executor-service-configuration />
             <http-service>
                 <access-log />
-                <virtual-server id="server" network-listeners="http-listener-1,http-listener-2, jk-connector" />
+                <virtual-server id="server" network-listeners="http-listener-1,http-listener-2" />
                 <virtual-server id="__asadmin" network-listeners="admin-listener" />
             </http-service>
             <iiop-service>
@@ -149,9 +135,6 @@
               <notifier>log-notifier</notifier>
             </admin-audit-configuration>
             <diagnostic-service />
-            <jms-service default-jms-host="default_JMS_host" type="EMBEDDED">
-                <jms-host port="${JMS_PROVIDER_PORT}" host="localhost" name="default_JMS_host" />
-            </jms-service>
             <security-service>
                 <auth-realm classname="com.sun.enterprise.security.auth.realm.file.FileRealm" name="admin-realm">
                     <property value="${com.sun.aas.instanceRoot}/config/admin-keyfile" name="file" />
@@ -239,6 +222,7 @@
                 <jvm-options>[17|]--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</jvm-options>
                 <jvm-options>[17|]--add-opens=java.base/java.io=ALL-UNNAMED</jvm-options>
                 <jvm-options>[21|]--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</jvm-options>
+                <jvm-options>-Xmx512m</jvm-options>
                 <jvm-options>-XX:NewRatio=2</jvm-options>
                 <jvm-options>-XX:+UnlockDiagnosticVMOptions</jvm-options>
                 <jvm-options>-Dcom.sun.enterprise.config.config_environment_factory_class=com.sun.enterprise.config.serverbeans.AppserverConfigEnvironmentFactory</jvm-options>
@@ -294,8 +278,6 @@
                 <!-- Hotswap Agent -->
                 <jvm-options>[Dynamic Code Evolution-11.0.10|]-XX:HotswapAgent=core</jvm-options>
                 <jvm-options>[Dynamic Code Evolution-11.0.10|]-Xlog:redefine+class*=info</jvm-options>
-                <!-- Dataverse-instance-specific -->
-                <!-- End Dataverse-instance-specific -->
             </java-config>
             <availability-service>
                 <web-container-availability />
@@ -325,7 +307,6 @@
                     <network-listener port="8080" protocol="http-listener-1" transport="tcp" name="http-listener-1" thread-pool="http-thread-pool"></network-listener>
                     <network-listener port="8181" protocol="http-listener-2" transport="tcp" name="http-listener-2" thread-pool="http-thread-pool"></network-listener>
                     <network-listener port="4848" protocol="admin-listener" transport="tcp" name="admin-listener" thread-pool="admin-thread-pool"></network-listener>
-                    <network-listener port="8009" protocol="http-listener-1" transport="tcp" name="jk-connector"  thread-pool="http-thread-pool" jk-enabled="true"></network-listener>
                 </network-listeners>
                 <transports>
                     <transport name="tcp"></transport>
@@ -605,7 +586,7 @@
         </config>
     </configs>
     <property name="administrative.domain.name" value="domain1" />
-    <secure-admin special-admin-indicator="a2bb018d-c940-4867-95c9-9b7c7206f454">
+    <secure-admin special-admin-indicator="aae86e22-376b-4154-b65b-2fd4c33ff4fc">
         <secure-admin-principal dn="CN=localhost,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
         <secure-admin-principal dn="CN=localhost-instance,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
     </secure-admin>

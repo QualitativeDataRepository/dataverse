@@ -1,8 +1,8 @@
-Instructions on how to use the domain.xml.qdr file to update from older domain.xml files to payara-6.2025.2. This is an alternative to keeping the original file which differs significantly (in terms of diff) from Payara's current default. 
+Instructions on how to use the domain.xml.qdr file to update from older domain.xml files to payara-6.2025.3. This is an alternative to keeping the original file which differs significantly (in terms of diff) from Payara's current default. 
 
 From the #11126 release notes:
 
- Option2 : Modify the default 6.2025.2 domain1 configuration for your Dataverse instance. (Removes obsolete options, gets updated certificate store, makes tracking your Dataverse-specific changes relative to the the Payara default easier.)
+ Option2 : Modify the default 6.2025.3 domain1 configuration for your Dataverse instance. (Removes obsolete options, gets updated certificate store, makes tracking your Dataverse-specific changes relative to the the Payara default easier.)
 
 1. Stop Payara 6, if running.
 
@@ -15,12 +15,12 @@ From the #11126 release notes:
 mv $PAYARA $PAYARA.6.2024.6
 ```
 
-1. Download Payara 6.2025.2 and unzip it
+1. Download Payara 6.2025.3 and unzip it
 
 ```shell
     cd /usr/local
-    curl -L -O https://nexus.payara.fish/repository/payara- community/fish/payara/distributions/payara/6.2025.2/payara-6.2025.2.zip
-    unzip payara-6.2025.2.zip
+    curl -L -O https://nexus.payara.fish/repository/payara- community/fish/payara/distributions/payara/6.2025.3/payara-6.2025.3.zip
+    unzip payara-6.2025.3.zip
 ```
 
 1. Change ownership of the unzipped Payara to your "service" user ("dataverse" by default)
