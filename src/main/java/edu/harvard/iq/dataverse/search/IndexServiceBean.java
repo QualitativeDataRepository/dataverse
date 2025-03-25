@@ -477,7 +477,9 @@ public class IndexServiceBean {
 
     public void indexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
         doIndexDataset(dataset, doNormalSolrDocCleanUp);
+        logger.info("indexed dataset " + dataset.getId());
         updateLastIndexedTime(dataset.getId());
+        logger.info("indextime updated for dataset " + dataset.getId());
     }
     
     private void doIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
@@ -917,7 +919,13 @@ public class IndexServiceBean {
              */
             return new IndexResponse("permissions indexing disabled for debugging");
         }
+        long startTime = System.currentTimeMillis();
         IndexResponse indexResponse = solrIndexService.indexPermissionsOnSelfAndChildren(dataset);
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        
+        logger.info("Indexing permissions for dataset " + dataset.getId() + " took " + duration + " ms");
+        
         return indexResponse;
     }
 
@@ -927,6 +935,7 @@ public class IndexServiceBean {
     }
 
     public SolrInputDocuments toSolrDocs(IndexableDataset indexableDataset, Set<Long> datafilesInDraftVersion) throws  SolrServerException, IOException {
+
         try {
         IndexableDataset.DatasetState state = indexableDataset.getDatasetState();
         Dataset dataset = indexableDataset.getDatasetVersion().getDataset();
@@ -1411,7 +1420,10 @@ public class IndexServiceBean {
                     dataset.getCitation(dataset.getReleasedVersion()) : dataset.getCitation();
             final Long datasetId = dataset.getId();
             final String datasetGlobalId = dataset.getGlobalId().toString();
+            long totalLoopTime = 0;
             for (FileMetadata fileMetadata : fileMetadatas) {
+                long startTime = System.currentTimeMillis();
+              
                 LocalDate end = null;
                 LocalDate start = null;
                 Embargo emb= fileMetadata.getDataFile().getEmbargo();
@@ -1759,7 +1771,12 @@ public class IndexServiceBean {
                     filesIndexed.add(fileSolrDocId);
                     docs.add(datafileSolrInputDocument);
                 }
+                long endTime = System.currentTimeMillis();
+                long duration = endTime - startTime;
+                totalLoopTime += duration;
+                logger.info("Processed fileMetadata " + fileMetadata.getId() + " in " + duration + " ms");
             }
+            logger.info("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
             if(embargoEndDate!=null) {
               solrInputDocument.addField(SearchFields.EMBARGO_END_DATE, embargoEndDate.toEpochDay());
             }
@@ -1782,7 +1799,13 @@ public class IndexServiceBean {
         final SolrInputDocuments docs = toSolrDocs(indexableDataset, datafilesInDraftVersion);
 
         try {
+            long startTime = System.currentTimeMillis();
+            int docCount = docs.getDocuments().size();
+            logger.info("Starting to add " + docCount + " documents to Solr");
             solrClientIndexService.getSolrClient().add(docs.getDocuments());
+            long endTime = System.currentTimeMillis();
+            long duration = endTime - startTime;
+            logger.info("Finished adding " + docCount + " documents to Solr. Time taken: " + duration + " ms");
         } catch (SolrServerException | IOException ex) {
             logger.warning("Check process-failures logs re: " + ex.getLocalizedMessage());
             if (ex.getCause() instanceof SolrServerException) {
