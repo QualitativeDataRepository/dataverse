@@ -1450,9 +1450,8 @@ public class IndexServiceBean {
             String datasetVersionId = datasetVersion.getId().toString();
             boolean indexThisMetadata = indexableDataset.isFilesShouldBeIndexed();
             String datasetPersistentURL = dataset.getPersistentURL();
-            
+            long startTime = System.currentTimeMillis();
             for (FileMetadata fileMetadata : fileMetadatas) {
-                long startTime = System.currentTimeMillis();
                 DataFile datafile = fileMetadata.getDataFile();
                 LocalDate end = null;
                 LocalDate start = null;
@@ -1784,11 +1783,10 @@ public class IndexServiceBean {
                     filesIndexed.add(fileSolrDocId);
                     docs.add(datafileSolrInputDocument);
                 }
-                long endTime = System.currentTimeMillis();
-                long duration = endTime - startTime;
-                totalLoopTime += duration;
-                logger.info("Processed fileMetadata " + fileMetadata.getId() + " in " + duration + " ms");
             }
+            long endTime = System.currentTimeMillis();
+            totalLoopTime = endTime - startTime;
+
             logger.info("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
             if(embargoEndDate!=null) {
               solrInputDocument.addField(SearchFields.EMBARGO_END_DATE, embargoEndDate.toEpochDay());
