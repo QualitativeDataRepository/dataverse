@@ -1411,6 +1411,7 @@ public class IndexServiceBean {
                     dataset.getCitation(dataset.getReleasedVersion()) : dataset.getCitation();
             final Long datasetId = dataset.getId();
             final String datasetGlobalId = dataset.getGlobalId().toString();
+            long startTime = System.currentTimeMillis();
             for (FileMetadata fileMetadata : fileMetadatas) {
                 LocalDate end = null;
                 LocalDate start = null;
@@ -1760,6 +1761,9 @@ public class IndexServiceBean {
                     docs.add(datafileSolrInputDocument);
                 }
             }
+            long totalLoopTime = System.currentTimeMillis() - startTime;
+
+            logger.info("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
             if(embargoEndDate!=null) {
               solrInputDocument.addField(SearchFields.EMBARGO_END_DATE, embargoEndDate.toEpochDay());
             }
