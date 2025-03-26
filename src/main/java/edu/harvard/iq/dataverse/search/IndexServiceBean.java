@@ -477,9 +477,8 @@ public class IndexServiceBean {
 
     public void indexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
         doIndexDataset(dataset, doNormalSolrDocCleanUp);
-        logger.info("indexed dataset " + dataset.getId());
         updateLastIndexedTime(dataset.getId());
-        logger.info("indextime updated for dataset " + dataset.getId());
+        logger.fine("indextime updated for dataset " + dataset.getId());
     }
     
     private void doIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
@@ -924,7 +923,7 @@ public class IndexServiceBean {
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
         
-        logger.info("Indexing permissions for dataset " + dataset.getId() + " took " + duration + " ms");
+        logger.fine("Indexing permissions for dataset " + dataset.getId() + " took " + duration + " ms");
         
         return indexResponse;
     }
@@ -1420,9 +1419,7 @@ public class IndexServiceBean {
                     dataset.getCitation(dataset.getReleasedVersion()) : dataset.getCitation();
             final Long datasetId = dataset.getId();
             final String datasetGlobalId = dataset.getGlobalId().toString();
-            long totalLoopTime = 0;
             
-            //Constants within loop:
             AutoDetectParser autoParser = null;
             ParseContext context = null;
             if(doFullTextIndexing) {
@@ -1450,6 +1447,7 @@ public class IndexServiceBean {
             String datasetVersionId = datasetVersion.getId().toString();
             boolean indexThisMetadata = indexableDataset.isFilesShouldBeIndexed();
             String datasetPersistentURL = dataset.getPersistentURL();
+            boolean isHarvested = dataset.isHarvested();
             long startTime = System.currentTimeMillis();
             for (FileMetadata fileMetadata : fileMetadatas) {
                 DataFile datafile = fileMetadata.getDataFile();
@@ -1505,7 +1503,7 @@ public class IndexServiceBean {
                     }
                     /* Full-text indexing using Apache Tika */
                     if (doFullTextIndexing) {
-                        if (!dataset.isHarvested()
+                        if (!isHarvested
                                 && !datafile.isFilePackage()
                                 && datafile.getFilesize()!=0
                                 && datafile.getRetention() == null) {
@@ -1521,9 +1519,9 @@ public class IndexServiceBean {
                                     // currently opened in the call above (see
                                     // https://github.com/IQSS/dataverse/issues/5165 - applies to files as well), so we want to get a handle so
                                     // we can close it below.
+                                    instream = accessObject.getInputStream();
                                     long size = accessObject.getSize();
                                     if ((size > 0) && (size <= maxSize)) {
-                                        instream = accessObject.getInputStream();
                                         textHandler = new BodyContentHandler(-1);
                                         Metadata metadata = new Metadata();
                                         /*
@@ -1554,14 +1552,11 @@ public class IndexServiceBean {
                                         datafile.getDisplayName(),e.getClass().getCanonicalName(), e.getLocalizedMessage()));
                             } finally {
                                 textHandler = null;
-                                //QDR handle case where StorageIO can't be created, as with prod content on stage
-                                if(accessObject!=null) {
-                                    accessObject.closeInputStream();
-                                }
+                                IOUtils.closeQuietly(instream);
                             }
                         }
                     }
-                    logger.fine("Continuing with file: " + datafile.getId());
+
                     String filenameCompleteFinal = "";
                     if (fileMetadata != null) {
                         String filenameComplete = fileMetadata.getLabel();
@@ -1784,10 +1779,9 @@ public class IndexServiceBean {
                     docs.add(datafileSolrInputDocument);
                 }
             }
-            long endTime = System.currentTimeMillis();
-            totalLoopTime = endTime - startTime;
-
-            logger.info("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
+            long totalLoopTime = System.currentTimeMillis() - startTime;
+            logger.fine("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
+            
             if(embargoEndDate!=null) {
               solrInputDocument.addField(SearchFields.EMBARGO_END_DATE, embargoEndDate.toEpochDay());
             }
@@ -1812,11 +1806,10 @@ public class IndexServiceBean {
         try {
             long startTime = System.currentTimeMillis();
             int docCount = docs.getDocuments().size();
-            logger.info("Starting to add " + docCount + " documents to Solr");
             solrClientIndexService.getSolrClient().add(docs.getDocuments());
             long endTime = System.currentTimeMillis();
             long duration = endTime - startTime;
-            logger.info("Finished adding " + docCount + " documents to Solr. Time taken: " + duration + " ms");
+            logger.fine("Finished adding " + docCount + " documents to Solr. Time taken: " + duration + " ms");
         } catch (SolrServerException | IOException ex) {
             logger.warning("Check process-failures logs re: " + ex.getLocalizedMessage());
             if (ex.getCause() instanceof SolrServerException) {
