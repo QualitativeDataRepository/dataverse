@@ -1468,14 +1468,18 @@ public class IndexServiceBean {
                 fileMetadatas.parallelStream().forEach(fileMetadata -> {
                     DataFile datafile = fileMetadata.getDataFile();
                     Embargo emb = datafile.getEmbargo();
-                    LocalDate end = emb.getDateAvailable();
+                    LocalDate end = null;
                     if (emb != null) {
-                        embargoEndDateRef.updateAndGet(current -> (current == null || end.isAfter(current)) ? end : current);
+                        final LocalDate endDate = emb.getDateAvailable();
+                        embargoEndDateRef.updateAndGet(current -> (current == null || endDate.isAfter(current)) ? endDate : current);
+                        end = endDate;
                     }
                     Retention ret = datafile.getRetention();
-                    LocalDate start = ret.getDateUnavailable();
+                    LocalDate start = null;
                     if (ret != null) {
-                        retentionEndDateRef.updateAndGet(current -> (current == null || start.isBefore(current)) ? start : current);
+                        final LocalDate startDate = ret.getDateUnavailable();
+                        retentionEndDateRef.updateAndGet(current -> (current == null || startDate.isBefore(current)) ? startDate : current);
+                        start = startDate;
                     }
                     boolean indexThisFile=indexThisMetadata;
                     if (indexThisMetadata && checkForDuplicateMetadata && !releasedFileMetadatas.isEmpty()) {
