@@ -91,6 +91,7 @@ import jakarta.inject.Named;
 import jakarta.json.JsonObject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -303,8 +304,8 @@ public class IndexServiceBean {
             dataversePaths.add(dvPath);
         }
         //only do this if we're indexing an individual dataverse ie not full re-index
-        List<Long> dataverseChildrenIds = new ArrayList();
-        List<Long> datasetChildrenIds = new ArrayList();
+        List<Long> dataverseChildrenIds = new ArrayList<Long>();
+        List<Long> datasetChildrenIds = new ArrayList<Long>();
         if (processPaths) {
             //Get Linking Dataverses to see if I need to reindex my children
             if (hasAnyLinkingDataverses(dataverse)) {
@@ -1411,22 +1412,52 @@ public class IndexServiceBean {
             long maxSize = maxFTIndexingSize != null ? maxFTIndexingSize.longValue() : Long.MAX_VALUE;
 
             List<String> filesIndexed = new ArrayList<>();
+            final List<Long> changedFileMetadataIds = new ArrayList<>();
             if (datasetVersion != null) {
                 List<FileMetadata> fileMetadatas = datasetVersion.getFileMetadatas();
                 List<FileMetadata> rfm = new ArrayList<>();
                 Map<Long, FileMetadata> fileMap = new HashMap<>();
-                boolean check = false;
                 if (datasetVersion.isDraft() && dataset.isReleased() && dataset.getReleasedVersion() != null) {
-                    check = true;
                     rfm = dataset.getReleasedVersion().getFileMetadatas();
                     for (FileMetadata released : rfm) {
                         fileMap.put(released.getDataFile().getId(), released);
                     }
+                    
+                    String compareFileMetadataQuery = "WITH fm_categories AS (" +
+                            "    SELECT fmd.filemetadatas_id, " +
+                            "           STRING_AGG(dfc.name, ',' ORDER BY dfc.name) AS categories " +
+                            "    FROM FileMetadata_DataFileCategory fmd " +
+                            "    JOIN DataFileCategory dfc ON fmd.filecategories_id = dfc.id " +
+                            "    GROUP BY fmd.filemetadatas_id " +
+                            ") " +
+                            "SELECT fm1.id " +
+                            "FROM FileMetadata fm1 " +
+                            "LEFT JOIN FileMetadata fm2 ON fm1.datafile_id = fm2.datafile_id " +
+                            "    AND fm2.datasetversion_id = :releasedVersionId " +
+                            "LEFT JOIN fm_categories fc1 ON fc1.filemetadatas_id = fm1.id " +
+                            "LEFT JOIN fm_categories fc2 ON fc2.filemetadatas_id = fm2.id " +
+                            "WHERE fm1.datasetversion_id = :currentVersionId " +
+                            "    AND (fm2.id IS NULL " +
+                            "         OR (fm1.datafile_id = fm2.datafile_id " +
+                            "             AND (fm2.description IS DISTINCT FROM fm1.description " +
+                            "                  OR fm2.directoryLabel IS DISTINCT FROM fm1.directoryLabel " +
+                            "                  OR fm2.label != fm1.label " +
+                            "                  OR fm2.restricted IS DISTINCT FROM fm1.restricted " +
+                            "                  OR fm2.prov_freeform IS DISTINCT FROM fm1.prov_freeform " +
+                            "                  OR fc1.categories IS DISTINCT FROM fc2.categories " +
+                            "                 ) " +
+                            "            ) " +
+                            "        )";
+
+                        Query query = em.createNativeQuery(compareFileMetadataQuery);
+                        query.setParameter("releasedVersionId", dataset.getReleasedVersion().getId());
+                        query.setParameter("currentVersionId", datasetVersion.getId());
+
+                        changedFileMetadataIds.addAll(query.getResultList());
                     logger.fine(
                             "We are indexing a draft version of a dataset that has a released version. We'll be checking file metadatas if they are exact clones of the released versions.");
                 }
-                final List<FileMetadata> releasedFileMetadatas = rfm;
-                final boolean checkForDuplicateMetadata = check;
+
                 AtomicReference<LocalDate> embargoEndDateRef = new AtomicReference<>(null);
                 AtomicReference<LocalDate> retentionEndDateRef = new AtomicReference<>(null);
                 final String datasetCitation = (dataset.isReleased() && dataset.getReleasedVersion() != null) ? dataset.getCitation(dataset.getReleasedVersion()) : dataset.getCitation();
@@ -1462,6 +1493,9 @@ public class IndexServiceBean {
 
                 String datasetVersionId = datasetVersion.getId().toString();
                 boolean indexThisMetadata = indexableDataset.isFilesShouldBeIndexed();
+                
+                
+                
                 String datasetPersistentURL = dataset.getPersistentURL();
                 boolean isHarvested = dataset.isHarvested();
                 long startTime = System.currentTimeMillis();
@@ -1481,22 +1515,18 @@ public class IndexServiceBean {
                         retentionEndDateRef.updateAndGet(current -> (current == null || startDate.isBefore(current)) ? startDate : current);
                         start = startDate;
                     }
-                    boolean indexThisFile=indexThisMetadata;
-                    if (indexThisMetadata && checkForDuplicateMetadata && !releasedFileMetadatas.isEmpty()) {
+                    boolean indexThisFile=false;
+                    
+                    if (indexThisMetadata && changedFileMetadataIds.contains(fileMetadata.getId())) {
+                        indexThisFile=true;
+                    } else if(indexThisMetadata) {
                         logger.fine("Checking if this file metadata is a duplicate.");
                         FileMetadata getFromMap = fileMap.get(datafile.getId());
                         if (getFromMap != null) {
-                            if ((datafile.isRestricted() == getFromMap.getDataFile().isRestricted())) {
-                                if (fileMetadata.contentEquals(getFromMap)
-                                        && VariableMetadataUtil.compareVariableMetadata(getFromMap, fileMetadata)) {
-                                    indexThisFile = false;
+                                if (!VariableMetadataUtil.compareVariableMetadata(getFromMap, fileMetadata)) {
+                                    indexThisFile = true;
                                     logger.fine("This file metadata hasn't changed since the released version; skipping indexing.");
-                                } else {
-                                    logger.fine("This file metadata has changed since the released version; we want to index it!");
                                 }
-                            } else {
-                                logger.fine("This file's restricted status has changed since the released version; we want to index it!");
-                            }
                         }
                     }
                     if (indexThisFile) {
@@ -1936,8 +1966,8 @@ public class IndexServiceBean {
         Dataset dataset = null;
         Dataverse dv = null;
         Dataverse rootDataverse = findRootDataverseCached();        
-        List <Dataverse>linkingDataverses = new ArrayList();
-        List<Dataverse> ancestorList = new ArrayList();
+        List <Dataverse>linkingDataverses = new ArrayList<Dataverse>();
+        List<Dataverse> ancestorList = new ArrayList<Dataverse>();
         
         try {
             if(dvObject.isInstanceofDataset()){
