@@ -416,15 +416,17 @@ public class SolrIndexServiceBean {
             for (Dataset dataset : directChildDatasetsOfDvDefPoint) {
                 indexPermissionsForOneDvObject(dataset);
                 numObjects++;
-                for (DataFile datafile : filesToReIndexPermissionsFor(dataset)) {
-                    filesToReindexAsBatch.add(datafile);
-                    i++;
-                    if (i % 100 == 0) {
-                        reindexFilesInBatches(filesToReindexAsBatch);
-                        filesToReindexAsBatch.clear();
-                    }
-                    if (i % 1000 == 0) {
-                        logger.info("Progress: " +i + "files permissions reindexed");
+                for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
+                    for (FileMetadata fmd : version.getFileMetadatas()) {
+                        filesToReindexAsBatch.add(fmd.getDataFile());
+                        i++;
+                        if (i % 100 == 0) {
+                            reindexFilesInBatches(filesToReindexAsBatch);
+                            filesToReindexAsBatch.clear();
+                        }
+                        if (i % 1000 == 0) {
+                            logger.info("Progress: " + i + "files permissions reindexed");
+                        }
                     }
                 }
                 logger.info("Progress : dataset " + dataset.getId() + " permissions reindexed");
@@ -518,18 +520,16 @@ public class SolrIndexServiceBean {
         }
     }
 
-    private List<DataFile> filesToReIndexPermissionsFor(Dataset dataset) {
-        List<DataFile> filesToReindexPermissionsFor = new ArrayList<>();
+    private List<DatasetVersion> versionsToReIndexPermissionsFor(Dataset dataset) {
+        List<DatasetVersion> versionsToReindexPermissionsFor = new ArrayList<>();
         Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
         for (DatasetVersion version : datasetVersionsToBuildCardsFor(dataset)) {
             boolean cardShouldExist = desiredCards.get(version.getVersionState());
             if (cardShouldExist) {
-                for (FileMetadata fileMetadata : version.getFileMetadatas()) {
-                    filesToReindexPermissionsFor.add(fileMetadata.getDataFile());
-                }
+                    versionsToReindexPermissionsFor.add(version);
             }
         }
-        return filesToReindexPermissionsFor;
+        return versionsToReindexPermissionsFor;
     }
 
     public IndexResponse deleteMultipleSolrIds(List<String> solrIdsToDelete) {
