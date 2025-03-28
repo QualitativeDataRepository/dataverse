@@ -442,7 +442,7 @@ public class IndexServiceBean {
         dataset.setId(datasetId);
         try {
             acquirePermitFromSemaphore();
-            dataset = datasetService.findDeep(datasetId);
+            dataset = datasetService.find(datasetId);
             doAsyncIndexDataset(dataset, doNormalSolrDocCleanUp);
         } catch (InterruptedException e) {
             String failureLogText = "Indexing failed: interrupted. You can kickoff a re-index of this dataset with: \r\n curl http://localhost:8080/api/admin/index/datasets/" + datasetId.toString();
