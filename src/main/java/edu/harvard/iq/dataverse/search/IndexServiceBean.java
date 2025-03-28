@@ -1478,8 +1478,7 @@ public class IndexServiceBean {
 
                 String datasetVersionId = datasetVersion.getId().toString();
                 boolean indexThisMetadata = indexableDataset.isFilesShouldBeIndexed();
-                
-                
+                boolean isReleasedVersion = datasetVersion.isReleased();
                 
                 String datasetPersistentURL = dataset.getPersistentURL();
                 boolean isHarvested = dataset.isHarvested();
@@ -1502,7 +1501,7 @@ public class IndexServiceBean {
                     }
                     boolean indexThisFile=false;
                     
-                    if (indexThisMetadata && changedFileMetadataIds.contains(fileMetadata.getId())) {
+                    if (indexThisMetadata && (isReleasedVersion || changedFileMetadataIds.contains(fileMetadata.getId()))) {
                         indexThisFile=true;
                     } else if(indexThisMetadata) {
                         logger.fine("Checking if this file metadata is a duplicate.");
@@ -1810,6 +1809,7 @@ public class IndexServiceBean {
                 });
                 long totalLoopTime = System.currentTimeMillis() - startTime;
                 logger.info("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
+                logger.info("Indexed " + docs.size() + " documents to Solr");
                 LocalDate embargoEndDate = embargoEndDateRef.get();
                 LocalDate retentionEndDate = retentionEndDateRef.get();
                 if (embargoEndDate != null) {
