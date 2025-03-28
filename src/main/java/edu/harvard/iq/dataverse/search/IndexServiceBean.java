@@ -393,6 +393,7 @@ public class IndexServiceBean {
         // index job is requested for a non-null dataset
         if (INDEXING_NOW.containsKey(id)) { // -> indexing job is already ongoing, and a new job should not be started by the current thread -> return null
             NEXT_TO_INDEX.put(id, d);
+            logger.info("NEXT_TO_INDEX size: "  + NEXT_TO_INDEX.size());;
             return null;
         }
         // otherwise, start a new job
