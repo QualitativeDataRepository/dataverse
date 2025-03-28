@@ -58,7 +58,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -959,20 +958,16 @@ public class IndexServiceBean {
             final String dvAlias = dataverse.getAlias();
             final String dvDisplayName = dataverse.getDisplayName();
             final String rdvName = findRootDataverseCached().getName();
-            // This only grabs the immediate parent dataverse's category. We do the same for
-            // dataverses themselves.
+            // This only grabs the immediate parent dataverse's category. We do the same for dataverses themselves.
             solrInputDocument.addField(SearchFields.CATEGORY_OF_DATAVERSE, dvIndexableCategoryName);
             solrInputDocument.addField(SearchFields.IDENTIFIER_OF_DATAVERSE, dvAlias);
             solrInputDocument.addField(SearchFields.DATAVERSE_NAME, dvDisplayName);
 
             Date datasetSortByDate;
-            // For now, drafts are indexed using to their last update time, and published
-            // versions are indexed using their
+            // For now, drafts are indexed using to their last update time, and published versions are indexed using their
             // most recent major version release date.
-            // This means that newly created or edited drafts will show up on the top when
-            // sorting by newest, newly
-            // published major versions will also show up on the top, and newly published
-            // minor versions will be shown
+            // This means that newly created or edited drafts will show up on the top when sorting by newest, newly
+            // published major versions will also show up on the top, and newly published minor versions will be shown
             // next to their corresponding major version.
             if (state.equals(DatasetState.WORKING_COPY)) {
                 Date lastUpdateTime = indexableDataset.getDatasetVersion().getLastUpdateTime();
@@ -1088,8 +1083,7 @@ public class IndexServiceBean {
                     String solrFieldFacetable = dsfType.getSolrField().getNameFacetable();
 
                     if (dsf.getValues() != null && !dsf.getValues().isEmpty() && dsf.getValues().get(0) != null && solrFieldSearchable != null) {
-                        // Index all metadata blocks that have a value - To show in new facet category
-                        // SearchFields.METADATA_TYPES
+                        // Index all metadata blocks that have a value - To show in new facet category SearchFields.METADATA_TYPES
                         if (dsfType.getMetadataBlock() != null) {
                             metadataBlocksWithValue.add(dsfType.getMetadataBlock().getName());
                         }
@@ -1101,8 +1095,7 @@ public class IndexServiceBean {
                             // no-op. we want to keep email address out of Solr per
                             // https://github.com/IQSS/dataverse/issues/759
                         } else if (dsfType.getSolrField().getSolrType().equals(SolrField.SolrType.INTEGER)) {
-                            // we need to filter invalid integer values, because otherwise the whole
-                            // document will
+                            // we need to filter invalid integer values, because otherwise the whole document will
                             // fail to be indexed
                             Pattern intPattern = Pattern.compile("^-?\\d+$");
                             List<String> indexableValues = dsf.getValuesWithoutNaValues().stream()
@@ -1129,13 +1122,10 @@ public class IndexServiceBean {
                                 solrInputDocument.addField(solrFieldFacetable, indexableValues);
                             }
                         } else if (dsfType.getSolrField().getSolrType().equals(SolrField.SolrType.DATE)) {
-                            // Solr accepts dates in the ISO-8601 format, e.g. YYYY-MM-DDThh:mm:ssZ,
-                            // YYYYY-MM-DD, YYYY-MM, YYYY
-                            // See:
-                            // https://solr.apache.org/guide/solr/latest/indexing-guide/date-formatting-math.html
+                            // Solr accepts dates in the ISO-8601 format, e.g. YYYY-MM-DDThh:mm:ssZ, YYYYY-MM-DD, YYYY-MM, YYYY
+                            // See: https://solr.apache.org/guide/solr/latest/indexing-guide/date-formatting-math.html
                             // If dates have been entered in other formats, we need to skip or convert them
-                            // TODO at the moment we are simply skipping, but converting them would offer
-                            // more value for search
+                            // TODO at the moment we are simply skipping, but converting them would offer more value for search
                             // For use in facets, we index only the year (YYYY)
                             String dateAsString = "";
                             if (!dsf.getValues_nondisplay().isEmpty()) {
@@ -1168,8 +1158,8 @@ public class IndexServiceBean {
                                     SimpleDateFormat inputDateyyyy = new SimpleDateFormat("yyyy", Locale.ENGLISH);
                                     try {
                                         /**
-                                         * @todo when bean validation is working we won't have to convert strings into
-                                         *       dates
+                                         * @todo when bean validation is working we
+                                         * won't have to convert strings into dates
                                          */
                                         logger.fine("Trying to convert " + dateAsString + " to a YYYY date from dataset " + dataset.getId());
                                         Date dateAsDate = inputDateyyyy.parse(dateAsString);
@@ -1194,11 +1184,14 @@ public class IndexServiceBean {
 
                             if (dsf.getDatasetFieldType().getName().equals("authorAffiliation")) {
                                 /**
-                                 * @todo think about how to tie the fact that this needs to be multivalued (_ss)
-                                 *       because a multivalued facet (authorAffilition_ss) is being collapsed
-                                 *       into here at index time. The business logic to determine if a
-                                 *       data-driven metadata field should be indexed into Solr as a single or
-                                 *       multiple value lives in the getSolrField() method of DatasetField.java
+                                 * @todo think about how to tie the fact that this
+                                 * needs to be multivalued (_ss) because a
+                                 * multivalued facet (authorAffilition_ss) is being
+                                 * collapsed into here at index time. The business
+                                 * logic to determine if a data-driven metadata
+                                 * field should be indexed into Solr as a single or
+                                 * multiple value lives in the getSolrField() method
+                                 * of DatasetField.java
                                  */
                                 solrInputDocument.addField(SearchFields.AFFILIATION, dsf.getValuesWithoutNaValues());
                             } else if (dsf.getDatasetFieldType().getName().equals("title")) {
@@ -1226,13 +1219,11 @@ public class IndexServiceBean {
                                         for (DatasetField df : childDatasetFields) {
                                             if (cvocManagedFieldMap.containsKey(dsfType.getId()) && cvocManagedFieldMap.get(dsfType.getId()).contains(df.getDatasetFieldType().getName())) {
                                                 String solrManagedFieldSearchable = df.getDatasetFieldType().getSolrField().getNameSearchable();
-                                                // Try to get string values from externalvocabularyvalue but for a managed
-                                                // fields of the CVOCConf
+                                                // Try to get string values from externalvocabularyvalue but for a managed fields of the CVOCConf
                                                 Set<String> stringsForManagedField = datasetFieldService.getIndexableStringsByTermUri(val, cvocMap.get(dsfType.getId()), df.getDatasetFieldType().getName());
                                                 logger.fine(solrManagedFieldSearchable + " filled with externalvocabularyvalue : " + stringsForManagedField);
                                                 // .addField works as addition of value not a replace of value
-                                                // it allows to add mapped values by CVOCConf before or after indexing real
-                                                // DatasetField value(s) of solrManagedFieldSearchable
+                                                // it allows to add mapped values by CVOCConf before or after indexing real DatasetField value(s) of solrManagedFieldSearchable
                                                 solrInputDocument.addField(solrManagedFieldSearchable, stringsForManagedField);
                                             }
                                         }
@@ -1245,14 +1236,9 @@ public class IndexServiceBean {
                                     solrInputDocument.addField(solrFieldFacetable, vals);
                                 }
                             } else if (dsfType.isControlledVocabulary()) {
-                                /**
-                                 * If the cvv list is empty but the dfv list is not then it is assumed this was
-                                 * harvested from an installation that had controlled vocabulary entries that
-                                 * don't exist in our this db
-                                 * 
-                                 * @see <a href="https://github.com/IQSS/dataverse/issues/9992">Feature
-                                 *      Request/Idea: Harvest metadata values that aren't from a list of
-                                 *      controlled values #9992</a>
+                                /** If the cvv list is empty but the dfv list is not then it is assumed this was harvested
+                                 *  from an installation that had controlled vocabulary entries that don't exist in our this db
+                                 * @see <a href="https://github.com/IQSS/dataverse/issues/9992">Feature Request/Idea: Harvest metadata values that aren't from a list of controlled values #9992</a>
                                  */
                                 if (dsf.getControlledVocabularyValues().isEmpty()) {
                                     for (DatasetFieldValue dfv : dsf.getDatasetFieldValues()) {
@@ -1310,8 +1296,7 @@ public class IndexServiceBean {
                         }
                     }
 
-                    // ToDo - define a geom/bbox type solr field and find those instead of just this
-                    // one
+                    // ToDo - define a geom/bbox type solr field and find those instead of just this one
                     if (dsfType.getName().equals(DatasetFieldConstant.geographicBoundingBox)) {
                         String minWestLon = null;
                         String maxEastLon = null;
@@ -1547,9 +1532,10 @@ public class IndexServiceBean {
                         }
                         /* Full-text indexing using Apache Tika */
                         if (doFullTextIndexing) {
+                            long fileSize = datafile.getFilesize();
                             if (!isHarvested
                                     && !datafile.isFilePackage()
-                                    && datafile.getFilesize() != 0
+                                    && fileSize != 0 && fileSize <= maxSize
                                     && datafile.getRetention() == null) {
                                 StorageIO<DataFile> accessObject = null;
                                 InputStream instream = null;
@@ -1559,26 +1545,21 @@ public class IndexServiceBean {
                                             new DataAccessRequest());
                                     if (accessObject != null) {
                                         accessObject.open();
-                                        // If the size is >max, we don't use the stream. However, for fileIO, the stream
-                                        // is
+                                        // If the size is >max, we don't use the stream. However, for S3, the stream is
                                         // currently opened in the call above (see
-                                        // https://github.com/IQSS/dataverse/issues/5165 - applies to files as well), so
-                                        // we want to get a handle so
+                                        // https://github.com/IQSS/dataverse/issues/5165), so we want to get a handle so
                                         // we can close it below.
                                         instream = accessObject.getInputStream();
-                                        long size = accessObject.getSize();
-                                        if ((size > 0) && (size <= maxSize)) {
-                                            textHandler = new BodyContentHandler(-1);
-                                            Metadata metadata = new Metadata();
-                                            /*
-                                             * Try parsing the file. Note that, other than by limiting size, there's been no
-                                             * check see whether this file is a good candidate for text extraction (e.g.
-                                             * based on type).
-                                             */
-                                            autoParser.parse(instream, textHandler, metadata, context);
-                                            datafileSolrInputDocument.addField(SearchFields.FULL_TEXT,
-                                                    textHandler.toString());
-                                        }
+                                        textHandler = new BodyContentHandler(-1);
+                                        Metadata metadata = new Metadata();
+                                        /*
+                                         * Try parsing the file. Note that, other than by limiting size, there's been no
+                                         * check see whether this file is a good candidate for text extraction (e.g.
+                                         * based on type).
+                                         */
+                                        autoParser.parse(instream, textHandler, metadata, context);
+                                        datafileSolrInputDocument.addField(SearchFields.FULL_TEXT,
+                                                textHandler.toString());
                                     }
                                 } catch (Exception e) {
                                     // Needs better logging of what went wrong in order to
@@ -1592,10 +1573,8 @@ public class IndexServiceBean {
                                     logger.warning(String.format("Full-text indexing for %s failed due to OutOfMemoryError",
                                             datafile.getDisplayName()));
                                 } catch (Error e) {
-                                    // Catch everything - full-text indexing is complex enough (and using enough 3rd
-                                    // party components) that it can fail
-                                    // and we don't want problems here to break other Dataverse functionality (e.g.
-                                    // edits)
+                                    // Catch everything - full-text indexing is complex enough (and using enough 3rd party components) that it can fail
+                                    // and we don't want problems here to break other Dataverse functionality (e.g. edits)
                                     logger.severe(String.format("Full-text indexing for %s failed due to Error: %s : %s",
                                             datafile.getDisplayName(), e.getClass().getCanonicalName(), e.getLocalizedMessage()));
                                 } finally {
@@ -1659,8 +1638,8 @@ public class IndexServiceBean {
                                 }
                                 datafileSolrInputDocument.addField(SearchFields.ACCESS,
                                         FileUtil.isRetentionExpired(datafile)
-                                                ? SearchConstants.RETENTIONEXPIRED
-                                                : FileUtil.isActivelyEmbargoed(datafile)
+                                            ? SearchConstants.RETENTIONEXPIRED :
+                                                FileUtil.isActivelyEmbargoed(datafile)
                                                         ? (fileMetadata.isRestricted() ? SearchConstants.EMBARGOEDTHENRESTRICTED
                                                                 : SearchConstants.EMBARGOEDTHENPUBLIC)
                                                         : (fileMetadata.isRestricted() ? SearchConstants.RESTRICTED
@@ -1729,8 +1708,9 @@ public class IndexServiceBean {
                         datafileSolrInputDocument.addField(SearchFields.FILE_SIZE_IN_BYTES, datafile.getFilesize());
                         if (DataFile.ChecksumType.MD5.equals(datafile.getChecksumType())) {
                             /**
-                             * @todo Someday we should probably deprecate this FILE_MD5 in favor of a
-                             *       combination of FILE_CHECKSUM_TYPE and FILE_CHECKSUM_VALUE.
+                             * @todo Someday we should probably deprecate this
+                             * FILE_MD5 in favor of a combination of
+                             * FILE_CHECKSUM_TYPE and FILE_CHECKSUM_VALUE.
                              */
                             datafileSolrInputDocument.addField(SearchFields.FILE_MD5, datafile.getChecksumValue());
                         }
