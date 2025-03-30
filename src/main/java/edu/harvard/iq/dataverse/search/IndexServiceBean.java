@@ -1503,7 +1503,7 @@ public class IndexServiceBean {
                 String datasetPersistentURL = dataset.getPersistentURL();
                 boolean isHarvested = dataset.isHarvested();
                 long startTime = System.currentTimeMillis();
-                fileMetadatas.parallelStream().forEach(fileMetadata -> {
+                for (FileMetadata fileMetadata : fileMetadatas) {
                     DataFile datafile = fileMetadata.getDataFile();
                     Embargo emb = datafile.getEmbargo();
                     LocalDate end = null;
@@ -1756,72 +1756,79 @@ public class IndexServiceBean {
                         // If this is a tabular data file -- i.e., if there are data
                         // variables associated with this file, we index the variable
                         // names and labels:
+                       
                         DataTable dtable = datafile.getDataTable();
-                        if (dtable!=null) {
-                            List<DataVariable> variables = dtable.getDataVariables();
-                            Long observations = dtable.getCaseQuantity();
-                            datafileSolrInputDocument.addField(SearchFields.VARIABLE_COUNT, variables.size());
-                            datafileSolrInputDocument.addField(SearchFields.OBSERVATIONS, observations);
-                            datafileSolrInputDocument.addField(SearchFields.UNF, dtable.getUnf());
-                            
+                        
+                        if (dtable != null) {
+                            try {
+                                List<DataVariable> variables = dtable.getDataVariables();
+                                Long observations = dtable.getCaseQuantity();
+                                datafileSolrInputDocument.addField(SearchFields.VARIABLE_COUNT, variables.size());
+                                datafileSolrInputDocument.addField(SearchFields.OBSERVATIONS, observations);
+                                datafileSolrInputDocument.addField(SearchFields.UNF, dtable.getUnf());
 
-                            Map<Long, VariableMetadata> variableMap = null;
-                            Collection<VariableMetadata> variablesByMetadata = fileMetadata.getVariableMetadatas();
+                                Map<Long, VariableMetadata> variableMap = null;
+                                Collection<VariableMetadata> variablesByMetadata = fileMetadata.getVariableMetadatas();
 
-                            variableMap = variablesByMetadata.stream().collect(Collectors.toMap(VariableMetadata::getId, Function.identity()));
+                                variableMap = variablesByMetadata.stream().collect(Collectors.toMap(VariableMetadata::getId, Function.identity()));
 
-                            for (DataVariable var : variables) {
-                                // Hard-coded search fields, for now:
-                                // TODO: eventually: review, decide how datavariables should
-                                // be handled for indexing purposes. (should it be a fixed
-                                // setup, defined in the code? should it be flexible? unlikely
-                                // that this needs to be domain-specific... since these data
-                                // variables are quite specific to tabular data, which in turn
-                                // is something social science-specific...
-                                // anyway -- needs to be reviewed. -- L.A. 4.0alpha1
+                                for (DataVariable var : variables) {
+                                    // Hard-coded search fields, for now:
+                                    // TODO: eventually: review, decide how datavariables should
+                                    // be handled for indexing purposes. (should it be a fixed
+                                    // setup, defined in the code? should it be flexible? unlikely
+                                    // that this needs to be domain-specific... since these data
+                                    // variables are quite specific to tabular data, which in turn
+                                    // is something social science-specific...
+                                    // anyway -- needs to be reviewed. -- L.A. 4.0alpha1
 
-                                // Variable Name
-                                if (var.getName() != null && !var.getName().equals("")) {
-                                    datafileSolrInputDocument.addField(SearchFields.VARIABLE_NAME, var.getName());
+                                    // Variable Name
+                                    if (var.getName() != null && !var.getName().equals("")) {
+                                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_NAME, var.getName());
+                                    }
+
+                                    VariableMetadata vm = variableMap.get(var.getId());
+                                    if (vm == null) {
+                                        // Variable Label
+                                        if (var.getLabel() != null && !var.getLabel().equals("")) {
+                                            datafileSolrInputDocument.addField(SearchFields.VARIABLE_LABEL, var.getLabel());
+                                        }
+                                    } else {
+                                        if (vm.getLabel() != null && !vm.getLabel().equals("")) {
+                                            datafileSolrInputDocument.addField(SearchFields.VARIABLE_LABEL, vm.getLabel());
+                                        }
+                                        if (vm.getLiteralquestion() != null && !vm.getLiteralquestion().equals("")) {
+                                            datafileSolrInputDocument.addField(SearchFields.LITERAL_QUESTION, vm.getLiteralquestion());
+                                        }
+                                        if (vm.getInterviewinstruction() != null && !vm.getInterviewinstruction().equals("")) {
+                                            datafileSolrInputDocument.addField(SearchFields.INTERVIEW_INSTRUCTIONS, vm.getInterviewinstruction());
+                                        }
+                                        if (vm.getPostquestion() != null && !vm.getPostquestion().equals("")) {
+                                            datafileSolrInputDocument.addField(SearchFields.POST_QUESTION, vm.getPostquestion());
+                                        }
+                                        if (vm.getUniverse() != null && !vm.getUniverse().equals("")) {
+                                            datafileSolrInputDocument.addField(SearchFields.VARIABLE_UNIVERSE, vm.getUniverse());
+                                        }
+                                        if (vm.getNotes() != null && !vm.getNotes().equals("")) {
+                                            datafileSolrInputDocument.addField(SearchFields.VARIABLE_NOTES, vm.getNotes());
+                                        }
+
+                                    }
                                 }
 
-                                VariableMetadata vm = variableMap.get(var.getId());
-                                if (vm == null) {
-                                    // Variable Label
-                                    if (var.getLabel() != null && !var.getLabel().equals("")) {
-                                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_LABEL, var.getLabel());
-                                    }
-                                } else {
-                                    if (vm.getLabel() != null && !vm.getLabel().equals("")) {
-                                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_LABEL, vm.getLabel());
-                                    }
-                                    if (vm.getLiteralquestion() != null && !vm.getLiteralquestion().equals("")) {
-                                        datafileSolrInputDocument.addField(SearchFields.LITERAL_QUESTION, vm.getLiteralquestion());
-                                    }
-                                    if (vm.getInterviewinstruction() != null && !vm.getInterviewinstruction().equals("")) {
-                                        datafileSolrInputDocument.addField(SearchFields.INTERVIEW_INSTRUCTIONS, vm.getInterviewinstruction());
-                                    }
-                                    if (vm.getPostquestion() != null && !vm.getPostquestion().equals("")) {
-                                        datafileSolrInputDocument.addField(SearchFields.POST_QUESTION, vm.getPostquestion());
-                                    }
-                                    if (vm.getUniverse() != null && !vm.getUniverse().equals("")) {
-                                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_UNIVERSE, vm.getUniverse());
-                                    }
-                                    if (vm.getNotes() != null && !vm.getNotes().equals("")) {
-                                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_NOTES, vm.getNotes());
-                                    }
-
+                                // TABULAR DATA TAGS:
+                                // (not to be confused with the file categories, indexed above!)
+                                for (DataFileTag tag : datafile.getTags()) {
+                                    String tagLabel = tag.getTypeLabel();
+                                    datafileSolrInputDocument.addField(SearchFields.TABDATA_TAG, tagLabel);
                                 }
-                            }
 
-                            // TABULAR DATA TAGS:
-                            // (not to be confused with the file categories, indexed above!)
-                            for (DataFileTag tag : datafile.getTags()) {
-                                String tagLabel = tag.getTypeLabel();
-                                datafileSolrInputDocument.addField(SearchFields.TABDATA_TAG, tagLabel);
+                            } catch (Exception e) {
+                                logger.warning(e.getLocalizedMessage());
+                                e.printStackTrace();
+                                throw e;
                             }
                         }
-
                         synchronized (filesIndexed) {
                             filesIndexed.add(fileSolrDocId);
                         }
@@ -1829,7 +1836,7 @@ public class IndexServiceBean {
                             docs.add(datafileSolrInputDocument);
                         }
                     }
-                });
+                }
                 long totalLoopTime = System.currentTimeMillis() - startTime;
                 logger.info("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
                 logger.info("Indexed " + docs.size() + " documents to Solr");
