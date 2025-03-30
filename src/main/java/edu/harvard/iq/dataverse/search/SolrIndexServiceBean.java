@@ -154,6 +154,11 @@ public class SolrIndexServiceBean {
     // private List<DvObjectSolrDoc> constructDatafileSolrDocs(DataFile dataFile) {
     private List<DvObjectSolrDoc> constructDatafileSolrDocs(DataFile dataFile, Map<Long, List<String>> permStringByDatasetVersion, Map<DatasetVersion.VersionState, Boolean> desiredCards, Set<DatasetVersion> datasetVersions) {
         List<DvObjectSolrDoc> datafileSolrDocs = new ArrayList<>();
+        List<String> ftperms = new ArrayList<>();
+        if (dataFile.isRestricted()) {
+            ftperms = searchPermissionsService.findRestrictedDatafilePerms(dataFile.getId());
+        }
+
         for (DatasetVersion datasetVersionFileIsAttachedTo : datasetVersions) {
             boolean cardShouldExist = desiredCards.get(datasetVersionFileIsAttachedTo.getVersionState());
             /*
@@ -169,7 +174,7 @@ public class SolrIndexServiceBean {
                 String solrIdEnd = getDatasetOrDataFileSolrEnding(datasetVersionFileIsAttachedTo.getVersionState());
                 String solrId = solrIdStart + solrIdEnd;
                 List<String> perms = new ArrayList<>();
-                List<String> ftperms = new ArrayList<>();
+                
                 if (unpublishedDataRelatedToMeModeEnabled) {
                     List<String> cachedPerms = null;
                     if (permStringByDatasetVersion != null) {
@@ -189,10 +194,6 @@ public class SolrIndexServiceBean {
                 } else {
                     // This should never be executed per the deprecation notice on the boolean.
                     perms = searchPermissionsService.findDatasetVersionPerms(datasetVersionFileIsAttachedTo);
-                }
-                if (dataFile.isRestricted()) {
-
-                    ftperms = searchPermissionsService.findDataFilePermsforDatasetVersion(dataFile, datasetVersionFileIsAttachedTo);
                 }
                 DvObjectSolrDoc dataFileSolrDoc = new DvObjectSolrDoc(dataFile.getId().toString(), solrId, datasetVersionFileIsAttachedTo.getId(), dataFile.getDisplayName(), perms, ftperms);
                 datafileSolrDocs.add(dataFileSolrDoc);
@@ -226,7 +227,7 @@ public class SolrIndexServiceBean {
                     String solrId = solrIdStart + solrIdEnd;
                     List<String> ftperms = new ArrayList<>();
                     if (fileMetadata.getDataFile().isRestricted()) {
-                        ftperms = searchPermissionsService.findDataFilePermsforDatasetVersion(fileMetadata.getDataFile(), datasetVersionFileIsAttachedTo);
+                        ftperms = searchPermissionsService.findRestrictedDatafilePerms(fileMetadata.getDataFile().getId());
                     }
                     DvObjectSolrDoc dataFileSolrDoc = new DvObjectSolrDoc(fileId.toString(), solrId, datasetVersionFileIsAttachedTo.getId(), fileMetadata.getLabel(), perms, ftperms);
                     logger.finest("adding fileid " + fileId);
