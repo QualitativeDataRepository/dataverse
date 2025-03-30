@@ -92,6 +92,7 @@ public class SearchPermissionsServiceBean {
         return perms;
     }
 
+    /*
     public List<String> findDvObjectPerms(DvObject dvObject) {
         List<String> permStrings = new ArrayList<>();
 
@@ -120,7 +121,24 @@ public class SearchPermissionsServiceBean {
         }
         return permStrings;
     }
-    
+*/    
+    public List<String> findDvObjectPerms(DvObject dvObject) {
+        List<String> permStrings = new ArrayList<>();
+        Permission p = getRequiredSearchPermission(dvObject);
+
+       List<String> assigneeIdStrings = roleAssigneeService.    findAssigneesWithPermissionOnDvObject(dvObject.getId(), p);
+        for (String id : assigneeIdStrings) {
+            // Don't need to cache RoleAssignees since each is unique
+            RoleAssignee userOrGroup = roleAssigneeService.getRoleAssignee(id);
+            String indexableUserOrGroupPermissionString = getIndexableStringForUserOrGroup(userOrGroup);
+            if (indexableUserOrGroupPermissionString != null) {
+                permStrings.add(indexableUserOrGroupPermissionString);
+            }
+        }
+        return permStrings;
+    }
+
+ /*   
     public List<String> findRestrictedDatafilePerms(long fileId) {
         List<String> permStrings = new ArrayList<>();
 
@@ -135,7 +153,7 @@ public class SearchPermissionsServiceBean {
         }
         return permStrings;
     }
-
+*/
     @Deprecated
     private void resetRoleAssigneeCache() {
         roleAssigneeCache.clear();
