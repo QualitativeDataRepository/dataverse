@@ -333,17 +333,7 @@ public class SolrIndexServiceBean {
         /**
          * @todo Do something with these responses from Solr.
          */
-        UpdateResponse addResponse = solrClientService.getSolrClient().add(docs);
-    }
-
-    public IndexResponse indexPermissionsOnSelfAndChildren(long definitionPointId) {
-        DvObject definitionPoint = dvObjectService.findDvObject(definitionPointId);
-        if (definitionPoint == null) {
-            logger.log(Level.WARNING, "Cannot find a DvOpbject with id of {0}", definitionPointId);
-            return null;
-        } else {
-            return indexPermissionsOnSelfAndChildren(definitionPoint);
-        }
+        solrClientService.getSolrClient().add(docs);
     }
 
     /**
@@ -367,6 +357,7 @@ public class SolrIndexServiceBean {
         // so don't create a Solr "permission" doc either.
         int i = 0;
         int numObjects = 0;
+        long globalStartTime = System.currentTimeMillis();
         if (definitionPoint.isInstanceofDataverse()) {
             Dataverse selfDataverse = (Dataverse) definitionPoint;
             if (!selfDataverse.equals(dataverseService.findRootDataverse())) {
@@ -380,7 +371,7 @@ public class SolrIndexServiceBean {
                 
                 Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
                 Set<DatasetVersion> datasetVersions = datasetVersionsToBuildCardsFor(dataset);
-                
+                long startTime = System.currentTimeMillis();
                 for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
                     boolean isDraft = version.isDraft();
                     for (FileMetadata fmd : version.getFileMetadatas()) {
@@ -401,7 +392,7 @@ public class SolrIndexServiceBean {
                 }
                 //Re-index any remaining files in the dataset (so that desiredCards and datasetVersions remain constants for all files in the batch)
                 reindexFilesInBatches(filesToReindexAsBatch, desiredCards, datasetVersions);
-                logger.info("Progress : dataset " + dataset.getId() + " permissions reindexed");
+                logger.info("Progress : dataset " + dataset.getId() + " permissions reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
             }
         } else if (definitionPoint.isInstanceofDataset()) {
             indexPermissionsForOneDvObject(definitionPoint);
@@ -410,7 +401,7 @@ public class SolrIndexServiceBean {
             Dataset dataset = (Dataset) definitionPoint;
             Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
             Set<DatasetVersion> datasetVersions = datasetVersionsToBuildCardsFor(dataset);
-            
+
             for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
                 boolean isDraft = version.isDraft();
                 for (FileMetadata fmd : version.getFileMetadatas()) {
@@ -439,7 +430,7 @@ public class SolrIndexServiceBean {
          * @todo Should update timestamps, probably, even thought these are files, see
          *       https://github.com/IQSS/dataverse/issues/2421
          */
-        logger.info("Reindexed permissions for " + i + " files and " + numObjects + "datasets/collections");
+        logger.info("Reindexed permissions for " + i + " files and " + numObjects + "datasets/collections in " + (System.currentTimeMillis() - globalStartTime) + " ms");
         return new IndexResponse("Number of dvObject permissions indexed for " + definitionPoint
                 + ": " + numObjects);
     }
