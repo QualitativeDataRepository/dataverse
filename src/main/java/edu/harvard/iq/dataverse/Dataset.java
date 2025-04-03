@@ -78,7 +78,7 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 })
 @NamedNativeQuery(
         name = "Dataset.findAllOrSubsetOrderByFilesOwned",
-        query = "SELECT DISTINCT o.id, COUNT(f.id) as numFiles " +
+        query = "SELECT DISTINCT CAST(o.id AS BIGINT) as id, COUNT(f.id) as numFiles " +
                 "FROM dvobject o " +
                 "LEFT JOIN dvobject f ON f.owner_id = o.id " +
                 "WHERE o.dtype = 'Dataset' " +
@@ -383,15 +383,6 @@ public class Dataset extends DvObjectContainer {
         return versions;
     }
 
-    public DatasetVersion getVersion(long majorVersion, long minorVersion) {
-        for(DatasetVersion version: versions) {
-            if((majorVersion == version.getVersionNumber())&&(minorVersion == version.getMinorVersionNumber())) {
-                return version;
-            }
-        }
-        return null;
-    }
-    
     public void setVersions(List<DatasetVersion> versions) {
         this.versions = versions;
     }
