@@ -17,6 +17,8 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.mydata.MyDataFilterParams;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -419,6 +421,18 @@ public class RoleAssigneeServiceBean {
                  .setParameter(1, bitpos)
                  .setParameter(2, objectId)
                  .getResultList();
+    }
+    
+    public Map<Long, List<String>> findAssigneesWithDownloadPermissionOnDatasetFiles(Long datasetId) {
+        return (Map<Long, List<String>>) em.createNamedQuery("RoleAssignment.findAssigneesWithPermissionOnDatasetChildren")
+                .setParameter(1, datasetId)
+                .setParameter(2, 63 - Permission.DownloadFile.ordinal())
+                .getResultList()
+                .stream()
+                .collect(Collectors.toMap(
+                        result -> ((Long) ((Object[]) result)[0]),
+                        result -> Arrays.asList((String[]) ((Object[]) result)[1])
+                ));
     }
     
     public List<String> findAssigneesWithRoleOnDvObject(Long objectId, Long[] downloadRole) {

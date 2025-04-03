@@ -18,6 +18,7 @@ import jakarta.persistence.NamedNativeQuery;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.SqlResultSetMapping;
+import jakarta.persistence.SqlResultSetMappings;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -74,12 +75,32 @@ import jakarta.persistence.UniqueConstraint;
                     "WHERE get_bit(dr.permissionbits::bit(64), ?1) = '1' " +
                     "AND dob.id = ?2",
                     resultSetMapping = "AssigneeIdentifierMapping"
-        )
-})
-@SqlResultSetMapping(
-        name = "AssigneeIdentifierMapping",
-        columns = @ColumnResult(name = "assigneeidentifier")
+        ),
+    @NamedNativeQuery(
+        name = "RoleAssignment.findAssigneesWithPermissionOnDatasetChildren",
+        query = "SELECT ra.definitionpoint_id, array_agg(ra.assigneeidentifier) as assignees " +
+                "FROM roleassignment ra " +
+                "JOIN dvobject dob ON ra.definitionpoint_id = dob.id " +
+                "JOIN dataverserole dr ON ra.role_id = dr.id " +
+                "WHERE dob.owner_id = ?1 " +
+                "AND get_bit(dr.permissionbits::bit(64), ?2) = '1' " +
+                "GROUP BY ra.definitionpoint_id",
+        resultSetMapping = "AssigneesByDefinitionPointMapping"
     )
+})
+@SqlResultSetMappings({
+    @SqlResultSetMapping(
+            name = "AssigneeIdentifierMapping",
+            columns = @ColumnResult(name = "assigneeidentifier")
+        ),
+    @SqlResultSetMapping(
+        name = "AssigneesByDefinitionPointMapping",
+        columns = {
+            @ColumnResult(name = "definitionpoint_id", type = Long.class),
+            @ColumnResult(name = "assignees", type = String[].class)
+        }
+    )
+})
 public class RoleAssignment implements java.io.Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -11,10 +11,12 @@ import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.FileMetadata;
+import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +57,8 @@ public class SolrIndexServiceBean {
     @EJB
     DataverseRoleServiceBean rolesSvc;
     @EJB
+    RoleAssigneeServiceBean roleAssigneeSvc;
+    @EJB
     SolrClientIndexService solrClientService;
     
     @PersistenceContext(unitName = "VDCNet-ejbPU")
@@ -79,12 +83,13 @@ public class SolrIndexServiceBean {
             DataFile datafile = (DataFile) dvObject;
             Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(datafile.getOwner());
             Set<DatasetVersion> datasetVersions = datasetVersionsToBuildCardsFor(datafile.getOwner());
+            List<String> downloaders = searchPermissionsService.findDvObjectPerms(datafile);
             for (DatasetVersion version : datasetVersions) {
                 if(desiredCards.containsKey(version.getVersionState()) && desiredCards.get(version.getVersionState()) && datafile.isInDatasetVersion(version)) {
                             List<String> cachedPerms = searchPermissionsService.findDatasetVersionPerms(version);
                             String solrIdEnd = getDatasetOrDataFileSolrEnding(version.getVersionState());
                             Long versionId = version.getId();
-                            DvObjectSolrDoc fileSolrDoc = constructDatafileSolrDoc(new DataFileProxy(datafile.getFileMetadata()),  cachedPerms, versionId, solrIdEnd);
+                            DvObjectSolrDoc fileSolrDoc = constructDatafileSolrDoc(new DataFileProxy(datafile.getFileMetadata()),  cachedPerms, versionId, solrIdEnd, downloaders);
             solrDocs.add(fileSolrDoc);
                 }
             }
@@ -138,11 +143,7 @@ public class SolrIndexServiceBean {
         return solrDocs;
     }
 
-    private DvObjectSolrDoc constructDatafileSolrDoc(DataFileProxy fileProxy, List<String> cachedPerms, long versionId, String solrIdEnd) {
-        List<String> ftperms = new ArrayList<>();
-        if (fileProxy.isRestricted()) {
-            ftperms = searchPermissionsService.findDvObjectPerms(fileProxy.getMinimalDataFile());
-        }
+    private DvObjectSolrDoc constructDatafileSolrDoc(DataFileProxy fileProxy, List<String> cachedPerms, long versionId, String solrIdEnd, List<String> downloaders) {
         String solrIdStart = IndexServiceBean.solrDocIdentifierFile + fileProxy.getFileId();
         String solrId = solrIdStart + solrIdEnd;
         List<String> perms = new ArrayList<>();
@@ -151,7 +152,7 @@ public class SolrIndexServiceBean {
             logger.finest("reusing cached perms for file " + fileProxy.getFileId());
             perms = cachedPerms;
         }
-        return new DvObjectSolrDoc(fileProxy.getFileId().toString(), solrId, versionId, fileProxy.getName(), perms, ftperms);
+        return new DvObjectSolrDoc(fileProxy.getFileId().toString(), solrId, versionId, fileProxy.getName(), perms, downloaders);
     }
 
     private List<DvObjectSolrDoc> constructDatafileSolrDocsFromDataset(Dataset dataset) {
@@ -354,7 +355,8 @@ public class SolrIndexServiceBean {
             for (Dataset dataset : directChildDatasetsOfDvDefPoint) {
                 indexPermissionsForOneDvObject(dataset);
                 numObjects++;
-
+                Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
+                
                 Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
                 long startTime = System.currentTimeMillis();
                 for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
@@ -368,7 +370,7 @@ public class SolrIndexServiceBean {
                             filesToReindexAsBatch.add(fileProxy);
                             counter[0]++;
                             if (counter[0] % 100 == 0) {
-                                reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd);
+                                reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
                                 filesToReindexAsBatch.clear();
                             }
                             if (counter[0] % 1000 == 0) {
@@ -377,7 +379,7 @@ public class SolrIndexServiceBean {
                         }
 
                         // Re-index any remaining files in the datasetversion (so that verionId, etc. remain constants for all files in the batch)
-                        reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd);
+                        reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
                         logger.info("Progress : dataset " + dataset.getId() + " permissions reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
                     }
                 }
@@ -393,6 +395,8 @@ public class SolrIndexServiceBean {
                     List<String> cachedPerms = searchPermissionsService.findDatasetVersionPerms(version);
                     String solrIdEnd = getDatasetOrDataFileSolrEnding(version.getVersionState());
                     Long versionId = version.getId();
+                    
+                    Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
                     if (version.getFileMetadatas().size() > fileQueryMin) {
                         // For large datasets, use a more efficient SQL query instead of loading all file metadata objects
                         getDataFileInfoForPermissionIndexing(version.getId()).forEach(fileInfo -> {
@@ -401,7 +405,7 @@ public class SolrIndexServiceBean {
 
                             if (counter[0] % 100 == 0) {
                                 long startTime = System.currentTimeMillis();
-                                reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd);
+                                reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
                                 filesToReindexAsBatch.clear();
                                 logger.info("Progress: 100 file permissions at " + counter[0] + " files reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
                             }
@@ -414,14 +418,14 @@ public class SolrIndexServiceBean {
                                     counter[0]++;
                                     if (counter[0] % 100 == 0) {
                                         long startTime = System.currentTimeMillis();
-                                        reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd);
+                                        reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
                                         filesToReindexAsBatch.clear();
                                         logger.info("Progress: 100 file permissions at  " + counter[0] + "files reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
                                     }
                                 });
                     }
                     // Re-index any remaining files in the dataset version (versionId, etc. remain constants for all files in the batch)
-                    reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd);
+                    reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
                     filesToReindexAsBatch.clear();
                 }
 
@@ -442,7 +446,7 @@ public class SolrIndexServiceBean {
                 + ": " + numObjects);
     }
 
-    private String reindexFilesInBatches(List<DataFileProxy> filesToReindexAsBatch, List<String> cachedPerms, Long versionId, String solrIdEnd) {
+    private String reindexFilesInBatches(List<DataFileProxy> filesToReindexAsBatch, List<String> cachedPerms, Long versionId, String solrIdEnd, Map<Long, List<String>> fileDownloadersMap) {
         List<SolrInputDocument> docs = new ArrayList<>();
         try {
             // Assume all files have the same owner
@@ -451,8 +455,11 @@ public class SolrIndexServiceBean {
             }
 
                     for (DataFileProxy file : filesToReindexAsBatch) {
-
-                            DvObjectSolrDoc fileSolrDoc = constructDatafileSolrDoc(file, cachedPerms, versionId, solrIdEnd);
+                            List<String> downloaders=null;
+                            if(file.isRestricted()) {
+                                downloaders = fileDownloadersMap.get(file.getFileId());
+                            }
+                            DvObjectSolrDoc fileSolrDoc = constructDatafileSolrDoc(file, cachedPerms, versionId, solrIdEnd, downloaders);
                             SolrInputDocument solrDoc = SearchUtil.createSolrDoc(fileSolrDoc);
                             docs.add(solrDoc);
                     }
