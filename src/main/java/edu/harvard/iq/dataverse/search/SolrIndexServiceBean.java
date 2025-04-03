@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -567,7 +568,7 @@ public class SolrIndexServiceBean {
             this.released = df.isReleased();
         }
 
-        public DataFileProxy(String label, Long fileId, boolean restricted, Date PublicationDate) {
+        public DataFileProxy(String label, Long fileId, boolean restricted, Date publicationDate) {
             this.id = fileId;
             this.name = label;
             this.restricted = restricted;
