@@ -951,7 +951,7 @@ public class IndexServiceBean {
 
         IndexableDataset.DatasetState state = indexableDataset.getDatasetState();
         Dataset dataset = indexableDataset.getDatasetVersion().getDataset();
-        logger.fine("adding or updating Solr document for dataset id " + dataset.getId());
+        logger.fine("adding or updating Solr document for dataset id " + dataset.getId() + " with state " + state.toString());
         Collection<SolrInputDocument> docs = new ArrayList<>();
         SolrInputDocument solrInputDocument = new SolrInputDocument();
         String datasetSolrDocId = indexableDataset.getSolrDocId();
@@ -1393,6 +1393,7 @@ public class IndexServiceBean {
         if (versionNote != null) {
             solrInputDocument.addField(SearchFields.DATASET_VERSION_NOTE, versionNote);
         }
+        logger.info("Adding doc for dataset: " + dataset.getId() + ", version " + datasetVersion.getId());
         docs.add(solrInputDocument);
 
         /**
@@ -1428,7 +1429,8 @@ public class IndexServiceBean {
                                 .map(FileMetadata::getId)
                                 .collect(Collectors.toList()));
             }
-
+            logger.info("For state: " + state + " there are " + fileMetadatas.size() + " file metadata to index.");
+            logger.info("Changed file metadata size: " + changedFileMetadataIds.size());
             AtomicReference<LocalDate> embargoEndDateRef = new AtomicReference<>(null);
             AtomicReference<LocalDate> retentionEndDateRef = new AtomicReference<>(null);
             final String datasetCitation = (dataset.isReleased() && dataset.getReleasedVersion() != null) ? dataset.getCitation(dataset.getReleasedVersion()) : dataset.getCitation();
@@ -1789,13 +1791,12 @@ public class IndexServiceBean {
                             throw e;
                         }
                     }
-                    filesIndexed.add(fileSolrDocId);
                     docs.add(datafileSolrInputDocument);
                 }
             });
             long totalLoopTime = System.currentTimeMillis() - startTime;
             logger.info("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
-            logger.info("Indexed " + docs.size() + " documents to Solr");
+            logger.info("Indexed " + docs.size() + " documents to Solr for version state " + state.toString());
             LocalDate embargoEndDate = embargoEndDateRef.get();
             LocalDate retentionEndDate = retentionEndDateRef.get();
             if (embargoEndDate != null) {
