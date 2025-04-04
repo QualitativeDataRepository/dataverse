@@ -1144,7 +1144,7 @@ public class IndexServiceBean {
                             dateAsString = dsf.getValues_nondisplay().get(0).trim();
                         }
 
-                        logger.fine("date as string: " + dateAsString);
+                        logger.finest("date as string: " + dateAsString);
 
                         if (dateAsString != null && !dateAsString.isEmpty()) {
                             boolean dateValid = false;
@@ -1165,18 +1165,18 @@ public class IndexServiceBean {
                             }
 
                             if (!dateValid) {
-                                logger.fine("couldn't index " + dsf.getDatasetFieldType().getName() + ":" + dsf.getValues() + " because it's not a valid date format according to Solr");
+                                logger.finest("couldn't index " + dsf.getDatasetFieldType().getName() + ":" + dsf.getValues() + " because it's not a valid date format according to Solr");
                             } else {
                                 SimpleDateFormat inputDateyyyy = new SimpleDateFormat("yyyy", Locale.ENGLISH);
                                 try {
                                     /**
                                      * @todo when bean validation is working we won't have to convert strings into dates
                                      */
-                                    logger.fine("Trying to convert " + dateAsString + " to a YYYY date from dataset " + dataset.getId());
+                                    logger.finest("Trying to convert " + dateAsString + " to a YYYY date from dataset " + dataset.getId());
                                     Date dateAsDate = inputDateyyyy.parse(dateAsString);
                                     SimpleDateFormat yearOnly = new SimpleDateFormat("yyyy");
                                     String datasetFieldFlaggedAsDate = yearOnly.format(dateAsDate);
-                                    logger.fine("YYYY only: " + datasetFieldFlaggedAsDate);
+                                    logger.finest("YYYY only: " + datasetFieldFlaggedAsDate);
                                     // solrInputDocument.addField(solrFieldSearchable,
                                     // Integer.parseInt(datasetFieldFlaggedAsDate));
                                     solrInputDocument.addField(solrFieldSearchable, dateAsString);
@@ -1234,10 +1234,10 @@ public class IndexServiceBean {
                                     }
                                 }
                             }
-                            logger.fine(solrFieldSearchable + " filled with externalvocabularyvalue : " + searchStrings);
+                            logger.finest(solrFieldSearchable + " filled with externalvocabularyvalue : " + searchStrings);
                             solrInputDocument.addField(solrFieldSearchable, searchStrings);
                             if (dsfType.getSolrField().isFacetable()) {
-                                logger.fine(solrFieldFacetable + " gets " + vals);
+                                logger.finest(solrFieldFacetable + " gets " + vals);
                                 solrInputDocument.addField(solrFieldFacetable, vals);
                             }
                         } else if (dsfType.isControlledVocabulary()) {
@@ -1393,7 +1393,7 @@ public class IndexServiceBean {
         if (versionNote != null) {
             solrInputDocument.addField(SearchFields.DATASET_VERSION_NOTE, versionNote);
         }
-        logger.info("Adding doc for dataset: " + dataset.getId() + ", version " + datasetVersion.getId());
+        logger.fine("Adding doc for dataset: " + dataset.getId() + ", version " + datasetVersion.getId());
         docs.add(solrInputDocument);
 
         /**
@@ -1429,8 +1429,8 @@ public class IndexServiceBean {
                                 .map(FileMetadata::getId)
                                 .collect(Collectors.toList()));
             }
-            logger.info("For state: " + state + " there are " + fileMetadatas.size() + " file metadata to index.");
-            logger.info("Changed file metadata size: " + changedFileMetadataIds.size());
+            logger.fine("For state: " + state + " there are " + fileMetadatas.size() + " file metadata to index.");
+            logger.fine("Changed file metadata size: " + changedFileMetadataIds.size());
             AtomicReference<LocalDate> embargoEndDateRef = new AtomicReference<>(null);
             AtomicReference<LocalDate> retentionEndDateRef = new AtomicReference<>(null);
             final String datasetCitation = (dataset.isReleased() && dataset.getReleasedVersion() != null) ? dataset.getCitation(dataset.getReleasedVersion()) : dataset.getCitation();
@@ -1492,12 +1492,12 @@ public class IndexServiceBean {
                 if (indexThisMetadata && (isReleasedVersion || changedFileMetadataIds.contains(fileMetadata.getId()))) {
                     indexThisFile = true;
                 } else if (indexThisMetadata) {
-                    logger.fine("Checking if this file metadata is a duplicate.");
+                    logger.finest("Checking if this file metadata is a duplicate.");
                     FileMetadata getFromMap = fileMap.get(datafile.getId());
                     if (getFromMap != null) {
                         if (!VariableMetadataUtil.compareVariableMetadata(getFromMap, fileMetadata)) {
                             indexThisFile = true;
-                            logger.fine("This file metadata hasn't changed since the released version; skipping indexing.");
+                            logger.finest("This file metadata hasn't changed since the released version; skipping indexing.");
                         }
                     }
                 }
@@ -1795,8 +1795,8 @@ public class IndexServiceBean {
                 }
             });
             long totalLoopTime = System.currentTimeMillis() - startTime;
-            logger.info("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
-            logger.info("Indexed " + docs.size() + " documents to Solr for version state " + state.toString());
+            logger.fine("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
+            logger.fine("Indexed " + docs.size() + " documents to Solr for version state " + state.toString());
             LocalDate embargoEndDate = embargoEndDateRef.get();
             LocalDate retentionEndDate = retentionEndDateRef.get();
             if (embargoEndDate != null) {
