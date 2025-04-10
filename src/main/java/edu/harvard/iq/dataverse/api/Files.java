@@ -927,7 +927,7 @@ public class Files extends AbstractApiBean {
     @AuthRequired
     @Path("{id}/metadata/categories")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response setFileCategories(@Context ContainerRequestContext crc, @PathParam("id") String dataFileId, String jsonBody) {
+    public Response setFileCategories(@Context ContainerRequestContext crc, @PathParam("id") String dataFileId, String jsonBody, @QueryParam("replace") boolean replaceData) {
         return response(req -> {
             DataFile dataFile = execCommand(new GetDataFileCommand(req, findDataFileOrDie(dataFileId)));
             jakarta.json.JsonObject jsonObject;
@@ -935,6 +935,9 @@ public class Files extends AbstractApiBean {
                 jsonObject = Json.createReader(stringReader).readObject();
                 JsonArray requestedCategoriesJson = jsonObject.getJsonArray("categories");
                 FileMetadata fileMetadata = dataFile.getFileMetadata();
+                if (replaceData) {
+                    fileMetadata.setCategories(Lists.newArrayList());
+                }
                 for (JsonValue jsonValue : requestedCategoriesJson) {
                     JsonString jsonString = (JsonString) jsonValue;
                     fileMetadata.addCategoryByName(jsonString.getString());
