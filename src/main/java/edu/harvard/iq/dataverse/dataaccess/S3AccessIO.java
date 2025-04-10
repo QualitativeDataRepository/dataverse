@@ -1460,12 +1460,12 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
     public void closeInputStream() {
         try {
-            S3ObjectInputStream sois = (S3ObjectInputStream) getInputStream();
-            if(sois.available()>0) {
-                sois.abort();
+            ResponseInputStream<GetObjectResponse> responseInputStream = (ResponseInputStream<GetObjectResponse>) getInputStream();
+            if (responseInputStream != null && responseInputStream.available() > 0) {
+                responseInputStream.abort();
             }
         } catch (IOException e) {
-            //Could have already been closed
+            // Could have already been closed
             errorMessage = e.getLocalizedMessage();
         }
         super.closeInputStream();
