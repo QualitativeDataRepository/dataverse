@@ -1237,12 +1237,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             // Create a builder for the S3AsyncClient
             S3AsyncClientBuilder s3CB = S3AsyncClient.builder();
 
-            // Create a custom HTTP client with the desired pool size
-            Integer poolSize = Integer.getInteger("dataverse.files." + driverId + ".connection-pool-size", 256);
-            Builder httpClientBuilder = NettyNioAsyncHttpClient.builder().maxConcurrency(poolSize);
 
-            // Apply the custom HTTP client to the S3AsyncClientBuilder
-            s3CB.httpClientBuilder(httpClientBuilder);
 
             // Configure endpoint and region
             String s3CEUrl = getConfigParamForDriver(driverId, CUSTOM_ENDPOINT_URL, "");
@@ -1270,6 +1265,13 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             // Configure credentials
             s3CB.credentialsProvider(getCredentialsProvider(driverId));
 
+            // Create a custom HTTP client with the desired pool size
+            Integer poolSize = Integer.getInteger("dataverse.files." + driverId + ".connection-pool-size", 256);
+            Builder httpClientBuilder = NettyNioAsyncHttpClient.builder().maxConcurrency(poolSize);
+
+            // Apply the custom HTTP client to the S3AsyncClientBuilder
+            s3CB.httpClientBuilder(httpClientBuilder);
+            
             // Build the client
             S3AsyncClient client = s3CB.build();
             driverClientMap.put(driverId, client);
