@@ -268,7 +268,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                 int retries = 20;
                 while (retries > 0) {
                     try {
-                        // Since s3 is an S3AsyncClient, we need to call .get() to wait for the result.
                         HeadObjectResponse headObjectResponse = s3
                                 .headObject(HeadObjectRequest.builder().bucket(bucketName).key(key).build());
                         contentLength = headObjectResponse.contentLength();
@@ -466,8 +465,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
         HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(bucketName).key(destinationKey)
                 .build();
-
-        s3.headObject(headObjectRequest);
+        try {
+            s3.headObject(headObjectRequest);
+        } catch (NoSuchKeyException e) {
+            return false;
+        }
         return true;
     }
 
@@ -475,8 +477,12 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     public long getAuxObjectSize(String auxItemTag) throws IOException {
         open();
         String destinationKey = getDestinationKey(auxItemTag);
-        HeadObjectResponse headObjectResponse = s3
-                .headObject(HeadObjectRequest.builder().bucket(bucketName).key(destinationKey).build());
+        HeadObjectResponse headObjectResponse = null;
+        try {
+            headObjectResponse = s3.headObject(HeadObjectRequest.builder().bucket(bucketName).key(destinationKey).build());
+        } catch (NoSuchKeyException e) {
+            throw new IOException("Aux file " + auxItemTag + " does not exist in S3");
+        }
         return headObjectResponse.contentLength();
     }
 
@@ -742,8 +748,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         }
         HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(bucketName).key(destinationKey)
                 .build();
-
-        s3.headObject(headObjectRequest);
+        try {
+            s3.headObject(headObjectRequest);
+        } catch (NoSuchKeyException e) {
+            return false;
+        }
         return true;
     }
 
@@ -1391,8 +1400,13 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         key = getMainFileKey();
         HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(bucketName).key(key).build();
 
-        HeadObjectResponse headObjectResponse = s3.headObject(headObjectRequest);
-        return headObjectResponse.contentLength();
+        HeadObjectResponse headObjectResponse = null;
+        try {
+            headObjectResponse = s3.headObject(headObjectRequest);
+            return headObjectResponse.contentLength();
+        } catch (NoSuchKeyException e) {
+            throw new IOException("File not found: " + key);
+        }
     }
 
     public static String getNewIdentifier(String driverId) {
