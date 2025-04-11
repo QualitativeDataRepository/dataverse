@@ -4,7 +4,7 @@
  */
 package edu.harvard.iq.dataverse.dataaccess;
 
-import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.S3Client;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.api.UtilIT;
@@ -20,9 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import static org.mockito.Mockito.*;
-import static org.mockito.BDDMockito.*;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -31,7 +28,7 @@ import java.io.IOException;
 public class S3AccessIOTest {
     
     @Mock
-    private S3AsyncClient s3client;
+    private S3Client s3client;
     
     private StorageIO<Dataset> dataSetAccess;
     private S3AccessIO<DataFile> dataFileAccess;

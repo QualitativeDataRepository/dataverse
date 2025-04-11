@@ -3,7 +3,7 @@ package edu.harvard.iq.dataverse.dataaccess;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataset;
@@ -44,20 +44,20 @@ class S3AccessIOLocalstackIT {
         System.setProperty(staticFiles + "custom-endpoint-region", localstack.getRegion());
         System.setProperty(staticFiles + "bucket-name", bucketName);
 
-        s3 = S3AsyncClient.builder()
+        s3 = S3Client.builder()
                 .endpointOverride(URI.create(localstack.getEndpoint().toString()))
                 .region(Region.of(localstack.getRegion()))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(localstack.getAccessKey(), localstack.getSecretKey())
                 ))
                 .build();
-        s3.createBucket(CreateBucketRequest.builder().bucket(bucketName).build()).join();
+        s3.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
     }
 
     static final String storageDriverId = "si1";
     static final String staticFiles = "dataverse.files." + storageDriverId + ".";
     static final String bucketName = "bucket-" + UUID.randomUUID().toString();
-    static S3AsyncClient s3 = null;
+    static S3Client s3 = null;
 
     static DockerImageName localstackImage = DockerImageName.parse("localstack/localstack:4.2.0");
     @Container
@@ -112,8 +112,8 @@ class S3AccessIOLocalstackIT {
         dvObject.setAuthority("10.5072/FK2");
         dvObject.setIdentifier("ABC123");
         DataAccessRequest req = null;
-        S3AsyncClient nullS3AsyncClient = null;
-        S3AccessIO s3AccessIO = new S3AccessIO<>(dvObject, req, nullS3AsyncClient, storageDriverId);
+        S3Client nullS3Client = null;
+        S3AccessIO s3AccessIO = new S3AccessIO<>(dvObject, req, nullS3Client, storageDriverId);
         InputStream inputStream = null;
         try {
             s3AccessIO.saveInputStream(inputStream);
