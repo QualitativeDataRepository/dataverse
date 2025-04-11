@@ -188,16 +188,16 @@
             <artifactId>s3-transfer-manager</artifactId>
             <!-- no version here as managed by BOM above! -->
         </dependency>
-        <!--dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>apache-client</artifactId-->
-            <!-- no version here as managed by BOM above! -->
-        <!--/dependency-->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
-            <artifactId>netty-nio-client</artifactId>
+            <artifactId>apache-client</artifactId>
             <!-- no version here as managed by BOM above! -->
         </dependency>
+        <!--dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>netty-nio-client</artifactId-->
+            <!-- no version here as managed by BOM above! -->
+        <!--/dependency-->
         <dependency>
           <groupId>com.apicatalog</groupId>
           <artifactId>titanium-json-ld</artifactId>
