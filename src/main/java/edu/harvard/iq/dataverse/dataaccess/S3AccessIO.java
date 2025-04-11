@@ -1249,8 +1249,9 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             String s3CERegion = getConfigParamForDriver(driverId, CUSTOM_ENDPOINT_REGION, "dataverse");
 
             if (!s3CEUrl.isEmpty()) {
-                s3CB.endpointOverride(URI.create(s3CEUrl));
-                s3CB.region(Region.of(s3CERegion));
+                logger.info("Using URL: " + s3CEUrl + " region " _+ s3CERegion);
+                s3CB.endpointOverride(URI.create(s3CEUrl)).region(Region.of(s3CERegion));
+                // ToDo: Disable SSL certificate checks if using http
             }
 
             // Configure path style access
