@@ -305,10 +305,15 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     public InputStream getInputStream() throws IOException {
         if (super.getInputStream() == null) {
             ResponseInputStream<GetObjectResponse> responseInputStream;
+            try {
             responseInputStream = s3.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build());
             setInputStream(responseInputStream);
+            } catch (NoSuchKeyException e) {
+                //Should exist - will throw IO exception below
+                }
         }
         if (super.getInputStream() == null) {
+            //Can this only be null due to NoSuchKeyException?
             throw new IOException("Cannot get InputStream for S3 Object" + key);
         }
 
@@ -760,12 +765,13 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(destinationKey)
                 .build();
 
-        ResponseInputStream<GetObjectResponse> s3ObjectContent = s3
-                .getObject(getObjectRequest, ResponseTransformer.toInputStream());
-        if (s3ObjectContent != null) {
-            return s3ObjectContent;
+        ResponseInputStream<GetObjectResponse> s3ObjectContent = null;
+        try {
+            s3ObjectContent = s3.getObject(getObjectRequest, ResponseTransformer.toInputStream());
+        } catch(NoSuchKeyException e) {
+            //No Problem - aux file doesn't exist
         }
-        return null;
+        return s3ObjectContent;
 
     }
 
