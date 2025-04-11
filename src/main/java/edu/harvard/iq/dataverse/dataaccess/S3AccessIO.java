@@ -343,18 +343,20 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         }
 
         if (dvObject instanceof DataFile) {
-            try {
-                PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(key).build();
-
-                tm.uploadFile(
-                        UploadFileRequest.builder().putObjectRequest(putObjectRequest).source(fileSystemPath).build())
-                        .completionFuture().join();
-
-                newFileSize = Files.size(fileSystemPath);
-            } catch (Exception e) {
-                throw new IOException(
-                        "S3AccessIO: Exception occurred while uploading a local file into S3Object " + key, e);
-            }
+        try {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+        
+            RequestBody requestBody = RequestBody.fromFile(fileSystemPath);
+            s3.putObject(putObjectRequest, requestBody);
+        
+            newFileSize = Files.size(fileSystemPath);
+        } catch (Exception e) {
+            throw new IOException(
+                    "S3AccessIO: Exception occurred while uploading a local file into S3Object " + key, e);
+        }
         } else {
             throw new IOException("DvObject type other than datafile is not yet supported");
         }
@@ -1086,29 +1088,18 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         return min;
     }
 
-    private static S3TransferManager getTransferManager(String driverId) {
-        if (driverTMMap.containsKey(driverId)) {
-            return driverTMMap.get(driverId);
-        } else {
-            // Get the synchronous S3Client
+    private S3TransferManager getTransferManager(String driverId) {
+        /*if (!driverTMMap.containsKey(driverId)) {
             S3Client s3Client = getClient(driverId);
-            
-            // Create an S3AsyncClient from the S3Client
-            S3AsyncClient s3AsyncClient = S3AsyncClient.builder()
-                .credentialsProvider(((AwsServiceClientConfiguration) s3Client).credentialsProvider())
-                .region(s3Client.serviceClientConfiguration().region())
-                .endpointOverride(s3Client.serviceClientConfiguration().endpointOverride().orElse(null))
-                .build();
+            S3TransferManager transferManager = S3TransferManager.builder()
+                    .s3Client(s3Client)
+                    .executor(executorService)
+                    .build();
+            driverTMMap.put(driverId, transferManager);
+        }*/
+        return driverTMMap.get(driverId);
     
-            // Build the S3TransferManager with the S3AsyncClient
-            S3TransferManager manager = S3TransferManager.builder()
-                .s3Client(s3AsyncClient)
-                .build();
-    
-            driverTMMap.put(driverId, manager);
-            return manager;
-        }
-    }
+}
 
     private static S3Client getClient(String driverId) {
         if (driverClientMap.containsKey(driverId)) {
