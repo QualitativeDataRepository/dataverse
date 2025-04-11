@@ -49,8 +49,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.http.async.SdkAsyncHttpClient;
-import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.utils.StringUtils;
 
 @RequiredPermissions(Permission.PublishDataset)
@@ -63,7 +63,7 @@ public class S3SubmitToArchiveCommand extends AbstractSubmitToArchiveCommand {
     private static final String S3_CONFIG = ":S3ArchiverConfig";
 
     private static final Config config = ConfigProvider.getConfig();
-    protected S3AsyncClient s3 = null;
+    protected S3Client s3 = null;
     private String spaceName = null;
     protected String bucketName = null;
 
@@ -107,20 +107,16 @@ public class S3SubmitToArchiveCommand extends AbstractSubmitToArchiveCommand {
                                 .bucket(bucketName)
                                 .key(dcKey)
                                 .build();
-                        CompletableFuture<PutObjectResponse> putFuture = s3.putObject(putRequest, AsyncRequestBody.fromInputStream(dataciteIn, (long) dataciteIn.available(), executorService));
+                        PutObjectResponse putResponse = s3.putObject(putRequest, RequestBody.fromInputStream(dataciteIn, (long) dataciteIn.available()));
                         
-                        // Wait for the put operation to complete
-                        putFuture.join();
-                        
+
                         GetObjectAttributesRequest attributesRequest = GetObjectAttributesRequest.builder()
                                 .bucket(bucketName)
                                 .key(dcKey)
                                 .objectAttributes(ObjectAttributes.OBJECT_SIZE)
                                 .build();
-                        CompletableFuture<GetObjectAttributesResponse> attributesFuture = s3.getObjectAttributes(attributesRequest);
+                        GetObjectAttributesResponse attributesResponse = s3.getObjectAttributes(attributesRequest);
                         
-                        // Wait for the get attributes operation to complete
-                        GetObjectAttributesResponse attributesResponse = attributesFuture.join();
                         if (attributesResponse == null) {
                             logger.warning("Could not write datacite xml to S3");
                             return new Failure("S3 Archiver failed writing datacite xml file");
@@ -145,20 +141,14 @@ public class S3SubmitToArchiveCommand extends AbstractSubmitToArchiveCommand {
                                         .bucket(bucketName)
                                         .key(bagKey)
                                         .build();
-                                CompletableFuture<PutObjectResponse> bagPutFuture = s3.putObject(bagPutRequest, AsyncRequestBody.fromInputStream(in, bagFile.length(), executorService));
+                                PutObjectResponse bagPutResponse = s3.putObject(bagPutRequest, RequestBody.fromInputStream(in, bagFile.length()));
                                 
-                                // Wait for the put operation to complete
-                                bagPutFuture.join();
-
                                 GetObjectAttributesRequest bagAttributesRequest = GetObjectAttributesRequest.builder()
                                         .bucket(bucketName)
                                         .key(bagKey)
                                         .objectAttributes(ObjectAttributes.OBJECT_SIZE)
                                         .build();
-                                CompletableFuture<GetObjectAttributesResponse> bagAttributesFuture = s3.getObjectAttributes(bagAttributesRequest);
-                                
-                                // Wait for the get attributes operation to complete
-                                GetObjectAttributesResponse bagAttributesResponse = bagAttributesFuture.join();
+                                GetObjectAttributesResponse bagAttributesResponse = s3.getObjectAttributes(bagAttributesRequest);
 
                                 if (bagAttributesResponse == null) {
                                     logger.severe("Error sending file to S3: " + fileName);
@@ -223,17 +213,17 @@ public class S3SubmitToArchiveCommand extends AbstractSubmitToArchiveCommand {
         return spaceName;
     }
 
-    private S3AsyncClient createClient(JsonObject configObject) {
-
-        // Create a builder for the S3AsyncClient
-        S3AsyncClientBuilder s3CB = S3AsyncClient.builder();
+    private S3Client createClient(JsonObject configObject) {
+        // Create a builder for the S3Client
+        S3ClientBuilder s3CB = S3Client.builder();
 
         // Create a custom HTTP client with the desired pool size
         Integer poolSize = configObject.getInt("connection-pool-size", 256);
-        SdkAsyncHttpClient httpClient = NettyNioAsyncHttpClient.builder().maxConcurrency(poolSize).build();
+        ApacheHttpClient.Builder httpClientBuilder = ApacheHttpClient.builder()
+                .maxConnections(poolSize);
 
-        // Apply the custom HTTP client to the S3AsyncClientBuilder
-        s3CB.httpClient(httpClient);
+        // Apply the custom HTTP client to the S3ClientBuilder
+        s3CB.httpClientBuilder(httpClientBuilder);
 
         String s3CEUrl = configObject.getString("custom-endpoint-url", "");
         String s3CERegion = configObject.getString("custom-endpoint-region", "dataverse");
@@ -245,8 +235,6 @@ public class S3SubmitToArchiveCommand extends AbstractSubmitToArchiveCommand {
 
         Boolean s3pathStyleAccess = configObject.getBoolean("path-style-access", false);
         s3CB.serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(s3pathStyleAccess).build());
-
-        // Note: Payload signing and chunked encoding are handled automatically in SDK v2
 
         String profile = configObject.getString("profile", "default");
         AwsCredentialsProvider profileCredentials = ProfileCredentialsProvider.create(profile);
