@@ -1129,7 +1129,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
     
             if (!s3CEUrl.isEmpty()) {
                 logger.info("Using URL: " + s3CEUrl + " region " + s3CERegion);
-                s3CB.endpointOverride(URI.create(s3CEUrl)).region(Region.of(s3CERegion));
+                s3CB.endpointOverride(URI.create(s3CEUrl)).forcePathStyle(true).region(Region.of(s3CERegion));
                 // ToDo: Disable SSL certificate checks if using http
             }
     
@@ -1156,6 +1156,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             
             // Build the client
             S3Client client = s3CB.build();
+            logger.info("Override: " + client.serviceClientConfiguration().endpointOverride());
             driverClientMap.put(driverId, client);
             return client;
         }
