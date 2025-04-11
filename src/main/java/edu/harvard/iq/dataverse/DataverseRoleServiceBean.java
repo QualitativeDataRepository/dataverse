@@ -77,11 +77,10 @@ public class DataverseRoleServiceBean implements java.io.Serializable {
     public RoleAssignment save(RoleAssignment assignment, boolean createIndex) {
         if (assignment.getId() == null) {
             em.persist(assignment);
-            em.refresh(assignment); // Refresh the entity to ensure it has the latest state, including the ID
         } else {
             assignment = em.merge(assignment);
         }
-        
+        logger.info("New RA has id: " + assignment.getId() + " and defPointId: " + assignment.getDefinitionPoint().getId());
         if (createIndex) {
             indexAsync.indexRole(assignment);
         }
