@@ -9,12 +9,12 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
+import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient.Builder;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
-import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -61,6 +61,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -361,6 +362,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
                 newFileSize = Files.size(fileSystemPath);
             } catch (Exception e) {
+                logger.warning(e.getMessage());
                 throw new IOException(
                         "S3AccessIO: Exception occurred while uploading a local file into S3Object " + key, e);
             }
@@ -1002,10 +1004,16 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             String fileName = auxiliaryFileName == null ? this.getDataFile().getDisplayName() : auxiliaryFileName;
             String contentType = auxiliaryType == null ? this.getDataFile().getContentType() : auxiliaryType;
 
-            // Create S3Presigner
-            S3Presigner s3Presigner = S3Presigner.builder()
+            // Modify the S3Presigner creation to use the same configuration as the existing
+            // s3 client
+            S3Presigner.Builder s3PresignerBuilder = S3Presigner.builder()
                     .region(Region.of(s3.serviceClientConfiguration().region().toString()))
-                    .credentialsProvider(credentialsProvider).build();
+                    .credentialsProvider(credentialsProvider);
+
+            s3.serviceClientConfiguration().endpointOverride()
+                    .ifPresent(uri -> s3PresignerBuilder.endpointOverride(uri));
+
+            S3Presigner s3Presigner = s3PresignerBuilder.build();
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
                     .signatureDuration(expirationDuration)
@@ -1060,10 +1068,17 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
         Duration expirationDuration = Duration.between(Instant.now(), expiration.toInstant());
 
-        // Create S3Presigner
-        S3Presigner s3Presigner = S3Presigner.builder()
+        // Modify the S3Presigner creation to use the same configuration as the existing
+        // s3 client
+        S3Presigner.Builder s3PresignerBuilder = S3Presigner.builder()
                 .region(Region.of(s3.serviceClientConfiguration().region().toString()))
-                .credentialsProvider(credentialsProvider).build();
+                .credentialsProvider(credentialsProvider);
+
+        s3.serviceClientConfiguration().endpointOverride()
+                .ifPresent(uri -> s3PresignerBuilder.endpointOverride(uri));
+
+        S3Presigner s3Presigner = s3PresignerBuilder.build();
+
         logger.info("Bucket when signing = " + bucketName);
         PutObjectPresignRequest.Builder presignRequestBuilder = PutObjectPresignRequest.builder()
                 .signatureDuration(expirationDuration);
@@ -1119,27 +1134,23 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         } else {
             JsonObjectBuilder urls = Json.createObjectBuilder();
 
-            // Create S3Client
-            S3Client s3Client = S3Client.builder()
+            // Modify the S3Presigner creation to use the same configuration as the existing
+            // s3 client
+            S3Presigner.Builder s3PresignerBuilder = S3Presigner.builder()
                     .region(Region.of(s3.serviceClientConfiguration().region().toString()))
-                    .credentialsProvider(credentialsProvider).build();
+                    .credentialsProvider(credentialsProvider);
 
-            // Create S3Presigner
-            S3Presigner s3Presigner = S3Presigner.builder()
-                    .region(Region.of(s3.serviceClientConfiguration().region().toString()))
-                    .credentialsProvider(credentialsProvider).build();
+            s3.serviceClientConfiguration().endpointOverride()
+                    .ifPresent(uri -> s3PresignerBuilder.endpointOverride(uri));
+
+            S3Presigner s3Presigner = s3PresignerBuilder.build();
 
             CreateMultipartUploadRequest.Builder createMultipartUploadRequestBuilder = CreateMultipartUploadRequest
                     .builder().bucket(bucketName).key(key);
 
-            final boolean taggingDisabled = JvmSettings.DISABLE_S3_TAGGING.lookupOptional(Boolean.class, this.driverId)
-                    .orElse(false);
-            if (!taggingDisabled) {
-                createMultipartUploadRequestBuilder.tagging("dv-state=temp");
-            }
-
-            CreateMultipartUploadResponse createMultipartUploadResponse = s3Client
-                    .createMultipartUpload(createMultipartUploadRequestBuilder.build());
+            // Use the existing s3 async client for the createMultipartUpload operation
+            CompletableFuture<CreateMultipartUploadResponse> createMultipartUploadFuture = s3.createMultipartUpload(createMultipartUploadRequestBuilder.build());
+            CreateMultipartUploadResponse createMultipartUploadResponse = createMultipartUploadFuture.join();
             String uploadId = createMultipartUploadResponse.uploadId();
 
             for (int i = 1; i <= (fileSize / minPartSize) + (fileSize % minPartSize > 0 ? 1 : 0); i++) {
@@ -1162,7 +1173,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             response.add("complete", "/api/datasets/mpupload?globalid=" + globalId + "&uploadid=" + uploadId
                     + "&storageidentifier=" + storageIdentifier);
 
-            s3Client.close();
             s3Presigner.close();
         }
 
@@ -1235,7 +1245,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             return driverClientMap.get(driverId);
         } else {
             // Create a builder for the S3AsyncClient
-            S3AsyncClientBuilder s3CB = S3AsyncClient.builder();
+            S3AsyncClientBuilder s3CB = S3AsyncClient.builder().requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED);
 
             // Create a custom HTTP client with the desired pool size
             Integer poolSize = Integer.getInteger("dataverse.files." + driverId + ".connection-pool-size", 256);
