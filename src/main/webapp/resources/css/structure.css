@@ -1327,7 +1327,7 @@ th {background: none !important;}
 
 #rolesPermissionsForm  .panel-heading {display: block;}
 #rolesPermissionsForm th span {color:white;text-shadow:none;}
-
+#rolesPermissionsForm {word-break:break-word;}
 
 .panel-body > * {
   border-top: 2px solid rgba(0, 0, 0, 0.1);
