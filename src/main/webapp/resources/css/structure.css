@@ -745,6 +745,9 @@ img.ror {
 .expanded.parenthetical[data-cvoc-protocol='ror'] span {
   margin: 0px 5px 0px 5px;
 }
+span[data-cvoc-metadata-name="authorIdentifierScheme"] {
+  margin-right:5px;
+}
 
 /* TRUNCATION */
 div.more-block {text-align:center; padding-top:250px; width:100%; position:absolute; bottom:0; background:linear-gradient(180deg,hsla(0,0%,100%,0),#fff 80%);}
