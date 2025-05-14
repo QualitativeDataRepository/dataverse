@@ -25,9 +25,9 @@ d=$(date -I -d "$YEAR_MONTH-01")
 while [ "$(date -d "$d" +%Y%m%d)" -le "$(date -d "$LAST" +%Y%m%d)" ];
 do
   if [ -f "$MDC_LOG_DIRECTORY/counter_$d.log" ]; then
-#       echo "Found counter_$d.log"
+      echo "Found counter_$d.log"
   else
-        touch "$MDC_LOG_DIRECTORY/counter_$d.log"
+      touch "$MDC_LOG_DIRECTORY/counter_$d.log"
   fi
   d=$(date -I -d "$d + 1 day")
 done
