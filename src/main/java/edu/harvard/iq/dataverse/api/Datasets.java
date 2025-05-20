@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse.api;
 
-import com.amazonaws.services.s3.model.PartETag;
 import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.DatasetLock.Reason;
 import edu.harvard.iq.dataverse.DatasetVersion.VersionState;
@@ -19,8 +18,7 @@ import edu.harvard.iq.dataverse.batch.jobs.importer.ImportMode;
 import edu.harvard.iq.dataverse.dataaccess.*;
 import edu.harvard.iq.dataverse.datacapturemodule.DataCaptureModuleUtil;
 import edu.harvard.iq.dataverse.datacapturemodule.ScriptRequestResponse;
-import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
-import edu.harvard.iq.dataverse.dataset.DatasetUtil;
+import edu.harvard.iq.dataverse.dataset.*;
 import edu.harvard.iq.dataverse.datasetutility.AddReplaceFileHelper;
 import edu.harvard.iq.dataverse.datasetutility.DataFileTagException;
 import edu.harvard.iq.dataverse.datasetutility.NoFilesException;
@@ -67,6 +65,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.*;
 import jakarta.ws.rs.core.Response.Status;
+import software.amazon.awssdk.services.s3.model.CompletedPart;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -100,11 +100,15 @@ import java.util.stream.Collectors;
 
 import static edu.harvard.iq.dataverse.api.ApiConstants.*;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
+
 import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
 import edu.harvard.iq.dataverse.dataset.DatasetType;
 import edu.harvard.iq.dataverse.dataset.DatasetTypeServiceBean;
+import edu.harvard.iq.dataverse.license.License;
+
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.*;
 import static edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder.jsonObjectBuilder;
+
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
@@ -198,6 +202,9 @@ public class Datasets extends AbstractApiBean {
 
     @Inject
     DatasetTypeServiceBean datasetTypeSvc;
+
+    @Inject
+    DatasetFieldsValidator datasetFieldsValidator;
 
     /**
      * Used to consolidate the way we parse and handle dataset versions.
@@ -1088,159 +1095,34 @@ public class Datasets extends AbstractApiBean {
     @PUT
     @AuthRequired
     @Path("{id}/editMetadata")
-    public Response editVersionMetadata(@Context ContainerRequestContext crc, String jsonBody, @PathParam("id") String id, @QueryParam("replace") Boolean replace) {
+    public Response editVersionMetadata(@Context ContainerRequestContext crc, String jsonBody, @PathParam("id") String id, @QueryParam("replace") boolean replaceData, @QueryParam("sourceInternalVersionNumber") Integer sourceInternalVersionNumber) {
+        try {
+            Dataset dataset = findDatasetOrDie(id);
 
-        Boolean replaceData = replace != null;
-        DataverseRequest req = null;
-        req = createDataverseRequest(getRequestUser(crc));
-
-        return processDatasetUpdate(jsonBody, id, req, replaceData);
+            if (sourceInternalVersionNumber != null) {
+                validateInternalVersionNumberIsNotOutdated(dataset, sourceInternalVersionNumber);
     }
 
-    private Response processDatasetUpdate(String jsonBody, String id, DataverseRequest req, Boolean replaceData) {
-        try {
-           
-            Dataset ds = findDatasetOrDie(id);
             JsonObject json = JsonUtil.getJsonObject(jsonBody);
-            //Get the current draft or create a new version to update
-            DatasetVersion dsv = ds.getOrCreateEditVersion();
-            dsv.getTermsOfUseAndAccess().setDatasetVersion(dsv);
-            List<DatasetField> fields = new LinkedList<>();
-            DatasetField singleField = null;
 
-            JsonArray fieldsJson = json.getJsonArray("fields");
-            if (fieldsJson == null) {
-                singleField = jsonParser().parseField(json, Boolean.FALSE);
-                fields.add(singleField);
+            List<DatasetField> updatedFields = new ArrayList<>();
+            if (json.getJsonArray("fields") == null) {
+                updatedFields.add(jsonParser().parseField(json, Boolean.FALSE, replaceData));
             } else {
-                fields = jsonParser().parseMultipleFields(json);
+                updatedFields = jsonParser().parseMultipleFields(json, replaceData);
             }
 
-            String valdationErrors = validateDatasetFieldValues(fields);
-
-            if (!valdationErrors.isEmpty()) {
-                logger.log(Level.SEVERE, "Semantic error parsing dataset update Json: " + valdationErrors, valdationErrors);
-                return error(Response.Status.BAD_REQUEST, "Error parsing dataset update: " + valdationErrors);
-            }
-
-            dsv.setVersionState(DatasetVersion.VersionState.DRAFT);
-
-            // loop through the update fields
-            // and compare to the version fields
-            // if exist add/replace values
-            // if not add entire dsf
-            for (DatasetField updateField : fields) {
-                boolean found = false;
-                for (DatasetField dsf : dsv.getDatasetFields()) {
-                    if (dsf.getDatasetFieldType().equals(updateField.getDatasetFieldType())) {
-                        found = true;
-                        if (dsf.isEmpty() || dsf.getDatasetFieldType().isAllowMultiples() || replaceData) {
-                            List priorCVV = new ArrayList<>();
-                            String cvvDisplay = "";
-
-                            if (updateField.getDatasetFieldType().isControlledVocabulary()) {
-                                cvvDisplay = dsf.getDisplayValue();
-                                for (ControlledVocabularyValue cvvOld : dsf.getControlledVocabularyValues()) {
-                                    priorCVV.add(cvvOld);
-                                }
-                            }
-
-                            if (replaceData) {
-                                if (dsf.getDatasetFieldType().isAllowMultiples()) {
-                                    dsf.setDatasetFieldCompoundValues(new ArrayList<DatasetFieldCompoundValue>());
-                                    dsf.setDatasetFieldValues(new ArrayList<DatasetFieldValue>());
-                                    dsf.setControlledVocabularyValues(new ArrayList<>());
-                                    priorCVV.clear();
-                                    dsf.getControlledVocabularyValues().clear();
-                                } else {
-                                    dsf.setSingleValue("");
-                                    dsf.setSingleControlledVocabularyValue(null);
-                                }
-                              cvvDisplay="";
-                            }
-                            if (updateField.getDatasetFieldType().isControlledVocabulary()) {
-                                if (dsf.getDatasetFieldType().isAllowMultiples()) {
-                                    for (ControlledVocabularyValue cvv : updateField.getControlledVocabularyValues()) {
-                                        if (!cvvDisplay.contains(cvv.getStrValue())) {
-                                            priorCVV.add(cvv);
-                                        }
-                                    }
-                                    dsf.setControlledVocabularyValues(priorCVV);
-                                } else {
-                                    dsf.setSingleControlledVocabularyValue(updateField.getSingleControlledVocabularyValue());
-                                }
-                            } else {
-                                if (!updateField.getDatasetFieldType().isCompound()) {
-                                    if (dsf.getDatasetFieldType().isAllowMultiples()) {
-                                        for (DatasetFieldValue dfv : updateField.getDatasetFieldValues()) {
-                                            if (!dsf.getDisplayValue().contains(dfv.getDisplayValue())) {
-                                                dfv.setDatasetField(dsf);
-                                                dsf.getDatasetFieldValues().add(dfv);
-                                            }
-                                        }
-                                    } else {
-                                        dsf.setSingleValue(updateField.getValue());
-                                    }
-                                } else {
-                                    for (DatasetFieldCompoundValue dfcv : updateField.getDatasetFieldCompoundValues()) {
-                                        if (!dsf.getCompoundDisplayValue().contains(updateField.getCompoundDisplayValue())) {
-                                            dfcv.setParentDatasetField(dsf);
-                                            dsf.setDatasetVersion(dsv);
-                                            dsf.getDatasetFieldCompoundValues().add(dfcv);
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            if (!dsf.isEmpty() && !dsf.getDatasetFieldType().isAllowMultiples() || !replaceData) {
-                                return error(Response.Status.BAD_REQUEST, "You may not add data to a field that already has data and does not allow multiples. Use replace=true to replace existing data (" + dsf.getDatasetFieldType().getDisplayName() + ")");
-                            }
-                        }
-                        break;
-                    }
-                }
-                if (!found) {
-                    updateField.setDatasetVersion(dsv);
-                    dsv.getDatasetFields().add(updateField);
-                }
-            }
-            DatasetVersion managedVersion = execCommand(new UpdateDatasetVersionCommand(ds, req)).getLatestVersion();
-
-            return ok(json(managedVersion, true));
+            DatasetVersion updatedVersion = execCommand(new UpdateDatasetFieldsCommand(dataset, updatedFields, replaceData, createDataverseRequest(getRequestUser(crc)))).getLatestVersion();
+            return ok(json(updatedVersion, true));
 
         } catch (JsonParseException ex) {
             logger.log(Level.SEVERE, "Semantic error parsing dataset update Json: " + ex.getMessage(), ex);
-            return error(Response.Status.BAD_REQUEST, "Error parsing dataset update: " + ex.getMessage());
-
+            return error(Response.Status.BAD_REQUEST, BundleUtil.getStringFromBundle("datasets.api.editMetadata.error.parseUpdate", List.of(ex.getMessage())));
         } catch (WrappedResponse ex) {
-            logger.log(Level.SEVERE, "Update metdata error: " + ex.getMessage(), ex);
+            logger.log(Level.SEVERE, "Update metadata error: " + ex.getMessage(), ex);
             return ex.getResponse();
 
         }
-    }
-    
-    private String validateDatasetFieldValues(List<DatasetField> fields) {
-        StringBuilder error = new StringBuilder();
-
-        for (DatasetField dsf : fields) {
-            if (dsf.getDatasetFieldType().isAllowMultiples() && dsf.getControlledVocabularyValues().isEmpty()
-                    && dsf.getDatasetFieldCompoundValues().isEmpty() && dsf.getDatasetFieldValues().isEmpty()) {
-                error.append("Empty multiple value for field: ").append(dsf.getDatasetFieldType().getDisplayName()).append(" ");
-            } else if (!dsf.getDatasetFieldType().isAllowMultiples()) {
-                if (dsf.getDatasetFieldType().isControlledVocabulary() && dsf.getSingleControlledVocabularyValue().getStrValue().isEmpty()) {
-                    error.append("Empty cvoc value for field: ").append(dsf.getDatasetFieldType().getDisplayName()).append(" ");
-                } else if (dsf.getDatasetFieldType().isCompound() && dsf.getDatasetFieldCompoundValues().isEmpty()) {
-                    error.append("Empty compound value for field: ").append(dsf.getDatasetFieldType().getDisplayName()).append(" ");
-                } else if (!dsf.getDatasetFieldType().isControlledVocabulary() && !dsf.getDatasetFieldType().isCompound() && dsf.getSingleValue().getValue().isEmpty()) {
-                    error.append("Empty value for field: ").append(dsf.getDatasetFieldType().getDisplayName()).append(" ");
-                }
-            }
-        }
-
-        if (!error.toString().isEmpty()) {
-            return (error.toString());
-        }
-        return "";
     }
     
     /**
@@ -2833,22 +2715,27 @@ public class Datasets extends AbstractApiBean {
                 return error(Response.Status.FORBIDDEN,
                         "You are not permitted to complete file uploads with the supplied parameters.");
             }
-            List<PartETag> eTagList = new ArrayList<PartETag>();
+            List<CompletedPart> completedParts = new ArrayList<>();
             logger.fine("Etags: " + partETagBody);
             try {
                 JsonObject object = JsonUtil.getJsonObject(partETagBody);
                 for (String partNo : object.keySet()) {
-                    eTagList.add(new PartETag(Integer.parseInt(partNo), object.getString(partNo)));
+                    completedParts.add(
+                        CompletedPart.builder()
+                            .partNumber(Integer.parseInt(partNo))
+                            .eTag(object.getString(partNo))
+                            .build()
+                    );
                 }
-                for (PartETag et : eTagList) {
-                    logger.info("Part: " + et.getPartNumber() + " : " + et.getETag());
+                for (CompletedPart part : completedParts) {
+                    logger.fine("Part: " + part.partNumber() + " : " + part.eTag());
                 }
             } catch (JsonException je) {
                 logger.info("Unable to parse eTags from: " + partETagBody);
                 throw new WrappedResponse(je, error(Response.Status.INTERNAL_SERVER_ERROR, "Could not complete multipart upload"));
             }
             try {
-                S3AccessIO.completeMultipartUpload(idSupplied, storageidentifier, uploadId, eTagList);
+                S3AccessIO.completeMultipartUpload(idSupplied, storageidentifier, uploadId, completedParts);
             } catch (IOException io) {
                 logger.warning("Multipart upload completion failed for uploadId: " + uploadId + " storageidentifier=" + storageidentifier + " globalId: " + idSupplied);
                 logger.warning(io.getMessage());
@@ -3112,11 +2999,12 @@ public class Datasets extends AbstractApiBean {
     public Response getCompareVersions(@Context ContainerRequestContext crc, @PathParam("id") String id,
                                       @PathParam("versionId1") String versionId1,
                                       @PathParam("versionId2") String versionId2,
+                                      @QueryParam("includeDeaccessioned") boolean includeDeaccessioned,
                                       @Context UriInfo uriInfo, @Context HttpHeaders headers) {
         try {
             DataverseRequest req = createDataverseRequest(getRequestUser(crc));
-            DatasetVersion dsv1 = getDatasetVersionOrDie(req, versionId1, findDatasetOrDie(id), uriInfo, headers);
-            DatasetVersion dsv2 = getDatasetVersionOrDie(req, versionId2, findDatasetOrDie(id), uriInfo, headers);
+            DatasetVersion dsv1 = getDatasetVersionOrDie(req, versionId1, findDatasetOrDie(id), uriInfo, headers, includeDeaccessioned);
+            DatasetVersion dsv2 = getDatasetVersionOrDie(req, versionId2, findDatasetOrDie(id), uriInfo, headers, includeDeaccessioned);
             if (dsv1.getCreateTime().getTime() > dsv2.getCreateTime().getTime()) {
                 return error(BAD_REQUEST, BundleUtil.getStringFromBundle("dataset.version.compare.incorrect.order"));
             }
@@ -3139,7 +3027,7 @@ public class Datasets extends AbstractApiBean {
             for (DatasetVersion dv : dataset.getVersions()) {
                 //only get summaries of draft is user may view unpublished
 
-                if (dv.isPublished() || permissionService.hasPermissionsFor(user, dv.getDataset(),
+                if (dv.isPublished() ||dv.isDeaccessioned() || permissionService.hasPermissionsFor(user, dv.getDataset(),
                         EnumSet.of(Permission.ViewUnpublishedDataset))) {
 
                     JsonObjectBuilder versionBuilder = new NullSafeJsonBuilder();
@@ -3164,13 +3052,13 @@ public class Datasets extends AbstractApiBean {
                             }
                         }
                         if (dv.isDeaccessioned()) {
-                            versionBuilder.add("summary", "versionDeaccessioned");
+                            versionBuilder.add("summary", getDeaccessionJson(dv));
                         }
 
                     } else {
                         versionBuilder.add("summary", dvdiff.getSummaryDifferenceAsJson());
                     }
-
+                    versionBuilder.add("versionNote", dv.getVersionNote());
                     versionBuilder.add("contributors", datasetversionService.getContributorsNames(dv));
                     versionBuilder.add("publishedOn", !dv.isDraft() ? dv.getPublicationDateAsString() : "");
                     differenceSummaries.add(versionBuilder);
@@ -3180,6 +3068,25 @@ public class Datasets extends AbstractApiBean {
         } catch (WrappedResponse wr) {
             return wr.getResponse();
         }
+    }
+
+    private JsonObject getDeaccessionJson(DatasetVersion dv) {
+
+        JsonObjectBuilder compositionBuilder = Json.createObjectBuilder();
+
+        if (dv.getDeaccessionNote() != null && !dv.getDeaccessionNote().isEmpty()) {
+            compositionBuilder.add("reason", dv.getDeaccessionNote());
+        }
+
+        if (dv.getDeaccessionLink() != null && !dv.getDeaccessionLink().isEmpty()) {
+            compositionBuilder.add("url", dv.getDeaccessionLink());
+        }
+
+        JsonObject json = Json.createObjectBuilder()
+                .add("deaccessioned", compositionBuilder)
+                .build();
+        
+        return json;
     }
 
     private static Set<String> getDatasetFilenames(Dataset dataset) {
@@ -5329,7 +5236,36 @@ public class Datasets extends AbstractApiBean {
             return ok(permissionService.canDownloadAtLeastOneFile(req, datasetVersion));
         }, getRequestUser(crc));
     }
-    
+
+    @PUT
+    @AuthRequired
+    @Path("{identifier}/pidReconcile")
+    public Response reconcilePid(@Context ContainerRequestContext crc, @PathParam("identifier") String datasetId) throws WrappedResponse {
+
+        // Superuser-only:
+        AuthenticatedUser user;
+        try {
+            user = getRequestAuthenticatedUserOrDie(crc);
+        } catch (WrappedResponse ex) {
+            return error(Response.Status.UNAUTHORIZED, "Authentication is required.");
+        }
+        if (!user.isSuperuser()) {
+            return error(Response.Status.FORBIDDEN, "Superusers only.");
+        }
+
+        Dataset dataset;
+        PidProvider pidProvider;
+        try {
+            dataset = findDatasetOrDie(datasetId);
+        } catch (WrappedResponse ex) {
+            return error(Response.Status.NOT_FOUND, "No such dataset");
+        }
+        return response(req -> {
+            execCommand(new ReconcileDatasetPidCommand(req, dataset, dataset.getEffectivePidGenerator()));
+            return ok(dataset.getGlobalId().toString());
+        }, getRequestUser(crc));
+
+    }
     /**
      * Get the PidProvider that will be used for generating new DOIs in this dataset
      *
@@ -5470,11 +5406,47 @@ public class Datasets extends AbstractApiBean {
         if (jsonIn == null || jsonIn.isEmpty()) {
             return error(BAD_REQUEST, "JSON input was null or empty!");
         }
-
+        
         String nameIn = null;
+        
+        JsonArrayBuilder datasetTypesAfter = Json.createArrayBuilder();
+        List<MetadataBlock> metadataBlocksToSave = new ArrayList<>();
+        List<License> licensesToSave = new ArrayList<>();
+        
         try {
-            JsonObject jsonObject = JsonUtil.getJsonObject(jsonIn);
-            nameIn = jsonObject.getString("name", null);
+            JsonObject datasetTypeObj =  JsonUtil.getJsonObject(jsonIn);
+            nameIn = datasetTypeObj.getString("name");
+            
+            JsonArray arr = datasetTypeObj.getJsonArray("linkedMetadataBlocks");
+            if (arr != null && !arr.isEmpty()) {
+                for (JsonString jsonValue : arr.getValuesAs(JsonString.class)) {
+                    String name = jsonValue.getString();
+                    MetadataBlock metadataBlock = metadataBlockSvc.findByName(name);
+                    if (metadataBlock != null) {
+                        metadataBlocksToSave.add(metadataBlock);
+                        datasetTypesAfter.add(name);
+                    } else {
+                        String availableBlocks = metadataBlockSvc.listMetadataBlocks().stream().map(MetadataBlock::getName).collect(Collectors.joining(", "));
+                        return badRequest("Metadata block not found: " + name + ". Available metadata blocks: " + availableBlocks);
+                    }
+                }
+            }
+
+            arr = datasetTypeObj.getJsonArray("availableLicenses");
+            if (arr != null && !arr.isEmpty()) {
+                for (JsonString jsonValue : arr.getValuesAs(JsonString.class)) {
+                    String name = jsonValue.getString();
+                    License license = licenseSvc.getByNameOrUri(name);
+                    if (license != null) {
+                        licensesToSave.add(license);
+                    } else {
+                        String availableLicenses = licenseSvc.listAllActive().stream().map(License::getName).collect(Collectors.joining(", "));
+                        return badRequest("License not found: " + name + ". Available licenses: " + availableLicenses);
+                    }
+                }
+
+            }
+
         } catch (JsonParsingException ex) {
             return error(BAD_REQUEST, "Problem parsing supplied JSON: " + ex.getLocalizedMessage());
         }
@@ -5489,6 +5461,8 @@ public class Datasets extends AbstractApiBean {
         try {
             DatasetType datasetType = new DatasetType();
             datasetType.setName(nameIn);
+            datasetType.setMetadataBlocks(metadataBlocksToSave);
+            datasetType.setLicenses(licensesToSave);
             DatasetType saved = datasetTypeSvc.save(datasetType);
             Long typeId = saved.getId();
             String name = saved.getName();
@@ -5585,6 +5559,54 @@ public class Datasets extends AbstractApiBean {
                     .add("linkedMetadataBlocks", Json.createObjectBuilder()
                             .add("before", datasetTypesBefore)
                             .add("after", datasetTypesAfter))
+            );
+
+        } catch (WrappedResponse ex) {
+            return ex.getResponse();
+        }
+    }
+    
+    @AuthRequired
+    @PUT
+    @Path("datasetTypes/{idOrName}/licenses")
+    public Response updateDatasetTypeWithLicenses(@Context ContainerRequestContext crc, @PathParam("idOrName") String idOrName, String jsonBody) {
+        DatasetType datasetType = null;
+        if (StringUtils.isNumeric(idOrName)) {
+            try {
+                long id = Long.parseLong(idOrName);
+                datasetType = datasetTypeSvc.getById(id);
+            } catch (NumberFormatException ex) {
+                return error(NOT_FOUND, "Could not find a dataset type with id " + idOrName);
+            }
+        } else {
+            datasetType = datasetTypeSvc.getByName(idOrName);
+        }
+        JsonArrayBuilder licensesBefore = Json.createArrayBuilder();
+        for (License license : datasetType.getLicenses()) {
+            licensesBefore.add(license.getName());
+        }
+        JsonArrayBuilder licensesAfter = Json.createArrayBuilder();
+        List<License> licensesToSave = new ArrayList<>();
+        if (jsonBody != null && !jsonBody.isEmpty()) {
+            JsonArray json = JsonUtil.getJsonArray(jsonBody);
+            for (JsonString jsonValue : json.getValuesAs(JsonString.class)) {
+                String name = jsonValue.getString();
+                License license = licenseSvc.getByNameOrUri(name);
+                if (license != null) {
+                    licensesToSave.add(license);
+                    licensesAfter.add(name);
+                } else {
+                    String availableLicenses = licenseSvc.listAllActive().stream().map(License::getName).collect(Collectors.joining(", "));
+                    return badRequest("License not found: " + name + ". Available licenses: " + availableLicenses);
+                }
+            }
+        }
+        try {
+            execCommand(new UpdateDatasetTypeAvailableLicensesCommand(createDataverseRequest(getRequestUser(crc)), datasetType, licensesToSave));
+            return ok(Json.createObjectBuilder()
+                    .add("availableLicenses", Json.createObjectBuilder()
+                            .add("before", licensesBefore)
+                            .add("after", licensesAfter))
             );
 
         } catch (WrappedResponse ex) {

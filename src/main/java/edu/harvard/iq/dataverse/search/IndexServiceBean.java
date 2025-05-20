@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.CurationStatus;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.DataFileServiceBean;
 import edu.harvard.iq.dataverse.DataFileTag;
+import edu.harvard.iq.dataverse.DataTable;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetField;
 import edu.harvard.iq.dataverse.DatasetFieldCompoundValue;
@@ -30,6 +31,7 @@ import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.GlobalId;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
 import edu.harvard.iq.dataverse.Retention;
+import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.batch.util.LoggingUtil;
@@ -40,7 +42,6 @@ import edu.harvard.iq.dataverse.dataset.DatasetType;
 import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.datavariable.VariableMetadata;
 import edu.harvard.iq.dataverse.datavariable.VariableMetadataUtil;
-import edu.harvard.iq.dataverse.datavariable.VariableServiceBean;
 import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
 import edu.harvard.iq.dataverse.search.IndexableDataset.DatasetState;
 import edu.harvard.iq.dataverse.settings.FeatureFlags;
@@ -58,7 +59,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -72,6 +72,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -90,6 +91,7 @@ import jakarta.inject.Named;
 import jakarta.json.JsonObject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -156,9 +158,6 @@ public class IndexServiceBean {
     SolrClientIndexService solrClientIndexService; // only for add, update, or remove index on Solr
     @EJB
     DataFileServiceBean dataFileService;
-
-    @EJB
-    VariableServiceBean variableService;
 
     @EJB
     DatasetFieldServiceBean datasetFieldService;
@@ -302,8 +301,8 @@ public class IndexServiceBean {
             dataversePaths.add(dvPath);
         }
         //only do this if we're indexing an individual dataverse ie not full re-index
-        List<Long> dataverseChildrenIds = new ArrayList();
-        List<Long> datasetChildrenIds = new ArrayList();
+        List<Long> dataverseChildrenIds = new ArrayList<Long>();
+        List<Long> datasetChildrenIds = new ArrayList<Long>();
         if (processPaths) {
             //Get Linking Dataverses to see if I need to reindex my children
             if (hasAnyLinkingDataverses(dataverse)) {
@@ -344,9 +343,7 @@ public class IndexServiceBean {
     @TransactionAttribute(REQUIRES_NEW)
     public void indexDatasetInNewTransaction(Long datasetId) { //Dataset dataset) {
         boolean doNormalSolrDocCleanUp = false;
-        Dataset dataset = datasetService.findDeep(datasetId);
-        asyncIndexDataset(dataset, doNormalSolrDocCleanUp);
-        dataset = null;
+        asyncIndexDataset(datasetId, doNormalSolrDocCleanUp);
     }
     
     // The following two variables are only used in the synchronized getNextToIndex method and do not need to be synchronized themselves
@@ -435,6 +432,23 @@ public class IndexServiceBean {
         }
     }
 
+    @Asynchronous
+    public void asyncIndexDataset(Long datasetId, boolean doNormalSolrDocCleanUp) {
+        //Initialize dataset here for logging (LoggingUtil) purposes
+        Dataset dataset = new Dataset();
+        dataset.setId(datasetId);
+        try {
+            acquirePermitFromSemaphore();
+            dataset = datasetService.find(datasetId);
+            doAsyncIndexDataset(dataset, doNormalSolrDocCleanUp);
+        } catch (InterruptedException e) {
+            String failureLogText = "Indexing failed: interrupted. You can kickoff a re-index of this dataset with: \r\n curl http://localhost:8080/api/admin/index/datasets/" + datasetId.toString();
+            failureLogText += "\r\n" + e.getLocalizedMessage();
+            LoggingUtil.writeOnSuccessFailureLog(null, failureLogText, dataset);
+        } finally {
+            ASYNC_INDEX_SEMAPHORE.release();
+        }
+    }
     private void doAsyncIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) {
         Long id = dataset.getId();
         Dataset next = getNextToIndex(id, dataset); // if there is an ongoing index job for this dataset, next is null (ongoing index job will reindex the newest version after current indexing finishes)
@@ -478,6 +492,7 @@ public class IndexServiceBean {
     public void indexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
         doIndexDataset(dataset, doNormalSolrDocCleanUp);
         updateLastIndexedTime(dataset.getId());
+        logger.fine("indextime updated for dataset " + dataset.getId());
     }
     
     private void doIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
@@ -917,7 +932,13 @@ public class IndexServiceBean {
              */
             return new IndexResponse("permissions indexing disabled for debugging");
         }
+        long startTime = System.currentTimeMillis();
         IndexResponse indexResponse = solrIndexService.indexPermissionsOnSelfAndChildren(dataset);
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        
+        logger.fine("Indexing permissions for dataset " + dataset.getId() + " took " + duration + " ms");
+        
         return indexResponse;
     }
 
@@ -926,11 +947,11 @@ public class IndexServiceBean {
         return result;
     }
 
-    public SolrInputDocuments toSolrDocs(IndexableDataset indexableDataset, Set<Long> datafilesInDraftVersion) throws  SolrServerException, IOException {
-        try {
+    public SolrInputDocuments toSolrDocs(IndexableDataset indexableDataset, Set<Long> datafilesInDraftVersion) throws SolrServerException, IOException {
+
         IndexableDataset.DatasetState state = indexableDataset.getDatasetState();
         Dataset dataset = indexableDataset.getDatasetVersion().getDataset();
-        logger.fine("adding or updating Solr document for dataset id " + dataset.getId());
+        logger.fine("adding or updating Solr document for dataset id " + dataset.getId() + " with state " + state.toString());
         Collection<SolrInputDocument> docs = new ArrayList<>();
         SolrInputDocument solrInputDocument = new SolrInputDocument();
         String datasetSolrDocId = indexableDataset.getSolrDocId();
@@ -949,7 +970,7 @@ public class IndexServiceBean {
         final String dvAlias = dataverse.getAlias();
         final String dvDisplayName = dataverse.getDisplayName();
         final String rdvName = findRootDataverseCached().getName();
-        //This only grabs the immediate parent dataverse's category. We do the same for dataverses themselves.
+        // This only grabs the immediate parent dataverse's category. We do the same for dataverses themselves.
         solrInputDocument.addField(SearchFields.CATEGORY_OF_DATAVERSE, dvIndexableCategoryName);
         solrInputDocument.addField(SearchFields.IDENTIFIER_OF_DATAVERSE, dvAlias);
         solrInputDocument.addField(SearchFields.DATAVERSE_NAME, dvDisplayName);
@@ -1008,16 +1029,16 @@ public class IndexServiceBean {
         if (dataset.isHarvested()) {
             solrInputDocument.addField(SearchFields.IS_HARVESTED, true);
             if (FeatureFlags.INDEX_HARVESTED_METADATA_SOURCE.enabled()) {
-                // New - as of 6.3 - option of indexing the actual origin of 
+                // New - as of 6.3 - option of indexing the actual origin of
                 // harvested objects as the metadata source:
                 solrInputDocument.addField(SearchFields.METADATA_SOURCE,
-                                        dataset.getHarvestedFrom() != null ? dataset.getHarvestedFrom().getMetadataSource() : HARVESTED);
+                        dataset.getHarvestedFrom() != null ? dataset.getHarvestedFrom().getMetadataSource() : HARVESTED);
             } else {
                 solrInputDocument.addField(SearchFields.METADATA_SOURCE, HARVESTED);
             }
         } else {
             solrInputDocument.addField(SearchFields.IS_HARVESTED, false);
-            solrInputDocument.addField(SearchFields.METADATA_SOURCE, rdvName); //rootDataverseName);
+            solrInputDocument.addField(SearchFields.METADATA_SOURCE, rdvName); // rootDataverseName);
         }
 
         DatasetType datasetType = dataset.getDatasetType();
@@ -1038,9 +1059,9 @@ public class IndexServiceBean {
             if (datasetVersion.isInReview()) {
                 solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, IN_REVIEW_STRING);
             }
-            
+
             CurationStatus status = datasetVersion.getCurrentCurationStatus();
-            if(status != null && Strings.isNotBlank(status.getLabel())) {
+            if (status != null && Strings.isNotBlank(status.getLabel())) {
                 solrInputDocument.addField(SearchFields.CURATION_STATUS, status.getLabel());
             }
             // Add the creation time of the curation status
@@ -1052,12 +1073,11 @@ public class IndexServiceBean {
                 solrInputDocument.addField(SearchFields.CURATION_STATUS_CREATE_TIME, isoDateString);
             }
 
-
             Set<String> langs = settingsService.getConfiguredLanguages();
             Map<Long, JsonObject> cvocMap = datasetFieldService.getCVocConf(true);
             Map<Long, Set<String>> cvocManagedFieldMap = new HashMap<>();
             for (Map.Entry<Long, JsonObject> cvocEntry : cvocMap.entrySet()) {
-                if(cvocEntry.getValue().containsKey("managed-fields")) {
+                if (cvocEntry.getValue().containsKey("managed-fields")) {
                     JsonObject managedFields = cvocEntry.getValue().getJsonObject("managed-fields");
                     Set<String> managedFieldValues = new HashSet<>();
                     for (String s : managedFields.keySet()) {
@@ -1066,8 +1086,6 @@ public class IndexServiceBean {
                     cvocManagedFieldMap.put(cvocEntry.getKey(), managedFieldValues);
                 }
             }
-
-
 
             Set<String> metadataBlocksWithValue = new HashSet<>();
             for (DatasetField dsf : datasetVersion.getFlatDatasetFields()) {
@@ -1126,7 +1144,7 @@ public class IndexServiceBean {
                             dateAsString = dsf.getValues_nondisplay().get(0).trim();
                         }
 
-                        logger.fine("date as string: " + dateAsString);
+                        logger.finest("date as string: " + dateAsString);
 
                         if (dateAsString != null && !dateAsString.isEmpty()) {
                             boolean dateValid = false;
@@ -1137,7 +1155,7 @@ public class IndexServiceBean {
                                     DateTimeFormatter.ofPattern("yyyy-MM"),
                                     DateTimeFormatter.ofPattern("yyyy")
                             };
-                            for (DateTimeFormatter format : possibleFormats){
+                            for (DateTimeFormatter format : possibleFormats) {
                                 try {
                                     format.parse(dateAsString);
                                     dateValid = true;
@@ -1147,19 +1165,18 @@ public class IndexServiceBean {
                             }
 
                             if (!dateValid) {
-                                logger.fine("couldn't index " + dsf.getDatasetFieldType().getName() + ":" + dsf.getValues() + " because it's not a valid date format according to Solr");
+                                logger.finest("couldn't index " + dsf.getDatasetFieldType().getName() + ":" + dsf.getValues() + " because it's not a valid date format according to Solr");
                             } else {
                                 SimpleDateFormat inputDateyyyy = new SimpleDateFormat("yyyy", Locale.ENGLISH);
                                 try {
                                     /**
-                                     * @todo when bean validation is working we
-                                     * won't have to convert strings into dates
+                                     * @todo when bean validation is working we won't have to convert strings into dates
                                      */
-                                    logger.fine("Trying to convert " + dateAsString + " to a YYYY date from dataset " + dataset.getId());
+                                    logger.finest("Trying to convert " + dateAsString + " to a YYYY date from dataset " + dataset.getId());
                                     Date dateAsDate = inputDateyyyy.parse(dateAsString);
                                     SimpleDateFormat yearOnly = new SimpleDateFormat("yyyy");
                                     String datasetFieldFlaggedAsDate = yearOnly.format(dateAsDate);
-                                    logger.fine("YYYY only: " + datasetFieldFlaggedAsDate);
+                                    logger.finest("YYYY only: " + datasetFieldFlaggedAsDate);
                                     // solrInputDocument.addField(solrFieldSearchable,
                                     // Integer.parseInt(datasetFieldFlaggedAsDate));
                                     solrInputDocument.addField(solrFieldSearchable, dateAsString);
@@ -1178,14 +1195,8 @@ public class IndexServiceBean {
 
                         if (dsf.getDatasetFieldType().getName().equals("authorAffiliation")) {
                             /**
-                             * @todo think about how to tie the fact that this
-                             * needs to be multivalued (_ss) because a
-                             * multivalued facet (authorAffilition_ss) is being
-                             * collapsed into here at index time. The business
-                             * logic to determine if a data-driven metadata
-                             * field should be indexed into Solr as a single or
-                             * multiple value lives in the getSolrField() method
-                             * of DatasetField.java
+                             * @todo think about how to tie the fact that this needs to be multivalued (_ss) because a multivalued facet (authorAffilition_ss) is being collapsed into here at index time. The business logic to
+                             *       determine if a data-driven metadata field should be indexed into Solr as a single or multiple value lives in the getSolrField() method of DatasetField.java
                              */
                             solrInputDocument.addField(SearchFields.AFFILIATION, dsf.getValuesWithoutNaValues());
                         } else if (dsf.getDatasetFieldType().getName().equals("title")) {
@@ -1200,38 +1211,39 @@ public class IndexServiceBean {
                         }
 
                         // If there is a CVOCConf for the field
-                        if(cvocMap.containsKey(dsfType.getId())) {
+                        if (cvocMap.containsKey(dsfType.getId())) {
                             List<String> vals = dsf.getValues_nondisplay();
                             Set<String> searchStrings = new HashSet<>();
-                            for (String val: vals) {
+                            for (String val : vals) {
                                 searchStrings.add(val);
                                 // Try to get string values from externalvocabularyvalue using val as termUri
                                 searchStrings.addAll(datasetFieldService.getIndexableStringsByTermUri(val, cvocMap.get(dsfType.getId()), dsfType.getName()));
 
-                                if(dsfType.getParentDatasetFieldType()!=null) {
+                                if (dsfType.getParentDatasetFieldType() != null) {
                                     List<DatasetField> childDatasetFields = dsf.getParentDatasetFieldCompoundValue().getChildDatasetFields();
                                     for (DatasetField df : childDatasetFields) {
-                                        if(cvocManagedFieldMap.containsKey(dsfType.getId()) && cvocManagedFieldMap.get(dsfType.getId()).contains(df.getDatasetFieldType().getName())) {
+                                        if (cvocManagedFieldMap.containsKey(dsfType.getId()) && cvocManagedFieldMap.get(dsfType.getId()).contains(df.getDatasetFieldType().getName())) {
                                             String solrManagedFieldSearchable = df.getDatasetFieldType().getSolrField().getNameSearchable();
                                             // Try to get string values from externalvocabularyvalue but for a managed fields of the CVOCConf
                                             Set<String> stringsForManagedField = datasetFieldService.getIndexableStringsByTermUri(val, cvocMap.get(dsfType.getId()), df.getDatasetFieldType().getName());
                                             logger.fine(solrManagedFieldSearchable + " filled with externalvocabularyvalue : " + stringsForManagedField);
-                                            //.addField works as addition of value not a replace of value
+                                            // .addField works as addition of value not a replace of value
                                             // it allows to add mapped values by CVOCConf before or after indexing real DatasetField value(s) of solrManagedFieldSearchable
                                             solrInputDocument.addField(solrManagedFieldSearchable, stringsForManagedField);
                                         }
                                     }
                                 }
                             }
-                            logger.fine(solrFieldSearchable + " filled with externalvocabularyvalue : " + searchStrings);
+                            logger.finest(solrFieldSearchable + " filled with externalvocabularyvalue : " + searchStrings);
                             solrInputDocument.addField(solrFieldSearchable, searchStrings);
                             if (dsfType.getSolrField().isFacetable()) {
-                                logger.fine(solrFieldFacetable + " gets " + vals);
+                                logger.finest(solrFieldFacetable + " gets " + vals);
                                 solrInputDocument.addField(solrFieldFacetable, vals);
                             }
                         } else if (dsfType.isControlledVocabulary()) {
-                            /** If the cvv list is empty but the dfv list is not then it is assumed this was harvested
-                             *  from an installation that had controlled vocabulary entries that don't exist in our this db
+                            /**
+                             * If the cvv list is empty but the dfv list is not then it is assumed this was harvested from an installation that had controlled vocabulary entries that don't exist in our this db
+                             * 
                              * @see <a href="https://github.com/IQSS/dataverse/issues/9992">Feature Request/Idea: Harvest metadata values that aren't from a list of controlled values #9992</a>
                              */
                             if (dsf.getControlledVocabularyValues().isEmpty()) {
@@ -1255,7 +1267,7 @@ public class IndexServiceBean {
                                     if (!dsfType.isAllowMultiples() || langs.isEmpty()) {
                                         solrInputDocument.addField(solrFieldSearchable, controlledVocabularyValue.getStrValue());
                                     } else {
-                                        for(String locale: langs) {
+                                        for (String locale : langs) {
                                             solrInputDocument.addField(solrFieldSearchable, controlledVocabularyValue.getLocaleStrValue(locale));
                                         }
                                     }
@@ -1289,32 +1301,32 @@ public class IndexServiceBean {
                         }
                     }
                 }
-                
-                //ToDo - define a geom/bbox type solr field and find those instead of just this one
-                if(dsfType.getName().equals(DatasetFieldConstant.geographicBoundingBox)) {
-                    String minWestLon=null;
-                    String maxEastLon=null;
-                    String maxNorthLat=null;
-                    String minSouthLat=null;
+
+                // ToDo - define a geom/bbox type solr field and find those instead of just this one
+                if (dsfType.getName().equals(DatasetFieldConstant.geographicBoundingBox)) {
+                    String minWestLon = null;
+                    String maxEastLon = null;
+                    String maxNorthLat = null;
+                    String minSouthLat = null;
                     for (DatasetFieldCompoundValue compoundValue : dsf.getDatasetFieldCompoundValues()) {
-                        String westLon=null;
-                        String eastLon=null;
-                        String northLat=null;
-                        String southLat=null;
-                        for(DatasetField childDsf: compoundValue.getChildDatasetFields()) {
+                        String westLon = null;
+                        String eastLon = null;
+                        String northLat = null;
+                        String southLat = null;
+                        for (DatasetField childDsf : compoundValue.getChildDatasetFields()) {
                             switch (childDsf.getDatasetFieldType().getName()) {
-                            case DatasetFieldConstant.westLongitude:
-                                westLon = childDsf.getRawValue();
-                                break;
-                            case DatasetFieldConstant.eastLongitude:
-                                eastLon = childDsf.getRawValue();
-                                break;
-                            case DatasetFieldConstant.northLatitude:
-                                northLat = childDsf.getRawValue();
-                                break;
-                            case DatasetFieldConstant.southLatitude:
-                                southLat = childDsf.getRawValue();
-                                break;
+                                case DatasetFieldConstant.westLongitude:
+                                    westLon = childDsf.getRawValue();
+                                    break;
+                                case DatasetFieldConstant.eastLongitude:
+                                    eastLon = childDsf.getRawValue();
+                                    break;
+                                case DatasetFieldConstant.northLatitude:
+                                    northLat = childDsf.getRawValue();
+                                    break;
+                                case DatasetFieldConstant.southLatitude:
+                                    southLat = childDsf.getRawValue();
+                                    break;
                             }
                         }
                         if ((eastLon != null || westLon != null) && (northLat != null || southLat != null)) {
@@ -1329,28 +1341,28 @@ public class IndexServiceBean {
                             } else if (southLat == null) {
                                 southLat = northLat;
                             }
-                            //Find the overall bounding box that includes all bounding boxes
-                            if(minWestLon==null || Float.parseFloat(minWestLon) > Float.parseFloat(westLon)) {
-                                minWestLon=westLon;
+                            // Find the overall bounding box that includes all bounding boxes
+                            if (minWestLon == null || Float.parseFloat(minWestLon) > Float.parseFloat(westLon)) {
+                                minWestLon = westLon;
                             }
-                            if(maxEastLon==null || Float.parseFloat(maxEastLon) < Float.parseFloat(eastLon)) {
-                                maxEastLon=eastLon;
+                            if (maxEastLon == null || Float.parseFloat(maxEastLon) < Float.parseFloat(eastLon)) {
+                                maxEastLon = eastLon;
                             }
-                            if(minSouthLat==null || Float.parseFloat(minSouthLat) > Float.parseFloat(southLat)) {
-                                minSouthLat=southLat;
+                            if (minSouthLat == null || Float.parseFloat(minSouthLat) > Float.parseFloat(southLat)) {
+                                minSouthLat = southLat;
                             }
-                            if(maxNorthLat==null || Float.parseFloat(maxNorthLat) < Float.parseFloat(northLat)) {
-                                maxNorthLat=northLat;
+                            if (maxNorthLat == null || Float.parseFloat(maxNorthLat) < Float.parseFloat(northLat)) {
+                                maxNorthLat = northLat;
                             }
 
                             if (DatasetFieldValueValidator.validateBoundingBox(westLon, eastLon, northLat, southLat)) {
-                                //W, E, N, S
+                                // W, E, N, S
                                 solrInputDocument.addField(SearchFields.GEOLOCATION, "ENVELOPE(" + westLon + "," + eastLon + "," + northLat + "," + southLat + ")");
                             }
                         }
                     }
-                    //Only one bbox per dataset
-                    //W, E, N, S
+                    // Only one bbox per dataset
+                    // W, E, N, S
                     if (DatasetFieldValueValidator.validateBoundingBox(minWestLon, maxEastLon, maxNorthLat, minSouthLat) &&
                             (minWestLon != null || maxEastLon != null) && (maxNorthLat != null || minSouthLat != null)) {
                         solrInputDocument.addField(SearchFields.BOUNDING_BOX, "ENVELOPE(" + minWestLon + "," + maxEastLon + "," + maxNorthLat + "," + minSouthLat + ")");
@@ -1359,12 +1371,12 @@ public class IndexServiceBean {
                 }
             }
 
-            for(String metadataBlockName : metadataBlocksWithValue) {
+            for (String metadataBlockName : metadataBlocksWithValue) {
                 solrInputDocument.addField(SearchFields.METADATA_TYPES, metadataBlockName);
             }
         }
-        
-        List<String> dataversePaths = retrieveDVOPaths(dataset); 
+
+        List<String> dataversePaths = retrieveDVOPaths(dataset);
         solrInputDocument.addField(SearchFields.SUBTREE, dataversePaths);
         // solrInputDocument.addField(SearchFields.HOST_DATAVERSE,
         // dataset.getOwner().getName());
@@ -1381,6 +1393,7 @@ public class IndexServiceBean {
         if (versionNote != null) {
             solrInputDocument.addField(SearchFields.DATASET_VERSION_NOTE, versionNote);
         }
+        logger.fine("Adding doc for dataset: " + dataset.getId() + ", version " + datasetVersion.getId());
         docs.add(solrInputDocument);
 
         /**
@@ -1391,139 +1404,171 @@ public class IndexServiceBean {
         long maxSize = maxFTIndexingSize != null ? maxFTIndexingSize.longValue() : Long.MAX_VALUE;
 
         List<String> filesIndexed = new ArrayList<>();
+        final List<Long> changedFileMetadataIds = new ArrayList<>();
         if (datasetVersion != null) {
             List<FileMetadata> fileMetadatas = datasetVersion.getFileMetadatas();
-            List<FileMetadata> releasedFileMetadatas = new ArrayList<>();
+            List<FileMetadata> rfm = new ArrayList<>();
             Map<Long, FileMetadata> fileMap = new HashMap<>();
-            boolean checkForDuplicateMetadata = false;
             if (datasetVersion.isDraft() && dataset.isReleased() && dataset.getReleasedVersion() != null) {
-                checkForDuplicateMetadata = true;
-                releasedFileMetadatas = dataset.getReleasedVersion().getFileMetadatas(); 
-                for(FileMetadata released: releasedFileMetadatas){
+                rfm = dataset.getReleasedVersion().getFileMetadatas();
+                for (FileMetadata released : rfm) {
                     fileMap.put(released.getDataFile().getId(), released);
                 }
+
+                Query query = em.createNamedQuery("FileMetadata.compareFileMetadata", Long.class);
+                query.setParameter(1, dataset.getReleasedVersion().getId());
+                query.setParameter(2, datasetVersion.getId());
+
+                changedFileMetadataIds.addAll(query.getResultList());
                 logger.fine(
                         "We are indexing a draft version of a dataset that has a released version. We'll be checking file metadatas if they are exact clones of the released versions.");
+            } else if (datasetVersion.isDraft()) {
+                // Add all file metadata ids to changedFileMetadataIds
+                changedFileMetadataIds.addAll(
+                        fileMetadatas.stream()
+                                .map(FileMetadata::getId)
+                                .collect(Collectors.toList()));
             }
-            LocalDate embargoEndDate=null;
-            LocalDate retentionEndDate=null;
-            final String datasetCitation = (dataset.isReleased() && dataset.getReleasedVersion() != null) ?
-                    dataset.getCitation(dataset.getReleasedVersion()) : dataset.getCitation();
+            logger.fine("For state: " + state + " there are " + fileMetadatas.size() + " file metadata to index.");
+            logger.fine("Changed file metadata size: " + changedFileMetadataIds.size());
+            AtomicReference<LocalDate> embargoEndDateRef = new AtomicReference<>(null);
+            AtomicReference<LocalDate> retentionEndDateRef = new AtomicReference<>(null);
+            final String datasetCitation = (dataset.isReleased() && dataset.getReleasedVersion() != null) ? dataset.getCitation(dataset.getReleasedVersion()) : dataset.getCitation();
             final Long datasetId = dataset.getId();
             final String datasetGlobalId = dataset.getGlobalId().toString();
+            final String parentTitle = parentDatasetTitle;
+
+            AutoDetectParser ap = null;
+            ParseContext ct = null;
+            if (doFullTextIndexing) {
+                ap = new AutoDetectParser();
+                ct = new ParseContext();
+            }
+            final AutoDetectParser autoParser = ap;
+            final ParseContext context = ct;
+
+            Set<String> datasetPublicationStatuses = new HashSet<String>();
+            if (dataset.getReleasedVersion() == null && !dataset.isHarvested()) {
+                datasetPublicationStatuses.add(UNPUBLISHED_STRING);
+            }
+
+            if (datasetVersion.isInReview()) {
+                datasetPublicationStatuses.add(IN_REVIEW_STRING);
+            }
+
+            if (indexableDataset.getDatasetState().equals(DatasetState.PUBLISHED)) {
+                datasetPublicationStatuses.add(PUBLISHED_STRING);
+            } else {
+                if (indexableDataset.getDatasetState().equals(DatasetState.WORKING_COPY)) {
+                    datasetPublicationStatuses.add(DRAFT_STRING);
+                }
+            }
+
+            String datasetVersionId = datasetVersion.getId().toString();
+            boolean indexThisMetadata = indexableDataset.isFilesShouldBeIndexed();
+            boolean isReleasedVersion = datasetVersion.isReleased();
+
+            String datasetPersistentURL = dataset.getPersistentURL();
+            boolean isHarvested = dataset.isHarvested();
             long startTime = System.currentTimeMillis();
-            for (FileMetadata fileMetadata : fileMetadatas) {
+            fileMetadatas.stream().forEach(fileMetadata -> {
+                DataFile datafile = fileMetadata.getDataFile();
+                Embargo emb = datafile.getEmbargo();
                 LocalDate end = null;
+                if (emb != null) {
+                    final LocalDate endDate = emb.getDateAvailable();
+                    embargoEndDateRef.updateAndGet(current -> (current == null || endDate.isAfter(current)) ? endDate : current);
+                    end = endDate;
+                }
+                Retention ret = datafile.getRetention();
                 LocalDate start = null;
-                Embargo emb= fileMetadata.getDataFile().getEmbargo();
-                if(emb!=null) {
-                    end = emb.getDateAvailable();
-                    if(embargoEndDate==null || end.isAfter(embargoEndDate)) {
-                        embargoEndDate=end;
-                    }
+                if (ret != null) {
+                    final LocalDate startDate = ret.getDateUnavailable();
+                    retentionEndDateRef.updateAndGet(current -> (current == null || startDate.isBefore(current)) ? startDate : current);
+                    start = startDate;
                 }
-                Retention ret= fileMetadata.getDataFile().getRetention();
-                if(ret!=null) {
-                    start = ret.getDateUnavailable();
-                    if(retentionEndDate==null || start.isBefore(retentionEndDate)) {
-                        retentionEndDate=start;
-                    }
-                }
-                boolean indexThisMetadata = indexableDataset.isFilesShouldBeIndexed();
-                if (indexThisMetadata && checkForDuplicateMetadata && !releasedFileMetadatas.isEmpty()) {
-                    logger.fine("Checking if this file metadata is a duplicate.");
-                    FileMetadata getFromMap = fileMap.get(fileMetadata.getDataFile().getId());
+                boolean indexThisFile = false;
+
+                if (indexThisMetadata && (isReleasedVersion || changedFileMetadataIds.contains(fileMetadata.getId()))) {
+                    indexThisFile = true;
+                } else if (indexThisMetadata) {
+                    logger.finest("Checking if this file metadata is a duplicate.");
+                    FileMetadata getFromMap = fileMap.get(datafile.getId());
                     if (getFromMap != null) {
-                        if ((fileMetadata.getDataFile().isRestricted() == getFromMap.getDataFile().isRestricted())) {
-                            if (fileMetadata.contentEquals(getFromMap)
-                                    && VariableMetadataUtil.compareVariableMetadata(getFromMap, fileMetadata)) {
-                                indexThisMetadata = false;
-                                logger.fine("This file metadata hasn't changed since the released version; skipping indexing.");
-                            } else {
-                                logger.fine("This file metadata has changed since the released version; we want to index it!");
-                            }
-                        } else {
-                            logger.fine("This file's restricted status has changed since the released version; we want to index it!");
+                        if (!VariableMetadataUtil.compareVariableMetadata(getFromMap, fileMetadata)) {
+                            indexThisFile = true;
+                            logger.finest("This file metadata hasn't changed since the released version; skipping indexing.");
                         }
                     }
-                }        
-                if (indexThisMetadata) {
+                }
+                if (indexThisFile) {
 
                     SolrInputDocument datafileSolrInputDocument = new SolrInputDocument();
-                    Long fileEntityId = fileMetadata.getDataFile().getId();
+                    Long fileEntityId = datafile.getId();
                     datafileSolrInputDocument.addField(SearchFields.ENTITY_ID, fileEntityId);
                     datafileSolrInputDocument.addField(SearchFields.DATAVERSE_VERSION_INDEXED_BY, dataverseVersion);
                     datafileSolrInputDocument.addField(SearchFields.IDENTIFIER, fileEntityId);
-                    datafileSolrInputDocument.addField(SearchFields.PERSISTENT_URL, dataset.getPersistentURL());
+                    datafileSolrInputDocument.addField(SearchFields.PERSISTENT_URL, datasetPersistentURL);
                     datafileSolrInputDocument.addField(SearchFields.TYPE, "files");
                     datafileSolrInputDocument.addField(SearchFields.CATEGORY_OF_DATAVERSE, dvIndexableCategoryName);
-                    if(end!=null) {
-                        datafileSolrInputDocument.addField(SearchFields.EMBARGO_END_DATE, end.toEpochDay()); 
+                    if (end != null) {
+                        datafileSolrInputDocument.addField(SearchFields.EMBARGO_END_DATE, end.toEpochDay());
                     }
-                    if(start!=null) {
+                    if (start != null) {
                         datafileSolrInputDocument.addField(SearchFields.RETENTION_END_DATE, start.toEpochDay());
                     }
                     /* Full-text indexing using Apache Tika */
                     if (doFullTextIndexing) {
-                        if (!dataset.isHarvested()
-                                && !fileMetadata.getDataFile().isFilePackage()
-                                && fileMetadata.getDataFile().getFilesize()!=0
-                                && fileMetadata.getDataFile().getRetention() == null) {
+                        long fileSize = datafile.getFilesize();
+                        if (!isHarvested
+                                && !datafile.isFilePackage()
+                                && fileSize != 0 && fileSize <= maxSize
+                                && datafile.getRetention() == null) {
                             StorageIO<DataFile> accessObject = null;
                             InputStream instream = null;
                             ContentHandler textHandler = null;
                             try {
-                                accessObject = DataAccess.getStorageIO(fileMetadata.getDataFile(),
+                                accessObject = DataAccess.getStorageIO(datafile,
                                         new DataAccessRequest());
                                 if (accessObject != null) {
                                     accessObject.open();
-                                    // If the size is >max, we don't use the stream. However, for fileIO, the stream is
+                                    // If the size is >max, we don't use the stream. However, for S3, the stream is
                                     // currently opened in the call above (see
-                                    // https://github.com/IQSS/dataverse/issues/5165 - applies to files as well), so we want to get a handle so
+                                    // https://github.com/IQSS/dataverse/issues/5165), so we want to get a handle so
                                     // we can close it below.
-                                    long size = accessObject.getSize();
-                                    if ((size > 0) && (size <= maxSize)) {
-                                        instream = accessObject.getInputStream();
-                                        AutoDetectParser autoParser = new AutoDetectParser();
-                                        textHandler = new BodyContentHandler(-1);
-                                        Metadata metadata = new Metadata();
-                                        ParseContext context = new ParseContext();
-                                        /*
-                                         * Try parsing the file. Note that, other than by limiting size, there's been no
-                                         * check see whether this file is a good candidate for text extraction (e.g.
-                                         * based on type).
-                                         */
-                                        autoParser.parse(instream, textHandler, metadata, context);
-                                        datafileSolrInputDocument.addField(SearchFields.FULL_TEXT,
-                                                textHandler.toString());
-                                    }
+                                    instream = accessObject.getInputStream();
+                                    textHandler = new BodyContentHandler(-1);
+                                    Metadata metadata = new Metadata();
+                                    /*
+                                     * Try parsing the file. Note that, other than by limiting size, there's been no check see whether this file is a good candidate for text extraction (e.g. based on type).
+                                     */
+                                    autoParser.parse(instream, textHandler, metadata, context);
+                                    datafileSolrInputDocument.addField(SearchFields.FULL_TEXT,
+                                            textHandler.toString());
                                 }
                             } catch (Exception e) {
                                 // Needs better logging of what went wrong in order to
                                 // track down "bad" documents.
                                 logger.warning(String.format("Full-text indexing for %s failed: %s",
-                                        fileMetadata.getDataFile().getDisplayName(), e.getLocalizedMessage()));
+                                        datafile.getDisplayName(), e.getLocalizedMessage()));
                                 if (logger.isLoggable(Level.FINE)) {
                                     e.printStackTrace();
                                 }
                             } catch (OutOfMemoryError e) {
                                 logger.warning(String.format("Full-text indexing for %s failed due to OutOfMemoryError",
-                                        fileMetadata.getDataFile().getDisplayName()));
-                            } catch(Error e) {
-                                //Catch everything - full-text indexing is complex enough (and using enough 3rd party components) that it can fail
+                                        datafile.getDisplayName()));
+                            } catch (Error e) {
+                                // Catch everything - full-text indexing is complex enough (and using enough 3rd party components) that it can fail
                                 // and we don't want problems here to break other Dataverse functionality (e.g. edits)
                                 logger.severe(String.format("Full-text indexing for %s failed due to Error: %s : %s",
-                                        fileMetadata.getDataFile().getDisplayName(),e.getClass().getCanonicalName(), e.getLocalizedMessage()));
+                                        datafile.getDisplayName(), e.getClass().getCanonicalName(), e.getLocalizedMessage()));
                             } finally {
                                 textHandler = null;
-                                //QDR handle case where StorageIO can't be created, as with prod content on stage
-                                if(accessObject!=null) {
-                                    accessObject.closeInputStream();
-                                }
+                                IOUtils.closeQuietly(instream);
                             }
                         }
                     }
-                    logger.fine("Continuing with file: " + fileMetadata.getDataFile().getId());
+
                     String filenameCompleteFinal = "";
                     if (fileMetadata != null) {
                         String filenameComplete = fileMetadata.getLabel();
@@ -1555,16 +1600,14 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.NAME_SORT, filenameCompleteFinal);
                     datafileSolrInputDocument.addField(SearchFields.FILE_NAME, filenameCompleteFinal);
 
-                    datafileSolrInputDocument.addField(SearchFields.DATASET_VERSION_ID, datasetVersion.getId());
+                    datafileSolrInputDocument.addField(SearchFields.DATASET_VERSION_ID, datasetVersionId);
                     addLicenseToSolrDoc(datafileSolrInputDocument, datasetVersion);
 
                     /**
-                     * for rules on sorting files see
-                     * https://docs.google.com/a/harvard.edu/document/d/1DWsEqT8KfheKZmMB3n_VhJpl9nIxiUjai_AIQPAjiyA/edit?usp=sharing
-                     * via https://redmine.hmdc.harvard.edu/issues/3701
+                     * for rules on sorting files see https://docs.google.com/a/harvard.edu/document/d/1DWsEqT8KfheKZmMB3n_VhJpl9nIxiUjai_AIQPAjiyA/edit?usp=sharing via https://redmine.hmdc.harvard.edu/issues/3701
                      */
                     Date fileSortByDate = new Date();
-                    DataFile datafile = fileMetadata.getDataFile();
+
                     if (datafile != null) {
                         boolean fileHasBeenReleased = datafile.isReleased();
                         if (fileHasBeenReleased) {
@@ -1578,12 +1621,12 @@ public class IndexServiceBean {
                             }
                             datafileSolrInputDocument.addField(SearchFields.ACCESS,
                                     FileUtil.isRetentionExpired(datafile)
-                                        ? SearchConstants.RETENTIONEXPIRED :
-                                            FileUtil.isActivelyEmbargoed(datafile)
-                                                ? (fileMetadata.isRestricted() ? SearchConstants.EMBARGOEDTHENRESTRICTED
-                                                        : SearchConstants.EMBARGOEDTHENPUBLIC)
-                                                : (fileMetadata.isRestricted() ? SearchConstants.RESTRICTED
-                                                        : SearchConstants.PUBLIC));
+                                            ? SearchConstants.RETENTIONEXPIRED
+                                            : FileUtil.isActivelyEmbargoed(datafile)
+                                                    ? (fileMetadata.isRestricted() ? SearchConstants.EMBARGOEDTHENRESTRICTED
+                                                            : SearchConstants.EMBARGOEDTHENPUBLIC)
+                                                    : (fileMetadata.isRestricted() ? SearchConstants.RESTRICTED
+                                                            : SearchConstants.PUBLIC));
                         } else {
                             logger.fine("indexing file with fileCreateTimestamp. " + fileMetadata.getId() + " (file id " + datafile.getId() + ")");
                             Timestamp fileCreateTimestamp = datafile.getCreateDate();
@@ -1603,7 +1646,7 @@ public class IndexServiceBean {
                         if (datafile.isHarvested()) {
                             datafileSolrInputDocument.addField(SearchFields.IS_HARVESTED, true);
                             if (FeatureFlags.INDEX_HARVESTED_METADATA_SOURCE.enabled()) {
-                                // New - as of 6.3 - option of indexing the actual origin of 
+                                // New - as of 6.3 - option of indexing the actual origin of
                                 // harvested objects as the metadata source:
                                 datafileSolrInputDocument.addField(SearchFields.METADATA_SOURCE,
                                         dataset.getHarvestedFrom() != null ? dataset.getHarvestedFrom().getMetadataSource() : HARVESTED);
@@ -1615,69 +1658,52 @@ public class IndexServiceBean {
                             datafileSolrInputDocument.addField(SearchFields.METADATA_SOURCE, rdvName);
                         }
                     }
-                    if (fileSortByDate == null) {
-                        if (datasetSortByDate != null) {
-                            logger.info("fileSortByDate was null, assigning datasetSortByDate");
-                            fileSortByDate = datasetSortByDate;
-                        } else {
-                            logger.info("fileSortByDate and datasetSortByDate were null, assigning 'now'");
-                            fileSortByDate = new Date();
-                        }
-                    }
                     datafileSolrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE, fileSortByDate);
 
-                    if (dataset.getReleasedVersion() == null && !datafile.isHarvested()) {
-                        datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, UNPUBLISHED_STRING);
-                    }
-
-                    if (datasetVersion.isInReview()) {
-                        datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, IN_REVIEW_STRING);
-                    }
+                    datasetPublicationStatuses.forEach(s -> datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, s));
 
                     String fileSolrDocId = solrDocIdentifierFile + fileEntityId;
-                    if (indexableDataset.getDatasetState().equals(indexableDataset.getDatasetState().PUBLISHED)) {
-                        fileSolrDocId = solrDocIdentifierFile + fileEntityId;
-                        datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, PUBLISHED_STRING);
+                    indexableDataset.getDatasetState();
+                    if (datasetPublicationStatuses.contains(PUBLISHED_STRING)) {
                         if (FeatureFlags.ADD_PUBLICOBJECT_SOLR_FIELD.enabled()) {
                             datafileSolrInputDocument.addField(SearchFields.PUBLIC_OBJECT, true);
                         }
-                        // datafileSolrInputDocument.addField(SearchFields.PERMS, publicGroupString);
                         addDatasetReleaseDateToSolrDoc(datafileSolrInputDocument, dataset);
-                        // has this published file been deleted from the current draft version? 
+                        // has this published file been deleted from the current draft version?
                         if (datafilesInDraftVersion != null && !datafilesInDraftVersion.contains(datafile.getId())) {
                             datafileSolrInputDocument.addField(SearchFields.FILE_DELETED, true);
                         }
-                    } else if (indexableDataset.getDatasetState().equals(indexableDataset.getDatasetState().WORKING_COPY)) {
-                        fileSolrDocId = solrDocIdentifierFile + fileEntityId + indexableDataset.getDatasetState().getSuffix();
-                        datafileSolrInputDocument.addField(SearchFields.PUBLICATION_STATUS, DRAFT_STRING);
+                    } else {
+                        indexableDataset.getDatasetState();
+                        if (datasetPublicationStatuses.contains(DRAFT_STRING)) {
+                            fileSolrDocId = solrDocIdentifierFile + fileEntityId + indexableDataset.getDatasetState().getSuffix();
+                        }
                     }
                     datafileSolrInputDocument.addField(SearchFields.ID, fileSolrDocId);
 
-                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_FRIENDLY, fileMetadata.getDataFile().getFriendlyType());
-                    datafileSolrInputDocument.addField(SearchFields.FILE_CONTENT_TYPE, fileMetadata.getDataFile().getContentType());
-                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_SEARCHABLE, fileMetadata.getDataFile().getFriendlyType());
+                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_FRIENDLY, datafile.getFriendlyType());
+                    datafileSolrInputDocument.addField(SearchFields.FILE_CONTENT_TYPE, datafile.getContentType());
+                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_SEARCHABLE, datafile.getFriendlyType());
                     // For the file type facets, we have a property file that maps mime types
                     // to facet-friendly names; "application/fits" should become "FITS", etc.:
-                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE, FileUtil.getIndexableFacetFileType(fileMetadata.getDataFile()));
-                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_SEARCHABLE, FileUtil.getIndexableFacetFileType(fileMetadata.getDataFile()));
-                    datafileSolrInputDocument.addField(SearchFields.FILE_SIZE_IN_BYTES, fileMetadata.getDataFile().getFilesize());
-                    if (DataFile.ChecksumType.MD5.equals(fileMetadata.getDataFile().getChecksumType())) {
+                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE, FileUtil.getIndexableFacetFileType(datafile));
+                    datafileSolrInputDocument.addField(SearchFields.FILE_TYPE_SEARCHABLE, FileUtil.getIndexableFacetFileType(datafile));
+                    datafileSolrInputDocument.addField(SearchFields.FILE_SIZE_IN_BYTES, datafile.getFilesize());
+                    if (DataFile.ChecksumType.MD5.equals(datafile.getChecksumType())) {
                         /**
-                         * @todo Someday we should probably deprecate this
-                         * FILE_MD5 in favor of a combination of
-                         * FILE_CHECKSUM_TYPE and FILE_CHECKSUM_VALUE.
+                         * @todo Someday we should probably deprecate this FILE_MD5 in favor of a combination of FILE_CHECKSUM_TYPE and FILE_CHECKSUM_VALUE.
                          */
-                        datafileSolrInputDocument.addField(SearchFields.FILE_MD5, fileMetadata.getDataFile().getChecksumValue());
+                        datafileSolrInputDocument.addField(SearchFields.FILE_MD5, datafile.getChecksumValue());
                     }
-                    datafileSolrInputDocument.addField(SearchFields.FILE_CHECKSUM_TYPE, fileMetadata.getDataFile().getChecksumType().toString());
-                    datafileSolrInputDocument.addField(SearchFields.FILE_CHECKSUM_VALUE, fileMetadata.getDataFile().getChecksumValue());
-                    datafileSolrInputDocument.addField(SearchFields.FILE_RESTRICTED, fileMetadata.getDataFile().isRestricted());
+                    datafileSolrInputDocument.addField(SearchFields.FILE_CHECKSUM_TYPE, datafile.getChecksumType().toString());
+                    datafileSolrInputDocument.addField(SearchFields.FILE_CHECKSUM_VALUE, datafile.getChecksumValue());
+                    datafileSolrInputDocument.addField(SearchFields.FILE_RESTRICTED, datafile.isRestricted());
                     datafileSolrInputDocument.addField(SearchFields.DESCRIPTION, fileMetadata.getDescription());
                     datafileSolrInputDocument.addField(SearchFields.FILE_DESCRIPTION, fileMetadata.getDescription());
-                    GlobalId filePid = fileMetadata.getDataFile().getGlobalId();
+                    GlobalId filePid = datafile.getGlobalId();
                     datafileSolrInputDocument.addField(SearchFields.FILE_PERSISTENT_ID,
                             (filePid != null) ? filePid.toString() : null);
-                    datafileSolrInputDocument.addField(SearchFields.UNF, fileMetadata.getDataFile().getUnf());
+
                     datafileSolrInputDocument.addField(SearchFields.SUBTREE, dataversePaths);
                     // datafileSolrInputDocument.addField(SearchFields.HOST_DATAVERSE,
                     // dataFile.getOwner().getOwner().getName());
@@ -1687,87 +1713,96 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.PARENT_IDENTIFIER, datasetGlobalId);
                     datafileSolrInputDocument.addField(SearchFields.PARENT_CITATION, datasetCitation);
 
-                    datafileSolrInputDocument.addField(SearchFields.PARENT_NAME, parentDatasetTitle);
+                    datafileSolrInputDocument.addField(SearchFields.PARENT_NAME, parentTitle);
 
                     // If this is a tabular data file -- i.e., if there are data
                     // variables associated with this file, we index the variable
                     // names and labels:
-                    if (fileMetadata.getDataFile().isTabularData()) {
-                        List<DataVariable> variables = fileMetadata.getDataFile().getDataTable().getDataVariables();
-                        Long observations = fileMetadata.getDataFile().getDataTable().getCaseQuantity();
-                        datafileSolrInputDocument.addField(SearchFields.OBSERVATIONS, observations);
-                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_COUNT, variables.size());
-                        
-                        Map<Long, VariableMetadata> variableMap = null;
-                        List<VariableMetadata> variablesByMetadata = variableService.findVarMetByFileMetaId(fileMetadata.getId());
 
-                        variableMap = 
-                            variablesByMetadata.stream().collect(Collectors.toMap(VariableMetadata::getId, Function.identity())); 
-    
-                                      
-                        for (DataVariable var : variables) {
-                            // Hard-coded search fields, for now:
-                            // TODO: eventually: review, decide how datavariables should
-                            // be handled for indexing purposes. (should it be a fixed
-                            // setup, defined in the code? should it be flexible? unlikely
-                            // that this needs to be domain-specific... since these data
-                            // variables are quite specific to tabular data, which in turn
-                            // is something social science-specific...
-                            // anyway -- needs to be reviewed. -- L.A. 4.0alpha1
+                    DataTable dtable = datafile.getDataTable();
 
-                            //Variable Name
-                            if (var.getName() != null && !var.getName().equals("")) {
-                                datafileSolrInputDocument.addField(SearchFields.VARIABLE_NAME, var.getName());
+                    if (dtable != null) {
+                        try {
+                            List<DataVariable> variables = dtable.getDataVariables();
+                            Long observations = dtable.getCaseQuantity();
+                            datafileSolrInputDocument.addField(SearchFields.VARIABLE_COUNT, variables.size());
+                            datafileSolrInputDocument.addField(SearchFields.OBSERVATIONS, observations);
+                            datafileSolrInputDocument.addField(SearchFields.UNF, dtable.getUnf());
+
+                            Map<Long, VariableMetadata> variableMap = null;
+                            Collection<VariableMetadata> variablesByMetadata = fileMetadata.getVariableMetadatas();
+
+                            variableMap = variablesByMetadata.stream().collect(Collectors.toMap(VariableMetadata::getId, Function.identity()));
+
+                            for (DataVariable var : variables) {
+                                // Hard-coded search fields, for now:
+                                // TODO: eventually: review, decide how datavariables should
+                                // be handled for indexing purposes. (should it be a fixed
+                                // setup, defined in the code? should it be flexible? unlikely
+                                // that this needs to be domain-specific... since these data
+                                // variables are quite specific to tabular data, which in turn
+                                // is something social science-specific...
+                                // anyway -- needs to be reviewed. -- L.A. 4.0alpha1
+
+                                // Variable Name
+                                if (var.getName() != null && !var.getName().equals("")) {
+                                    datafileSolrInputDocument.addField(SearchFields.VARIABLE_NAME, var.getName());
+                                }
+
+                                VariableMetadata vm = variableMap.get(var.getId());
+                                if (vm == null) {
+                                    // Variable Label
+                                    if (var.getLabel() != null && !var.getLabel().equals("")) {
+                                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_LABEL, var.getLabel());
+                                    }
+                                } else {
+                                    if (vm.getLabel() != null && !vm.getLabel().equals("")) {
+                                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_LABEL, vm.getLabel());
+                                    }
+                                    if (vm.getLiteralquestion() != null && !vm.getLiteralquestion().equals("")) {
+                                        datafileSolrInputDocument.addField(SearchFields.LITERAL_QUESTION, vm.getLiteralquestion());
+                                    }
+                                    if (vm.getInterviewinstruction() != null && !vm.getInterviewinstruction().equals("")) {
+                                        datafileSolrInputDocument.addField(SearchFields.INTERVIEW_INSTRUCTIONS, vm.getInterviewinstruction());
+                                    }
+                                    if (vm.getPostquestion() != null && !vm.getPostquestion().equals("")) {
+                                        datafileSolrInputDocument.addField(SearchFields.POST_QUESTION, vm.getPostquestion());
+                                    }
+                                    if (vm.getUniverse() != null && !vm.getUniverse().equals("")) {
+                                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_UNIVERSE, vm.getUniverse());
+                                    }
+                                    if (vm.getNotes() != null && !vm.getNotes().equals("")) {
+                                        datafileSolrInputDocument.addField(SearchFields.VARIABLE_NOTES, vm.getNotes());
+                                    }
+
+                                }
                             }
-                            
-                            VariableMetadata vm = variableMap.get(var.getId()); 
-                            if (vm == null) {    
-                                //Variable Label
-                                if (var.getLabel() != null && !var.getLabel().equals("")) {
-                                    datafileSolrInputDocument.addField(SearchFields.VARIABLE_LABEL, var.getLabel());
-                                }
-                            } else {
-                                if (vm.getLabel() != null && !vm.getLabel().equals("")  ) {
-                                    datafileSolrInputDocument.addField(SearchFields.VARIABLE_LABEL, vm.getLabel());
-                                }
-                                if (vm.getLiteralquestion() != null && !vm.getLiteralquestion().equals("")) {
-                                    datafileSolrInputDocument.addField(SearchFields.LITERAL_QUESTION, vm.getLiteralquestion());
-                                }
-                                if (vm.getInterviewinstruction() != null && !vm.getInterviewinstruction().equals("")) {
-                                    datafileSolrInputDocument.addField(SearchFields.INTERVIEW_INSTRUCTIONS, vm.getInterviewinstruction());
-                                }
-                                if (vm.getPostquestion() != null && !vm.getPostquestion().equals("")) {
-                                    datafileSolrInputDocument.addField(SearchFields.POST_QUESTION, vm.getPostquestion());
-                                }
-                                if (vm.getUniverse() != null && !vm.getUniverse().equals("")) {
-                                    datafileSolrInputDocument.addField(SearchFields.VARIABLE_UNIVERSE, vm.getUniverse());
-                                }
-                                if (vm.getNotes() != null && !vm.getNotes().equals("")) {
-                                    datafileSolrInputDocument.addField(SearchFields.VARIABLE_NOTES, vm.getNotes());
-                                }
 
+                            // TABULAR DATA TAGS:
+                            // (not to be confused with the file categories, indexed above!)
+                            for (DataFileTag tag : datafile.getTags()) {
+                                String tagLabel = tag.getTypeLabel();
+                                datafileSolrInputDocument.addField(SearchFields.TABDATA_TAG, tagLabel);
                             }
-                        }
-                        
-                        // TABULAR DATA TAGS:
-                        // (not to be confused with the file categories, indexed above!)
-                        for (DataFileTag tag : fileMetadata.getDataFile().getTags()) {
-                            String tagLabel = tag.getTypeLabel();
-                            datafileSolrInputDocument.addField(SearchFields.TABDATA_TAG, tagLabel);
+
+                        } catch (Exception e) {
+                            logger.warning(e.getLocalizedMessage());
+                            e.printStackTrace();
+                            throw e;
                         }
                     }
-
-                    filesIndexed.add(fileSolrDocId);
                     docs.add(datafileSolrInputDocument);
                 }
-            }
+            });
             long totalLoopTime = System.currentTimeMillis() - startTime;
-
-            logger.info("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
-            if(embargoEndDate!=null) {
-              solrInputDocument.addField(SearchFields.EMBARGO_END_DATE, embargoEndDate.toEpochDay());
+            logger.fine("Processed all " + fileMetadatas.size() + " fileMetadatas in " + totalLoopTime + " ms");
+            logger.fine("Indexed " + docs.size() + " documents to Solr for version state " + state.toString());
+            LocalDate embargoEndDate = embargoEndDateRef.get();
+            LocalDate retentionEndDate = retentionEndDateRef.get();
+            if (embargoEndDate != null) {
+                solrInputDocument.addField(SearchFields.EMBARGO_END_DATE, embargoEndDate.toEpochDay());
             }
-            if(retentionEndDate!=null) {
+            if (retentionEndDate != null) {
                 solrInputDocument.addField(SearchFields.RETENTION_END_DATE, retentionEndDate.toEpochDay());
             }
         }
@@ -1775,18 +1810,18 @@ public class IndexServiceBean {
         final String msg = "indexed dataset " + datasetId + " as " + datasetSolrDocId + ". filesIndexed: " + filesIndexed;
         logger.fine(msg);
         return new SolrInputDocuments(docs, msg, datasetId);
-        } catch (Exception e) {
-            logger.warning(e.getLocalizedMessage());
-            e.printStackTrace();
-            throw e;
-        }
     }
     
     private String addOrUpdateDataset(IndexableDataset indexableDataset, Set<Long> datafilesInDraftVersion) throws  SolrServerException, IOException {   
         final SolrInputDocuments docs = toSolrDocs(indexableDataset, datafilesInDraftVersion);
 
         try {
+            long startTime = System.currentTimeMillis();
+            int docCount = docs.getDocuments().size();
             solrClientIndexService.getSolrClient().add(docs.getDocuments());
+            long endTime = System.currentTimeMillis();
+            long duration = endTime - startTime;
+            logger.fine("Finished adding " + docCount + " documents to Solr. Time taken: " + duration + " ms");
         } catch (SolrServerException | IOException ex) {
             logger.warning("Check process-failures logs re: " + ex.getLocalizedMessage());
             if (ex.getCause() instanceof SolrServerException) {
@@ -1893,8 +1928,8 @@ public class IndexServiceBean {
         Dataset dataset = null;
         Dataverse dv = null;
         Dataverse rootDataverse = findRootDataverseCached();        
-        List <Dataverse>linkingDataverses = new ArrayList();
-        List<Dataverse> ancestorList = new ArrayList();
+        List <Dataverse>linkingDataverses = new ArrayList<Dataverse>();
+        List<Dataverse> ancestorList = new ArrayList<Dataverse>();
         
         try {
             if(dvObject.isInstanceofDataset()){
@@ -1957,7 +1992,7 @@ public class IndexServiceBean {
         if (datasetVersion != null && datasetVersion.getTermsOfUseAndAccess() != null) {
             //test to see if the terms of use are the default set in 5.10 - if so and there's no license then don't add license to solr doc.   
             //fixes 10513
-            if (datasetVersionService.isVersionDefaultCustomTerms(datasetVersion)){
+            if(TermsOfUseAndAccess.DEFAULT_NOTERMS.equals(datasetVersion.getTermsOfUseAndAccess().getTermsOfUse())) {
                 return; 
             }
             

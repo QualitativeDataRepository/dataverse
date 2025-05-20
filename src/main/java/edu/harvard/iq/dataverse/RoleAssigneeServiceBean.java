@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.DataverseRole;
+import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.RoleAssignee;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
@@ -16,6 +17,8 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.mydata.MyDataFilterParams;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +30,7 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NamedNativeQuery;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
@@ -41,6 +45,8 @@ import org.apache.commons.lang3.StringUtils;
 @Named
 public class RoleAssigneeServiceBean {
 
+
+    
     private static final Logger logger = Logger.getLogger(RoleAssigneeServiceBean.class.getName());
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -405,6 +411,35 @@ public class RoleAssigneeServiceBean {
                 });
 
         return roleAssigneeList;
+    }
+    
+
+    public List<String> findAssigneesWithPermissionOnDvObject(Long objectId, Permission permission) {
+
+        int bitpos = 63 - permission.ordinal();
+        return em.createNamedQuery("RoleAssignment.findAssigneesWithPermissionOnDvObject", String.class)
+                 .setParameter(1, bitpos)
+                 .setParameter(2, objectId)
+                 .getResultList();
+    }
+    
+    public Map<Long, List<String>> findAssigneesWithDownloadPermissionOnDatasetFiles(Long datasetId) {
+        return (Map<Long, List<String>>) em.createNamedQuery("RoleAssignment.findAssigneesWithPermissionOnDatasetChildren")
+                .setParameter(1, datasetId)
+                .setParameter(2, 63 - Permission.DownloadFile.ordinal())
+                .getResultList()
+                .stream()
+                .collect(Collectors.toMap(
+                        result -> ((Long) ((Object[]) result)[0]),
+                        result -> Arrays.asList((String[]) ((Object[]) result)[1])
+                ));
+    }
+    
+    public List<String> findAssigneesWithRoleOnDvObject(Long objectId, Long[] downloadRole) {
+        return em.createNamedQuery("RoleAssignment.findAssigneesWithRoleOnDvObject", String.class)
+                 .setParameter(1, downloadRole)
+                 .setParameter(2, objectId)
+                 .getResultList();
     }
 
     private void msg(String s) {

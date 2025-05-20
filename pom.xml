@@ -29,7 +29,7 @@
         <reload4j.version>1.2.18.4</reload4j.version>
         <flyway.version>10.19.0</flyway.version>
         <jhove.version>1.20.1</jhove.version>
-        <poi.version>5.2.5</poi.version>
+        <poi.version>5.4.0</poi.version>
         <tika.version>2.9.2</tika.version>
         <netcdf.version>5.5.3</netcdf.version>
         
@@ -75,6 +75,18 @@
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-javamail_1.4_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>woodstox-core-asl</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -166,10 +178,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <!-- no version here as managed by BOM above! -->
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3-transfer-manager</artifactId>
+            <!-- no version here as managed by BOM above! -->
+        </dependency>
+        <!--dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>apache-client</artifactId-->
+            <!-- no version here as managed by BOM above! -->
+        <!--/dependency-->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>netty-nio-client</artifactId>
             <!-- no version here as managed by BOM above! -->
         </dependency>
         <dependency>
@@ -180,7 +206,6 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.9.1</version>
             <scope>compile</scope>
         </dependency>
         <!-- Should be refactored and moved to transitive section above once on Java EE 8 (makes WAR smaller) -->
@@ -734,7 +759,7 @@
         <dependency>
             <groupId>com.github.dasniko</groupId>
             <artifactId>testcontainers-keycloak</artifactId>
-            <version>3.0.0</version>
+            <version>3.6.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -988,6 +1013,9 @@
                     <excludedGroups>${testsToExclude}</excludedGroups>
                     <skip>${skipUnitTests}</skip>
                     <argLine>${surefire.jacoco.args} ${argLine}</argLine>
+                    <excludes>
+                        <exclude>**/builtin-users-spi/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <!-- Run mvn verify to execute these Testcontainers based integration tests. Needs Docker! -->

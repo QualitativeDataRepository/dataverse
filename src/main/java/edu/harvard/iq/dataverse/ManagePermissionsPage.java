@@ -26,12 +26,17 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.event.ActionEvent;
@@ -174,6 +179,7 @@ public class ManagePermissionsPage implements java.io.Serializable {
                 }
             }
         }
+        roleAssignmentHistory = null; // Reset the history
         return raList;
     }
 
@@ -230,6 +236,47 @@ public class ManagePermissionsPage implements java.io.Serializable {
     public void editRole(String roleId) {
         setRole(roleService.find(Long.parseLong(roleId)));
     }
+    
+    /** Role Assignment History */
+    private List<RoleAssignmentHistoryEntry> roleAssignmentHistory;
+
+    public List<RoleAssignmentHistoryEntry> getRoleAssignmentHistory() {
+        if (roleAssignmentHistory == null) {
+            roleAssignmentHistory = new ArrayList<>();
+            
+            List<RoleAssignmentAudit> audits = em.createNamedQuery("RoleAssignmentAudit.findByDefinitionPointId", RoleAssignmentAudit.class)
+                    .setParameter("definitionPointId", dvObject.getId())
+                    .getResultList();
+            
+            Map<Long, RoleAssignmentHistoryEntry> historyMap = new HashMap<>();
+            
+            for (RoleAssignmentAudit audit : audits) {
+                Long roleAssignmentId = audit.getRoleAssignmentId();
+                RoleAssignmentHistoryEntry entry = historyMap.get(roleAssignmentId);
+                
+                if (entry == null) {
+                    entry = new RoleAssignmentHistoryEntry(audit.getAssigneeIdentifier(), audit.getRoleAlias(), audit.getDefinitionPointId());
+                    historyMap.put(roleAssignmentId, entry);
+                }
+                
+                if (audit.getActionType() == RoleAssignmentAudit.ActionType.ASSIGN) {
+                    entry.setAssignedBy(audit.getActionByIdentifier());
+                    entry.setAssignedAt(audit.getActionTimestamp());
+                } else if (audit.getActionType() == RoleAssignmentAudit.ActionType.REVOKE) {
+                    entry.setRevokedBy(audit.getActionByIdentifier());
+                    entry.setRevokedAt(audit.getActionTimestamp());
+                }
+            }
+
+            roleAssignmentHistory.addAll(historyMap.values());
+            roleAssignmentHistory.sort(Comparator
+                    .comparing(RoleAssignmentHistoryEntry::getRevokedAt, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(RoleAssignmentHistoryEntry::getAssignedAt, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .reversed());
+        };
+        return roleAssignmentHistory;
+    }
+    
 
     /*
     ============================================================================
@@ -715,5 +762,76 @@ public class ManagePermissionsPage implements java.io.Serializable {
             return ra.getId();
         }
 
+    }
+    
+    public static class RoleAssignmentHistoryEntry {
+        private String roleName;
+        private String assigneeIdentifier;
+        private String assignedBy;
+        private Date assignedAt;
+        private String revokedBy;
+        private Date revokedAt;
+        private List<Long> definitionPointIds;  // New field
+
+        public RoleAssignmentHistoryEntry(String assigneeIdentifier, String roleName, Long definitionPointId) {
+            this.roleName = roleName;
+            this.assigneeIdentifier = assigneeIdentifier;
+            this.definitionPointIds = new ArrayList<Long>();
+            definitionPointIds.add(definitionPointId);
+        }
+
+        public void setRevokedAt(Date actionTimestamp) {
+            revokedAt = actionTimestamp;
+        }
+
+        public void setRevokedBy(String actionByIdentifier) {
+            revokedBy = actionByIdentifier;
+        }
+
+        public void setAssignedAt(Date actionTimestamp) {
+            assignedAt = actionTimestamp;
+        }
+
+        public void setAssignedBy(String actionByIdentifier) {
+            assignedBy = actionByIdentifier;
+        }
+
+        public String getRoleName() {
+            return roleName;
+        }
+
+        public String getAssigneeIdentifier() {
+            return assigneeIdentifier;
+        }
+
+        public String getAssignedBy() {
+            return assignedBy;
+        }
+
+        public Date getAssignedAt() {
+            return assignedAt;
+        }
+
+        public String getRevokedBy() {
+            return revokedBy;
+        }
+
+        public Date getRevokedAt() {
+            return revokedAt;
+        }
+
+        public List<Long> getDefinitionPointIds() {
+            return definitionPointIds;
+        }
+
+        public void addDefinitionPointId(Long definitionPointId) {
+            definitionPointIds.add(definitionPointId);
+        }
+        
+        public String getDefinitionPointIdsAsString() {
+            return definitionPointIds.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", "));
+        }
     }
 }

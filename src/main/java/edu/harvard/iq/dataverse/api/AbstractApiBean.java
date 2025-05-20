@@ -54,10 +54,7 @@ import jakarta.ws.rs.core.Response.Status;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -452,6 +449,14 @@ public abstract class AbstractApiBean {
             }
         }));
         return dsv;
+    }
+
+    protected void validateInternalVersionNumberIsNotOutdated(Dataset dataset, int internalVersion) throws WrappedResponse {
+        if (dataset.getLatestVersion().getVersion() > internalVersion) {
+            throw new WrappedResponse(
+                    badRequest(BundleUtil.getStringFromBundle("abstractApiBean.error.datasetInternalVersionNumberIsOutdated", Collections.singletonList(Integer.toString(internalVersion))))
+            );
+        }
     }
 
     protected DataFile findDataFileOrDie(String id) throws WrappedResponse {
