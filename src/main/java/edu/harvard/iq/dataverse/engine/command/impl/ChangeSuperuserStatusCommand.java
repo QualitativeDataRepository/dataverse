@@ -63,7 +63,7 @@ public class ChangeSuperuserStatusCommand extends AbstractVoidCommand  {
             if (superusers != null) {
                 // Prepare the email message
                 String subject = "Superuser Status Change";
-                String message = "User " + targetUser.getIdentifier() + "has had superuser status  " + (newStatus? "granted":"revoked" + " by " + getUser().getIdentifier() + " ." );
+                String message = "User " + targetUser.getIdentifier() + " has had superuser status  " + (newStatus? "granted":"revoked" + " by " + getUser().getIdentifier() + " ." );
                 
                 // Send email to all superusers (including the person who's status is revoked - important if legit superusers are being removed.)
                 for (AuthenticatedUser superuser : superusers) {
