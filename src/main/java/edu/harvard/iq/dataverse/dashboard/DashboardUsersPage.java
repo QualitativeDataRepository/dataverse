@@ -9,9 +9,8 @@ import edu.harvard.iq.dataverse.api.Admin;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.engine.command.impl.GrantSuperuserStatusCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.ChangeSuperuserStatusCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RevokeAllRolesCommand;
-import edu.harvard.iq.dataverse.engine.command.impl.RevokeSuperuserStatusCommand;
 import edu.harvard.iq.dataverse.mydata.Pager;
 import edu.harvard.iq.dataverse.userdata.UserListMaker;
 import edu.harvard.iq.dataverse.userdata.UserListResult;
@@ -213,16 +212,11 @@ public class DashboardUsersPage implements java.io.Serializable {
             logger.fine("Attempting to save user " + selectedUserDetached.getIdentifier());
 
             logger.fine("selectedUserPersistent info: " + selectedUserPersistent.getId() + " set to: " + selectedUserDetached.isSuperuser());
-            selectedUserPersistent.setSuperuser(selectedUserDetached.isSuperuser());
-
-            // Using the new commands for granting and revoking the superuser status:
             try {
-                if (!selectedUserPersistent.isSuperuser()) {
-                    // We are revoking the status:
-                    commandEngine.submit(new RevokeSuperuserStatusCommand(selectedUserPersistent, dvRequestService.getDataverseRequest()));
+                if (selectedUserPersistent.isSuperuser() != selectedUserDetached.isSuperuser()) {
+                    commandEngine.submit(new ChangeSuperuserStatusCommand(selectedUserPersistent, selectedUserDetached.isSuperuser(), dvRequestService.getDataverseRequest()));
                 } else {
-                    // granting the status:
-                    commandEngine.submit(new GrantSuperuserStatusCommand(selectedUserPersistent, dvRequestService.getDataverseRequest()));
+                    logger.warning("Attempt to set superuser status of " + selectedUserDetached.getId() + " to its current value");
                 }
             } catch (Exception ex) {
                 logger.warning("Failed to permanently toggle the superuser status for user " + selectedUserDetached.getIdentifier() + ": " + ex.getMessage());
