@@ -3549,6 +3549,12 @@ please find all known feature flags below. Any of these flags can be activated u
     * - enable-version-note
       - Turns on the ability to add/view/edit/delete per-dataset-version notes intended to provide :ref:`provenance` information about why the dataset/version was created.  
       - ``Off``
+    * - role-assignment-auditing
+      - Turns on auditing of role assignments - keeping a record of when roles were granted or revoked, at what times, and by whom.
+      - ``Off``
+    * - inform-superusers-of-changes
+      - Alerts current superusers (via email) of any change to the set of superusers. This is intended as a security-related management feature.
+      - ``Off``
 
 **Note:** Feature flags can be set via any `supported MicroProfile Config API source`_, e.g. the environment variable
 ``DATAVERSE_FEATURE_XXX`` (e.g. ``DATAVERSE_FEATURE_API_SESSION_AUTH=1``). These environment variables can be set in your shell before starting Payara. If you are using :doc:`Docker for development </container/dev-usage>`, you can set them in the `docker compose <https://docs.docker.com/compose/environment-variables/set-environment-variables/>`_ file.
