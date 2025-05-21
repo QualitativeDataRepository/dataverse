@@ -160,6 +160,11 @@ public enum FeatureFlags {
      * or revoked, at what times, and by whom.
      */
     ROLE_ASSIGNMENT_AUDITING("role-assignment-auditing"),
+    /**
+     * This flag alerts current superusers (via email) of any change to the set of superusers. This is intended as
+     * a security-related management feature.
+     */
+    INFORM_SUPERUSERS_OF_CHANGES("inform-superusers-of-changes"),
     ;
     
     final String flag;

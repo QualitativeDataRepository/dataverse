@@ -6774,25 +6774,6 @@ Example: ``curl -H "X-Dataverse-key: $API_TOKEN" -X POST  "https://demo.datavers
 
 This action changes the identifier of user johnsmith to jsmith.
 
-Toggle Superuser Status
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Toggle the superuser status of a user.
-
-.. note:: This endpoint is deprecated as explained in :doc:`/api/changelog`. Please use the :ref:`set-superuser-status` endpoint instead.
-
-.. code-block:: bash
-
-  export SERVER_URL=http://localhost:8080
-  export USERNAME=jdoe
-  curl -X POST "$SERVER_URL/api/admin/superuser/$USERNAME"
-
-The fully expanded example above (without environment variables) looks like this:
-
-.. code-block:: bash
-
-  curl -X POST "http://localhost:8080/api/admin/superuser/jdoe"
-
 .. _set-superuser-status:
 
 Set Superuser Status
@@ -6801,6 +6782,7 @@ Set Superuser Status
 Specify the superuser status of a user with a boolean value (``true`` or ``false``).
 
 .. note:: See :ref:`curl-examples-and-environment-variables` if you are unfamiliar with the use of ``export`` below.
+.. note:: If the ``inform-superusers-of-changes`` feature flag is set, superusers will be emailed when this API is used. For more information on feature flags, see :ref:`feature-flags` in the Configuration Guide.
 
 .. code-block:: bash
 
@@ -6814,6 +6796,28 @@ The fully expanded example above (without environment variables) looks like this
 .. code-block:: bash
 
   curl -X PUT "http://localhost:8080/api/admin/superuser/jdoe" -d true
+
+.. _list-superusers:
+
+List All Superusers
+~~~~~~~~~~~~~~~~~~~
+
+List all users with superuser status.
+
+.. code-block:: bash
+
+  export SERVER_URL=http://localhost:8080
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -X GET "$SERVER_URL/api/admin/superusers"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -X GET "http://localhost:8080/api/admin/superusers"
+
+This endpoint returns a list of all users who have superuser status in the Dataverse installation.
 
 .. _delete-a-user:
 

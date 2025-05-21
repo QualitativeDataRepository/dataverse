@@ -16,6 +16,7 @@ import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.FileMetadata;
+import edu.harvard.iq.dataverse.MailServiceBean;
 import edu.harvard.iq.dataverse.api.auth.AuthRequired;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.StringUtil;
@@ -50,6 +51,7 @@ import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.DataAccessOption;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
 import edu.harvard.iq.dataverse.engine.command.impl.AbstractSubmitToArchiveCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.ChangeSuperuserStatusCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.PublishDataverseCommand;
 import edu.harvard.iq.dataverse.settings.Setting;
 import jakarta.json.Json;
@@ -64,6 +66,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import static edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder.jsonObjectBuilder;
 
@@ -187,6 +190,8 @@ public class Admin extends AbstractApiBean {
     TemplateServiceBean templateService;
     @EJB
     CacheFactoryBean cacheFactory;
+    @EJB 
+    MailServiceBean mailService;
 
     // Make the session available
     @Inject
@@ -1056,41 +1061,30 @@ public class Admin extends AbstractApiBean {
         }, getRequestUser(crc));
     }
 
-    @Path("superuser/{identifier}")
-    @Deprecated
-    @POST
-    public Response toggleSuperuser(@PathParam("identifier") String identifier) {
-        ActionLogRecord alr = new ActionLogRecord(ActionLogRecord.ActionType.Admin, "toggleSuperuser")
-                .setInfo(identifier);
-        try {
-            final AuthenticatedUser user = authSvc.getAuthenticatedUser(identifier);
-            return setSuperuserStatus(user, !user.isSuperuser());
-        } catch (Exception e) {
-            alr.setActionResult(ActionLogRecord.Result.InternalError);
-            alr.setInfo(alr.getInfo() + "// " + e.getMessage());
-            return error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
-        } finally {
-            actionLogSvc.log(alr);
-        }
-    }
-
-    private Response setSuperuserStatus(AuthenticatedUser user, Boolean isSuperuser) {
-        if (user.isDeactivated()) {
-            return error(Status.BAD_REQUEST, "You cannot make a deactivated user a superuser.");
-        }
-        user.setSuperuser(isSuperuser);
-        return ok("User " + user.getIdentifier() + " " + (user.isSuperuser() ? "set" : "removed")
-                + " as a superuser.");
-    }
-
+    
+    @AuthRequired
     @Path("superuser/{identifier}")
     @PUT
     // Using string instead of boolean so user doesn't need to add a Content-type header in their request
-    public Response setSuperuserStatus(@PathParam("identifier") String identifier, String isSuperuser) {
+    public Response setSuperuserStatus(@Context ContainerRequestContext crc, @PathParam("identifier") String identifier, String isSuperuser) {
         ActionLogRecord alr = new ActionLogRecord(ActionLogRecord.ActionType.Admin, "setSuperuserStatus")
                 .setInfo(identifier + ":" + isSuperuser);
         try {
-            return setSuperuserStatus(authSvc.getAuthenticatedUser(identifier), StringUtil.isTrue(isSuperuser));
+            AuthenticatedUser user = authSvc.getAuthenticatedUser(identifier);
+            if (user.isDeactivated()) {
+                return error(Status.BAD_REQUEST, "You cannot make a deactivated user(" + user.getIdentifier() + ") a superuser.");
+            }
+            boolean newSuperuserStatus = StringUtil.isTrue(isSuperuser);
+            if(user.isSuperuser() == newSuperuserStatus) {
+                return error(Status.BAD_REQUEST, user.getIdentifier() + (newSuperuserStatus ? "is already a superuser": "is not a superuser already"));
+            }
+
+            execCommand(new ChangeSuperuserStatusCommand(user, newSuperuserStatus, createDataverseRequest(getRequestUser(crc))));
+
+            return ok("User " + user.getIdentifier() + " " + (user.isSuperuser() ? "added" : "removed")
+                    + " as a superuser.");
+        } catch (WrappedResponse e) {
+            return e.getResponse();
         } catch (Exception e) {
             alr.setActionResult(ActionLogRecord.Result.InternalError);
             alr.setInfo(alr.getInfo() + "// " + e.getMessage());
@@ -1099,7 +1093,29 @@ public class Admin extends AbstractApiBean {
             actionLogSvc.log(alr);
         }
     }
-
+    
+    @GET
+    @Path("superusers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listSuperusers() {
+        try {
+            List<AuthenticatedUser> superusers = authSvc.findSuperUsers();
+            JsonArrayBuilder userArray = Json.createArrayBuilder();
+            
+            for (AuthenticatedUser user : superusers) {
+                JsonObjectBuilder userObject = Json.createObjectBuilder()
+                    .add("id", user.getId())
+                    .add("name", user.getName())
+                    .add("email", user.getEmail());
+                userArray.add(userObject);
+            }
+            
+            return ok(userArray);
+        } catch (Exception e) {
+            return error(Response.Status.INTERNAL_SERVER_ERROR, "Error retrieving superusers: " + e.getMessage());
+        }
+    }
+    
     @GET
     @Path("validate/datasets")
     @Produces({"application/json"})
