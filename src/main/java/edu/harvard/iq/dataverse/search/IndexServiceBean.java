@@ -983,12 +983,12 @@ public class IndexServiceBean {
         // published major versions will also show up on the top, and newly published minor versions will be shown
         // next to their corresponding major version.
         if (state.equals(DatasetState.WORKING_COPY)) {
-            Date lastUpdateTime = indexableDataset.getDatasetVersion().getLastUpdateTime();
-            if (lastUpdateTime != null) {
-                logger.fine("using last update time of indexed dataset version: " + lastUpdateTime);
-                datasetSortByDate = lastUpdateTime;
+            Date createTime = indexableDataset.getDatasetVersion().getCreateTime();
+            if (createTime != null) {
+                logger.fine("using create time of indexed dataset version: " + createTime);
+                datasetSortByDate = createTime;
             } else {
-                logger.fine("can't find last update time, using \"now\"");
+                logger.fine("can't find last create time, using \"now\"");
                 datasetSortByDate = new Date();
             }
         } else {
