@@ -1,4 +1,3 @@
-
 ### Solr Indexing speed improved
 
 The performance of Solr indexing has been significantly improved, particularly for datasets with many files.

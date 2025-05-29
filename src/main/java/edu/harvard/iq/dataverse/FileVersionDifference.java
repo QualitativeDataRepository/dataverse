@@ -71,8 +71,9 @@ public final class FileVersionDifference {
 
         if (this.originalFileMetadata == null && this.newFileMetadata.getDataFile() != null) {
             // File Added
-            if (!details)
+            if (!details) {
                 return false;
+            }
             retVal = false;
             updateDifferenceSummary("", BundleUtil.getStringFromBundle("file.versionDifferences.fileGroupTitle"), 1, 0, 0, 0);
         }
@@ -191,8 +192,9 @@ public final class FileVersionDifference {
             }
 
             if (!value1.equals(value2)) {
-                if (!details)
+                if (!details) {
                     return false;
+                }
                 int added = 0;
                 int deleted = 0;
 
