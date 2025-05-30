@@ -169,6 +169,7 @@ public class Access extends AbstractApiBean {
     @Inject
     DataverseFeaturedItemServiceBean dataverseFeaturedItemServiceBean;
     
+    private static final String DEFAULT_BUNDLE_NAME = "dataverse_files.zip";
     //@EJB
     
     // TODO: 
@@ -642,7 +643,7 @@ public class Access extends AbstractApiBean {
     public Response postDownloadDatafiles(@Context ContainerRequestContext crc, String fileIds, @QueryParam("gbrecs") boolean gbrecs, @Context UriInfo uriInfo, @Context HttpHeaders headers, @Context HttpServletResponse response) throws WebApplicationException {
         
 
-        return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response);
+        return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response, null);
     }
 
     @GET
@@ -663,7 +664,7 @@ public class Access extends AbstractApiBean {
                     // We don't want downloads from Draft versions to be counted, 
                     // so we are setting the gbrecs (aka "do not write guestbook response") 
                     // variable accordingly:
-                    return downloadDatafiles(getRequestUser(crc), fileIds, true, uriInfo, headers, response);
+                    return downloadDatafiles(getRequestUser(crc), fileIds, true, uriInfo, headers, response, "draft");
                 }
             }
             
@@ -684,7 +685,7 @@ public class Access extends AbstractApiBean {
             }
             
             String fileIds = getFileIdsAsCommaSeparated(latest.getFileMetadatas());
-            return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response);
+            return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response, latest.getFriendlyVersionNumber());
         } catch (WrappedResponse wr) {
             return wr.getResponse();
         }
@@ -734,7 +735,7 @@ public class Access extends AbstractApiBean {
             if (dsv.isDraft()) {
                 gbrecs = true;
             }
-            return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response);
+            return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response, dsv.getFriendlyVersionNumber().toLowerCase());
         } catch (WrappedResponse wr) {
             return wr.getResponse();
         }
@@ -748,6 +749,24 @@ public class Access extends AbstractApiBean {
         }
         return String.join(",", ids);
     }
+    
+    private String generateMultiFileBundleName(Dataset dataset, String versionTag) {
+        String bundleName = DEFAULT_BUNDLE_NAME;
+        
+        if (dataset != null && dataset.getGlobalId() != null) {
+            String protocol = dataset.getProtocol();
+            String authority = dataset.getAuthority().toLowerCase();
+            String identifier = dataset.getIdentifier().replace('/', '-').toLowerCase();
+                
+            if (versionTag != null) {
+                bundleName = protocol + "-" + authority + "-" + identifier + "_" + versionTag + ".zip"; 
+            } else {
+                bundleName = protocol + "-" + authority + "-" + identifier + ".zip";
+            }
+        }
+        
+        return bundleName;
+    }
 
     /*
      * API method for downloading zipped bundles of multiple files:
@@ -757,10 +776,10 @@ public class Access extends AbstractApiBean {
     @Path("datafiles/{fileIds}")
     @Produces({"application/zip"})
     public Response datafiles(@Context ContainerRequestContext crc, @PathParam("fileIds") String fileIds, @QueryParam("gbrecs") boolean gbrecs, @Context UriInfo uriInfo, @Context HttpHeaders headers, @Context HttpServletResponse response) throws WebApplicationException {
-        return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response);
+        return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response, null);
     }
 
-    private Response downloadDatafiles(User user, String rawFileIds, boolean donotwriteGBResponse, UriInfo uriInfo, HttpHeaders headers, HttpServletResponse response) throws WebApplicationException /* throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
+    private Response downloadDatafiles(User user, String rawFileIds, boolean donotwriteGBResponse, UriInfo uriInfo, HttpHeaders headers, HttpServletResponse response, String versionTag) throws WebApplicationException /* throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
         final long zipDownloadSizeLimit = systemConfig.getZipDownloadLimit();
                 
         logger.fine("setting zip download size limit to " + zipDownloadSizeLimit + " bytes.");
@@ -851,8 +870,9 @@ public class Access extends AbstractApiBean {
                                         // to produce some output.
                                         zipper = new DataFileZipper(os);
                                         zipper.setFileManifest(fileManifest);
-                                        response.setHeader("Content-disposition", "attachment; filename=\"dataverse_files.zip\"");
-                                        response.setHeader("Content-Type", "application/zip; name=\"dataverse_files.zip\"");
+                                        String bundleName = generateMultiFileBundleName(file.getOwner(), versionTag);
+                                        response.setHeader("Content-disposition", "attachment; filename=\"" + bundleName + "\"");
+                                        response.setHeader("Content-Type", "application/zip; name=\"" + bundleName + "\"");
                                     }
                                     
                                     long size = 0L;
@@ -959,8 +979,8 @@ public class Access extends AbstractApiBean {
 
     }*/
     
-    
-    
+        
+
     // TODO: Rather than only supporting looking up files by their database IDs, consider supporting persistent identifiers.
     @Path("fileCardImage/{fileId}")
     @GET

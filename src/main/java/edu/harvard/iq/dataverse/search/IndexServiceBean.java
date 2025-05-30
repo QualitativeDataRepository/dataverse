@@ -233,7 +233,6 @@ public class IndexServiceBean {
             solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, UNPUBLISHED_STRING);
             solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE, dataverse.getCreateDate());
         }
-
         /* We don't really have harvested dataverses yet; 
            (I have in fact just removed the isHarvested() method from the Dataverse object) -- L.A.
         if (dataverse.isHarvested()) {
@@ -435,8 +434,7 @@ public class IndexServiceBean {
     @Asynchronous
     public void asyncIndexDataset(Long datasetId, boolean doNormalSolrDocCleanUp) {
         //Initialize dataset here for logging (LoggingUtil) purposes
-        Dataset dataset = new Dataset();
-        dataset.setId(datasetId);
+        Dataset dataset = null;
         try {
             acquirePermitFromSemaphore();
             dataset = datasetService.find(datasetId);
@@ -444,6 +442,10 @@ public class IndexServiceBean {
         } catch (InterruptedException e) {
             String failureLogText = "Indexing failed: interrupted. You can kickoff a re-index of this dataset with: \r\n curl http://localhost:8080/api/admin/index/datasets/" + datasetId.toString();
             failureLogText += "\r\n" + e.getLocalizedMessage();
+            if(dataset==null) {
+                dataset = new Dataset();
+                dataset.setId(datasetId);
+            }
             LoggingUtil.writeOnSuccessFailureLog(null, failureLogText, dataset);
         } finally {
             ASYNC_INDEX_SEMAPHORE.release();
@@ -948,7 +950,6 @@ public class IndexServiceBean {
     }
 
     public SolrInputDocuments toSolrDocs(IndexableDataset indexableDataset, Set<Long> datafilesInDraftVersion) throws SolrServerException, IOException {
-
         IndexableDataset.DatasetState state = indexableDataset.getDatasetState();
         Dataset dataset = indexableDataset.getDatasetVersion().getDataset();
         logger.fine("adding or updating Solr document for dataset id " + dataset.getId() + " with state " + state.toString());
@@ -982,12 +983,12 @@ public class IndexServiceBean {
         // published major versions will also show up on the top, and newly published minor versions will be shown
         // next to their corresponding major version.
         if (state.equals(DatasetState.WORKING_COPY)) {
-            Date lastUpdateTime = indexableDataset.getDatasetVersion().getLastUpdateTime();
-            if (lastUpdateTime != null) {
-                logger.fine("using last update time of indexed dataset version: " + lastUpdateTime);
-                datasetSortByDate = lastUpdateTime;
+            Date createTime = indexableDataset.getDatasetVersion().getCreateTime();
+            if (createTime != null) {
+                logger.fine("using create time of indexed dataset version: " + createTime);
+                datasetSortByDate = createTime;
             } else {
-                logger.fine("can't find last update time, using \"now\"");
+                logger.fine("can't find last create time, using \"now\"");
                 datasetSortByDate = new Date();
             }
         } else {
@@ -1195,8 +1196,14 @@ public class IndexServiceBean {
 
                         if (dsf.getDatasetFieldType().getName().equals("authorAffiliation")) {
                             /**
-                             * @todo think about how to tie the fact that this needs to be multivalued (_ss) because a multivalued facet (authorAffilition_ss) is being collapsed into here at index time. The business logic to
-                             *       determine if a data-driven metadata field should be indexed into Solr as a single or multiple value lives in the getSolrField() method of DatasetField.java
+                             * @todo think about how to tie the fact that this
+                             * needs to be multivalued (_ss) because a
+                             * multivalued facet (authorAffilition_ss) is being
+                             * collapsed into here at index time. The business
+                             * logic to determine if a data-driven metadata
+                             * field should be indexed into Solr as a single or
+                             * multiple value lives in the getSolrField() method
+                             * of DatasetField.java
                              */
                             solrInputDocument.addField(SearchFields.AFFILIATION, dsf.getValuesWithoutNaValues());
                         } else if (dsf.getDatasetFieldType().getName().equals("title")) {
@@ -1241,9 +1248,8 @@ public class IndexServiceBean {
                                 solrInputDocument.addField(solrFieldFacetable, vals);
                             }
                         } else if (dsfType.isControlledVocabulary()) {
-                            /**
-                             * If the cvv list is empty but the dfv list is not then it is assumed this was harvested from an installation that had controlled vocabulary entries that don't exist in our this db
-                             * 
+                            /** If the cvv list is empty but the dfv list is not then it is assumed this was harvested
+                             *  from an installation that had controlled vocabulary entries that don't exist in our this db
                              * @see <a href="https://github.com/IQSS/dataverse/issues/9992">Feature Request/Idea: Harvest metadata values that aren't from a list of controlled values #9992</a>
                              */
                             if (dsf.getControlledVocabularyValues().isEmpty()) {
@@ -1425,12 +1431,12 @@ public class IndexServiceBean {
             } else if (datasetVersion.isDraft()) {
                 // Add all file metadata ids to changedFileMetadataIds
                 changedFileMetadataIds.addAll(
-                        fileMetadatas.stream()
-                                .map(FileMetadata::getId)
-                                .collect(Collectors.toList()));
+                    fileMetadatas.stream()
+                        .map(FileMetadata::getId)
+                        .collect(Collectors.toList())
+                );
             }
-            logger.fine("For state: " + state + " there are " + fileMetadatas.size() + " file metadata to index.");
-            logger.fine("Changed file metadata size: " + changedFileMetadataIds.size());
+
             AtomicReference<LocalDate> embargoEndDateRef = new AtomicReference<>(null);
             AtomicReference<LocalDate> retentionEndDateRef = new AtomicReference<>(null);
             final String datasetCitation = (dataset.isReleased() && dataset.getReleasedVersion() != null) ? dataset.getCitation(dataset.getReleasedVersion()) : dataset.getCitation();
@@ -1540,7 +1546,9 @@ public class IndexServiceBean {
                                     textHandler = new BodyContentHandler(-1);
                                     Metadata metadata = new Metadata();
                                     /*
-                                     * Try parsing the file. Note that, other than by limiting size, there's been no check see whether this file is a good candidate for text extraction (e.g. based on type).
+                                     * Try parsing the file. Note that, other than by limiting size, there's been no
+                                     * check see whether this file is a good candidate for text extraction (e.g.
+                                     * based on type).
                                      */
                                     autoParser.parse(instream, textHandler, metadata, context);
                                     datafileSolrInputDocument.addField(SearchFields.FULL_TEXT,
@@ -1604,7 +1612,9 @@ public class IndexServiceBean {
                     addLicenseToSolrDoc(datafileSolrInputDocument, datasetVersion);
 
                     /**
-                     * for rules on sorting files see https://docs.google.com/a/harvard.edu/document/d/1DWsEqT8KfheKZmMB3n_VhJpl9nIxiUjai_AIQPAjiyA/edit?usp=sharing via https://redmine.hmdc.harvard.edu/issues/3701
+                     * for rules on sorting files see
+                     * https://docs.google.com/a/harvard.edu/document/d/1DWsEqT8KfheKZmMB3n_VhJpl9nIxiUjai_AIQPAjiyA/edit?usp=sharing
+                     * via https://redmine.hmdc.harvard.edu/issues/3701
                      */
                     Date fileSortByDate = new Date();
 
@@ -1621,12 +1631,12 @@ public class IndexServiceBean {
                             }
                             datafileSolrInputDocument.addField(SearchFields.ACCESS,
                                     FileUtil.isRetentionExpired(datafile)
-                                            ? SearchConstants.RETENTIONEXPIRED
-                                            : FileUtil.isActivelyEmbargoed(datafile)
-                                                    ? (fileMetadata.isRestricted() ? SearchConstants.EMBARGOEDTHENRESTRICTED
-                                                            : SearchConstants.EMBARGOEDTHENPUBLIC)
-                                                    : (fileMetadata.isRestricted() ? SearchConstants.RESTRICTED
-                                                            : SearchConstants.PUBLIC));
+                                        ? SearchConstants.RETENTIONEXPIRED :
+                                            FileUtil.isActivelyEmbargoed(datafile)
+                                                ? (fileMetadata.isRestricted() ? SearchConstants.EMBARGOEDTHENRESTRICTED
+                                                        : SearchConstants.EMBARGOEDTHENPUBLIC)
+                                                : (fileMetadata.isRestricted() ? SearchConstants.RESTRICTED
+                                                        : SearchConstants.PUBLIC));
                         } else {
                             logger.fine("indexing file with fileCreateTimestamp. " + fileMetadata.getId() + " (file id " + datafile.getId() + ")");
                             Timestamp fileCreateTimestamp = datafile.getCreateDate();
@@ -1691,7 +1701,9 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.FILE_SIZE_IN_BYTES, datafile.getFilesize());
                     if (DataFile.ChecksumType.MD5.equals(datafile.getChecksumType())) {
                         /**
-                         * @todo Someday we should probably deprecate this FILE_MD5 in favor of a combination of FILE_CHECKSUM_TYPE and FILE_CHECKSUM_VALUE.
+                         * @todo Someday we should probably deprecate this
+                         * FILE_MD5 in favor of a combination of
+                         * FILE_CHECKSUM_TYPE and FILE_CHECKSUM_VALUE.
                          */
                         datafileSolrInputDocument.addField(SearchFields.FILE_MD5, datafile.getChecksumValue());
                     }
@@ -1718,7 +1730,6 @@ public class IndexServiceBean {
                     // If this is a tabular data file -- i.e., if there are data
                     // variables associated with this file, we index the variable
                     // names and labels:
-
                     DataTable dtable = datafile.getDataTable();
 
                     if (dtable != null) {
@@ -1791,6 +1802,7 @@ public class IndexServiceBean {
                             throw e;
                         }
                     }
+                    filesIndexed.add(fileSolrDocId);
                     docs.add(datafileSolrInputDocument);
                 }
             });

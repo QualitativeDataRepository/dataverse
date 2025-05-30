@@ -45,8 +45,6 @@ import org.apache.commons.lang3.StringUtils;
 @Named
 public class RoleAssigneeServiceBean {
 
-
-    
     private static final Logger logger = Logger.getLogger(RoleAssigneeServiceBean.class.getName());
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -415,7 +413,6 @@ public class RoleAssigneeServiceBean {
     
 
     public List<String> findAssigneesWithPermissionOnDvObject(Long objectId, Permission permission) {
-
         int bitpos = 63 - permission.ordinal();
         return em.createNamedQuery("RoleAssignment.findAssigneesWithPermissionOnDvObject", String.class)
                  .setParameter(1, bitpos)

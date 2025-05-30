@@ -375,7 +375,7 @@ public class SolrIndexServiceBean {
                                 filesToReindexAsBatch.clear();
                             }
                             if (counter[0] % 1000 == 0) {
-                                logger.info("Progress: " + counter[0] + "files permissions reindexed");
+                                logger.fine("Progress: " + counter[0] + "files permissions reindexed");
                             }
                         }
 
@@ -408,7 +408,7 @@ public class SolrIndexServiceBean {
                                 long startTime = System.currentTimeMillis();
                                 reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
                                 filesToReindexAsBatch.clear();
-                                logger.info("Progress: 100 file permissions at " + counter[0] + " files reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
+                                logger.fine("Progress: 100 file permissions at " + counter[0] + " files reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
                             }
                         });
                     } else {
@@ -421,7 +421,7 @@ public class SolrIndexServiceBean {
                                         long startTime = System.currentTimeMillis();
                                         reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
                                         filesToReindexAsBatch.clear();
-                                        logger.info("Progress: 100 file permissions at  " + counter[0] + "files reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
+                                        logger.fine("Progress: 100 file permissions at  " + counter[0] + "files reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
                                     }
                                 });
                     }
@@ -551,7 +551,7 @@ public class SolrIndexServiceBean {
         /**
          * Creates a new DataFileProxy with the specified properties.
          * 
-         * @param fileId
+         * @param id
          *            The ID of the data file
          * @param label
          *            The label/name of the data file
@@ -568,8 +568,8 @@ public class SolrIndexServiceBean {
             this.released = df.isReleased();
         }
 
-        public DataFileProxy(String label, Long fileId, boolean restricted, Date publicationDate) {
-            this.id = fileId;
+        public DataFileProxy(String label, Long id, boolean restricted, Date publicationDate) {
+            this.id = id;
             this.name = label;
             this.restricted = restricted;
             this.released = publicationDate !=null;
