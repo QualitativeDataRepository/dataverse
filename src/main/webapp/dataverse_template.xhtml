@@ -67,7 +67,7 @@
             <ui:param name="widgetView" value="#{widgetWrapper.widgetView}"/>
             <ui:param name="loginRedirectPage" value="#{loginRedirectPage != null ? '?redirectPage='.concat(loginRedirectPage) : navigationWrapper.redirectPage}"/>
         </ui:include>
-        <p:ajaxStatus id="ajaxStatusPanel">
+        <p:ajaxStatus id="ajaxStatusPanel"  onerror="handleAjaxError(xhr, status, error)">
             <f:facet name="start">
                 <h:graphicImage value="/resources/images/ajax-loading.gif" alt="#{bundle['loading']}" />
             </f:facet>
@@ -75,13 +75,7 @@
                 <!-- DO NOTHING -->
             </f:facet> 
         </p:ajaxStatus>
-        <p:ajaxStatus onstart="PF('statusDialog').show()" 
-                      onsuccess="PF('statusDialog').hide()"
-                      onerror="handleAjaxError(xhr, status, error)"/>
 
-        <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
-            <p:graphicImage name="/images/ajax-loading.gif" />
-        </p:dialog>
         <ui:include src="contactFormFragment.xhtml"></ui:include>
         <script src="#{resource['js/dv_rebind_bootstrap_ui.js']}?version=#{settingsWrapper.appVersion}"></script>
         <script src="#{resource['bs/js/bootstrap.min.js']}?version=#{settingsWrapper.appVersion}"></script>
@@ -93,7 +87,7 @@
         <o:onloadScript>bind_bsui_components();</o:onloadScript>
         <script type="text/javascript">
           function handleAjaxError(xhr, status, error) {
-            if (xhr.status === 0 || xhr.responseText.includes('ViewExpiredException')) {
+            if (xhr.status === 200 && xhr.responseText.includes('ViewExpiredException')) {
                 alert('Your session has expired. The page will be reloaded.');
                 window.location.reload();
             } else {
