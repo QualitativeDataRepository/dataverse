@@ -92,15 +92,15 @@
         <script src="#{resource['js/clipboard.min.js']}?version=#{settingsWrapper.appVersion}"></script>
         <o:onloadScript>bind_bsui_components();</o:onloadScript>
         <script type="text/javascript">
-            function handleAjaxError(xhr, status, error) {
-                if (xhr.status === 0) {
-                    alert('Session expired. The page will be reloaded.');
-                    window.location.reload();
-                } else {
-                    PF('statusDialog').hide();
-                    alert('An error occurred: ' + error);
-                }
+          function handleAjaxError(xhr, status, error) {
+            if (xhr.status === 0 || xhr.responseText.includes('ViewExpiredException')) {
+                alert('Your session has expired. The page will be reloaded.');
+                window.location.reload();
+            } else {
+                PF('statusDialog').hide();
+                alert('An error occurred: ' + error);
             }
+          }
         </script>
         <ui:fragment rendered="#{settingsWrapper.getCVocConf(false).size() > 0}">
             <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
