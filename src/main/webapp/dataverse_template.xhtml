@@ -17,13 +17,13 @@
         <f:facet name="first">
             <o:resourceInclude path="/CustomizationFilesServlet?customFileType=analytics" />
             <title><h:outputText value="#{pageTitle}"/></title>
-	    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1"/>
             <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-	    <ui:insert name="meta_header"></ui:insert>
+      <ui:insert name="meta_header"></ui:insert>
             <ui:insert name="dc_meta_header"></ui:insert>
-	    <ui:insert name="og_header"></ui:insert>
-	    <ui:insert name="jsonld_header"></ui:insert>
+      <ui:insert name="og_header"></ui:insert>
+      <ui:insert name="jsonld_header"></ui:insert>
         </f:facet>
         <link rel="apple-touch-icon" sizes="180x180" href="#{resource['images/fav/apple-touch-icon.png']}"/>
         <link rel="icon" type="image/png" sizes="16x16" href="#{resource['images/fav/favicon-16x16.png']}"/>
@@ -41,7 +41,7 @@
         <link type="text/css" rel="stylesheet" href="#{resource['css/socicon.css']}?version=#{settingsWrapper.appVersion}" />
         <link type="text/css" rel="stylesheet" href="#{resource['css/structure.css']}?version=#{settingsWrapper.appVersion}" />
         <link type="text/css" rel="stylesheet" href="#{resource['qdr/css/qdr-custom.css']}?version=#{settingsWrapper.appVersion}" />
-	<ui:fragment rendered="#{!empty settingsWrapper.get(':StyleCustomizationFile')}">
+  <ui:fragment rendered="#{!empty settingsWrapper.get(':StyleCustomizationFile')}">
             <style>
                 /* Custom CSS */
                 <o:resourceInclude path="/CustomizationFilesServlet?customFileType=style" />
@@ -50,7 +50,7 @@
     </h:head>
     <h:body styleClass="#{widgetWrapper.widgetView ? 'widget-view' : ''}">
         <f:loadBundle basename="propertyFiles.Bundle" var="bundle"/>
-	<a href="#content" class="sr-only">#{bundle['body.skip']}</a>                
+  <a href="#content" class="sr-only">#{bundle['body.skip']}</a>                
         <ui:include src="dataverse_header.xhtml">
             <ui:param name="dataverse" value="#{dataverse != null ? dataverse : settingsWrapper.rootDataverse}"/>
             <ui:param name="editModeDataverse" value="#{editModeDataverse}"/>
@@ -67,7 +67,7 @@
             <ui:param name="widgetView" value="#{widgetWrapper.widgetView}"/>
             <ui:param name="loginRedirectPage" value="#{loginRedirectPage != null ? '?redirectPage='.concat(loginRedirectPage) : navigationWrapper.redirectPage}"/>
         </ui:include>
-        <p:ajaxStatus id="ajaxStatusPanel"  onerror="handleAjaxError(xhr, status, error)">
+        <p:ajaxStatus id="ajaxStatusPanel">
             <f:facet name="start">
                 <h:graphicImage value="/resources/images/ajax-loading.gif" alt="#{bundle['loading']}" />
             </f:facet>
@@ -75,6 +75,53 @@
                 <!-- DO NOTHING -->
             </f:facet> 
         </p:ajaxStatus>
+        <script type="text/javascript">
+            //<![CDATA[
+            $(document)
+              .ready(
+                function() {
+              // Flag to track if we've already handled a ViewExpiredException
+              var viewExpiredHandled = false;
+
+              // Store the original response handler
+              var originalHandler = PrimeFaces.ajax.Response.handle;
+
+              // Override the response handler
+              PrimeFaces.ajax.Response.handle = function(
+                xml, status,
+                xhr,
+                updateHandler) {
+                  if (!viewExpiredHandled
+                    && xml
+                    && xml.documentElement) {
+                var responseText = new XMLSerializer()
+                  .serializeToString(xml);
+                if (responseText
+                  .indexOf('ViewExpiredException') !== -1) {
+                    // Set the flag to prevent multiple alerts
+                    viewExpiredHandled = true;
+
+                    alert('Your session has expired. The page will be reloaded.');
+                    window.location
+                      .reload();
+                    return;
+                }
+                  }
+
+                  // Call the original handler if we haven't handled a ViewExpiredException
+                  if (!viewExpiredHandled) {
+                originalHandler
+                  .call(
+                    this,
+                    xml,
+                    status,
+                    xhr,
+                    updateHandler);
+                  }
+              };
+                });
+            //]]>
+        </script>
 
         <ui:include src="contactFormFragment.xhtml"></ui:include>
         <script src="#{resource['js/dv_rebind_bootstrap_ui.js']}?version=#{settingsWrapper.appVersion}"></script>
@@ -86,6 +133,7 @@
         <script src="#{resource['js/clipboard.min.js']}?version=#{settingsWrapper.appVersion}"></script>
         <o:onloadScript>bind_bsui_components();</o:onloadScript>
         <script type="text/javascript">
+          //<![CDATA[
           function handleAjaxError(xhr, status, error) {
             if (xhr.status === 200 && xhr.responseText.includes('ViewExpiredException')) {
                 alert('Your session has expired. The page will be reloaded.');
@@ -95,6 +143,7 @@
                 alert('An error occurred: ' + error);
             }
           }
+          //]]>
         </script>
         <ui:fragment rendered="#{settingsWrapper.getCVocConf(false).size() > 0}">
             <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
