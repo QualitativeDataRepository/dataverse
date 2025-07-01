@@ -109,7 +109,6 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
 
 import jakarta.validation.ConstraintViolation;
-import org.apache.commons.httpclient.HttpClient;
 import java.util.Arrays;
 import java.util.HashSet;
 import jakarta.faces.model.SelectItem;
@@ -142,7 +141,6 @@ import jakarta.faces.component.UIInput;
 import jakarta.faces.event.AjaxBehaviorEvent;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.util.Strings;
@@ -332,6 +330,7 @@ public class DatasetPage implements java.io.Serializable {
     private List<SelectItem> linkingDVSelectItems;
     private Dataverse linkingDataverse;
     private Dataverse selectedHostDataverse;
+    private boolean hasDataversesToChoose;
 
     public Dataverse getSelectedHostDataverse() {
         return selectedHostDataverse;
@@ -1744,6 +1743,11 @@ public class DatasetPage implements java.io.Serializable {
 
     public void setDataverseTemplates(List<Template> dataverseTemplates) {
         this.dataverseTemplates = dataverseTemplates;
+    }
+
+    public boolean isHasDataversesToChoose() {
+        this.hasDataversesToChoose = dataverseService.findAll().size() > 1;
+        return this.hasDataversesToChoose;
     }
 
     public Template getDefaultTemplate() {
@@ -4119,7 +4123,16 @@ public class DatasetPage implements java.io.Serializable {
                     // have been created in the dataset.
                     dataset = datasetService.find(dataset.getId());
 
-                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getOrCreateEditVersion(), newFiles, null, true);
+                    boolean ignoreUploadFileLimits = this.session.getUser() != null ? this.session.getUser().isSuperuser() : false;
+                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getOrCreateEditVersion(), newFiles, null, true, ignoreUploadFileLimits);
+                    if (filesAdded.size() < nNewFiles) {
+                        // Not all files were saved
+                        Integer limit = dataset.getEffectiveDatasetFileCountLimit();
+                        if (limit != null) {
+                            String msg = BundleUtil.getStringFromBundle("file.add.count_exceeds_limit", List.of(limit.toString()));
+                            JsfHelper.addInfoMessage(msg);
+                        }
+                    }
                     newFiles.clear();
 
                     // and another update command:
@@ -4289,12 +4302,6 @@ public class DatasetPage implements java.io.Serializable {
     	} catch (IOException ex) {
     		logger.info("Failed to issue a redirect to file download url.");
     	}
-    }
-
-    private HttpClient getClient() {
-        // TODO:
-        // cache the http client? -- L.A. 4.0 alpha
-        return new HttpClient();
     }
 
     public void refreshAllLocks() {
@@ -6259,16 +6266,16 @@ public class DatasetPage implements java.io.Serializable {
             dataset = commandEngine.submit(new SetCurationStatusCommand(dvRequestService.getDataverseRequest(), dataset, status));
             workingVersion=dataset.getLatestVersion();
             if (Strings.isBlank(status)) {
-                JsfHelper.addInfoMessage(BundleUtil.getStringFromBundle("dataset.status.removed"));
+                JsfHelper.addInfoMessage(BundleUtil.getStringFromBundle("dataset.curationstatus.removed"));
             } else {
-                JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.status.header"),
-                        BundleUtil.getStringFromBundle("dataset.status.info",
+                JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.curationstatus.header"),
+                        BundleUtil.getStringFromBundle("dataset.curationstatus.info",
                                 Arrays.asList(DatasetUtil.getLocaleCurationStatusLabelFromString(status))
                         ));
             }
 
         } catch (CommandException ex) {
-            String msg = BundleUtil.getStringFromBundle("dataset.status.cantchange");
+            String msg = BundleUtil.getStringFromBundle("dataset.curationstatus.cantchange");
             logger.warning("Unable to change external status to " + status + " for dataset id " + dataset.getId() + ". Message to user: " + msg + " Exception: " + ex);
             JsfHelper.addErrorMessage(msg);
         }

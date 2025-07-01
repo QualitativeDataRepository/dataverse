@@ -11,8 +11,6 @@ import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.impl.*;
-import edu.harvard.iq.dataverse.settings.JvmSettings;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
