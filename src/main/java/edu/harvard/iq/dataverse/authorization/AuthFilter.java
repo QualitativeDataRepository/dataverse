@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 
+import jakarta.annotation.Priority;
 import jakarta.ejb.EJB;
 import jakarta.inject.Inject;
 import jakarta.servlet.Filter;
@@ -25,6 +26,7 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -32,6 +34,8 @@ import jakarta.ws.rs.HttpMethod;
 
 import com.nimbusds.openid.connect.sdk.Prompt;
 
+@WebFilter("/*")
+@Priority(100) // Lower number means higher priority
 public class AuthFilter implements Filter {
 
     private static final Logger logger = Logger.getLogger(AuthFilter.class.getCanonicalName());
@@ -74,9 +78,6 @@ public class AuthFilter implements Filter {
             //If the origin were configurable, this might be useful in general
             boolean ssoResetPath = path.equals("/ssoreset");
             if(!isCheck && ssoResetPath) {
-                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", drupalUrl);
-                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET");
-                ((HttpServletResponse) response).addHeader("Access-Control-Allow-Credentials", "true");
 
                 logger.fine("passiveChecked flag check");
                 if ((httpSession != null) && (httpSession.getAttribute("passiveChecked") != null)) {
