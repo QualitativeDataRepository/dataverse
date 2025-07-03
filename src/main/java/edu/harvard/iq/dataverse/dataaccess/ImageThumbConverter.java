@@ -74,6 +74,7 @@ public class ImageThumbConverter {
     }
 
     public static boolean isThumbnailAvailable(DataFile file) {
+        logger.fine("isThumbnailAvailable called for " + file.getId());
         return isThumbnailAvailable(file, DEFAULT_THUMBNAIL_SIZE);
     }
 
