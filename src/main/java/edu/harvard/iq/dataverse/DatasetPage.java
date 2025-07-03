@@ -4924,22 +4924,8 @@ public class DatasetPage implements java.io.Serializable {
     private boolean alreadyDesignatedAsDatasetThumbnail = false;
 
     public boolean getUseAsDatasetThumbnail() {
-
-        if (fileMetadataSelectedForThumbnailPopup != null) {
-            if (fileMetadataSelectedForThumbnailPopup.getDataFile() != null) {
-                if (fileMetadataSelectedForThumbnailPopup.getDataFile().getId() != null) {
-                    if (fileMetadataSelectedForThumbnailPopup.getDataFile().getOwner() != null) {
-                        if (fileMetadataSelectedForThumbnailPopup.getDataFile().equals(fileMetadataSelectedForThumbnailPopup.getDataFile().getOwner().getThumbnailFile())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+        return isDesignatedDatasetThumbnail(fileMetadataSelectedForThumbnailPopup);
     }
-
-
 
     public void setUseAsDatasetThumbnail(boolean useAsThumbnail) {
         if (fileMetadataSelectedForThumbnailPopup != null) {
