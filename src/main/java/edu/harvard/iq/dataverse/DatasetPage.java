@@ -1385,7 +1385,7 @@ public class DatasetPage implements java.io.Serializable {
         return noDVsRemaining;
     }
 
-
+/*
     private Map<Long, String> datafileThumbnailsMap = new HashMap<>();
 
     public boolean isThumbnailAvailable(FileMetadata fileMetadata) {
@@ -1430,6 +1430,7 @@ public class DatasetPage implements java.io.Serializable {
     public String getDataFileThumbnailAsBase64(FileMetadata fileMetadata) {
         return datafileThumbnailsMap.get(fileMetadata.getDataFile().getId());
     }
+    */
 
     // Another convenience method - to cache Update Permission on the dataset:
     public boolean canUpdateDataset() {
