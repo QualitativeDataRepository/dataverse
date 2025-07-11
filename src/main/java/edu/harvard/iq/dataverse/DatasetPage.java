@@ -1385,53 +1385,6 @@ public class DatasetPage implements java.io.Serializable {
         return noDVsRemaining;
     }
 
-/*
-    private Map<Long, String> datafileThumbnailsMap = new HashMap<>();
-
-    public boolean isThumbnailAvailable(FileMetadata fileMetadata) {
-
-        // new and optimized logic:
-        // - check download permission here (should be cached - so it's free!)
-        // - only then check if the thumbnail is available/exists.
-        // then cache the results!
-
-        Long dataFileId = fileMetadata.getDataFile().getId();
-
-        if (datafileThumbnailsMap.containsKey(dataFileId)) {
-            return !"".equals(datafileThumbnailsMap.get(dataFileId));
-        }
-
-        if (!FileUtil.isThumbnailSupported(fileMetadata.getDataFile())) {
-            datafileThumbnailsMap.put(dataFileId, "");
-            return false;
-        }
-
-        if (!this.fileDownloadHelper.canDownloadFile(fileMetadata)) {
-            datafileThumbnailsMap.put(dataFileId, "");
-            return false;
-        }
-
-
-
-        String thumbnailAsBase64 = ImageThumbConverter.getImageThumbnailAsBase64(fileMetadata.getDataFile(), ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
-
-
-        //if (datafileService.isThumbnailAvailable(fileMetadata.getDataFile())) {
-        if (!StringUtil.isEmpty(thumbnailAsBase64)) {
-            datafileThumbnailsMap.put(dataFileId, thumbnailAsBase64);
-            return true;
-        }
-
-        datafileThumbnailsMap.put(dataFileId, "");
-        return false;
-
-    }
-
-    public String getDataFileThumbnailAsBase64(FileMetadata fileMetadata) {
-        return datafileThumbnailsMap.get(fileMetadata.getDataFile().getId());
-    }
-    */
-
     // Another convenience method - to cache Update Permission on the dataset:
     public boolean canUpdateDataset() {
         return permissionsWrapper.canUpdateDataset(dvRequestService.getDataverseRequest(), this.dataset);
