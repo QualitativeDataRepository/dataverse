@@ -11,7 +11,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 
 @Stateless
 @Named
-public class GoldenOldiesSearchServiceBean implements SearchService {
+public class GoldenOldiesSearchServiceBean extends AbstractExternalSearchServiceBean {
 
     private static final Logger logger = Logger.getLogger(GoldenOldiesSearchServiceBean.class.getCanonicalName());
 

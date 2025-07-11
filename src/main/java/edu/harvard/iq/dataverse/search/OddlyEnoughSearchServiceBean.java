@@ -10,7 +10,7 @@ import jakarta.inject.Named;
 
 @Stateless
 @Named
-public class OddlyEnoughSearchServiceBean implements SearchService {
+public class OddlyEnoughSearchServiceBean extends AbstractExternalSearchServiceBean {
 
     private static final Logger logger = Logger.getLogger(OddlyEnoughSearchServiceBean.class.getCanonicalName());
 
