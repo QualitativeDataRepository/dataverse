@@ -1398,11 +1398,6 @@ public class FileUtil implements java.io.Serializable  {
         if (file == null) {
             return false;
         }
-        
-        //If one has already been created, it's supported
-        if(file.isPreviewImageAvailable()) {
-            return true;
-        }
 
         if (file.isHarvested() || StringUtil.isEmpty(file.getStorageIdentifier())) {
             return false;
