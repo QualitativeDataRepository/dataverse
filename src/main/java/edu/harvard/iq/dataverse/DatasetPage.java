@@ -53,7 +53,8 @@ import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
 import edu.harvard.iq.dataverse.search.SearchFilesServiceBean;
-import edu.harvard.iq.dataverse.search.SolrSearchServiceBean;
+import edu.harvard.iq.dataverse.search.SearchService;
+import edu.harvard.iq.dataverse.search.SearchServiceFactory;
 import edu.harvard.iq.dataverse.search.SortBy;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
@@ -158,6 +159,7 @@ import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SolrClientService;
+import edu.harvard.iq.dataverse.search.SolrSearchServiceBean;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SignpostingResources;
 import edu.harvard.iq.dataverse.util.FileMetadataUtil;
@@ -248,7 +250,7 @@ public class DatasetPage implements java.io.Serializable {
     @EJB
     CacheFactoryBean cacheFactory;
     @EJB
-    SolrSearchServiceBean searchService;
+    SearchServiceFactory searchServiceFactory;
     @Inject
     DataverseRequestServiceBean dvRequestService;
     @Inject
@@ -1011,6 +1013,8 @@ public class DatasetPage implements java.io.Serializable {
         QueryResponse queryResponse = null;
         boolean fileDeletedFlagNotIndexed = false;
         Set<Long> resultIds = new HashSet<>();
+        SearchService searchService = searchServiceFactory.getSearchService(SearchServiceFactory.INTERNAL_SOLR_SERVICE_NAME);
+        
         // Unlimited number of search results: 
         // (but we are searching within one dataset(version), so it should be manageable)
         try {

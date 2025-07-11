@@ -2,6 +2,8 @@ package edu.harvard.iq.dataverse.search;
 
 import java.util.List;
 
+import org.apache.solr.client.solrj.response.QueryResponse;
+
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 
@@ -95,5 +97,7 @@ public interface SearchService {
      * 
      * @param solrSearchService
      */
-    default public void setSolrSearchService(SearchService solrSearchService) {};
+    default public void setSolrSearchService(SearchService solrSearchService) {}
+    
+    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String entityId, String pattern, List<String> filterQueries, List<String> facetList, int i, int maxValue) throws SearchException;
 }

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.apache.solr.client.solrj.response.QueryResponse;
+
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
@@ -102,5 +104,14 @@ public abstract class AbstractExternalSearchServiceBean implements ConfigurableS
         solrResponse.setNumResultsFound((long) reorderedResults.size());
 
         return solrResponse;
+    }
+    
+    @Override
+    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String entityId, String pattern, List<String> filterQueries, List<String> facetList, int i, int maxValue) throws SearchException {
+        if(solrSearchService == null) {
+            throw new UnsupportedOperationException("SolrSearchService is not set");
+        } else {
+            return solrSearchService.simpleSearch(dataverseRequest, entityId, pattern, filterQueries, facetList, i, maxValue);
+        }
     }
 }
