@@ -53,6 +53,8 @@ import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
 import edu.harvard.iq.dataverse.search.SearchFilesServiceBean;
+import edu.harvard.iq.dataverse.search.SearchService;
+import edu.harvard.iq.dataverse.search.SolrSearchServiceBean;
 import edu.harvard.iq.dataverse.search.SortBy;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
@@ -156,7 +158,7 @@ import edu.harvard.iq.dataverse.search.FacetLabel;
 import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
-import edu.harvard.iq.dataverse.search.SearchServiceBean;
+import edu.harvard.iq.dataverse.search.SearchUtil;
 import edu.harvard.iq.dataverse.search.SolrClientService;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SignpostingResources;
@@ -222,8 +224,6 @@ public class DatasetPage implements java.io.Serializable {
     @EJB
     SettingsServiceBean settingsService;
     @EJB
-    SearchServiceBean searchService;
-    @EJB
     AuthenticationServiceBean authService;
     @EJB
     SystemConfig systemConfig;
@@ -249,6 +249,8 @@ public class DatasetPage implements java.io.Serializable {
     DvObjectServiceBean dvObjectService;
     @EJB
     CacheFactoryBean cacheFactory;
+    @EJB
+    SolrSearchServiceBean searchService;
     @Inject
     DataverseRequestServiceBean dvRequestService;
     @Inject
@@ -1013,7 +1015,6 @@ public class DatasetPage implements java.io.Serializable {
         Set<Long> resultIds = new HashSet<>();
         // Unlimited number of search results: 
         // (but we are searching within one dataset(version), so it should be manageable)
-
         try {
             queryResponse = searchService.simpleSearch(dvRequestService.getDataverseRequest(), SearchFields.ENTITY_ID, pattern, filterQueries, facetList, 0, Integer.MAX_VALUE);
         } catch (RemoteSolrException | SearchException ex) {
