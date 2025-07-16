@@ -244,6 +244,8 @@
                 <jvm-options>[17|]--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</jvm-options>
                 <jvm-options>[17|]--add-opens=java.base/java.io=ALL-UNNAMED</jvm-options>
                 <jvm-options>[21|]--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</jvm-options>
+                <jvm-options>[24|]--sun-misc-unsafe-memory-access=allow</jvm-options>
+                <jvm-options>[24|]--enable-native-access=ALL-UNNAMED</jvm-options>
                 <jvm-options>-XX:NewRatio=2</jvm-options>
                 <jvm-options>-XX:+UnlockDiagnosticVMOptions</jvm-options>
                 <jvm-options>-XX:+UseG1GC</jvm-options>
@@ -494,6 +496,8 @@
                 <jvm-options>[17|]--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</jvm-options>
                 <jvm-options>[17|]--add-opens=java.base/java.io=ALL-UNNAMED</jvm-options>
                 <jvm-options>[21|]--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</jvm-options>
+                <jvm-options>[24|]--sun-misc-unsafe-memory-access=allow</jvm-options>
+                <jvm-options>[24|]--enable-native-access=ALL-UNNAMED</jvm-options>
                 <jvm-options>-Xmx512m</jvm-options>
                 <jvm-options>-XX:NewRatio=2</jvm-options>
                 <jvm-options>-XX:+UnlockDiagnosticVMOptions</jvm-options>
@@ -619,7 +623,7 @@
         </config>
     </configs>
     <property name="administrative.domain.name" value="domain1" />
-    <secure-admin special-admin-indicator="a7eef628-8e0f-408f-addb-4ae988cff5bd">
+    <secure-admin special-admin-indicator="a369f5ce-e0a6-4d36-9bd9-8583569693b0">
         <secure-admin-principal dn="CN=localhost,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
         <secure-admin-principal dn="CN=localhost-instance,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
     </secure-admin>
