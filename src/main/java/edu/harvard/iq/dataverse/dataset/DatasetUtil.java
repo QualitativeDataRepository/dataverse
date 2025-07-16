@@ -93,9 +93,11 @@ public class DatasetUtil {
             DataFile dataFile = fileMetadata.getDataFile();
 
             if (dataFile != null && FileUtil.isThumbnailSupported(dataFile)
-                    && ImageThumbConverter.isThumbnailAvailable(dataFile)
                     && !dataFile.isRestricted()
-                    && !FileUtil.isActivelyEmbargoed(dataFile)) {
+                    && !FileUtil.isActivelyEmbargoed(dataFile)
+                    //Only try to generate a thumb if the file is otherwise a candidate
+                    && ImageThumbConverter.isThumbnailAvailable(dataFile)
+                    ) {
                 String imageSourceBase64 = null;
                 imageSourceBase64 = ImageThumbConverter.getImageThumbnailAsBase64(dataFile, size);
 

@@ -233,6 +233,7 @@ public class IndexServiceBean {
             solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, UNPUBLISHED_STRING);
             solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE, dataverse.getCreateDate());
         }
+
         /* We don't really have harvested dataverses yet; 
            (I have in fact just removed the isHarvested() method from the Dataverse object) -- L.A.
         if (dataverse.isHarvested()) {
@@ -1060,9 +1061,9 @@ public class IndexServiceBean {
             if (datasetVersion.isInReview()) {
                 solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, IN_REVIEW_STRING);
             }
-
+            
             CurationStatus status = datasetVersion.getCurrentCurationStatus();
-            if (status != null && Strings.isNotBlank(status.getLabel())) {
+            if(status != null && Strings.isNotBlank(status.getLabel())) {
                 solrInputDocument.addField(SearchFields.CURATION_STATUS, status.getLabel());
             }
             // Add the creation time of the curation status
@@ -1078,7 +1079,7 @@ public class IndexServiceBean {
             Map<Long, JsonObject> cvocMap = datasetFieldService.getCVocConf(true);
             Map<Long, Set<String>> cvocManagedFieldMap = new HashMap<>();
             for (Map.Entry<Long, JsonObject> cvocEntry : cvocMap.entrySet()) {
-                if (cvocEntry.getValue().containsKey("managed-fields")) {
+                if(cvocEntry.getValue().containsKey("managed-fields")) {
                     JsonObject managedFields = cvocEntry.getValue().getJsonObject("managed-fields");
                     Set<String> managedFieldValues = new HashSet<>();
                     for (String s : managedFields.keySet()) {
@@ -1477,6 +1478,7 @@ public class IndexServiceBean {
             String datasetPersistentURL = dataset.getPersistentURL();
             boolean isHarvested = dataset.isHarvested();
             long startTime = System.currentTimeMillis();
+            LocalDate now = LocalDate.now();
             fileMetadatas.stream().forEach(fileMetadata -> {
                 DataFile datafile = fileMetadata.getDataFile();
                 Embargo emb = datafile.getEmbargo();
@@ -1517,8 +1519,10 @@ public class IndexServiceBean {
                     datafileSolrInputDocument.addField(SearchFields.PERSISTENT_URL, datasetPersistentURL);
                     datafileSolrInputDocument.addField(SearchFields.TYPE, "files");
                     datafileSolrInputDocument.addField(SearchFields.CATEGORY_OF_DATAVERSE, dvIndexableCategoryName);
+                    boolean embargoed = false;
                     if (end != null) {
                         datafileSolrInputDocument.addField(SearchFields.EMBARGO_END_DATE, end.toEpochDay());
+                        embargoed = end.isAfter(now);
                     }
                     if (start != null) {
                         datafileSolrInputDocument.addField(SearchFields.RETENTION_END_DATE, start.toEpochDay());
@@ -1536,7 +1540,7 @@ public class IndexServiceBean {
                             try {
                                 accessObject = DataAccess.getStorageIO(datafile,
                                         new DataAccessRequest());
-                                if (accessObject != null) {
+                                if (accessObject != null && accessObject.isDataverseAccessible()) {
                                     accessObject.open();
                                     // If the size is >max, we don't use the stream. However, for S3, the stream is
                                     // currently opened in the call above (see

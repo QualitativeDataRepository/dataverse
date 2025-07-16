@@ -1,0 +1,1 @@
+These are early versions of PID Failure reporting scripts from QDR. For current versions, see https://github.com/gdcc/dataverse-recipes/python/pid_reports

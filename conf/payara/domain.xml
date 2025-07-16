@@ -129,7 +129,10 @@
                 <property value="${com.sun.aas.installRoot}/.." name="ipsRoot" />
             </admin-service>
             <connector-service shutdown-timeout-in-seconds="30"></connector-service>
-            <transaction-service tx-log-dir="${com.sun.aas.instanceRoot}/logs" />
+            <transaction-service tx-log-dir="${com.sun.aas.instanceRoot}/logs" automatic-recovery="true" timeout-in-seconds="300">
+                <property name="xaresource-txn-timeout" value="300" />
+                <property name="purge-cancelled-transactions-after" value="500" />
+            </transaction-service>
             <asadmin-recorder-configuration></asadmin-recorder-configuration>
             <request-tracing-service-configuration>
                 <notifier>log-notifier</notifier>
@@ -149,6 +152,9 @@
               <notifier>log-notifier</notifier>
             </admin-audit-configuration>
             <diagnostic-service />
+            <ejb-container max-pool-size="128">
+                <ejb-timer-service></ejb-timer-service>
+            </ejb-container>
             <jms-service default-jms-host="default_JMS_host" type="EMBEDDED">
                 <jms-host port="${JMS_PROVIDER_PORT}" host="localhost" name="default_JMS_host" />
             </jms-service>
@@ -213,7 +219,6 @@
                 <property value="SHA-256" name="default-digest-algorithm" />
             </security-service>
             <java-config classpath-suffix="" system-classpath="" debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9009">
-                <jvm-options>-server</jvm-options>
                 <jvm-options>--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED</jvm-options>
                 <jvm-options>--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED</jvm-options>
                 <!-- Hazelcast internal package access requirement to get the best performance results. -->
@@ -239,8 +244,14 @@
                 <jvm-options>[17|]--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</jvm-options>
                 <jvm-options>[17|]--add-opens=java.base/java.io=ALL-UNNAMED</jvm-options>
                 <jvm-options>[21|]--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</jvm-options>
+                <jvm-options>[24|]--sun-misc-unsafe-memory-access=allow</jvm-options>
+                <jvm-options>[24|]--enable-native-access=ALL-UNNAMED</jvm-options>
                 <jvm-options>-XX:NewRatio=2</jvm-options>
                 <jvm-options>-XX:+UnlockDiagnosticVMOptions</jvm-options>
+                <jvm-options>-XX:+UseG1GC</jvm-options>
+                <jvm-options>-XX:MaxGCPauseMillis=200</jvm-options>
+                <jvm-options>-XX:+UseStringDeduplication</jvm-options>
+                <jvm-options>-Dfish.payara.classloading.delegate=false</jvm-options>
                 <jvm-options>-Dcom.sun.enterprise.config.config_environment_factory_class=com.sun.enterprise.config.serverbeans.AppserverConfigEnvironmentFactory</jvm-options>
                 <jvm-options>-Djava.awt.headless=true</jvm-options>
                 <jvm-options>-Djava.security.auth.login.config=${com.sun.aas.instanceRoot}/config/login.conf</jvm-options>
@@ -249,9 +260,10 @@
                 <jvm-options>-Dcom.sun.enterprise.security.httpsOutboundKeyAlias=s1as</jvm-options>
                 <jvm-options>-Djavax.net.ssl.keyStore=${com.sun.aas.instanceRoot}/config/keystore.p12</jvm-options>
                 <jvm-options>-Djavax.net.ssl.trustStore=${com.sun.aas.instanceRoot}/config/cacerts.p12</jvm-options>
-                <jvm-options>-Djavax.xml.accessExternalSchema=all</jvm-options>
+                <jvm-options>-Djavax.xml.accessExternalSchema=file,jar</jvm-options>
+                <jvm-options>-Djavax.xml.accessExternalDTD=file,jar</jvm-options>
+                <jvm-options>-Djavax.xml.accessExternalStylesheet=file,jar</jvm-options>
                 <jvm-options>-Djdbc.drivers=org.h2.Driver</jvm-options>
-                <jvm-options>-Djdk.corba.allowOutputStreamSubclass=true</jvm-options>
                 <jvm-options>-Djdk.tls.rejectClientInitiatedRenegotiation=true</jvm-options>
                 <jvm-options>-DANTLR_USE_DIRECT_CLASS_LOADING=true</jvm-options>
                 <!-- Configure post startup bundle list here. This is a comma separated list of bundle sybolic names. -->
@@ -304,14 +316,14 @@
             <network-config>
                 <protocols>
                     <protocol name="http-listener-1">
-                        <http default-virtual-server="server" max-connections="250">
-                            <file-cache enabled="false"></file-cache>
+                        <http default-virtual-server="server" max-connections="1000">
+                            <file-cache enabled="true" max-age-seconds="86400"></file-cache>
                         </http>
                         <ssl />
                     </protocol>
                     <protocol security-enabled="true" name="http-listener-2">
                         <http default-virtual-server="server" max-connections="250">
-                            <file-cache enabled="false"></file-cache>
+                            <file-cache enabled="true"></file-cache>
                         </http>
                         <ssl classname="com.sun.enterprise.security.ssl.GlassfishSSLImpl" cert-nickname="s1as"></ssl>
                     </protocol>
@@ -333,8 +345,12 @@
             </network-config>
             <thread-pools>
                 <thread-pool name="admin-thread-pool" max-thread-pool-size="15" min-thread-pool-size="1" max-queue-size="256"></thread-pool>
-                <thread-pool name="http-thread-pool" max-queue-size="4096"></thread-pool>
-                <thread-pool name="thread-pool-1" max-thread-pool-size="200" />
+                <thread-pool name="http-thread-pool" 
+                    min-thread-pool-size="10" 
+                    max-thread-pool-size="200" 
+                    max-queue-size="4096" 
+                    idle-thread-timeout-in-seconds="120" ></thread-pool>
+                <thread-pool name="thread-pool-1" max-thread-pool-size="250" max-queue-size="4096" />
             </thread-pools>
             <system-property name="org.glassfish.gmbal.no.multipleUpperBoundsException" value="true"/>
         </config>
@@ -480,6 +496,8 @@
                 <jvm-options>[17|]--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</jvm-options>
                 <jvm-options>[17|]--add-opens=java.base/java.io=ALL-UNNAMED</jvm-options>
                 <jvm-options>[21|]--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</jvm-options>
+                <jvm-options>[24|]--sun-misc-unsafe-memory-access=allow</jvm-options>
+                <jvm-options>[24|]--enable-native-access=ALL-UNNAMED</jvm-options>
                 <jvm-options>-Xmx512m</jvm-options>
                 <jvm-options>-XX:NewRatio=2</jvm-options>
                 <jvm-options>-XX:+UnlockDiagnosticVMOptions</jvm-options>
@@ -605,7 +623,7 @@
         </config>
     </configs>
     <property name="administrative.domain.name" value="domain1" />
-    <secure-admin special-admin-indicator="a7eef628-8e0f-408f-addb-4ae988cff5bd">
+    <secure-admin special-admin-indicator="a369f5ce-e0a6-4d36-9bd9-8583569693b0">
         <secure-admin-principal dn="CN=localhost,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
         <secure-admin-principal dn="CN=localhost-instance,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
     </secure-admin>

@@ -2167,6 +2167,7 @@ public class DatasetVersion implements Serializable {
     public CurationStatus getCurrentCurationStatus() {
         return !getCurationStatuses().isEmpty() ? getCurationStatuses().get(0) : null;
     }
+
     
     public void addCurationStatus(CurationStatus status) {
         status.setDatasetVersion(this);
@@ -2207,3 +2208,4 @@ public class DatasetVersion implements Serializable {
         this.versionNote = note;
     }
 }
+

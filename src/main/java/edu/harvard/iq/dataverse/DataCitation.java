@@ -724,7 +724,7 @@ public class DataCitation {
         if (seriesTitles != null) {
             itemBuilder.containerTitle(formatString(seriesTitles.get(0), true));
         }
-        itemBuilder.version(version).DOI(persistentId.asString());
+        itemBuilder.version(version).DOI(persistentId.asRawIdentifier());
         if (keywords != null) {
             itemBuilder
                     .categories(keywords.stream().map(keyword -> formatString(keyword, true)).toArray(String[]::new));

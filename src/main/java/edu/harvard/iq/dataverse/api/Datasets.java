@@ -3,6 +3,7 @@ package edu.harvard.iq.dataverse.api;
 import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.DatasetLock.Reason;
 import edu.harvard.iq.dataverse.DatasetVersion.VersionState;
+import edu.harvard.iq.dataverse.DataverseRoleServiceBean.RoleAssignmentHistoryEntry;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogRecord;
 import edu.harvard.iq.dataverse.api.auth.AuthRequired;
 import edu.harvard.iq.dataverse.api.dto.RoleAssignmentDTO;
@@ -25,8 +26,7 @@ import edu.harvard.iq.dataverse.datasetutility.NoFilesException;
 import edu.harvard.iq.dataverse.datasetutility.OptionalFileParams;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
-import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
-import edu.harvard.iq.dataverse.engine.command.exception.UnforcedCommandException;
+import edu.harvard.iq.dataverse.engine.command.exception.*;
 import edu.harvard.iq.dataverse.engine.command.impl.*;
 import edu.harvard.iq.dataverse.export.DDIExportServiceBean;
 import edu.harvard.iq.dataverse.export.ExportService;
@@ -99,9 +99,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import static edu.harvard.iq.dataverse.api.ApiConstants.*;
-import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 
-import edu.harvard.iq.dataverse.engine.command.exception.PermissionException;
 import edu.harvard.iq.dataverse.dataset.DatasetType;
 import edu.harvard.iq.dataverse.dataset.DatasetTypeServiceBean;
 import edu.harvard.iq.dataverse.license.License;
@@ -1974,6 +1972,64 @@ public class Datasets extends AbstractApiBean {
         }
     }
 
+    @POST
+    @AuthRequired
+    @Path("{id}/files/uploadlimit/{limit}")
+    public Response updateDatasetFilesLimits(@Context ContainerRequestContext crc,
+                                                @PathParam("id") String id,
+                                                @PathParam("limit") int datasetFileCountLimit) {
+
+        // user is authenticated
+        AuthenticatedUser authenticatedUser = null;
+        try {
+            authenticatedUser = getRequestAuthenticatedUserOrDie(crc);
+        } catch (WrappedResponse ex) {
+            return error(Status.UNAUTHORIZED, "Authentication is required.");
+        }
+        if (!authenticatedUser.isSuperuser()) {
+            return error(Response.Status.FORBIDDEN, "Superusers only.");
+        }
+
+        Dataset dataset;
+        try {
+            dataset = findDatasetOrDie(id);
+        } catch (WrappedResponse ex) {
+            return ex.getResponse();
+        }
+
+        dataset.setDatasetFileCountLimit(datasetFileCountLimit);
+        datasetService.merge(dataset);
+        return ok("ok");
+    }
+
+    @DELETE
+    @AuthRequired
+    @Path("{id}/files/uploadlimit")
+    public Response deleteDatasetFilesLimits(@Context ContainerRequestContext crc,
+                                             @PathParam("id") String id) {
+        // user is authenticated
+        AuthenticatedUser authenticatedUser = null;
+        try {
+            authenticatedUser = getRequestAuthenticatedUserOrDie(crc);
+        } catch (WrappedResponse ex) {
+            return error(Status.UNAUTHORIZED, "Authentication is required.");
+        }
+        if (!authenticatedUser.isSuperuser()) {
+            return error(Response.Status.FORBIDDEN, "Superusers only.");
+        }
+
+        Dataset dataset;
+        try {
+            dataset = findDatasetOrDie(id);
+        } catch (WrappedResponse ex) {
+            return ex.getResponse();
+        }
+
+        dataset.setDatasetFileCountLimit(null);
+        datasetService.merge(dataset);
+        return ok("ok");
+    }
+
     @PUT
     @AuthRequired
     @Path("{linkedDatasetId}/link/{linkingDataverseAlias}")
@@ -2601,7 +2657,8 @@ public class Datasets extends AbstractApiBean {
             Dataset dataset = findDatasetOrDie(idSupplied);
 
             boolean canUpdateDataset = false;
-            canUpdateDataset = permissionSvc.requestOn(createDataverseRequest(getRequestUser(crc)), dataset)
+            User user = getRequestUser(crc);
+            canUpdateDataset = permissionSvc.requestOn(createDataverseRequest(user), dataset)
                     .canIssue(UpdateDatasetVersionCommand.class);
             if (!canUpdateDataset) {
                 return error(Response.Status.FORBIDDEN, "You are not permitted to upload files to this dataset.");
@@ -2610,6 +2667,17 @@ public class Datasets extends AbstractApiBean {
             if (s3io == null) {
                 return error(Response.Status.NOT_FOUND,
                         "Direct upload not supported for files in this dataset: " + dataset.getId());
+            }
+            if (!user.isSuperuser()) {
+                Integer effectiveDatasetFileCountLimit = dataset.getEffectiveDatasetFileCountLimit();
+                boolean hasFileCountLimit = dataset.isDatasetFileCountLimitSet(effectiveDatasetFileCountLimit);
+                if (hasFileCountLimit) {
+                    int uploadedFileCount = datasetService.getDataFileCountByOwner(dataset.getId());
+                    if (uploadedFileCount >= effectiveDatasetFileCountLimit) {
+                        return error(Response.Status.BAD_REQUEST,
+                                BundleUtil.getStringFromBundle("file.add.count_exceeds_limit", Arrays.asList(String.valueOf(effectiveDatasetFileCountLimit))));
+                    }
+                }
             }
             Long maxSize = systemConfig.getMaxFileUploadSizeForStore(dataset.getEffectiveStorageDriverId());
             if (maxSize != null) {
@@ -2624,7 +2692,7 @@ public class Datasets extends AbstractApiBean {
                 if(fileSize > limit.getRemainingQuotaInBytes()) {
                     return error(Response.Status.BAD_REQUEST,
                             "The file you are trying to upload is too large to be uploaded to this dataset. " +
-                                    "The remaing file size quota is " + limit.getRemainingQuotaInBytes() + " bytes.");
+                                    "The remaining file size quota is " + limit.getRemainingQuotaInBytes() + " bytes.");
                 }
             }
             JsonObjectBuilder response = null;
@@ -4878,8 +4946,8 @@ public class Datasets extends AbstractApiBean {
                 BundleUtil.getStringFromBundle("datasets.api.creationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.modificationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.curationstatus"),
-                BundleUtil.getStringFromBundle("datasets.api.statussetter"),
-                BundleUtil.getStringFromBundle("datasets.api.statuscreatetime"),
+                BundleUtil.getStringFromBundle("datasets.api.curationstatuscreatetime"),
+                BundleUtil.getStringFromBundle("datasets.api.curationstatussetter"),
                 String.join(",", assignees.keySet())));
     
         HashSet<Permission> permissions = new HashSet<Permission>();
@@ -4901,9 +4969,9 @@ public class Datasets extends AbstractApiBean {
                 List<CurationStatus> statuses = includeHistory ? dsv.getCurationStatuses() : Collections.singletonList(dsv.getCurrentCurationStatus());
                 
                 for (CurationStatus status : statuses) {
-                    String label = BundleUtil.getStringFromBundle("dataset.status.none");
-                    String statusCreator = BundleUtil.getStringFromBundle("dataset.status.none");
-                    String createTime = BundleUtil.getStringFromBundle("dataset.status.none");
+                String label = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
+                String statusCreator = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
+                String createTime = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
                     
                     if (status != null) {
                         if(Strings.isNotBlank(status.getLabel())) {
@@ -5917,6 +5985,60 @@ public class Datasets extends AbstractApiBean {
             execCommand(new UpdateDatasetVersionCommand(datasetVersion.getDataset(), req));
 
             return ok("Note deleted");
+        }, getRequestUser(crc));
+    }
+    
+    @GET
+    @AuthRequired
+    @Path("{identifier}/permissions/history")
+    public Response getRoleAssignmentHistory(@Context ContainerRequestContext crc, @PathParam("identifier") String id) {
+        return response(req -> {
+            Dataset dataset = findDatasetOrDie(id);
+            
+            // user is authenticated
+            AuthenticatedUser authenticatedUser = null;
+            try {
+                authenticatedUser = getRequestAuthenticatedUserOrDie(crc);
+            } catch (WrappedResponse ex) {
+                return error(Status.UNAUTHORIZED, "Authentication is required.");
+            }
+            
+            // Check if the user has permission to manage permissions for this dataset
+            if (!permissionService.userOn(authenticatedUser, dataset).has(Permission.ManageDatasetPermissions)) {
+                return error(Status.FORBIDDEN, "You do not have permission to view the role assignment history for this dataset");
+            }
+            
+            // Get the role assignment history
+            ManagePermissionsPage managePermissionsPage = new ManagePermissionsPage();
+            managePermissionsPage.setDvObject(dataset);
+            List<DataverseRoleServiceBean.RoleAssignmentHistoryEntry> history = managePermissionsPage.getRoleAssignmentHistory();
+            
+            // Convert to JSON array
+            JsonArrayBuilder jsonArray = Json.createArrayBuilder();
+            for (DataverseRoleServiceBean.RoleAssignmentHistoryEntry entry : history) {
+                JsonObjectBuilder job = Json.createObjectBuilder()
+                    .add("assigneeIdentifier", entry.getAssigneeIdentifier())
+                    .add("roleName", entry.getRoleName())
+                    .add("assignedBy", entry.getAssignedBy())
+                    .add("assignedAt", entry.getAssignedAt().toString());
+                
+                // Add revocation info if available
+                if (entry.getRevokedBy() != null) {
+                    job.add("revokedBy", entry.getRevokedBy());
+                } else {
+                    job.add("revokedBy", JsonValue.NULL);
+                }
+                
+                if (entry.getRevokedAt() != null) {
+                    job.add("revokedAt", entry.getRevokedAt().toString());
+                } else {
+                    job.add("revokedAt", JsonValue.NULL);
+                }
+                
+                jsonArray.add(job);
+            }
+            
+            return ok(jsonArray);
         }, getRequestUser(crc));
     }
 

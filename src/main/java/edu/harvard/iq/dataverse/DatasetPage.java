@@ -53,6 +53,8 @@ import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlUtil;
 import edu.harvard.iq.dataverse.search.SearchFilesServiceBean;
+import edu.harvard.iq.dataverse.search.SearchService;
+import edu.harvard.iq.dataverse.search.SearchServiceFactory;
 import edu.harvard.iq.dataverse.search.SortBy;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.ArchiverUtil;
@@ -109,7 +111,6 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
 
 import jakarta.validation.ConstraintViolation;
-import org.apache.commons.httpclient.HttpClient;
 import java.util.Arrays;
 import java.util.HashSet;
 import jakarta.faces.model.SelectItem;
@@ -142,7 +143,6 @@ import jakarta.faces.component.UIInput;
 import jakarta.faces.event.AjaxBehaviorEvent;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.util.Strings;
@@ -158,8 +158,8 @@ import edu.harvard.iq.dataverse.search.FacetLabel;
 import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
-import edu.harvard.iq.dataverse.search.SearchServiceBean;
 import edu.harvard.iq.dataverse.search.SolrClientService;
+import edu.harvard.iq.dataverse.search.SolrSearchServiceBean;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SignpostingResources;
 import edu.harvard.iq.dataverse.util.FileMetadataUtil;
@@ -224,8 +224,6 @@ public class DatasetPage implements java.io.Serializable {
     @EJB
     SettingsServiceBean settingsService;
     @EJB
-    SearchServiceBean searchService;
-    @EJB
     AuthenticationServiceBean authService;
     @EJB
     SystemConfig systemConfig;
@@ -251,6 +249,8 @@ public class DatasetPage implements java.io.Serializable {
     DvObjectServiceBean dvObjectService;
     @EJB
     CacheFactoryBean cacheFactory;
+    @EJB
+    SearchServiceFactory searchServiceFactory;
     @Inject
     DataverseRequestServiceBean dvRequestService;
     @Inject
@@ -332,6 +332,7 @@ public class DatasetPage implements java.io.Serializable {
     private List<SelectItem> linkingDVSelectItems;
     private Dataverse linkingDataverse;
     private Dataverse selectedHostDataverse;
+    private boolean hasDataversesToChoose;
 
     public Dataverse getSelectedHostDataverse() {
         return selectedHostDataverse;
@@ -1012,9 +1013,10 @@ public class DatasetPage implements java.io.Serializable {
         QueryResponse queryResponse = null;
         boolean fileDeletedFlagNotIndexed = false;
         Set<Long> resultIds = new HashSet<>();
+        SearchService searchService = searchServiceFactory.getSearchService(SearchServiceFactory.INTERNAL_SOLR_SERVICE_NAME);
+        
         // Unlimited number of search results: 
         // (but we are searching within one dataset(version), so it should be manageable)
-
         try {
             queryResponse = searchService.simpleSearch(dvRequestService.getDataverseRequest(), SearchFields.ENTITY_ID, pattern, filterQueries, facetList, 0, Integer.MAX_VALUE);
         } catch (RemoteSolrException | SearchException ex) {
@@ -1386,52 +1388,6 @@ public class DatasetPage implements java.io.Serializable {
         return noDVsRemaining;
     }
 
-
-    private Map<Long, String> datafileThumbnailsMap = new HashMap<>();
-
-    public boolean isThumbnailAvailable(FileMetadata fileMetadata) {
-
-        // new and optimized logic:
-        // - check download permission here (should be cached - so it's free!)
-        // - only then check if the thumbnail is available/exists.
-        // then cache the results!
-
-        Long dataFileId = fileMetadata.getDataFile().getId();
-
-        if (datafileThumbnailsMap.containsKey(dataFileId)) {
-            return !"".equals(datafileThumbnailsMap.get(dataFileId));
-        }
-
-        if (!FileUtil.isThumbnailSupported(fileMetadata.getDataFile())) {
-            datafileThumbnailsMap.put(dataFileId, "");
-            return false;
-        }
-
-        if (!this.fileDownloadHelper.canDownloadFile(fileMetadata)) {
-            datafileThumbnailsMap.put(dataFileId, "");
-            return false;
-        }
-
-
-
-        String thumbnailAsBase64 = ImageThumbConverter.getImageThumbnailAsBase64(fileMetadata.getDataFile(), ImageThumbConverter.DEFAULT_THUMBNAIL_SIZE);
-
-
-        //if (datafileService.isThumbnailAvailable(fileMetadata.getDataFile())) {
-        if (!StringUtil.isEmpty(thumbnailAsBase64)) {
-            datafileThumbnailsMap.put(dataFileId, thumbnailAsBase64);
-            return true;
-        }
-
-        datafileThumbnailsMap.put(dataFileId, "");
-        return false;
-
-    }
-
-    public String getDataFileThumbnailAsBase64(FileMetadata fileMetadata) {
-        return datafileThumbnailsMap.get(fileMetadata.getDataFile().getId());
-    }
-
     // Another convenience method - to cache Update Permission on the dataset:
     public boolean canUpdateDataset() {
         return permissionsWrapper.canUpdateDataset(dvRequestService.getDataverseRequest(), this.dataset);
@@ -1744,6 +1700,11 @@ public class DatasetPage implements java.io.Serializable {
 
     public void setDataverseTemplates(List<Template> dataverseTemplates) {
         this.dataverseTemplates = dataverseTemplates;
+    }
+
+    public boolean isHasDataversesToChoose() {
+        this.hasDataversesToChoose = dataverseService.findAll().size() > 1;
+        return this.hasDataversesToChoose;
     }
 
     public Template getDefaultTemplate() {
@@ -4119,7 +4080,16 @@ public class DatasetPage implements java.io.Serializable {
                     // have been created in the dataset.
                     dataset = datasetService.find(dataset.getId());
 
-                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getOrCreateEditVersion(), newFiles, null, true);
+                    boolean ignoreUploadFileLimits = this.session.getUser() != null ? this.session.getUser().isSuperuser() : false;
+                    List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(dataset.getOrCreateEditVersion(), newFiles, null, true, ignoreUploadFileLimits);
+                    if (filesAdded.size() < nNewFiles) {
+                        // Not all files were saved
+                        Integer limit = dataset.getEffectiveDatasetFileCountLimit();
+                        if (limit != null) {
+                            String msg = BundleUtil.getStringFromBundle("file.add.count_exceeds_limit", List.of(limit.toString()));
+                            JsfHelper.addInfoMessage(msg);
+                        }
+                    }
                     newFiles.clear();
 
                     // and another update command:
@@ -4289,12 +4259,6 @@ public class DatasetPage implements java.io.Serializable {
     	} catch (IOException ex) {
     		logger.info("Failed to issue a redirect to file download url.");
     	}
-    }
-
-    private HttpClient getClient() {
-        // TODO:
-        // cache the http client? -- L.A. 4.0 alpha
-        return new HttpClient();
     }
 
     public void refreshAllLocks() {
@@ -4916,22 +4880,8 @@ public class DatasetPage implements java.io.Serializable {
     private boolean alreadyDesignatedAsDatasetThumbnail = false;
 
     public boolean getUseAsDatasetThumbnail() {
-
-        if (fileMetadataSelectedForThumbnailPopup != null) {
-            if (fileMetadataSelectedForThumbnailPopup.getDataFile() != null) {
-                if (fileMetadataSelectedForThumbnailPopup.getDataFile().getId() != null) {
-                    if (fileMetadataSelectedForThumbnailPopup.getDataFile().getOwner() != null) {
-                        if (fileMetadataSelectedForThumbnailPopup.getDataFile().equals(fileMetadataSelectedForThumbnailPopup.getDataFile().getOwner().getThumbnailFile())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+        return isDesignatedDatasetThumbnail(fileMetadataSelectedForThumbnailPopup);
     }
-
-
 
     public void setUseAsDatasetThumbnail(boolean useAsThumbnail) {
         if (fileMetadataSelectedForThumbnailPopup != null) {
@@ -6259,16 +6209,16 @@ public class DatasetPage implements java.io.Serializable {
             dataset = commandEngine.submit(new SetCurationStatusCommand(dvRequestService.getDataverseRequest(), dataset, status));
             workingVersion=dataset.getLatestVersion();
             if (Strings.isBlank(status)) {
-                JsfHelper.addInfoMessage(BundleUtil.getStringFromBundle("dataset.status.removed"));
+                JsfHelper.addInfoMessage(BundleUtil.getStringFromBundle("dataset.curationstatus.removed"));
             } else {
-                JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.status.header"),
-                        BundleUtil.getStringFromBundle("dataset.status.info",
+                JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.curationstatus.header"),
+                        BundleUtil.getStringFromBundle("dataset.curationstatus.info",
                                 Arrays.asList(DatasetUtil.getLocaleCurationStatusLabelFromString(status))
                         ));
             }
 
         } catch (CommandException ex) {
-            String msg = BundleUtil.getStringFromBundle("dataset.status.cantchange");
+            String msg = BundleUtil.getStringFromBundle("dataset.curationstatus.cantchange");
             logger.warning("Unable to change external status to " + status + " for dataset id " + dataset.getId() + ". Message to user: " + msg + " Exception: " + ex);
             JsfHelper.addErrorMessage(msg);
         }

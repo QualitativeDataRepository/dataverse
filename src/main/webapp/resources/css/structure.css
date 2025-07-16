@@ -1432,7 +1432,7 @@ progress::-webkit-progress-value {
   background-image: none;
 }
 
-.curation-status {
+span.curation-status {
   background-color: #CE15D1
 }
 

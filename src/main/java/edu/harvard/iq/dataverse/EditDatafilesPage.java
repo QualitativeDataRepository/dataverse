@@ -76,9 +76,7 @@ import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonReader;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.httpclient.methods.GetMethod;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
@@ -89,6 +87,11 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.primefaces.PrimeFaces;
 
 /**
@@ -201,7 +204,10 @@ public class EditDatafilesPage implements java.io.Serializable {
     private Long maxIngestSizeInBytes = null;
     // CSV: 4.8 MB, DTA: 976.6 KB, XLSX: 5.7 MB, etc.
     private String humanPerFormatTabularLimits = null;
-    private Integer multipleUploadFilesLimit = null; 
+    private Integer multipleUploadFilesLimit = null;
+    // Maximum number of files per dataset allowed ot be uploaded
+    private Integer maxFileUploadCount = null;
+    private Integer fileUploadsAvailable = null;
     
     //MutableBoolean so it can be passed from DatasetPage, supporting DatasetPage.cancelCreate()
     private MutableBoolean uploadInProgress = null;
@@ -393,6 +399,10 @@ public class EditDatafilesPage implements java.io.Serializable {
         return String.join(", ", formatLimits);
     }
 
+    public Integer getFileUploadsAvailable() {
+        return fileUploadsAvailable != null ? fileUploadsAvailable : -1;
+    }
+
     /*
         The number of files the GUI user is allowed to upload in one batch, 
         via drag-and-drop, or through the file select dialog. Now configurable 
@@ -556,16 +566,27 @@ public class EditDatafilesPage implements java.io.Serializable {
         this.maxIngestSizeInBytes = systemConfig.getTabularIngestSizeLimit();
         this.humanPerFormatTabularLimits = populateHumanPerFormatTabularLimits();
         this.multipleUploadFilesLimit = systemConfig.getMultipleUploadFilesLimit();
-        
+        setFileUploadCountLimits(0);
         logger.fine("done");
 
         saveEnabled = true;
         
         return null;
     }
+    private void setFileUploadCountLimits(int preLoaded) {
+        this.maxFileUploadCount = this.maxFileUploadCount == null ? dataset.getEffectiveDatasetFileCountLimit() : this.maxFileUploadCount;
+        Long id = dataset.getId() != null ? dataset.getId() : dataset.getOwner() != null ? dataset.getOwner().getId() : null;
+        this.fileUploadsAvailable = this.maxFileUploadCount != null && id != null ?
+                Math.max(0, this.maxFileUploadCount - datasetService.getDataFileCountByOwner(id) - preLoaded) :
+                -1;
+    }
     
     public boolean isQuotaExceeded() {
         return systemConfig.isStorageQuotasEnforced() && uploadSessionQuota != null && uploadSessionQuota.getRemainingQuotaInBytes() == 0;
+    }
+    public boolean isFileUploadCountExceeded() {
+        boolean ignoreLimit = this.session.getUser().isSuperuser();
+        return !ignoreLimit && !isFileReplaceOperation() && fileUploadsAvailable != null && fileUploadsAvailable == 0;
     }
 
     public String init() {
@@ -617,9 +638,8 @@ public class EditDatafilesPage implements java.io.Serializable {
         }
         this.maxIngestSizeInBytes = systemConfig.getTabularIngestSizeLimit();
         this.humanPerFormatTabularLimits = populateHumanPerFormatTabularLimits();
-        this.multipleUploadFilesLimit = systemConfig.getMultipleUploadFilesLimit();        
-        this.maxFileUploadSizeInBytes = systemConfig.getMaxFileUploadSizeForStore(dataset.getEffectiveStorageDriverId());
-        
+        this.multipleUploadFilesLimit = systemConfig.getMultipleUploadFilesLimit();
+        setFileUploadCountLimits(0);
         hasValidTermsOfAccess = isHasValidTermsOfAccess();
         if (!hasValidTermsOfAccess) {
             PrimeFaces.current().executeScript("PF('blockDatasetForm').show()");
@@ -1116,9 +1136,17 @@ public class EditDatafilesPage implements java.io.Serializable {
                     }
                 }
             }
-
+            boolean ignoreUploadFileLimits = this.session.getUser() != null ? this.session.getUser().isSuperuser() : false;
             // Try to save the NEW files permanently: 
-            List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(workingVersion, newFiles, null, true); 
+            List<DataFile> filesAdded = ingestService.saveAndAddFilesToDataset(workingVersion, newFiles, null, true, ignoreUploadFileLimits);
+            if (filesAdded.size() < nNewFiles) {
+                // Not all files were saved
+                Integer limit = dataset.getEffectiveDatasetFileCountLimit();
+                if (limit != null) {
+                    String msg = BundleUtil.getStringFromBundle("file.add.count_exceeds_limit", List.of(limit.toString()));
+                    JsfHelper.addInfoMessage(msg);
+                }
+            }
             
             // reset the working list of fileMetadatas, as to only include the ones
             // that have been added to the version successfully: 
@@ -1367,46 +1395,6 @@ public class EditDatafilesPage implements java.io.Serializable {
         return returnToDatasetOnly();
     }
 
-    /* deprecated; super inefficient, when called repeatedly on a long list 
-       of files! 
-       leaving the code here, commented out, for illustration purposes. -- 4.6
-    public boolean isDuplicate(FileMetadata fileMetadata) {
-
-        Map<String, Integer> MD5Map = new HashMap<String, Integer>();
-
-        // TODO: 
-        // think of a way to do this that doesn't involve populating this 
-        // map for every file on the page? 
-        // may not be that much of a problem, if we paginate and never display 
-        // more than a certain number of files... Still, needs to be revisited
-        // before the final 4.0. 
-        // -- L.A. 4.0
-
-        // make a "defensive copy" to avoid java.util.ConcurrentModificationException from being thrown
-        // when uploading 100+ files
-        List<FileMetadata> wvCopy = new ArrayList<>(workingVersion.getFileMetadatas());
-        Iterator<FileMetadata> fmIt = wvCopy.iterator();
-
-        while (fmIt.hasNext()) {
-            FileMetadata fm = fmIt.next();
-            String md5 = fm.getDataFile().getChecksumValue();
-            if (md5 != null) {
-                if (MD5Map.get(md5) != null) {
-                    MD5Map.put(md5, MD5Map.get(md5).intValue() + 1);
-                } else {
-                    MD5Map.put(md5, 1);
-                }
-            }
-        }
-
-        return MD5Map.get(thisMd5) != null && MD5Map.get(thisMd5).intValue() > 1;
-    }*/
-    private HttpClient getClient() {
-        // TODO: 
-        // cache the http client? -- L.A. 4.0 alpha
-        return new HttpClient();
-    }
-
     /**
      * Is this page in File Replace mode
      *
@@ -1445,30 +1433,35 @@ public class EditDatafilesPage implements java.io.Serializable {
      * @param fileLink
      * @return
      */
-    private InputStream getDropBoxInputStream(String fileLink, GetMethod dropBoxMethod) {
-
+    private InputStream getDropBoxInputStream(String fileLink) {
         if (fileLink == null) {
             return null;
         }
 
-        // -----------------------------------------------------------
-        // Make http call, download the file: 
-        // -----------------------------------------------------------
-        int status = 0;
-        //InputStream dropBoxStream = null;
-
         try {
-            status = getClient().executeMethod(dropBoxMethod);
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(fileLink);
+            
+            // Use the non-deprecated execute method with ClassicHttpResponse
+            ClassicHttpResponse response = httpClient.executeOpen(null, httpGet, null);
+            
+            int status = response.getCode();
+            
             if (status == 200) {
-                return dropBoxMethod.getResponseBodyAsStream();
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    // Return the content as a stream directly
+                    return entity.getContent();
+                }
             }
+            
+            logger.log(Level.WARNING, "Failed to get DropBox InputStream for file: {0}. Status code: {1}", new Object[]{fileLink, status});
+            response.close();
+            return null;
         } catch (IOException ex) {
             logger.log(Level.WARNING, "Failed to access DropBox url: {0}!", fileLink);
             return null;
         }
-
-        logger.log(Level.WARNING, "Failed to get DropBox InputStream for file: {0}", fileLink);
-        return null;
     } // end: getDropBoxInputStream
 
     /**
@@ -1495,7 +1488,6 @@ public class EditDatafilesPage implements java.io.Serializable {
         // Iterate through the Dropbox file information (JSON)
         // -----------------------------------------------------------
         DataFile dFile = null;
-        GetMethod dropBoxMethod = null;
         String localWarningMessage = null;
         for (int i = 0; i < dbArray.size(); i++) {
             JsonObject dbObject = dbArray.getJsonObject(i);
@@ -1528,14 +1520,13 @@ public class EditDatafilesPage implements java.io.Serializable {
             }
 
             dFile = null;
-            dropBoxMethod = new GetMethod(fileLink);
 
             // -----------------------------------------------------------
             // Download the file
             // -----------------------------------------------------------
-            InputStream dropBoxStream = this.getDropBoxInputStream(fileLink, dropBoxMethod);
+            InputStream dropBoxStream = this.getDropBoxInputStream(fileLink);
             if (dropBoxStream == null) {
-                logger.severe("Could not retrieve dropgox input stream for: " + fileLink);
+                logger.severe("Could not retrieve dropbox input stream for: " + fileLink);
                 continue;  // Error skip this file
             }
 
@@ -1573,14 +1564,6 @@ public class EditDatafilesPage implements java.io.Serializable {
                 this.logger.log(Level.SEVERE, "Error during ingest of DropBox file {0} from link {1}: {2}", new Object[]{fileName, fileLink, ex.getMessage()});
                 continue;
             }*/ finally {
-                // -----------------------------------------------------------
-                // release connection for dropBoxMethod
-                // -----------------------------------------------------------
-
-                if (dropBoxMethod != null) {
-                    dropBoxMethod.releaseConnection();
-                }
-
                 // -----------------------------------------------------------
                 // close the  dropBoxStream
                 // -----------------------------------------------------------
@@ -1628,8 +1611,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     }
 
     /**
-     * Using information from the DropBox choose, ingest the chosen files
-     *  https://www.dropbox.com/developers/dropins/chooser/js
+     * Using information from the Hypothesis API, ingest the chosen annotations
      * 
      * @param event
      */
@@ -1640,94 +1622,86 @@ public class EditDatafilesPage implements java.io.Serializable {
         logger.fine("handleHypothesisUpload");
         uploadComponentId = event.getComponent().getClientId();
         
-        //Assume file is not over the limit
-
-        GetMethod hypothesisMethod = new GetMethod("https://hypothes.is/api/search?group="
-            + hypothesisGroupSelection + "&uri=" + hypothesisUrlSelection + "&limit=200");
+        String apiUrl = "https://hypothes.is/api/search?group=" + hypothesisGroupSelection + "&uri=" + hypothesisUrlSelection + "&limit=200";
         String apiKey = getHypothesisKey();
-        hypothesisMethod.addRequestHeader("Authorization","Bearer " + apiKey);
         
-        // -----------------------------------------------------------
-        // Make http call, download the file: 
-        // -----------------------------------------------------------
-        int status = 0;
-        // -----------------------------------------------------------
-        // Download the file
-        // -----------------------------------------------------------
-        try {
-            status = getClient().executeMethod(hypothesisMethod);
-            if (status == 200) {
-                try (InputStream hypothesisStream = hypothesisMethod.getResponseBodyAsStream()) {
-                    // -----------------------------------------------------------
-                    // Is this a FileReplaceOperation?  If so, then diverge!
-                    // -----------------------------------------------------------
-                    if (this.isFileReplaceOperation()){
-                      this.handleReplaceFileUpload(event, hypothesisStream, FileUtil.HYPOTHESIS_ANNOTATIONS_FILENAME, FileUtil.MIME_TYPE_HYPOTHESIS_ANNOTATIONS, null, event);
-                      this.setFileMetadataSelectedForTagsPopup(fileReplacePageHelper.getNewFileMetadatasBeforeSave().get(0));
-                      return;
-                     }
-                    // -----------------------------------------------------------
-
-                    
-                    List<DataFile> datafiles = new ArrayList<>(); 
-                    
-                    // -----------------------------------------------------------
-                    // Send it through the ingest service
-                    // -----------------------------------------------------------
-                    try {
-                        // Note: A single uploaded file may produce multiple datafiles - 
-                        // for example, multiple files can be extracted from an uncompressed
-                        // zip file.
-                        Command<CreateDataFileResult> cmd = new CreateNewDataFilesCommand(dvRequestService.getDataverseRequest(), workingVersion, hypothesisStream, FileUtil.HYPOTHESIS_ANNOTATIONS_FILENAME, FileUtil.MIME_TYPE_HYPOTHESIS_ANNOTATIONS, null, uploadSessionQuota, null);
-                        CreateDataFileResult createDataFilesResult = commandEngine.submit(cmd);
-                        datafiles = createDataFilesResult.getDataFiles();
-                        Optional.ofNullable(editDataFilesPageHelper.getHtmlErrorMessage(createDataFilesResult)).ifPresent(errorMessage -> errorMessages.add(errorMessage));
-
-                    } catch (CommandException ex) {
-                        logger.log(Level.SEVERE, "Error during ingest of Hypothesis for group {0} and uri {1}", new Object[]{hypothesisGroupSelection, hypothesisUrlSelection});
-                        logger.log(Level.SEVERE, ex.getMessage());
-                    }
-
-                    if (datafiles == null) {
-                        logger.log(Level.SEVERE, "Failed to create DataFile for Hypothesis annotations for group {0} and uri {1}", new Object[] { hypothesisGroupSelection, hypothesisUrlSelection });
-                    } else {
-                        // -----------------------------------------------------------
-                        // Check if there are duplicate files or ingest warnings
-                        // -----------------------------------------------------------
-                        if (datafiles.get(0).isIngestProblem()) {
-                            // For annotations, the warning means we should not upload anything so skip the
-                            // normal processing
-                            uploadWarningMessage = datafiles.get(0).getIngestReportMessage();
-                            uploadInProgress.setValue(false);
-                        } else {
-
-                            //Set the category for this file
-                            datafiles.get(0).getFileMetadata().addCategoryByName(FileUtil.ANNOTATIONS_CATEGORY);
-                            uploadWarningMessage = processUploadedFileList(datafiles);
-                            logger.fine("Warning message during upload: " + uploadWarningMessage);
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpGet = new HttpGet(apiUrl);
+            httpGet.setHeader("Authorization", "Bearer " + apiKey);
+            
+            // Execute the request
+            httpClient.execute(httpGet, response -> {
+                int status = response.getCode();
+                
+                if (status == 200) {
+                    HttpEntity entity = response.getEntity();
+                    if (entity != null) {
+                        try (InputStream hypothesisStream = entity.getContent()) {
+                            // -----------------------------------------------------------
+                            // Is this a FileReplaceOperation? If so, then diverge!
+                            // -----------------------------------------------------------
+                            if (this.isFileReplaceOperation()) {
+                                this.handleReplaceFileUpload(event, hypothesisStream, FileUtil.HYPOTHESIS_ANNOTATIONS_FILENAME, FileUtil.MIME_TYPE_HYPOTHESIS_ANNOTATIONS, null, event);
+                                this.setFileMetadataSelectedForTagsPopup(fileReplacePageHelper.getNewFileMetadatasBeforeSave().get(0));
+                                return null;
+                            }
+                            // -----------------------------------------------------------
+                            
+                            List<DataFile> datafiles = new ArrayList<>();
+                            
+                            // -----------------------------------------------------------
+                            // Send it through the ingest service
+                            // -----------------------------------------------------------
+                            try {
+                                // Note: A single uploaded file may produce multiple datafiles - 
+                                // for example, multiple files can be extracted from an uncompressed
+                                // zip file.
+                                Command<CreateDataFileResult> cmd = new CreateNewDataFilesCommand(dvRequestService.getDataverseRequest(), workingVersion, hypothesisStream, FileUtil.HYPOTHESIS_ANNOTATIONS_FILENAME, FileUtil.MIME_TYPE_HYPOTHESIS_ANNOTATIONS, null, uploadSessionQuota, null);
+                                CreateDataFileResult createDataFilesResult = commandEngine.submit(cmd);
+                                datafiles = createDataFilesResult.getDataFiles();
+                                Optional.ofNullable(editDataFilesPageHelper.getHtmlErrorMessage(createDataFilesResult)).ifPresent(errorMessage -> errorMessages.add(errorMessage));
+                                
+                            } catch (CommandException ex) {
+                                logger.log(Level.SEVERE, "Error during ingest of Hypothesis for group {0} and uri {1}", new Object[]{hypothesisGroupSelection, hypothesisUrlSelection});
+                                logger.log(Level.SEVERE, ex.getMessage());
+                            }
+                            
+                            if (datafiles == null) {
+                                logger.log(Level.SEVERE, "Failed to create DataFile for Hypothesis annotations for group {0} and uri {1}", new Object[] { hypothesisGroupSelection, hypothesisUrlSelection });
+                            } else {
+                                // -----------------------------------------------------------
+                                // Check if there are duplicate files or ingest warnings
+                                // -----------------------------------------------------------
+                                if (datafiles.get(0).isIngestProblem()) {
+                                    // For annotations, the warning means we should not upload anything so skip the
+                                    // normal processing
+                                    uploadWarningMessage = datafiles.get(0).getIngestReportMessage();
+                                    uploadInProgress.setValue(false);
+                                } else {
+                                    //Set the category for this file
+                                    datafiles.get(0).getFileMetadata().addCategoryByName(FileUtil.ANNOTATIONS_CATEGORY);
+                                    uploadWarningMessage = processUploadedFileList(datafiles);
+                                    logger.fine("Warning message during upload: " + uploadWarningMessage);
+                                }
+                            }
+                            if (uploadInProgress.isFalse()) {
+                                logger.warning("Upload in progress cancelled");
+                                for (DataFile newFile : datafiles) {
+                                    FileUtil.deleteTempFile(newFile, dataset, ingestService);
+                                }
+                            }
                         }
                     }
-                    if(uploadInProgress.isFalse()) {
-                        logger.warning("Upload in progress cancelled");
-                        for (DataFile newFile : datafiles) {
-                            FileUtil.deleteTempFile(newFile, dataset, ingestService);
-                        }
-                        datafiles = new ArrayList<>(); 
-                    }
-                } finally {
-                    // -----------------------------------------------------------
-                    // release connection for hypothesisMethod
-                    // -----------------------------------------------------------
-                        hypothesisMethod.releaseConnection();
+                } else {
+                    logger.log(Level.WARNING, "Failed to get Hypothesis annotations: Status {0} for group: {1} and uri: {2}", 
+                               new Object[] {status, hypothesisGroupSelection, hypothesisUrlSelection});
                 }
-            } else {
-                logger.log(Level.WARNING, "Failed to get Hypothesis annotations: Status {0} for group: {1} and uri: {2}", new Object[] {status,hypothesisGroupSelection, hypothesisUrlSelection});
-            }
+                return null;
+            });
         } catch (IOException ex) {
-            logger.log(Level.WARNING, "Failed to access Hypothesis at url: {0}!", "https://hypothes.is/api/search?group="
-                    + hypothesisGroupSelection + "&uri=" + hypothesisUrlSelection);
-        } 
-      }
+            logger.log(Level.WARNING, "Failed to access Hypothesis API: {0}", ex.getMessage());
+        }
+    }
     
     public void uploadStarted() {
         // uploadStarted() is triggered by PrimeFaces <p:upload onStart=... when an upload is 
