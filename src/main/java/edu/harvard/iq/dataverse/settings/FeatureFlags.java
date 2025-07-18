@@ -180,6 +180,11 @@ public enum FeatureFlags {
      * a security-related management feature.
      */
     INFORM_SUPERUSERS_OF_CHANGES("inform-superusers-of-changes"),
+    /**
+     * Only update a DataCite DOI when needed (for efficiency, lighter load on DataCite).
+     */
+    ONLY_UPDATE_DATACITE_WHEN_NEEDED("only-update-datacite-when-needed"),
+
     ;
     
     final String flag;
