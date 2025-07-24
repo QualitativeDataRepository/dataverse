@@ -5992,6 +5992,7 @@ public class Datasets extends AbstractApiBean {
     @GET
     @AuthRequired
     @Path("{identifier}/permissions/history")
+    @Produces({ MediaType.APPLICATION_JSON, "text/csv" })
     public Response getRoleAssignmentHistory(@Context ContainerRequestContext crc, @PathParam("identifier") String id, @Context HttpHeaders headers) {
         return response(req -> {
             Dataset dataset = findDatasetOrDie(id);
