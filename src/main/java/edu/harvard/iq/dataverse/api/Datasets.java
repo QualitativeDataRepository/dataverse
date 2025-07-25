@@ -208,9 +208,6 @@ public class Datasets extends AbstractApiBean {
     @Inject
     DataFileCategoryServiceBean dataFileCategoryService;
 
-    @Inject
-    DataFileCategoryServiceBean dataFileCategoryService;
-
     /**
      * Used to consolidate the way we parse and handle dataset versions.
      * @param <T>
