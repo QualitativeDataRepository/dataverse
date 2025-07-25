@@ -2534,7 +2534,7 @@ public class UtilIT {
                 .post("api/datasets/:persistentId/assignments?key=" + apiToken + "&persistentId=" + definitionPoint);
     }
 
-    static Response revokeRole(String definitionPoint, long doomed, String apiToken) {
+    static Response revokeRoleOnDataverse(String definitionPoint, long doomed, String apiToken) {
         return given()
                 .header(API_TOKEN_HTTP_HEADER, apiToken)
                 .delete("api/dataverses/" + definitionPoint + "/assignments/" + doomed);
