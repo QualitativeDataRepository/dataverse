@@ -1436,6 +1436,22 @@ The fully expanded example above (without environment variables) looks like this
 
   curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: application/json" "https://demo.dataverse.org/api/datasets/dvAlias/assignments/history"
 
+The response is a JSON array of role assignment history entries with the following structure for each entry:
+
+.. code-block:: json
+
+  {
+    "definedOn": "1",
+    "assigneeIdentifier": "@user1",
+    "roleName": "Admin",
+    "assignedBy": "@dataverseAdmin",
+    "assignedAt": "2023-01-01T12:00:00Z",
+    "revokedBy": null,
+    "revokedAt": null
+  }
+
+For revoked assignments, the "revokedBy" and "revokedAt" fields will contain values instead of null.
+
 To retrieve the history in CSV format, change the Accept header to "text/csv":
 
 .. code-block:: bash
@@ -1451,6 +1467,8 @@ The fully expanded example above (without environment variables) looks like this
 .. code-block:: bash
 
   curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: text/csv" "https://demo.dataverse.org/api/dataverses/3/assignments/history"
+
+The CSV response has column headers mirroring the json entries. They are internationalized (when internationalization is configured).
 
 Note: This feature requires the "role-assignment-history" feature flag to be enabled (see :ref:`feature-flags`).
 
@@ -4042,6 +4060,22 @@ The fully expanded example above (without environment variables) looks like this
 
   curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: application/json" "https://demo.dataverse.org/api/datasets/:persistentId/assignments/history?persistentId=doi:10.5072/FK2/ABCDEF"
 
+The response is a JSON array of role assignment history entries with the following structure for each entry:
+
+.. code-block:: json
+
+  {
+    "definedOn": "3",
+    "assigneeIdentifier": "@user1",
+    "roleName": "Admin",
+    "assignedBy": "@dataverseAdmin",
+    "assignedAt": "2023-01-01T12:00:00Z",
+    "revokedBy": null,
+    "revokedAt": null
+  }
+
+For revoked assignments, the "revokedBy" and "revokedAt" fields will contain values instead of null.
+
 To retrieve the history in CSV format, change the Accept header to "text/csv":
 
 .. code-block:: bash
@@ -4057,6 +4091,8 @@ The fully expanded example above (without environment variables) looks like this
 .. code-block:: bash
 
   curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: text/csv" "https://demo.dataverse.org/api/datasets/3/assignments/history"
+
+The CSV response has column headers mirroring the json entries. They are internationalized (when internationalization is configured).
 
 Note: This feature requires the "role-assignment-history" feature flag to be enabled (see :ref:`feature-flags`).
 
@@ -4095,6 +4131,8 @@ The fully expanded example above (without environment variables) looks like this
 
   curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: application/json" "https://demo.dataverse.org/api/datasets/:persistentId/files/assignments/history?persistentId=doi:10.5072/FK2/ABCDEF"
 
+The JSON response for this call is the same as for the /api/datasets/{id}/assignments/history call above with the exception that definedOn will be a comma separated list of one or more file ids.
+
 To retrieve the history in CSV format, change the Accept header to "text/csv":
 
 .. code-block:: bash
@@ -4110,6 +4148,8 @@ The fully expanded example above (without environment variables) looks like this
 .. code-block:: bash
 
   curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: text/csv" "https://demo.dataverse.org/api/datasets/3/files/assignments/history"
+
+The CSV response for this call is the same as for the /api/datasets/{id}/assignments/history call above with the exception that definedOn will be a comma separated list of one or more file ids.
 
 Note: This feature requires the "role-assignment-history" feature flag to be enabled (see :ref:`feature-flags`).
 
