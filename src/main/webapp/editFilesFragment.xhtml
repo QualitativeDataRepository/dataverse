@@ -13,22 +13,22 @@
     xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
 
 
-     <!-- Create variables for frequently accessed values -->
-     <ui:param name="useDirectUpload" value="#{systemConfig.directUploadEnabled(dataset)}"/>
-     <ui:param name="checksumAlgName" value="#{systemConfig.getFileFixityChecksumAlgorithm().toString()}"/>
-     <ui:param name="hasPackageFile" value="#{EditDatafilesPage.workingVersion.hasPackageFile}"/>
-     <ui:param name="hasNonPackageFile" value="#{EditDatafilesPage.workingVersion.hasNonPackageFile}"/>
-     <ui:param name="isDatasetReleased" value="#{EditDatafilesPage.dataset.released}"/>
-     <ui:param name="hasRsyncScript" value="#{EditDatafilesPage.isHasRsyncScript()}"/>
-		 <ui:param name="fileMetadatas" value="#{EditDatafilesPage.fileMetadatas}"/>
-     <ui:param name="hasFileMetadatas" value="#{!empty fileMetadatas}"/>
-     <ui:param name="showFileUploadComponent" value="#{datasetPage || EditDatafilesPage.showFileUploadComponent()}"/>
-     <ui:param name="showFileUploadFragment" value="#{datasetPage || EditDatafilesPage.showFileUploadFragment()}"/>
-     <ui:param name="isQuotaExceeded" value="#{EditDatafilesPage.isQuotaExceeded()}"/>
-     <ui:param name="isFileUploadCountExceeded" value="#{EditDatafilesPage.isFileUploadCountExceeded()}"/>
-     <ui:param name="maxFileUploadSize" value="#{EditDatafilesPage.getMaxFileUploadSizeInBytes()}"/>
-     <ui:param name="maxNumberOfFiles" value="#{EditDatafilesPage.getMaxNumberOfFiles()}"/>
-     <ui:param name="fileUploadsAvailable" value="#{EditDatafilesPage.getFileUploadsAvailable()}"/>
+    <!-- Create variables for frequently accessed values -->
+    <ui:param name="useDirectUpload" value="#{systemConfig.directUploadEnabled(dataset)}"/>
+    <ui:param name="checksumAlgName" value="#{systemConfig.getFileFixityChecksumAlgorithm().toString()}"/>
+    <ui:param name="hasPackageFile" value="#{EditDatafilesPage.workingVersion.hasPackageFile}"/>
+    <ui:param name="hasNonPackageFile" value="#{EditDatafilesPage.workingVersion.hasNonPackageFile}"/>
+    <ui:param name="isDatasetReleased" value="#{EditDatafilesPage.dataset.released}"/>
+    <ui:param name="hasRsyncScript" value="#{EditDatafilesPage.isHasRsyncScript()}"/>
+    <ui:param name="fileMetadatas" value="#{EditDatafilesPage.fileMetadatas}"/>
+    <ui:param name="hasFileMetadatas" value="#{!empty fileMetadatas}"/>
+    <ui:param name="showFileUploadComponent" value="#{datasetPage || EditDatafilesPage.showFileUploadComponent()}"/>
+    <ui:param name="showFileUploadFragment" value="#{datasetPage || EditDatafilesPage.showFileUploadFragment()}"/>
+    <ui:param name="isQuotaExceeded" value="#{EditDatafilesPage.isQuotaExceeded()}"/>
+    <ui:param name="isFileUploadCountExceeded" value="#{EditDatafilesPage.isFileUploadCountExceeded()}"/>
+    <ui:param name="maxFileUploadSize" value="#{EditDatafilesPage.getMaxFileUploadSizeInBytes()}"/>
+    <ui:param name="maxNumberOfFiles" value="#{EditDatafilesPage.getMaxNumberOfFiles()}"/>
+    <ui:param name="fileUploadsAvailable" value="#{EditDatafilesPage.getFileUploadsAvailable()}"/>
     
     <h:outputScript name='js/fileupload.js?version=#{systemConfig.getVersion()}' />
     <ui:fragment rendered = '#{useDirectUpload}'>
@@ -92,7 +92,6 @@
                                 </p>
                             </div>
                             <div class="panel-body" jsf:id="contentOfHttpPanel" jsf:rendered="#{!hasPackageFile}">
-                    
                     <p class="help-block">
                         <h:outputFormat value=" #{bundle['file.selectToAdd.tipMoreInformation']}" escape="false">
                             <f:param value="#{settingsWrapper.get(':QDRDrupalSiteURL')}"/>
@@ -187,7 +186,7 @@
                                   onstart="javascript:uploadWidgetDropRemoveMsg();uploadStarted();"
                                   onerror="javascript:uploadFailure();"
                                   sizeLimit="#{maxFileUploadSize}"
-                                  fileLimit="#{maxNumberOfFiles}" 
+                                  fileLimit="#{maxNumberOfFiles}"
                                   fileLimitAvailable="#{fileUploadsAvailable}"
                                   invalidSizeMessage="#{bundle['file.edit.error.file_exceeds_limit']}" 
                                   sequential="true"

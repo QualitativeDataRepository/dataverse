@@ -2116,12 +2116,13 @@
                       </script>
                       <p:dialog id="cslCitation" header="#{bundle['dataset.cite.cslDialog.title']}"
                           widgetVar="cslCitationDialog" dynamic="true" modal="true">
+                        <ui:param name="requestedCSL" value="#{DatasetPage.requestedCSL}"/>
                         <o:importFunctions type="edu.harvard.iq.dataverse.util.CSLUtil" />
                         <o:importFunctions type="de.undercouch.citeproc.CSL" />
                         <o:importFunctions
                             type="edu.harvard.iq.dataverse.pidproviders.PidUtil" />
                         <p:outputLabel for="@next" value="#{bundle['dataset.cite.cslDialog.select']}"/>
-                        <p:selectOneMenu value="#{DatasetPage.requestedCSL}"
+                        <p:selectOneMenu value="#{requestedCSL}"
                             onchange="updateCSLCitation()" id="select_CSL_Style"
                             styleClass="form-control"
                             style="width:auto !important; max-width:100%; min-width:200px;"
@@ -2129,15 +2130,15 @@
                             <f:selectItems value="#{CSLUtil:getSupportedStyles(dataverseSession.localeCode)}"
                                 var="cslStyle" itemLabel="#{cslStyle}" itemValue="#{cslStyle}" />
                         </p:selectOneMenu>
-                        <p:outputLabel id="cslLabel" for="@next" value="#{bundle['dataset.cite.cslDialog.citation'].replace('{0}',DatasetPage.requestedCSL)}"/>
+                        <p:outputLabel id="cslLabel" for="@next" value="#{bundle['dataset.cite.cslDialog.citation'].replace('{0}', requestedCSL)}"/>
                         <p:outputPanel id="cslOutput">
                             <script>
-                                Cite.CSL.register.addTemplate("#{DatasetPage.requestedCSL}",
-                                        "#{CSLUtil:getCitationFormat((DatasetPage.requestedCSL == '') ? 'apa' : DatasetPage.requestedCSL)}");
+                                Cite.CSL.register.addTemplate("#{requestedCSL}",
+                                        "#{CSLUtil:getCitationFormat((requestedCSL == '') ? 'apa' : requestedCSL)}");
                                 
                                 document.getElementById('datasetForm:cslOutput').innerHTML = cite.format("bibliography", {
                                     format: "html",
-                                    template: "#{DatasetPage.requestedCSL}",
+                                    template: "#{requestedCSL}",
                                     lang: "#{dataverseSession.localeCode}"
                                 })
                             </script>
