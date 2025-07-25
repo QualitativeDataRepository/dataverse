@@ -3756,8 +3756,8 @@ please find all known feature flags below. Any of these flags can be activated u
     * - enable-version-note
       - Turns on the ability to add/view/edit/delete per-dataset-version notes intended to provide :ref:`provenance` information about why the dataset/version was created.  
       - ``Off``
-    * - role-assignment-auditing
-      - Turns on auditing of role assignments - keeping a record of when roles were granted or revoked, at what times, and by whom.
+    * - role-assignment-history
+      - Turns on tracking/display of role assignments and revocations for collections, datasets, and files
       - ``Off``
     * - inform-superusers-of-changes
       - Alerts current superusers (via email) of any change to the set of superusers. This is intended as a security-related management feature.
