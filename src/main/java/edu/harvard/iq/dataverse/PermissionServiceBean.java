@@ -30,16 +30,21 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.PublishDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
+import edu.harvard.iq.dataverse.util.BitSet;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.workflow.PendingWorkflowInvocation;
 import edu.harvard.iq.dataverse.workflow.WorkflowServiceBean;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -424,6 +429,9 @@ public class PermissionServiceBean {
     private boolean hasGroupPermissionsFor(Set<RoleAssignee> ras, DvObject dvo, Set<Permission> required) {
         for (RoleAssignment asmnt : assignmentsFor(ras, dvo)) {
             required.removeAll(asmnt.getRole().permissions());
+            if(required.isEmpty()) {
+                break;
+            }
         }
         return required.isEmpty();
     }
@@ -963,5 +971,43 @@ public class PermissionServiceBean {
         }
         return null;
     }
+    
+    /**
+     * QDR: This methods is used to suppress the Curation Status Facet for normal QDR users (who do not have publish permission). This is a work-around for the underlying issue that a normal search
+     * creates the facet for objects a user can view, but, unless the show-curation-status-to-all JvmSetting is on, users can only see the curation status labels on the datasets if they can publish, hence
+     * the facet shows entries for the curation status labels that the user can't see. A full fix would involve making the facet reflect only the datasets a user can publish. In lieu of that, since QDR is
+     * managed and no regular users can publish anything, this method allows suppressing the curation status facet for such users. It isn't general in that if a user can publish any dataset, they will
+     * still see the facet, and counts for datasets they can't publish.
+     * 
+     * @param req
+     *            - contains the user to check.
+     * @return true if the user can publish something, false otherwise.
+     */
+    public boolean canPublishSomething(DataverseRequest req) {
+        User user = req.getUser();
+        if (user.isSuperuser()) {
+            return true;
+        } else if (!user.isAuthenticated()) {
+            return false;
+        }
+
+        Set<RoleAssignee> ras = new HashSet<>(groupService.groupsFor(req));
+        ras.add(user);
+
+        List<String> raIds = ras.stream().map(roas -> roas.getIdentifier()).collect(Collectors.toList());
+
+        List<RoleAssignment> roleAssignments = em.createNamedQuery("RoleAssignment.listByAssigneeIdentifier", RoleAssignment.class)
+                .setParameter("assigneeIdentifiers", raIds)
+                .getResultList();
+
+        for (RoleAssignment asmnt : roleAssignments) {
+            BitSet permissions = new BitSet(asmnt.getRole().getPermissionsBits());
+            if (permissions.isSet(Permission.PublishDataset.ordinal())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
+
 
