@@ -996,7 +996,7 @@ public class PermissionServiceBean {
 
         List<String> raIds = ras.stream().map(roas -> roas.getIdentifier()).collect(Collectors.toList());
 
-        List<RoleAssignment> roleAssignments = em.createNamedQuery("RoleAssignment.listByAssigneeIdentifier", RoleAssignment.class)
+        List<RoleAssignment> roleAssignments = em.createNamedQuery("RoleAssignment.listByAssigneeIdentifiers_NoDefPoint", RoleAssignment.class)
                 .setParameter("assigneeIdentifiers", raIds)
                 .getResultList();
 
