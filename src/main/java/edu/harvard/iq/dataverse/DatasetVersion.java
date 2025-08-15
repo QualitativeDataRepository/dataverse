@@ -216,6 +216,10 @@ public class DatasetVersion implements Serializable {
     @OneToMany(mappedBy = "datasetVersion", cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<WorkflowComment> workflowComments;
 
+    /*
+     * As of v6.7, the NULLS LAST part of the annotation below appears to not be working. Explicit sorting has been added in the getCurationStatuses() method. The annotation is kept since, if it does work
+     * in the future, it is presumably more efficient that sorting in our code.
+     */
     @OneToMany(mappedBy = "datasetVersion", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createTime DESC NULLS LAST")
     private List<CurationStatus> curationStatuses = new ArrayList<>();
@@ -1369,14 +1373,16 @@ public class DatasetVersion implements Serializable {
                                 relatedPublication.setText(subField.getDisplayValue());
                                 break;
                             case DatasetFieldConstant.publicationURL:
-                                /*
-                                 * We have to avoid using subField.getDisplayValue() here - because the
-                                 * DisplayFormatType for this url metadata field is likely set up so that the
-                                 * display value is automatically turned into a clickable HTML HREF block, which
-                                 * we don't want to end in our Schema.org JSON-LD output. So we want to use the
-                                 * raw value of the field instead, with minimal HTML sanitation, just in case
-                                 * (this would be done on all URLs in getDisplayValue()).
-                                 */
+                                // We have to avoid using subField.getDisplayValue() here - because the
+                                // DisplayFormatType
+                                // for this url metadata field is likely set up so that the display value is
+                                // automatically
+                                // turned into a clickable HTML HREF block, which we don't want to end in our
+                                // Schema.org
+                                // JSON-LD output. So we want to use the raw value of the field instead, with
+                                // minimal HTML
+                                // sanitation, just in case (this would be done on all URLs in
+                                // getDisplayValue()).
                                 String url = subField.getValue();
                                 if (StringUtils.isBlank(url) || DatasetField.NA_VALUE.equals(url)) {
                                     relatedPublication.setUrl("");
@@ -2158,6 +2164,11 @@ public class DatasetVersion implements Serializable {
     // Add methods to manage curationLabels
     public List<CurationStatus> getCurationStatuses() {
         // Sort the list to ensure null createTime values appear last
+        /*
+         * Note that the ORDER DESC NULLS LAST annotation on this list should sort this way,
+         * but, as of v6.7, the NULLS LAST aspect is not working.
+         * The code here assured both the DESC order and NULLS LAST.
+         */
         if (curationStatuses != null) {
             curationStatuses.sort(Comparator.comparing(
                 CurationStatus::getCreateTime,

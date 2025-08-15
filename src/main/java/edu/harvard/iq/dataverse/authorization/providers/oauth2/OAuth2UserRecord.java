@@ -2,6 +2,8 @@ package edu.harvard.iq.dataverse.authorization.providers.oauth2;
 
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
+
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,35 +12,70 @@ import java.util.List;
  * 
  * @author michael
  */
-public class OAuth2UserRecord implements java.io.Serializable {
+public class OAuth2UserRecord implements Serializable {
     
     private final String serviceId;
     
-    /** An immutable value, probably a number. Not a username that may change. */
+    /**
+     * An immutable value, probably a number. Not a username that may change.
+     */
     private final String idInService;
 
-    /** A potentially mutable String that is easier on the eye than a number. */
+    /**
+     * A potentially mutable String that is easier on the eye than a number.
+     */
     private final String username;
     
+    /**
+     * For users originally coming from a Shibboleth IdP
+     */
+    private final String shibUniquePersistentIdentifier;
+    private final String shibIdp;
+
     private final AuthenticatedUserDisplayInfo displayInfo;
     
     private final List<String> availableEmailAddresses;
-    
     private final OAuth2TokenData tokenData;
+    
+    /**
+     * Constructor for users without Shibboleth attributes.
+     */
+    public OAuth2UserRecord(
+            String serviceId,
+            String idInService,
+            String username,
+            OAuth2TokenData tokenData,
+            AuthenticatedUserDisplayInfo displayInfo,
+            List<String> availableEmailAddresses
+    ) {
+        this(serviceId, idInService, username, null, null, tokenData, displayInfo, availableEmailAddresses);
+    }
 
     private int termsConsentedToVersion;
 
     private boolean usesMFA;
     
-    public OAuth2UserRecord(String aServiceId, String anIdInService, String aUsername,
-                            OAuth2TokenData someTokenData,  AuthenticatedUserDisplayInfo aDisplayInfo,
-                            List<String> someAvailableEmailAddresses) {
-        serviceId = aServiceId;
-        idInService = anIdInService;
-        username = aUsername;
-        tokenData = someTokenData;
-        displayInfo = aDisplayInfo;
-        availableEmailAddresses = someAvailableEmailAddresses;
+    /**
+     * Full constructor for OAuth2 user records.
+     */
+    public OAuth2UserRecord(
+            String serviceId,
+            String idInService,
+            String username,
+            String shibUniquePersistentIdentifier,
+            String shibIdp,
+            OAuth2TokenData tokenData,
+            AuthenticatedUserDisplayInfo displayInfo,
+            List<String> availableEmailAddresses
+    ) {
+        this.serviceId = serviceId;
+        this.idInService = idInService;
+        this.username = username;
+        this.shibUniquePersistentIdentifier = shibUniquePersistentIdentifier;
+        this.shibIdp = shibIdp;
+        this.tokenData = tokenData;
+        this.displayInfo = displayInfo;
+        this.availableEmailAddresses = availableEmailAddresses;
     }
 
     public OAuth2UserRecord(String aServiceId, String anIdInService, String aUsername,
@@ -66,6 +103,14 @@ public class OAuth2UserRecord implements java.io.Serializable {
         return username;
     }
 
+    public String getShibUniquePersistentIdentifier() {
+        return shibUniquePersistentIdentifier;
+    }
+
+    public String getShibIdp() {
+        return shibIdp;
+    }
+
     public List<String> getAvailableEmailAddresses() {
         return availableEmailAddresses;
     }
@@ -78,13 +123,20 @@ public class OAuth2UserRecord implements java.io.Serializable {
         return tokenData;
     }
 
-    @Override
-    public String toString() {
-        return "OAuth2UserRecord{" + "serviceId=" + serviceId + ", idInService=" + idInService + '}';
-    }
-    
     public UserRecordIdentifier getUserRecordIdentifier() {
         return new UserRecordIdentifier(serviceId, idInService);
+    }
+
+    public boolean hasShibAttributes() {
+        return shibIdp != null && shibUniquePersistentIdentifier != null;
+    }
+
+    @Override
+    public String toString() {
+        return "OAuth2UserRecord{" +
+                "serviceId='" + serviceId + '\'' +
+                ", idInService='" + idInService + '\'' +
+                '}';
     }
 
     public int getTermsConsentedToVersion() {
