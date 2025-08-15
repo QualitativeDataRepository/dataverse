@@ -78,12 +78,21 @@ public class OAuth2UserRecord implements Serializable {
         this.availableEmailAddresses = availableEmailAddresses;
     }
 
-    public OAuth2UserRecord(String aServiceId, String anIdInService, String aUsername,
-            OAuth2TokenData someTokenData,  AuthenticatedUserDisplayInfo aDisplayInfo,
-            List<String> someAvailableEmailAddresses, boolean mfa, int theTermsConsentedToVersion) {
+    public OAuth2UserRecord(String aServiceId,
+            String anIdInService,
+            String aUsername,
+            String shibUniquePersistentIdentifier,
+            String shibIdp,
+            OAuth2TokenData someTokenData,
+            AuthenticatedUserDisplayInfo aDisplayInfo,
+            List<String> someAvailableEmailAddresses,
+            boolean mfa,
+            int theTermsConsentedToVersion) {
         serviceId = aServiceId;
         idInService = anIdInService;
         username = aUsername;
+        this.shibUniquePersistentIdentifier = shibUniquePersistentIdentifier;
+        this.shibIdp = shibIdp;
         tokenData = someTokenData;
         displayInfo = aDisplayInfo;
         availableEmailAddresses = someAvailableEmailAddresses;
