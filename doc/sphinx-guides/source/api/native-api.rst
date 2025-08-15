@@ -1400,6 +1400,117 @@ The fully expanded example above (without environment variables) looks like this
 
   curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -X GET "https://demo.dataverse.org/api/access/dataverseFeaturedItemImage/1"
 
+List Templates of a Collection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Lists the templates for a given Dataverse collection ``id``:
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export ID=1
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -X GET "$SERVER_URL/api/dataverses/{ID}/templates"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -X GET "https://demo.dataverse.org/api/dataverses/1/templates"
+
+Create a Template for a Collection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Creates a template for a given Dataverse collection ``id``.
+
+To create the template, you must send a JSON file. Your JSON file might look like :download:`dataverse-template.json <../_static/api/dataverse-template.json>` which you would send to the Dataverse installation like this:
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export ID=1
+
+  curl -H "X-Dataverse-key: $API_TOKEN" -X POST "$SERVER_URL/api/dataverses/{ID}/templates" --upload-file dataverse-template.json
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -X POST "https://demo.dataverse.org/api/dataverses/1/templates" --upload-file dataverse-template.json
+
+Dataverse Role Assignment History
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Get the history of role assignments for a collection. This API call returns a list of role assignments and revocations for the specified dataset.
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export ID=1
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -H "Accept: application/json" "$SERVER_URL/api/dataverses/$ID/assignments/history"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: application/json" "https://demo.dataverse.org/api/dataverses/3/assignments/history"
+
+You can also use the collection alias instead of the numeric id:
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export DV_ALIAS=dvAlias
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -H "Accept: application/json" "$SERVER_URL/api/dataverses/$DV_ALIAS/assignments/history"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: application/json" "https://demo.dataverse.org/api/datasets/dvAlias/assignments/history"
+
+The response is a JSON array of role assignment history entries with the following structure for each entry:
+
+.. code-block:: json
+
+  {
+    "definedOn": "1",
+    "assigneeIdentifier": "@user1",
+    "roleName": "Admin",
+    "assignedBy": "@dataverseAdmin",
+    "assignedAt": "2023-01-01T12:00:00Z",
+    "revokedBy": null,
+    "revokedAt": null
+  }
+
+For revoked assignments, the "revokedBy" and "revokedAt" fields will contain values instead of null.
+
+To retrieve the history in CSV format, change the Accept header to "text/csv":
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export ID=3
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -H "Accept: text/csv" "$SERVER_URL/api/dataverses/$ID/assignments/history"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: text/csv" "https://demo.dataverse.org/api/dataverses/3/assignments/history"
+
+The CSV response has column headers mirroring the json entries. They are internationalized (when internationalization is configured).
+
+Note: This feature requires the "role-assignment-history" feature flag to be enabled (see :ref:`feature-flags`).
+
 Datasets
 --------
 
@@ -2156,26 +2267,26 @@ For these edits your JSON file need only include those dataset fields which you 
 
 This endpoint also allows removing fields, as long as they are not required by the dataset. To remove a field, send an empty value (``""``) for individual fields. For multiple fields, send an empty array (``[]``). A sample JSON file for removing fields may be downloaded here: :download:`dataset-edit-metadata-delete-fields-sample.json <../_static/api/dataset-edit-metadata-delete-fields-sample.json>`
 
-If another user updates the dataset version metadata before you send the update request, data inconsistencies may occur. To prevent this, you can use the optional ``sourceInternalVersionNumber`` query parameter. This parameter must include the internal version number corresponding to the dataset version being updated. Note that internal version numbers increase sequentially with each version update.
+If another user updates the dataset version metadata before you send the update request, metadata inconsistencies may occur. To prevent this, you can use the optional ``sourceLastUpdateTime`` query parameter. This parameter must include the ``lastUpdateTime`` corresponding to the dataset version being updated. The date must be in the format ``yyyy-MM-dd'T'HH:mm:ss'Z'``.
 
-If this parameter is provided, the update will proceed only if the internal version number remains unchanged. Otherwise, the request will fail with an error.
+If this parameter is provided, the update will proceed only if the ``lastUpdateTime`` remains unchanged (meaning no one has updated the dataset metadata since you retrieved it). Otherwise, the request will fail with an error.
 
-Example using ``sourceInternalVersionNumber``:
+Example using ``sourceLastUpdateTime``:
 
 .. code-block:: bash
 
   export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
   export SERVER_URL=https://demo.dataverse.org
   export PERSISTENT_IDENTIFIER=doi:10.5072/FK2/BCCP9Z
-  export SOURCE_INTERNAL_VERSION_NUMBER=5
+  export SOURCE_LAST_UPDATE_TIME=2025-04-25T13:58:28Z
 
-  curl -H "X-Dataverse-key: $API_TOKEN" -X PUT "$SERVER_URL/api/datasets/:persistentId/editMetadata?persistentId=$PERSISTENT_IDENTIFIER&replace=true&sourceInternalVersionNumber=$SOURCE_INTERNAL_VERSION_NUMBER" --upload-file dataset-update-metadata.json
+  curl -H "X-Dataverse-key: $API_TOKEN" -X PUT "$SERVER_URL/api/datasets/:persistentId/editMetadata?persistentId=$PERSISTENT_IDENTIFIER&replace=true&sourceLastUpdateTime=SOURCE_LAST_UPDATE_TIME" --upload-file dataset-update-metadata.json
 
 The fully expanded example above (without environment variables) looks like this:
 
 .. code-block:: bash
 
-  curl -H "X-Dataverse-key: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -X PUT "https://demo.dataverse.org/api/datasets/:persistentId/editMetadata/?persistentId=doi:10.5072/FK2/BCCP9Z&replace=true&sourceInternalVersionNumber=5" --upload-file dataset-update-metadata.json
+  curl -H "X-Dataverse-key: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -X PUT "https://demo.dataverse.org/api/datasets/:persistentId/editMetadata/?persistentId=doi:10.5072/FK2/BCCP9Z&replace=true&sourceLastUpdateTime=2025-04-25T13:58:28Z" --upload-file dataset-update-metadata.json
 
 
 Delete Dataset Metadata
@@ -3549,6 +3660,21 @@ See :ref:`:CustomDatasetSummaryFields` in the Installation Guide for how the lis
 
   curl "$SERVER_URL/api/datasets/summaryFieldNames"
 
+.. _get-available-dataset-file-categories:
+
+Get Available Dataset File Categories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This api returns a list of Categories that may be applied to the files of a given dataset.
+
+.. code-block:: bash
+
+  export SERVER_URL=https://demo.dataverse.org
+  export PERSISTENT_IDENTIFIER=doi:10.5072/FK2/YD5QDG
+
+  curl "$SERVER_URL/api/datasets/:persistentId/availableFileCategories?persistentId=$PERSISTENT_IDENTIFIER"
+
+
 .. _guestbook-at-request-api:
   
 Configure When a Dataset Guestbook Appears (If Enabled)
@@ -3951,6 +4077,135 @@ Upon success, the API will return a JSON response with a success message and the
 The API call will report a 400 (BAD REQUEST) error if any of the files specified do not exist or are not in the latest version of the specified dataset.
 The ``fileIds`` in the JSON payload should be an array of file IDs that you want to delete from the dataset.
 
+.. _api-dataset-role-assignment-history:
+
+Dataset Role Assignment History
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Get the history of role assignments for a dataset. This API call returns a list of role assignments and revocations for the specified dataset.
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export ID=3
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -H "Accept: application/json" "$SERVER_URL/api/datasets/$ID/assignments/history"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: application/json" "https://demo.dataverse.org/api/datasets/3/assignments/history"
+
+You can also use the persistent identifier instead of the numeric id:
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export PERSISTENT_IDENTIFIER=doi:10.5072/FK2/ABCDEF
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -H "Accept: application/json" "$SERVER_URL/api/datasets/:persistentId/assignments/history?persistentId=$PERSISTENT_IDENTIFIER"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: application/json" "https://demo.dataverse.org/api/datasets/:persistentId/assignments/history?persistentId=doi:10.5072/FK2/ABCDEF"
+
+The response is a JSON array of role assignment history entries with the following structure for each entry:
+
+.. code-block:: json
+
+  {
+    "definedOn": "3",
+    "assigneeIdentifier": "@user1",
+    "roleName": "Admin",
+    "assignedBy": "@dataverseAdmin",
+    "assignedAt": "2023-01-01T12:00:00Z",
+    "revokedBy": null,
+    "revokedAt": null
+  }
+
+For revoked assignments, the "revokedBy" and "revokedAt" fields will contain values instead of null.
+
+To retrieve the history in CSV format, change the Accept header to "text/csv":
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export ID=3
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -H "Accept: text/csv" "$SERVER_URL/api/datasets/$ID/assignments/history"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: text/csv" "https://demo.dataverse.org/api/datasets/3/assignments/history"
+
+The CSV response has column headers mirroring the json entries. They are internationalized (when internationalization is configured).
+
+Note: This feature requires the "role-assignment-history" feature flag to be enabled (see :ref:`feature-flags`).
+
+Dataset Files Role Assignment History
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Get the history of role assignments for the files in a dataset. This API call returns a list of role assignments and revocations for all files in the specified dataset.
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export ID=3
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -H "Accept: application/json" "$SERVER_URL/api/datasets/$ID/files/assignments/history"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: application/json" "https://demo.dataverse.org/api/datasets/3/files/assignments/history"
+
+You can also use the persistent identifier instead of the numeric id:
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export PERSISTENT_IDENTIFIER=doi:10.5072/FK2/ABCDEF
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -H "Accept: application/json" "$SERVER_URL/api/datasets/:persistentId/files/assignments/history?persistentId=$PERSISTENT_IDENTIFIER"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: application/json" "https://demo.dataverse.org/api/datasets/:persistentId/files/assignments/history?persistentId=doi:10.5072/FK2/ABCDEF"
+
+The JSON response for this call is the same as for the /api/datasets/{id}/assignments/history call above with the exception that definedOn will be a comma separated list of one or more file ids.
+
+To retrieve the history in CSV format, change the Accept header to "text/csv":
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export ID=3
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -H "Accept: text/csv" "$SERVER_URL/api/datasets/files/$ID/assignments/history"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -H "Accept: text/csv" "https://demo.dataverse.org/api/datasets/3/files/assignments/history"
+
+The CSV response for this call is the same as for the /api/datasets/{id}/assignments/history call above with the exception that definedOn will be a comma separated list of one or more file ids.
+
+Note: This feature requires the "role-assignment-history" feature flag to be enabled (see :ref:`feature-flags`).
 
 Files
 -----
@@ -4730,6 +4985,8 @@ Updating File Metadata
 
 Updates the file metadata for an existing file where ``ID`` is the database id of the file to update or ``PERSISTENT_ID`` is the persistent id (DOI or Handle) of the file. Requires a ``jsonString`` expressing the new metadata. No metadata from the previous version of this file will be persisted, so if you want to update a specific field first get the json with the above command and alter the fields you want.
 
+An optional parameter, sourceLastUpdateTime=datetime (in format: ``yyyy-MM-dd'T'HH:mm:ss'Z'``), can be used to verify that the file metadata being edited has not been changed since you last retrieved it, thereby avoiding potential lost metadata updates. The value for sourceLastUpdateTime can be taken from ``lastUpdateTime`` in the response to get $SERVER_URL/api/files/$ID API call.
+
 A curl example using an ``ID``
 
 .. code-block:: bash
@@ -4750,17 +5007,18 @@ The fully expanded example above (without environment variables) looks like this
     -F 'jsonData={"description":"My description bbb.","provFreeform":"Test prov freeform","categories":["Data"],"dataFileTags":["Survey"],"restrict":false}' \
     "https://demo.dataverse.org/api/files/24/metadata"
 
-A curl example using a ``PERSISTENT_ID``
+A curl example using a ``PERSISTENT_ID`` and the sourceLastUpdateTime parameter:
 
 .. code-block:: bash
 
   export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
   export SERVER_URL=https://demo.dataverse.org
   export PERSISTENT_ID=doi:10.5072/FK2/AAA000
+  export UPDATE_TIME=2025-04-25T13:58:28Z
 
   curl -H "X-Dataverse-key:$API_TOKEN" -X POST \
     -F 'jsonData={"description":"My description bbb.","provFreeform":"Test prov freeform","categories":["Data"],"dataFileTags":["Survey"],"restrict":false}' \
-    "$SERVER_URL/api/files/:persistentId/metadata?persistentId=$PERSISTENT_ID"
+    "$SERVER_URL/api/files/:persistentId/metadata?persistentId=$PERSISTENT_ID&sourceLastUpdateTime=$UPDATE_TIME"
 
 The fully expanded example above (without environment variables) looks like this:
 
@@ -4768,7 +5026,7 @@ The fully expanded example above (without environment variables) looks like this
 
   curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -X POST \
     -F 'jsonData={"description":"My description bbb.","provFreeform":"Test prov freeform","categories":["Data"],"dataFileTags":["Survey"],"restrict":false}' \
-    "https://demo.dataverse.org/api/files/:persistentId/metadata?persistentId=doi:10.5072/FK2/AAA000"
+    "https://demo.dataverse.org/api/files/:persistentId/metadata?persistentId=doi:10.5072/FK2/AAA000&sourceLastUpdateTime=2025-04-25T13:58:28Z"
 
 Note: To update the 'tabularTags' property of file metadata, use the 'dataFileTags' key when making API requests. This property is used to update the 'tabularTags' of the file metadata.
 
@@ -5775,6 +6033,34 @@ The fully expanded example above (without environment variables) looks like this
 
   curl "https://demo.dataverse.org/api/info/exportFormats"
 
+Get Customization File Contents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Customization API is used to retrieve the analytics-code.html as well as other customization file contents.
+
+See also :ref:`web-analytics-code` in the Configuration section of the Installation Guide and :ref:`Branding Your Installation`
+
+The Content-Type returned in the header is based on the media type of the file being returned (example: analytics-code.html returns "text/html; charset=UTF-8"
+
+Valid types are "homePage", "header", "footer", "style", "analytics", and "logo".
+
+A curl example getting the analytics-code
+
+.. code-block:: bash
+
+  export SERVER_URL=https://demo.dataverse.org
+  export TYPE=analytics
+
+  curl -X GET "$SERVER_URL/api/info/settings/customization/$TYPE"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -X GET "https://demo.dataverse.org/api/info/settings/customization/analytics"
+
+.. _customization-analytics:
+
 .. _metadata-blocks-api:
 
 Metadata Blocks
@@ -5886,6 +6172,8 @@ Notifications
 
 See :ref:`account-notifications` in the User Guide for an overview. For a list of all the notification types mentioned below (e.g. ASSIGNROLE), see :ref:`mute-notifications` in the Admin Guide.
 
+.. _get-all-notifications:
+
 Get All Notifications by User
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -5894,6 +6182,52 @@ Each user can get a dump of their notifications by passing in their API token:
 .. code-block:: bash
 
   curl -H "X-Dataverse-key:$API_TOKEN" "$SERVER_URL/api/notifications/all"
+
+The expected OK (200) response looks something like this:
+
+.. code-block:: text
+
+  {
+      "status": "OK",
+      "data": {
+          "notifications": [
+              {
+                  "id": 38,
+                  "type": "CREATEACC",
+                  "displayAsRead": true,
+                  "subjectText": "Root: Your account has been created",
+                  "messageText": "Hello, \nWelcome to...",
+                  "sentTimestamp": "2025-07-21T19:15:37Z"
+              }
+  ...
+
+Get Unread Count
+~~~~~~~~~~~~~~~~
+
+You can get a count of your unread notifications as shown below.
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -X GET "$SERVER_URL/api/notifications/unreadCount"
+
+Mark Notification As Read
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After finding the ID of a notification using :ref:`get-all-notifications`, you can pass it to the "markAsRead" API endpoint as shown below. Note that this endpoint is idempotent; you can mark an already-read notification as read over and over.
+
+.. code-block:: bash
+
+  export API_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  export SERVER_URL=https://demo.dataverse.org
+  export NOTIFICATION_ID=555
+
+  curl -H "X-Dataverse-key:$API_TOKEN" -X PUT "$SERVER_URL/api/notifications/$NOTIFICATION_ID/markAsRead"
+
+The fully expanded example above (without environment variables) looks like this:
+
+.. code-block:: bash
+
+  curl -H "X-Dataverse-key:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -X PUT "https://demo.dataverse.org/api/notifications/555/markAsRead"
 
 Delete Notification by User
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -8,8 +8,7 @@
       xmlns:o="http://omnifaces.org/ui"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
-    <h:head>
-    </h:head>
+    
     <h:body>
         <f:metadata>
             <f:viewParam name="id" value="#{manageFilePermissionsPage.dataset.id}"/>
@@ -222,12 +221,20 @@
                     </div>
                     <!-- Role Assignment History Panel -->
                     <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
-                    <div class="panel panel-default" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_AUDITING.enabled()}">
+                    <div class="panel panel-default" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
                       <div data-toggle="collapse" data-target="#panelCollapseHistory" class="panel-heading text-info">
                         #{bundle['dataverse.permissions.history']} <span class="glyphicon glyphicon-chevron-down" /> <span class="text-muted small pull-right">#{bundle['dataverse.permissions.history.description']}</span>
                       </div>
                       <div id="panelCollapseHistory" class="collapse">
                         <div class="panel-body">
+                            <!-- Download button for file permissions history -->
+                            <div class="button-group margin-bottom text-right">
+                                <h:outputLink value="#{manageFilePermissionsPage.signedUrlForRAHistoryCsv}" 
+                                             styleClass="btn btn-default" 
+                                             onclick="downloadRAHistoryCSV(this.href, '#{manageFilePermissionsPage.permissionsHistoryFilename}'); return false;">
+                                    <span class="glyphicon glyphicon-download"></span> #{bundle['dataverse.permissions.history.download']}
+                                </h:outputLink>
+                            </div>
                             <p:dataTable id="roleAssignmentHistory" widgetVar="roleAssignmentHistory" var="historyEntry" value="#{manageFilePermissionsPage.roleAssignmentHistory}" sortMode="multiple" paginator="true"
                                 rows="10" paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                 rowsPerPageTemplate="5,10,15">
@@ -425,6 +432,7 @@
                         </div>
                     </p:dialog>
                 </h:form>
+                <script src="#{resource['js/rahistory_utils.js']}?version=#{settingsWrapper.appVersion}"></script>
             </ui:define>
         </ui:composition>
     </h:body>

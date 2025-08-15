@@ -10,6 +10,7 @@ import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.settings.FeatureFlags;
+import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -37,6 +38,8 @@ import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionRolledbackLocalException;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.json.Json;
+import jakarta.json.JsonArrayBuilder;
 import jakarta.persistence.NoResultException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +74,8 @@ public class SolrSearchServiceBean implements SearchService {
     @EJB
     DatasetVersionServiceBean datasetVersionService;
     @EJB
+    DataverseServiceBean dataverseService;
+    @EJB
     DatasetFieldServiceBean datasetFieldService;
     @EJB
     GroupServiceBean groupService;
@@ -85,17 +90,16 @@ public class SolrSearchServiceBean implements SearchService {
     @Inject
     ThumbnailServiceWrapper thumbnailServiceWrapper;
     
-    
+
     @Override
     public String getServiceName() {
         return SearchServiceFactory.INTERNAL_SOLR_SERVICE_NAME;
     }
-    
+
     @Override
     public String getDisplayName() {
         return "Dataverse Standard Search";
     }
-
     /**
      * @param dataverseRequest
      * @param dataverses
@@ -111,6 +115,7 @@ public class SolrSearchServiceBean implements SearchService {
      * @param geoRadius e.g. "5"
      * @param addFacets boolean
      * @param addHighlights boolean
+     * @param addCollections boolean
      * @return
      * @throws SearchException
      */
@@ -129,7 +134,8 @@ public class SolrSearchServiceBean implements SearchService {
             String geoPoint,
             String geoRadius,
             boolean addFacets,
-            boolean addHighlights
+            boolean addHighlights,
+            boolean addCollections
     ) throws SearchException {
 
         if (paginationStart < 0) {
@@ -200,7 +206,11 @@ public class SolrSearchServiceBean implements SearchService {
             */
             solrQuery.addFacetField(SearchFields.PUBLICATION_STATUS);
             solrQuery.addFacetField(SearchFields.DATASET_LICENSE);
-            solrQuery.addFacetField(SearchFields.CURATION_STATUS);
+            // QDR - don't show facet for normal users (who can't publish anything)
+            if(JvmSettings.UI_SHOW_CURATION_STATUS_TO_ALL.lookupOptional(Boolean.class).orElse(false) || permissionService.canPublishSomething(dataverseRequest)) {
+                solrQuery.addFacetField(SearchFields.CURATION_STATUS);
+            }
+
             /**
              * @todo when a new method on datasetFieldService is available
              * (retrieveFacetsByDataverse?) only show the facets that the
@@ -241,7 +251,7 @@ public class SolrSearchServiceBean implements SearchService {
         List<DatasetFieldType> datasetFields = datasetFieldService.findAllOrderedById();
         Map<String, String> solrFieldsToHightlightOnMap = new HashMap<>();
         if (addHighlights) {
-            
+            //QDR - need original highlights
             solrQuery.setHighlight(true).setParam("hl.method","original").setHighlightSnippets(1).setHighlightRequireFieldMatch(true);
             Integer fragSize = systemConfig.getSearchHighlightFragmentSize();
             if (fragSize != null) {
@@ -465,11 +475,13 @@ public class SolrSearchServiceBean implements SearchService {
             String dataverseAffiliation = (String) solrDocument.getFieldValue(SearchFields.DATAVERSE_AFFILIATION);
             String dataverseParentAlias = (String) solrDocument.getFieldValue(SearchFields.DATAVERSE_PARENT_ALIAS);
             String dataverseParentName = (String) solrDocument.getFieldValue(SearchFields.PARENT_NAME);
+            List<String> subtreePaths = (List) solrDocument.getFieldValues(SearchFields.SUBTREE);
             Long embargoEndDate = (Long) solrDocument.getFieldValue(SearchFields.EMBARGO_END_DATE);
             Long retentionEndDate = (Long) solrDocument.getFieldValue(SearchFields.RETENTION_END_DATE);
             //
             Boolean datasetValid = (Boolean) solrDocument.getFieldValue(SearchFields.DATASET_VALID);
             Long fileCount = (Long) solrDocument.getFieldValue(SearchFields.FILE_COUNT);
+            Long datasetCount = (Long) solrDocument.getFieldValue(SearchFields.DATASET_COUNT);
             
             List<String> matchedFields = new ArrayList<>();
             
@@ -544,6 +556,7 @@ public class SolrSearchServiceBean implements SearchService {
             solrSearchResult.setDvTree(dvTree);
             solrSearchResult.setDatasetValid(datasetValid);
             solrSearchResult.setFileCount(fileCount);
+            solrSearchResult.setDatasetCount(datasetCount);
 
             if (Boolean.TRUE.equals((Boolean) solrDocument.getFieldValue(SearchFields.IS_HARVESTED))) {
                 solrSearchResult.setHarvested(true);
@@ -598,6 +611,19 @@ public class SolrSearchServiceBean implements SearchService {
 
                 solrSearchResult.setIdentifierOfDataverse(identifierOfDataverse);
                 solrSearchResult.setNameOfDataverse(nameOfDataverse);
+
+                if (addCollections) {
+                    List<Dataverse> collections = new ArrayList<>();
+                    for (String subtreePath : subtreePaths) {
+                        String[] pathSegments = subtreePath.split("/");
+                        if (pathSegments.length == 0) {
+                            // Skip unexpected malformed subtree path
+                            continue;
+                        }
+                        collections.add(dataverseService.find(Long.valueOf(pathSegments[pathSegments.length - 1])));
+                    }
+                    solrSearchResult.setCollections(collections);
+                }
 
                 if (title != null) {
 //                    solrSearchResult.setTitle((String) titles.get(0));

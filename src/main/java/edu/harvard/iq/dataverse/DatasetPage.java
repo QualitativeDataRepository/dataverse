@@ -332,7 +332,6 @@ public class DatasetPage implements java.io.Serializable {
     private List<SelectItem> linkingDVSelectItems;
     private Dataverse linkingDataverse;
     private Dataverse selectedHostDataverse;
-    private boolean hasDataversesToChoose;
 
     public Dataverse getSelectedHostDataverse() {
         return selectedHostDataverse;
@@ -1700,11 +1699,6 @@ public class DatasetPage implements java.io.Serializable {
 
     public void setDataverseTemplates(List<Template> dataverseTemplates) {
         this.dataverseTemplates = dataverseTemplates;
-    }
-
-    public boolean isHasDataversesToChoose() {
-        this.hasDataversesToChoose = dataverseService.findAll().size() > 1;
-        return this.hasDataversesToChoose;
     }
 
     public Template getDefaultTemplate() {

@@ -1033,11 +1033,19 @@ public class BagGenerator {
                             }
                             logger.warning("Attempt: " + tries + " - Unexpected Status when retrieving " + uriString
                                     + " : " + statusCode);
-                            if (statusCode < 500) {
+                            if (statusCode !=429 | statusCode < 500) {
                                 logger.fine("Will not retry for 40x errors");
                                 tries += 5;
                             } else {
                                 tries++;
+                                try {
+                                    // Sleep for 1 second before retrying
+                                    Thread.sleep(1000);
+                                    logger.fine("Sleeping for 1 second before retry attempt " + tries);
+                                } catch (InterruptedException ie) {
+                                    logger.warning("Sleep interrupted during retry delay");
+                                    tries += 5;
+                                }
                             }
                             // Error handling
                             if (response != null) {

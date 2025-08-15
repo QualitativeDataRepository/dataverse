@@ -61,6 +61,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.jsonDT;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -413,8 +414,7 @@ public class Files extends AbstractApiBean {
     @AuthRequired
     @Path("{id}/metadata")
     public Response updateFileMetadata(@Context ContainerRequestContext crc, @FormDataParam("jsonData") String jsonData,
-                    @PathParam("id") String fileIdOrPersistentId
-        ) throws DataFileTagException, CommandException {
+                    @PathParam("id") String fileIdOrPersistentId, @QueryParam("sourceLastUpdateTime") String sourceLastUpdateTime) {
         
         FileMetadata upFmd = null;
         
@@ -432,6 +432,13 @@ public class Files extends AbstractApiBean {
                 return error(BAD_REQUEST, "Error attempting get the requested data file.");
             }
 
+            if (sourceLastUpdateTime != null) {
+                try {
+                    validateInternalTimestampIsNotOutdated(df, sourceLastUpdateTime);
+                } catch (WrappedResponse wr) {
+                    return wr.getResponse();
+                }
+            }
 
             //You shouldn't be trying to edit a datafile that has been replaced
             List<Long> result = em.createNamedQuery("DataFile.findDataFileThatReplacedId", Long.class)
@@ -522,7 +529,7 @@ public class Files extends AbstractApiBean {
                 return error(Response.Status.INTERNAL_SERVER_ERROR, "Error adding metadata to DataFile: " + e);
             }
 
-        } catch (WrappedResponse wr) {
+        } catch (CommandException | WrappedResponse ex) {
             return error(BAD_REQUEST, "An error has occurred attempting to update the requested DataFile, likely related to permissions.");
         }
 

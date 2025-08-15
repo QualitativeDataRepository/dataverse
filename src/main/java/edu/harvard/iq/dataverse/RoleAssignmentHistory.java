@@ -20,29 +20,29 @@ import java.util.Date;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 
 @Entity
-@Table(name = "role_assignment_audit", indexes = {
-    @Index(name = "idx_raa_role_assignment_id", columnList = "role_assignment_id"),
-    @Index(name = "idx_raa_action_type", columnList = "action_type"),
-    @Index(name = "idx_raa_action_timestamp", columnList = "action_timestamp"),
-    @Index(name = "idx_raa_action_by_identifier", columnList = "action_by_identifier"),
-    @Index(name = "idx_raa_assignee_identifier", columnList = "assignee_identifier"),
-    @Index(name = "idx_raa_role_id", columnList = "role_id"),
-    @Index(name = "idx_raa_definition_point_id", columnList = "definition_point_id")
-})
+@Table(name = "roleassignmenthistory", indexes = {
+        @Index(columnList = "role_assignment_id"),
+        @Index(columnList = "action_type"),
+        @Index(columnList = "action_timestamp"),
+        @Index(columnList = "action_by_identifier"),
+        @Index(columnList = "assignee_identifier"),
+        @Index(columnList = "role_id"),
+        @Index(columnList = "definition_point_id")
+    })
 @NamedQueries({
-    @NamedQuery(name = "RoleAssignmentAudit.findByDefinitionPointId",
-        query = "SELECT ra FROM RoleAssignmentAudit ra WHERE ra.definitionPointId = :definitionPointId ORDER BY ra.roleAssignmentId, ra.actionTimestamp DESC"),
-    @NamedQuery(name = "RoleAssignmentAudit.findByOwnerId",
-    query = "SELECT ra FROM RoleAssignmentAudit ra JOIN DvObject d ON ra.definitionPointId = d.id " +
+    @NamedQuery(name = "RoleAssignmentHistory.findByDefinitionPointId",
+        query = "SELECT ra FROM RoleAssignmentHistory ra WHERE ra.definitionPointId = :definitionPointId ORDER BY ra.roleAssignmentId, ra.actionTimestamp DESC"),
+    @NamedQuery(name = "RoleAssignmentHistory.findByOwnerId",
+    query = "SELECT ra FROM RoleAssignmentHistory ra JOIN DvObject d ON ra.definitionPointId = d.id " +
             "WHERE d.owner.id = :datasetId " +
             "ORDER BY ra.roleAssignmentId, ra.actionTimestamp DESC")
 })
-public class RoleAssignmentAudit implements Serializable {
+public class RoleAssignmentHistory implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "audit_id")
-    private Long auditId;
+    @Column(name = "entry_id")
+    private Long entry_id;
 
     @Column(name = "role_assignment_id")
     private Long roleAssignmentId;
@@ -78,10 +78,10 @@ public class RoleAssignmentAudit implements Serializable {
     }
 
     // Constructors
-    public RoleAssignmentAudit() {
+    public RoleAssignmentHistory() {
     }
 
-    public RoleAssignmentAudit(RoleAssignment roleAssignment, DataverseRequest request, ActionType actionType) {
+    public RoleAssignmentHistory(RoleAssignment roleAssignment, DataverseRequest request, ActionType actionType) {
         this.roleAssignmentId = roleAssignment.getId();
         this.actionType = actionType;
         this.actionTimestamp = new Date();
@@ -99,12 +99,12 @@ public class RoleAssignmentAudit implements Serializable {
     }
 
     // Getters and setters
-    public Long getAuditId() {
-        return auditId;
+    public Long getEntryId() {
+        return entry_id;
     }
 
-    public void setAuditId(Long auditId) {
-        this.auditId = auditId;
+    public void setEntryId(Long entryId) {
+        this.entry_id = entryId;
     }
 
     public Long getRoleAssignmentId() {
