@@ -181,21 +181,21 @@ public class MakeDataCountApi extends AbstractApiBean {
                         lastExecutionTime.set(System.currentTimeMillis());
 
                         if (success) {
-                            logger.fine("Successfully processed citation update for dataset " + id);
+                            logger.fine("Successfully processed citation update for dataset " + pid.asString());
                         } else {
-                            logger.warning("Failed to process citation update for dataset " + id);
+                            logger.warning("Failed to process citation update for dataset " + pid.asString());
                         }
                     } catch (Exception e) {
-                        logger.log(Level.SEVERE, "Error processing citation update for dataset " + id, e);
+                        logger.log(Level.SEVERE, "Error processing citation update for dataset " + pid.asString(), e);
                     }
                 });
 
                 JsonObjectBuilder output = Json.createObjectBuilder();
                 output.add("status", "queued");
-                output.add("message", "Citation update for dataset " + id + " has been queued for processing");
+                output.add("message", "Citation update for dataset " + pid.asString() + " has been queued for processing");
                 return ok(output);
             } catch (RejectedExecutionException ree) {
-                logger.warning("Citation update for dataset " + id + " was rejected: Queue is full");
+                logger.warning("Citation update for dataset " + pid.asString() + " was rejected: Queue is full");
                 return error(Status.SERVICE_UNAVAILABLE,
                         "Citation update service is currently at capacity. Please try again later.");
             }
