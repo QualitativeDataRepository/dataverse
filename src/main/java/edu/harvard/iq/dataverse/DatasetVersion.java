@@ -2147,7 +2147,7 @@ public class DatasetVersion implements Serializable {
             }
             job.add("distribution", fileArray);
         }
-        jsonLd = job.build().toString();
+        jsonLd = JsonUtil.prettyPrint(job.build());
 
         //Most fields above should be stripped/sanitized but, since this is output in the dataset page as header metadata, do a final sanitize step to make sure
         jsonLd = MarkupChecker.stripAllTags(jsonLd);
