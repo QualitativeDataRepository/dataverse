@@ -1,10 +1,8 @@
 package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.UserNotification;
-import edu.harvard.iq.dataverse.UserNotification.Type;
 import edu.harvard.iq.dataverse.api.auth.AuthRequired;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.workflows.WorkflowUtil;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +17,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
