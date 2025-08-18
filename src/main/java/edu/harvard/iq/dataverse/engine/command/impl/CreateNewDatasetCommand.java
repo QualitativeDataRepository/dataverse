@@ -122,7 +122,7 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
      * that a new dataset exists. 
      * NB: These need the dataset id so have to be postDBFlush (vs postPersist())
      */
-    protected void postDBFlush( Dataset theDataset, CommandContext ctxt ){
+    protected void postDBFlush(Dataset theDataset, CommandContext ctxt) {
         // set the role to be default contributor role for its dataverse
         String privateUrlToken = null;
         if (theDataset.getOwner().getDefaultContributorRole() != null) {
@@ -131,13 +131,13 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
                     getRequest().getUser(), theDataset, privateUrlToken);
             ctxt.roles().save(roleAssignment, false, getRequest());
 
-            // TODO: the above may be creating the role assignments and saving them 
+            // TODO: the above may be creating the role assignments and saving them
             // in the database, but without properly linking them to the dataset
-            // (saveDataset, that the command returns). This may have been the reason 
+            // (saveDataset, that the command returns). This may have been the reason
             // for the github issue #4783 - where the users were losing their contributor
-            // permissions, when creating datasets AND uploading files in one step. 
+            // permissions, when creating datasets AND uploading files in one step.
             // In that scenario, an additional UpdateDatasetCommand is executed on the
-            // dataset returned by the Create command. That issue was fixed by adding 
+            // dataset returned by the Create command. That issue was fixed by adding
             // a full refresh of the dataset with datasetService.find() between the
             // two commands. But it may be a good idea to make sure they are properly
             // linked here (?)
@@ -146,28 +146,24 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
         /**
          * Sends notifications to those able to publish the dataset upon the successful creation of a new dataset.
          * <p>
-         * This method checks if dataset creation notifications are enabled. If so, it
-         * notifies all users with {@code Permission.PublishDataset} on the new dataset.
-         * The user who initiated the action can be included or excluded from this
-         * notification based on the allowSelfNotification flag.
+         * This method checks if dataset creation notifications are enabled. If so, it notifies all users with {@code Permission.PublishDataset} on the new dataset. The user who initiated the action can be
+         * included or excluded from this notification based on the allowSelfNotification flag.
          */
-        if(ctxt.settings().isTrueForKey(SettingsServiceBean.Key.SendNotificationOnDatasetCreation, false)) {
-        //QDR - alert curators that a dataset has been created
-        //Should this create a notification too? (which would let us use the notification mailcapbilities to generate the subject/body.
-        AuthenticatedUser requestor = getUser().isAuthenticated() ? (AuthenticatedUser) getUser() : null;
-        ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, theDataset)
-                .stream()
-                .filter(recipient -> allowSelfNotification || !recipient.equals(requestor))
-                .forEach(recipient -> ctxt.notifications().sendNotification(
-                        recipient,
-                        Timestamp.from(Instant.now()),
-                        UserNotification.Type.DATASETCREATED,
-                        theDataset.getId(),
-                        null,
-                        requestor,
-                        true
-                ));
-            }
+        if (ctxt.settings().isTrueForKey(SettingsServiceBean.Key.SendNotificationOnDatasetCreation, false)) {
+            // QDR - alert curators that a dataset has been created
+            // Should this create a notification too? (which would let us use the notification mailcapbilities to generate the subject/body.
+            AuthenticatedUser requestor = getUser().isAuthenticated() ? (AuthenticatedUser) getUser() : null;
+            ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, theDataset)
+                    .stream()
+                    .filter(recipient -> allowSelfNotification || !recipient.equals(requestor))
+                    .forEach(recipient -> ctxt.notifications().sendNotification(
+                            recipient,
+                            Timestamp.from(Instant.now()),
+                            UserNotification.Type.DATASETCREATED,
+                            theDataset.getId(),
+                            null,
+                            requestor,
+                            true));
         }
     }
     
