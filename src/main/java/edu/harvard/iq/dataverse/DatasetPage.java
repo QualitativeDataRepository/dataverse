@@ -1782,24 +1782,26 @@ public class DatasetPage implements java.io.Serializable {
             Iterate through List of DataverseFieldTypeInputLevel objects
             Call "setInclude" on its related DatasetField object
          --------------------------------------------------------- */
-        for (DataverseFieldTypeInputLevel oneDSFieldTypeInputLevel : dsFieldTypeInputLevels){
+        // check if not null (avoid NPE)
+        if (dsFieldTypeInputLevels != null) {
+            for (DataverseFieldTypeInputLevel oneDSFieldTypeInputLevel : dsFieldTypeInputLevels) {
 
-            if (oneDSFieldTypeInputLevel != null) {
-                // Is the DatasetField in the hash?    hash format: {  DatasetFieldType.id : DatasetField }
-                DatasetField dsf = mapDatasetFields.get(oneDSFieldTypeInputLevel.getDatasetFieldType().getId());
-                if (dsf != null){
-                    // Yes, call "setInclude"
-                    dsf.setInclude(oneDSFieldTypeInputLevel.isInclude());
-                    Boolean displayOnCreate = oneDSFieldTypeInputLevel.getDisplayOnCreate();
-                    if (displayOnCreate!= null) {
-                        dsf.getDatasetFieldType().setLocalDisplayOnCreate(displayOnCreate);
+                if (oneDSFieldTypeInputLevel != null) {
+                    // Is the DatasetField in the hash? hash format: { DatasetFieldType.id : DatasetField }
+                    DatasetField dsf = mapDatasetFields.get(oneDSFieldTypeInputLevel.getDatasetFieldType().getId());
+                    if (dsf != null) {
+                        // Yes, call "setInclude"
+                        dsf.setInclude(oneDSFieldTypeInputLevel.isInclude());
+                        Boolean displayOnCreate = oneDSFieldTypeInputLevel.getDisplayOnCreate();
+                        if (displayOnCreate != null) {
+                            dsf.getDatasetFieldType().setLocalDisplayOnCreate(displayOnCreate);
+                        }
+                        // remove from hash
+                        mapDatasetFields.remove(oneDSFieldTypeInputLevel.getDatasetFieldType().getId());
                     }
-                    // remove from hash
-                    mapDatasetFields.remove(oneDSFieldTypeInputLevel.getDatasetFieldType().getId());
                 }
-            }
-        }  // end: updateDatasetFieldInputLevels
-
+            } // end: updateDatasetFieldInputLevels
+        }
         /* ---------------------------------------------------------
             Iterate through any DatasetField objects remaining in the hash
             Call "setInclude(true) on each one
