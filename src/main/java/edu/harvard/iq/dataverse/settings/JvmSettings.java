@@ -275,7 +275,6 @@ public enum JvmSettings {
     BAGIT_SOURCE_ORG_NAME(SCOPE_BAGIT_SOURCEORG, "name"),
     BAGIT_SOURCEORG_ADDRESS(SCOPE_BAGIT_SOURCEORG, "address"),
     BAGIT_SOURCEORG_EMAIL(SCOPE_BAGIT_SOURCEORG, "email"),
-
     // STORAGE USE SETTINGS
     SCOPE_STORAGEUSE(PREFIX, "storageuse"),
     STORAGEUSE_DISABLE_UPDATES(SCOPE_STORAGEUSE, "disable-storageuse-increments"),
@@ -296,6 +295,12 @@ public enum JvmSettings {
     SCOPE_LOCALCONTEXTS(PREFIX, "localcontexts"),
     LOCALCONTEXTS_URL(SCOPE_LOCALCONTEXTS, "url"),
     LOCALCONTEXTS_API_KEY(SCOPE_LOCALCONTEXTS, "api-key"),
+    
+    //EXPORTS
+    SCOPE_EXPORTS(PREFIX, "exports"),
+    SCOPE_EXPORTS_SCHEMA_DOT_ORG(SCOPE_EXPORTS, "schema-dot-org"),
+    EXPORTS_SCHEMA_DOT_ORG_MAX_FILES_FOR_DOWNLOAD_ENTRIES(SCOPE_EXPORTS_SCHEMA_DOT_ORG, "max-files-for-download-entries"),
+    
     ;
 
     private static final String SCOPE_SEPARATOR = ".";
