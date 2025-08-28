@@ -1502,7 +1502,7 @@ public class IndexServiceBean {
                     start = startDate;
                 }
                 boolean indexThisFile = false;
-
+logger.info(datafile.getId() + " in changed fmds: " + (changedFileMetadataIds.contains(fileMetadata.getId())));
                 if (indexThisMetadata && (isReleasedVersion || changedFileMetadataIds.contains(fileMetadata.getId()))) {
                     indexThisFile = true;
                 } else if (indexThisMetadata) {
@@ -1513,6 +1513,8 @@ public class IndexServiceBean {
                             indexThisFile = true;
                             logger.info("This file metadata hasn't changed since the released version; skipping indexing.");
                         }
+                    } else {
+                        indexThisFile = true;
                     }
                 }
                 if (indexThisFile) {
