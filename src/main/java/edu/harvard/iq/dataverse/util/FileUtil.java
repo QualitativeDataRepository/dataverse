@@ -603,7 +603,7 @@ public class FileUtil implements java.io.Serializable  {
         return lookupFileTypeByExtension(fileName);
     }
 
-    private static String lookupFileTypeByExtension(final String fileName) {
+    public static String lookupFileTypeByExtension(final String fileName) {
         final String mimetypesFileTypeMapResult = MIME_TYPE_MAP.getContentType(fileName);
         logger.fine("MimetypesFileTypeMap type by extension, for " + fileName + ": " + mimetypesFileTypeMapResult);
         if (mimetypesFileTypeMapResult == null) {
