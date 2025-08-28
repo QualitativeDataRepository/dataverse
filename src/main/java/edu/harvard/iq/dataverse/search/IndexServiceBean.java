@@ -1488,6 +1488,8 @@ public class IndexServiceBean {
             if(!changedFileMetadataIds.isEmpty()) {
             logger.info("fmd id in cfmd: " + changedFileMetadataIds.get(0));
             }
+
+            
             fileMetadatas.stream().forEach(fileMetadata -> {
                 DataFile datafile = fileMetadata.getDataFile();
                 Embargo emb = datafile.getEmbargo();
@@ -1506,6 +1508,12 @@ public class IndexServiceBean {
                 }
                 boolean indexThisFile = false;
 logger.info(datafile.getId() + " in changed fmds: " + (changedFileMetadataIds.contains(fileMetadata.getId())));
+logger.info("Checking ID: " + fileMetadata.getId());
+logger.info("List contains: " + changedFileMetadataIds); 
+logger.info("ID class: " + fileMetadata.getId().getClass().getName());
+if (!changedFileMetadataIds.isEmpty()) {
+    logger.info("List element class: " + changedFileMetadataIds.get(0).getClass().getName());
+}
                 if (indexThisMetadata && (isReleasedVersion || changedFileMetadataIds.contains(fileMetadata.getId()))) {
                     indexThisFile = true;
                 } else if (indexThisMetadata) {
