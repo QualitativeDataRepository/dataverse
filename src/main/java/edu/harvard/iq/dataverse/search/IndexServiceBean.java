@@ -1484,6 +1484,7 @@ public class IndexServiceBean {
             boolean isHarvested = dataset.isHarvested();
             long startTime = System.currentTimeMillis();
             LocalDate now = LocalDate.now();
+            logger.info("Changed files: " + changedFileMetadataIds.size());
             fileMetadatas.stream().forEach(fileMetadata -> {
                 DataFile datafile = fileMetadata.getDataFile();
                 Embargo emb = datafile.getEmbargo();
@@ -1505,19 +1506,20 @@ public class IndexServiceBean {
                 if (indexThisMetadata && (isReleasedVersion || changedFileMetadataIds.contains(fileMetadata.getId()))) {
                     indexThisFile = true;
                 } else if (indexThisMetadata) {
-                    logger.finest("Checking if this file metadata is a duplicate.");
+                    logger.info("Checking if this file metadata is a duplicate.");
                     FileMetadata getFromMap = fileMap.get(datafile.getId());
                     if (getFromMap != null) {
                         if (!VariableMetadataUtil.compareVariableMetadata(getFromMap, fileMetadata)) {
                             indexThisFile = true;
-                            logger.finest("This file metadata hasn't changed since the released version; skipping indexing.");
+                            logger.info("This file metadata hasn't changed since the released version; skipping indexing.");
                         }
                     }
                 }
                 if (indexThisFile) {
-
                     SolrInputDocument datafileSolrInputDocument = new SolrInputDocument();
                     Long fileEntityId = datafile.getId();
+logger.info("Indexing file " + fileEntityId);
+
                     datafileSolrInputDocument.addField(SearchFields.ENTITY_ID, fileEntityId);
                     datafileSolrInputDocument.addField(SearchFields.DATAVERSE_VERSION_INDEXED_BY, dataverseVersion);
                     datafileSolrInputDocument.addField(SearchFields.IDENTIFIER, fileEntityId);
