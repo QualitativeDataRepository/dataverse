@@ -1485,7 +1485,9 @@ public class IndexServiceBean {
             long startTime = System.currentTimeMillis();
             LocalDate now = LocalDate.now();
             logger.info("Changed files: " + changedFileMetadataIds.size());
-            logger.info("fmd id in cfmd: " + changedFileMetadataIds.getFirst());
+            if(!changedFileMetadataIds.isEmpty()) {
+            logger.info("fmd id in cfmd: " + changedFileMetadataIds.get(0));
+            }
             fileMetadatas.stream().forEach(fileMetadata -> {
                 DataFile datafile = fileMetadata.getDataFile();
                 Embargo emb = datafile.getEmbargo();
