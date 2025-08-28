@@ -60,12 +60,19 @@ public class CustomizationFilesServlet extends HttpServlet {
         try {
             File fileIn = physicalPath.toFile();
             if (fileIn != null) {
+                // Time the MIME type detection
+                long startTime = System.currentTimeMillis();
                 Tika tika = new Tika();
                 try {
                     String mimeType = tika.detect(fileIn);
                     response.setContentType(mimeType);
+                    long endTime = System.currentTimeMillis();
+                    long duration = endTime - startTime;
+                    logger.info("MIME Type detection for " + filePath + " took " + duration + "ms. Detected type: " + mimeType);
                 } catch (Exception e) {
-                    logger.info("Error getting MIME Type for " + filePath + " : " + e.getMessage());
+                    long endTime = System.currentTimeMillis();
+                    long duration = endTime - startTime;
+                    logger.info("Error getting MIME Type for " + filePath + " after " + duration + "ms : " + e.getMessage());
                 }
                 inputStream = new FileInputStream(fileIn);
 
