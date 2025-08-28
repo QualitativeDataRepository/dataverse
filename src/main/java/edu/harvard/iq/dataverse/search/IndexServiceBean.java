@@ -1435,6 +1435,7 @@ public class IndexServiceBean {
                 List<Object> queryResults = query.getResultList();
                 for (Object result : queryResults) {
                     if (result != null) {
+                        logger.info("Result is " + result.getClass().getName());
                         // Ensure we're adding Long objects to the list
                         if (result instanceof Long) {
                             changedFileMetadataIds.add((Long) result);
@@ -1541,8 +1542,6 @@ if (!changedFileMetadataIds.isEmpty()) {
                             indexThisFile = true;
                             logger.info("This file metadata hasn't changed since the released version; skipping indexing.");
                         }
-                    } else {
-                        indexThisFile = true;
                     }
                 }
                 if (indexThisFile) {
