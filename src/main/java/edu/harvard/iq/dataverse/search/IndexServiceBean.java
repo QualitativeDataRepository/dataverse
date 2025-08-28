@@ -1431,7 +1431,24 @@ public class IndexServiceBean {
                 query.setParameter(1, dataset.getReleasedVersion().getId());
                 query.setParameter(2, datasetVersion.getId());
 
-                changedFileMetadataIds.addAll(query.getResultList());
+                //changedFileMetadataIds.addAll(query.getResultList());
+                List<Object> queryResults = query.getResultList();
+                for (Object result : queryResults) {
+                    if (result != null) {
+                        // Ensure we're adding Long objects to the list
+                        if (result instanceof Long) {
+                            changedFileMetadataIds.add((Long) result);
+                        } else {
+                            // If it's not a Long, convert it to one
+                            try {
+                                changedFileMetadataIds.add(Long.valueOf(result.toString()));
+                                logger.info("Converted non-Long result to Long: " + result + " of type " + result.getClass().getName());
+                            } catch (NumberFormatException e) {
+                                logger.warning("Could not convert query result to Long: " + result);
+                            }
+                        }
+                    }
+                }
                 logger.fine(
                         "We are indexing a draft version of a dataset that has a released version. We'll be checking file metadatas if they are exact clones of the released versions.");
             } else if (datasetVersion.isDraft()) {
