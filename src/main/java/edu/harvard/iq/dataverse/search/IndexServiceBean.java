@@ -1437,18 +1437,19 @@ public class IndexServiceBean {
                 List<Object> queryResults = query.getResultList();
                 for (Object result : queryResults) {
                     if (result != null) {
-                        logger.info("Result is " + result.getClass().getName());
                         // Ensure we're adding Long objects to the list
                         if (result instanceof Integer intResult) {
+                            logger.finest("Converted Integer result to Long: " + result);
                             changedFileMetadataIds.add(Long.valueOf(intResult));
                         } else if (result instanceof Long longResult) {
                             // Already a Long, add directly
+                            logger.finest("Added existing Long to list: " + result);
                             changedFileMetadataIds.add(longResult);
                         } else {
                             // If it's not a Long, convert it to one via String
                             try {
                                 changedFileMetadataIds.add(Long.valueOf(result.toString()));
-                                logger.info("Converted non-Long result to Long: " + result + " of type " + result.getClass().getName());
+                                logger.finest("Converted non-Long result to Long: " + result + " of type " + result.getClass().getName());
                             } catch (NumberFormatException e) {
                                 logger.warning("Could not convert query result to Long: " + result);
                             }
@@ -1507,11 +1508,6 @@ public class IndexServiceBean {
             boolean isHarvested = dataset.isHarvested();
             long startTime = System.currentTimeMillis();
             LocalDate now = LocalDate.now();
-            logger.info("Changed files: " + changedFileMetadataIds.size());
-            if(!changedFileMetadataIds.isEmpty()) {
-            logger.info("fmd id in cfmd: " + changedFileMetadataIds.get(0));
-            }
-
             
             fileMetadatas.stream().forEach(fileMetadata -> {
                 DataFile datafile = fileMetadata.getDataFile();
@@ -1530,17 +1526,10 @@ public class IndexServiceBean {
                     start = startDate;
                 }
                 boolean indexThisFile = false;
-logger.info(datafile.getId() + " in changed fmds: " + (changedFileMetadataIds.contains(fileMetadata.getId())));
-logger.info("Checking ID: " + fileMetadata.getId());
-logger.info("List contains: " + changedFileMetadataIds); 
-logger.info("ID class: " + fileMetadata.getId().getClass().getName());
-if (!changedFileMetadataIds.isEmpty()) {
-    logger.info("List element class: " + changedFileMetadataIds.get(0).getClass().getName());
-}
                 if (indexThisMetadata && (isReleasedVersion || changedFileMetadataIds.contains(fileMetadata.getId()))) {
                     indexThisFile = true;
                 } else if (indexThisMetadata) {
-                    logger.info("Checking if this file metadata is a duplicate.");
+                    logger.fine("Checking if this file metadata is a duplicate.");
                     FileMetadata getFromMap = fileMap.get(datafile.getId());
                     if (getFromMap != null) {
                         if (!VariableMetadataUtil.compareVariableMetadata(getFromMap, fileMetadata)) {
@@ -1552,7 +1541,7 @@ if (!changedFileMetadataIds.isEmpty()) {
                 if (indexThisFile) {
                     SolrInputDocument datafileSolrInputDocument = new SolrInputDocument();
                     Long fileEntityId = datafile.getId();
-logger.info("Indexing file " + fileEntityId);
+                    logger.finest("Indexing file " + fileEntityId);
 
                     datafileSolrInputDocument.addField(SearchFields.ENTITY_ID, fileEntityId);
                     datafileSolrInputDocument.addField(SearchFields.DATAVERSE_VERSION_INDEXED_BY, dataverseVersion);
