@@ -96,7 +96,7 @@ import jakarta.validation.constraints.Pattern;
     )
 @SqlResultSetMapping(
         name = "IdToLongMapping",
-        columns = @ColumnResult(name = "id", type = Long.class)
+        columns = @ColumnResult(name = "id", type = Integer.class)
     )
 @Entity
 public class FileMetadata implements Serializable {

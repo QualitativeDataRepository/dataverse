@@ -1431,16 +1431,21 @@ public class IndexServiceBean {
                 query.setParameter(1, dataset.getReleasedVersion().getId());
                 query.setParameter(2, datasetVersion.getId());
 
-                //changedFileMetadataIds.addAll(query.getResultList());
+                /*
+                 * When the query was configured to return Long, it was returning Integer. The query has been changed to return Integer now. The code here is robust if that changes in the future.
+                 */
                 List<Object> queryResults = query.getResultList();
                 for (Object result : queryResults) {
                     if (result != null) {
                         logger.info("Result is " + result.getClass().getName());
                         // Ensure we're adding Long objects to the list
-                        if (result instanceof Long) {
-                            changedFileMetadataIds.add((Long) result);
+                        if (result instanceof Integer intResult) {
+                            changedFileMetadataIds.add(Long.valueOf(intResult));
+                        } else if (result instanceof Long longResult) {
+                            // Already a Long, add directly
+                            changedFileMetadataIds.add(longResult);
                         } else {
-                            // If it's not a Long, convert it to one
+                            // If it's not a Long, convert it to one via String
                             try {
                                 changedFileMetadataIds.add(Long.valueOf(result.toString()));
                                 logger.info("Converted non-Long result to Long: " + result + " of type " + result.getClass().getName());
