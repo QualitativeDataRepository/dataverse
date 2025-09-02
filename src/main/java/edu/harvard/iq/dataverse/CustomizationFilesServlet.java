@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+import edu.harvard.iq.dataverse.util.FileUtil;
 import jakarta.ejb.EJB;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
@@ -55,18 +56,22 @@ public class CustomizationFilesServlet extends HttpServlet {
         String filePath = getFilePath(customFileType);
 
         Path physicalPath = Paths.get(filePath);
+        
         FileInputStream inputStream = null;
         BufferedReader in = null;
         try {
             File fileIn = physicalPath.toFile();
             if (fileIn != null) {
-                Tika tika = new Tika();
-                try {
-                    String mimeType = tika.detect(fileIn);
-                    response.setContentType(mimeType);
-                } catch (Exception e) {
-                    logger.info("Error getting MIME Type for " + filePath + " : " + e.getMessage());
-                }
+                // Time the MIME type detection
+                long startTime = System.currentTimeMillis();
+                String filename = physicalPath.getFileName().toString();
+                int dotIndex = filename.lastIndexOf('.');
+                String ext = dotIndex >= 0 ? filename.substring(dotIndex) : "";
+                String mimeType = FileUtil.lookupFileTypeByExtension(ext);
+                response.setContentType(mimeType);
+                long endTime = System.currentTimeMillis();
+                long duration = endTime - startTime;
+                logger.info("MIME Type detection for " + filePath + " took " + duration + "ms. Detected type: " + mimeType);
                 inputStream = new FileInputStream(fileIn);
 
                 in = new BufferedReader(new InputStreamReader(inputStream));
