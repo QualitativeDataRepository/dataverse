@@ -740,11 +740,28 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
                     }
                     for (int k = 0; k < arr.size(); k++) {
                         JsonObject jo = arr.getJsonObject(k);
-                        String val = jo.getString(keyVal[0]);
-                        if (val.equals(expected)) {
-                            logger.fine("Found: " + jo.toString());
-                            curPath = jo;
-                            return processPathSegment(index + 1, pathParts, curPath, termUri);
+                        JsonValue jsonValue = jo.get(keyVal[0]);
+
+                        if (jsonValue.getValueType() == JsonValue.ValueType.STRING) {
+                            //Match a string value
+                            String val = ((JsonString) jsonValue).getString();
+                            if (val.equals(expected)) {
+                                logger.fine("Found: " + jo.toString());
+                                curPath = jo;
+                                return processPathSegment(index + 1, pathParts, curPath, termUri);
+                            }
+                        } else if (jsonValue.getValueType() == JsonValue.ValueType.ARRAY) {
+                            //Match one string in an array 
+                            JsonArray jsonArray = (JsonArray) jsonValue;
+                            for (JsonValue arrayVal: jsonArray) {
+                                if (arrayVal.getValueType() == JsonValue.ValueType.STRING) {
+                                    if (((JsonString)arrayVal).getString().equals(expected)) {
+                                        logger.fine("Found match in array: " + jo.toString());
+                                        curPath = jo;
+                                        return processPathSegment(index + 1, pathParts, curPath, termUri);
+                                    }
+                                }
+                            }
                         }
                     }
                 } else {
