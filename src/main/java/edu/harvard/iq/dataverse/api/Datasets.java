@@ -4947,7 +4947,7 @@ public class Datasets extends AbstractApiBean {
     @Path("/listCurationStates")
     @Produces("text/csv")
     public Response getCurationStates(@Context ContainerRequestContext crc,
-                                      @QueryParam("includeHistory") @DefaultValue("false") boolean includeHistory) throws WrappedResponse {
+                                      @QueryParam("includeHistory") @DefaultValue("false") boolean includeHistory, @QueryParam("includePublished") @DefaultValue("false") boolean includePublished) throws WrappedResponse {
     
         AuthenticatedUser user = null;
         try {
@@ -4977,47 +4977,49 @@ public class Datasets extends AbstractApiBean {
                 String.join(",", assignees.keySet())));
     
         HashSet<Permission> permissions = new HashSet<Permission>();
-        for (Dataset dataset : datasetSvc.findAllWithDraftVersion()) {
-            permissions.add(Permission.PublishDataset);
-            if(permissionSvc.hasPermissionsFor(user, dataset, permissions)) {
-                List<RoleAssignment> ras = permissionService.assignmentsOn(dataset);
-                curationRoles.forEach(r -> {
-                    assignees.put(r.getAlias(), new HashSet<String>());
-                });
-                for (RoleAssignment ra : ras) {
-                    if (curationRoles.contains(ra.getRole())) {
-                        assignees.get(ra.getRole().getAlias()).add(ra.getAssigneeIdentifier());
-                    }
-                }
-                DatasetVersion dsv = dataset.getLatestVersion();
-                String name = dataset.getCurrentName().replace("\"", "\"\"");
-                
-                List<CurationStatus> statuses = includeHistory ? dsv.getCurationStatuses() : Collections.singletonList(dsv.getCurrentCurationStatus());
-                
-                for (CurationStatus status : statuses) {
-                String label = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
-                String statusCreator = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
-                String createTime = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
-                    
-                    if (status != null) {
-                        if(Strings.isNotBlank(status.getLabel())) {
-                            label = status.getLabel();
-                        }
-                        if(status.getAuthenticatedUser() != null) {
-                            statusCreator = status.getAuthenticatedUser().getUserIdentifier();
-                        }
-                        if(status.getCreateTime() != null) {
-                            createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(status.getCreateTime());
+        for (Dataset dataset : (includePublished ? datasetSvc.findAll() : datasetSvc.findAllWithDraftVersion())) {
+            if (!dataset.isHarvested()) {
+                permissions.add(Permission.PublishDataset);
+                if (permissionSvc.hasPermissionsFor(user, dataset, permissions)) {
+                    List<RoleAssignment> ras = permissionService.assignmentsOn(dataset);
+                    curationRoles.forEach(r -> {
+                        assignees.put(r.getAlias(), new HashSet<String>());
+                    });
+                    for (RoleAssignment ra : ras) {
+                        if (curationRoles.contains(ra.getRole())) {
+                            assignees.get(ra.getRole().getAlias()).add(ra.getAssigneeIdentifier());
                         }
                     }
-    
-                    String url = systemConfig.getDataverseSiteUrl() + dataset.getTargetUrl() + dataset.getGlobalId().asString();
-                    String date = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getCreateTime());
-                    String modDate = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getLastUpdateTime());
-                    String hyperlink = "\"=HYPERLINK(\"\"" + url + "\"\",\"\"" + name + "\"\")\"";
-                    List<String> sList = new ArrayList<String>();
-                    assignees.entrySet().forEach(e -> sList.add(e.getValue().size() == 0 ? "" : String.join(";", e.getValue())));
-                    csvSB.append("\n").append(String.join(",", hyperlink, date, modDate, (status == null) ? "" : label, statusCreator, createTime, String.join(",", sList)));
+                    DatasetVersion dsv = dataset.getLatestVersion();
+                    String name = dataset.getCurrentName().replace("\"", "\"\"");
+
+                    List<CurationStatus> statuses = includeHistory ? dsv.getCurationStatuses() : Collections.singletonList(dsv.getCurrentCurationStatus());
+
+                    for (CurationStatus status : statuses) {
+                        String label = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
+                        String statusCreator = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
+                        String createTime = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
+
+                        if (status != null) {
+                            if (Strings.isNotBlank(status.getLabel())) {
+                                label = status.getLabel();
+                            }
+                            if (status.getAuthenticatedUser() != null) {
+                                statusCreator = status.getAuthenticatedUser().getUserIdentifier();
+                            }
+                            if (status.getCreateTime() != null) {
+                                createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(status.getCreateTime());
+                            }
+                        }
+
+                        String url = systemConfig.getDataverseSiteUrl() + dataset.getTargetUrl() + dataset.getGlobalId().asString();
+                        String date = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getCreateTime());
+                        String modDate = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getLastUpdateTime());
+                        String hyperlink = "\"=HYPERLINK(\"\"" + url + "\"\",\"\"" + name + "\"\")\"";
+                        List<String> sList = new ArrayList<String>();
+                        assignees.entrySet().forEach(e -> sList.add(e.getValue().size() == 0 ? "" : String.join(";", e.getValue())));
+                        csvSB.append("\n").append(String.join(",", hyperlink, date, modDate, (status == null) ? "" : label, statusCreator, createTime, String.join(",", sList)));
+                    }
                 }
             }
         }
