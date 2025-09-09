@@ -4969,6 +4969,7 @@ public class Datasets extends AbstractApiBean {
     
         StringBuilder csvSB = new StringBuilder(String.join(",",
                 BundleUtil.getStringFromBundle("dataset"),
+                BundleUtil.getStringFromBundle("datasets.api.versionnumber"),
                 BundleUtil.getStringFromBundle("datasets.api.creationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.modificationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.curationstatus"),
@@ -4990,35 +4991,39 @@ public class Datasets extends AbstractApiBean {
                             assignees.get(ra.getRole().getAlias()).add(ra.getAssigneeIdentifier());
                         }
                     }
-                    DatasetVersion dsv = dataset.getLatestVersion();
-                    String name = dataset.getCurrentName().replace("\"", "\"\"");
+                    
+                    List<DatasetVersion> dsvs = includePublished ? dataset.getVersions() : Collections.singletonList(dataset.getLatestVersion());
 
-                    List<CurationStatus> statuses = includeHistory ? dsv.getCurationStatuses() : Collections.singletonList(dsv.getCurrentCurationStatus());
-
-                    for (CurationStatus status : statuses) {
-                        String label = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
-                        String statusCreator = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
-                        String createTime = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
-
-                        if (status != null) {
-                            if (Strings.isNotBlank(status.getLabel())) {
-                                label = status.getLabel();
-                            }
-                            if (status.getAuthenticatedUser() != null) {
-                                statusCreator = status.getAuthenticatedUser().getUserIdentifier();
-                            }
-                            if (status.getCreateTime() != null) {
-                                createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(status.getCreateTime());
-                            }
-                        }
-
-                        String url = systemConfig.getDataverseSiteUrl() + dataset.getTargetUrl() + dataset.getGlobalId().asString();
+                    for (DatasetVersion dsv : dsvs) {
+                        String name = dataset.getCurrentName().replace("\"", "\"\"");
                         String date = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getCreateTime());
                         String modDate = new SimpleDateFormat("yyyy-MM-dd").format(dsv.getLastUpdateTime());
-                        String hyperlink = "\"=HYPERLINK(\"\"" + url + "\"\",\"\"" + name + "\"\")\"";
-                        List<String> sList = new ArrayList<String>();
-                        assignees.entrySet().forEach(e -> sList.add(e.getValue().size() == 0 ? "" : String.join(";", e.getValue())));
-                        csvSB.append("\n").append(String.join(",", hyperlink, date, modDate, (status == null) ? "" : label, statusCreator, createTime, String.join(",", sList)));
+                        String versionNumber = dsv.getFriendlyVersionNumber();
+                        List<CurationStatus> statuses = includeHistory ? dsv.getCurationStatuses() : Collections.singletonList(dsv.getCurrentCurationStatus());
+
+                        for (CurationStatus status : statuses) {
+                            String label = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
+                            String statusCreator = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
+                            String createTime = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
+
+                            if (status != null) {
+                                if (Strings.isNotBlank(status.getLabel())) {
+                                    label = status.getLabel();
+                                }
+                                if (status.getAuthenticatedUser() != null) {
+                                    statusCreator = status.getAuthenticatedUser().getUserIdentifier();
+                                }
+                                if (status.getCreateTime() != null) {
+                                    createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(status.getCreateTime());
+                                }
+                            }
+
+                            String url = systemConfig.getDataverseSiteUrl() + dataset.getTargetUrl() + dataset.getGlobalId().asString();
+                            String hyperlink = "\"=HYPERLINK(\"\"" + url + "\"\",\"\"" + name + "\"\")\"";
+                            List<String> sList = new ArrayList<String>();
+                            assignees.entrySet().forEach(e -> sList.add(e.getValue().size() == 0 ? "" : String.join(";", e.getValue())));
+                            csvSB.append("\n").append(String.join(",", hyperlink, versionNumber, date, modDate, (status == null) ? "" : label, statusCreator, createTime, String.join(",", sList)));
+                        }
                     }
                 }
             }
