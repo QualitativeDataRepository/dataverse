@@ -2213,6 +2213,9 @@ public class DatasetVersion implements Serializable {
                 Comparator.nullsLast(Comparator.reverseOrder())
             ));
         }
+        CurationStatus initialNullStatus = new CurationStatus(null, this, null);
+        initialNullStatus.setCreateTime(this.getCreateTime());
+        curationStatuses.add(initialNullStatus);
         return curationStatuses;
     }
 
@@ -2221,7 +2224,12 @@ public class DatasetVersion implements Serializable {
     }
 
     public CurationStatus getCurrentCurationStatus() {
-        return !getCurationStatuses().isEmpty() ? getCurationStatuses().get(0) : null;
+        if (curationStatuses.isEmpty()) {
+            CurationStatus initialNullStatus = new CurationStatus(null, this, null);
+            initialNullStatus.setCreateTime(this.getCreateTime());
+            return initialNullStatus;
+        }
+        return getCurationStatuses().get(0);
     }
 
     
