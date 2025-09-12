@@ -59,6 +59,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -68,6 +69,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -84,6 +86,7 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
+
 import static jakarta.ejb.TransactionAttributeType.REQUIRES_NEW;
 
 import jakarta.inject.Inject;
@@ -234,7 +237,7 @@ public class IndexServiceBean {
             solrInputDocument.addField(SearchFields.RELEASE_OR_CREATE_DATE, dataverse.getCreateDate());
         }
 
-        /* We don't really have harvested dataverses yet; 
+        /* We don't really have harvested dataverses yet;
            (I have in fact just removed the isHarvested() method from the Dataverse object) -- L.A.
         if (dataverse.isHarvested()) {
             solrInputDocument.addField(SearchFields.IS_HARVESTED, true);
@@ -988,6 +991,7 @@ public class IndexServiceBean {
         // This means that newly created or edited drafts will show up on the top when sorting by newest, newly
         // published major versions will also show up on the top, and newly published minor versions will be shown
         // next to their corresponding major version.
+        // QDR - order drafts by create time to make new drafts more obvious / avoid order shuffling due to edits
         if (state.equals(DatasetState.WORKING_COPY)) {
             Date createTime = indexableDataset.getDatasetVersion().getCreateTime();
             if (createTime != null) {
@@ -1066,7 +1070,6 @@ public class IndexServiceBean {
             if (datasetVersion.isInReview()) {
                 solrInputDocument.addField(SearchFields.PUBLICATION_STATUS, IN_REVIEW_STRING);
             }
-            
             CurationStatus status = datasetVersion.getCurrentCurationStatus();
             if(status != null && Strings.isNotBlank(status.getLabel())) {
                 solrInputDocument.addField(SearchFields.CURATION_STATUS, status.getLabel());
@@ -1307,7 +1310,9 @@ public class IndexServiceBean {
                                         solrInputDocument.addField(solrFieldFacetable, topicClassificationTerm);
                                     }
                                 } else {
-                                    solrInputDocument.addField(solrFieldFacetable, dsf.getValuesWithoutNaValues());
+                                    var values = dsf.getDisplayValues(); // for proper display of facets with &apos;
+                                    values.removeAll(Arrays.asList(DatasetField.NA_VALUE));
+                                    solrInputDocument.addField(solrFieldFacetable, values);
                                 }
                             }
                         }
@@ -1529,16 +1534,21 @@ public class IndexServiceBean {
                 if (indexThisMetadata && (isReleasedVersion || changedFileMetadataIds.contains(fileMetadata.getId()))) {
                     indexThisFile = true;
                 } else if (indexThisMetadata) {
+                    // Draft version, file is not new or all file metadata matches the released version
+                    // The only thing left to check is variable-level metadata, index if there is a difference
                     logger.fine("Checking if this file metadata is a duplicate.");
                     FileMetadata getFromMap = fileMap.get(datafile.getId());
                     if (getFromMap != null) {
                         if (!VariableMetadataUtil.compareVariableMetadata(getFromMap, fileMetadata)) {
                             indexThisFile = true;
-                            logger.info("This file metadata hasn't changed since the released version; skipping indexing.");
+                            logger.fine("This file metadata hasn't changed since the released version; skipping indexing.");
                         }
+                    } else {
+                        logger.warning("File is not in released version when trying to compare variable metadata, fileId: " + datafile.getId());
                     }
                 }
                 if (indexThisFile) {
+
                     SolrInputDocument datafileSolrInputDocument = new SolrInputDocument();
                     Long fileEntityId = datafile.getId();
                     logger.finest("Indexing file " + fileEntityId);
@@ -1973,7 +1983,7 @@ public class IndexServiceBean {
         */
         Dataset dataset = null;
         Dataverse dv = null;
-        Dataverse rootDataverse = findRootDataverseCached();        
+        Dataverse rootDataverse = findRootDataverseCached();
         List <Dataverse>linkingDataverses = new ArrayList<Dataverse>();
         List<Dataverse> ancestorList = new ArrayList<Dataverse>();
         

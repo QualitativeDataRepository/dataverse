@@ -271,12 +271,18 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             usesMFA = true;
         }
         affiliation = affiliation == null ? "" : affiliation;
-        // Extract Shibboleth attributes if present
+        // Extract Shibboleth persistent identifier claim if present
         Object shibUniqueIdObj = userInfo.getClaim(ShibUtil.uniquePersistentIdentifier);
-        Object shibIdpObj = userInfo.getClaim(ShibUtil.shibIdpAttribute);
+
+        // Extract idp claim if present
+        Object idpObj = userInfo.getClaim(OAuth2UserRecord.IDP_CLAIM_NAME);
+
+        // Extract OIDC user id claim if present
+        Object oidcUserIdObj = userInfo.getClaim(OAuth2UserRecord.OIDC_USER_ID_CLAIM_NAME);
 
         String shibUniqueId = (shibUniqueIdObj != null) ? shibUniqueIdObj.toString() : null;
-        String shibIdp = (shibIdpObj != null) ? shibIdpObj.toString() : null;
+        String idp = (idpObj != null) ? idpObj.toString() : null;
+        String oidcUserId = (oidcUserIdObj != null) ? oidcUserIdObj.toString() : null;
 
         // Build display info from user attributes
         AuthenticatedUserDisplayInfo displayInfo = new AuthenticatedUserDisplayInfo(
@@ -292,7 +298,8 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
                 userInfo.getSubject().getValue(),
                 userInfo.getPreferredUsername(),
                 shibUniqueId,
-                shibIdp,
+                idp,
+                oidcUserId,
                 null,
                 new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), affiliation, role),
                 null,

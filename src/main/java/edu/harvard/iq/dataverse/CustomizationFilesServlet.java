@@ -56,22 +56,16 @@ public class CustomizationFilesServlet extends HttpServlet {
         String filePath = getFilePath(customFileType);
 
         Path physicalPath = Paths.get(filePath);
-        
         FileInputStream inputStream = null;
         BufferedReader in = null;
         try {
             File fileIn = physicalPath.toFile();
             if (fileIn != null) {
-                // Time the MIME type detection
-                long startTime = System.currentTimeMillis();
                 String filename = physicalPath.getFileName().toString();
                 int dotIndex = filename.lastIndexOf('.');
                 String ext = dotIndex >= 0 ? filename.substring(dotIndex) : "";
                 String mimeType = FileUtil.lookupFileTypeByExtension(ext);
                 response.setContentType(mimeType);
-                long endTime = System.currentTimeMillis();
-                long duration = endTime - startTime;
-                logger.info("MIME Type detection for " + filePath + " took " + duration + "ms. Detected type: " + mimeType);
                 inputStream = new FileInputStream(fileIn);
 
                 in = new BufferedReader(new InputStreamReader(inputStream));
