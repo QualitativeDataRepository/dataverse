@@ -298,7 +298,7 @@ public class AuthenticationServiceBeanTest {
 
         // Stub the OIDCAuthProvider to return a mock OAuth2UserRecord
         OAuth2UserRecord oAuth2UserRecordStub = Mockito.mock(OAuth2UserRecord.class);
-        Mockito.when(oidcAuthProviderStub.getUserRecord(userInfoStub)).thenReturn(oAuth2UserRecordStub);
+        Mockito.when(oidcAuthProviderStub.getUserRecord(userInfoStub, 0)).thenReturn(oAuth2UserRecordStub);
 
         // Stub the common, basic user identifiers
         UserRecordIdentifier userRecordIdentifierStub = Mockito.mock(UserRecordIdentifier.class);
