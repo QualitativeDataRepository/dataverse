@@ -416,15 +416,15 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
                     if (indexingField.equals(indexIn) ||
                             (indexIn == null && termUriField.equals(indexingField) && (key.equals("termName")) || key.equals("personName"))) {
                         JsonValue jv = jo.get(key);
-                        if (jv.getValueType().equals(JsonValue.ValueType.STRING)) {
+                        if (jv.getValueType() == ValueType.STRING) {
                             logger.fine("adding " + jo.getString(key) + " for " + termUri);
                             strings.add(jo.getString(key));
-                        } else if (jv.getValueType().equals(JsonValue.ValueType.ARRAY)) {
+                        } else if (jv.getValueType() == ValueType.ARRAY) {
                             JsonArray jarr = jv.asJsonArray();
                             for (int i = 0; i < jarr.size(); i++) {
-                                if (jarr.get(i).getValueType().equals(JsonValue.ValueType.STRING)) {
+                                if (jarr.get(i).getValueType() == ValueType.STRING) {
                                     strings.add(jarr.getString(i));
-                                } else if (jarr.get(i).getValueType().equals(ValueType.OBJECT)) { // This condition handles SKOSMOS format like [{"lang": "en","value": "non-apis bee"},{"lang": "fr","value": "abeille non apis"}]
+                                } else if (jarr.get(i).getValueType() == ValueType.OBJECT) { // This condition handles SKOSMOS format like [{"lang": "en","value": "non-apis bee"},{"lang": "fr","value": "abeille non apis"}]
                                     JsonObject entry = jarr.getJsonObject(i);
                                     if (entry.containsKey("value")) {
                                         logger.fine("adding " + entry.getString("value") + " for " + termUri);
@@ -436,16 +436,16 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
                                     }
                                 }
                             }
-                        } else if (jv.getValueType().equals(JsonValue.ValueType.OBJECT)) {
+                        } else if (jv.getValueType() == ValueType.OBJECT) {
                             JsonObject joo = jv.asJsonObject();
                             for (Map.Entry<String, JsonValue> entry : joo.entrySet()) {
-                                if (entry.getValue().getValueType().equals(JsonValue.ValueType.STRING)) { // This condition handles format like { "fr": "association de quartier", "en": "neighborhood associations"}
+                                if (entry.getValue().getValueType() == ValueType.STRING) { // This condition handles format like { "fr": "association de quartier", "en": "neighborhood associations"}
                                     logger.fine("adding " + joo.getString(entry.getKey()) + " for " + termUri);
                                     strings.add(joo.getString(entry.getKey()));
-                                } else if (entry.getValue().getValueType().equals(ValueType.ARRAY)) { // This condition handles format like {"en": ["neighbourhood societies"]}
+                                } else if (entry.getValue().getValueType() == ValueType.ARRAY) { // This condition handles format like {"en": ["neighbourhood societies"]}
                                     JsonArray jarr = entry.getValue().asJsonArray();
                                     for (int i = 0; i < jarr.size(); i++) {
-                                        if (jarr.get(i).getValueType().equals(JsonValue.ValueType.STRING)) {
+                                        if (jarr.get(i).getValueType() == ValueType.STRING) {
                                             logger.fine("adding " + jarr.getString(i) + " for " + termUri);
                                             strings.add(jarr.getString(i));
                                         }
@@ -763,18 +763,18 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
                             if (jo != null) {
                                 JsonValue val = jo.get(keyVal[0]);
                                 if (val != null) {
-                                    if (val.getValueType().equals(ValueType.STRING)) {
+                                    if (val.getValueType() == ValueType.STRING) {
                                         if (((JsonString) val).getString().equals(expected)) {
                                             logger.fine("Found: " + jo);
                                             curPath = jo;
                                             return processPathSegment(index + 1, pathParts, curPath, termUri);
                                         }
                                     }
-                                } else if (val.getValueType() == JsonValue.ValueType.ARRAY) {
+                                } else if (val.getValueType() == ValueType.ARRAY) {
                                     // Match one string in an array
                                     JsonArray jsonArray = (JsonArray) val;
                                     for (JsonValue arrayVal : jsonArray) {
-                                        if (arrayVal.getValueType() == JsonValue.ValueType.STRING) {
+                                        if (arrayVal.getValueType() == ValueType.STRING) {
                                             if (((JsonString) arrayVal).getString().equals(expected)) {
                                                 logger.fine("Found match in array: " + jo.toString());
                                                 curPath = jo;
@@ -813,13 +813,13 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
             JsonValue jv = ((JsonObject) curPath).get(pathParts[index]);
             if (jv != null) {
                 ValueType type = jv.getValueType();
-                if (type.equals(ValueType.STRING)) {
+                if (type == ValueType.STRING) {
                     return ((JsonString) jv).getString();
                 }
-                else if (jv.getValueType().equals(ValueType.ARRAY)) {
+                else if (jv.getValueType() == ValueType.ARRAY) {
                     return jv;
                 }
-                else if (jv.getValueType().equals(ValueType.OBJECT)) {
+                else if (jv.getValueType() == ValueType.OBJECT) {
                     return jv;
                 }
             }
@@ -876,9 +876,9 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
             // script for the field.)
             JsonValue scriptValue = jo.get("js-url");
             ValueType scriptType = scriptValue.getValueType();
-            if (scriptType.equals(ValueType.STRING)) {
+            if (scriptType == ValueType.STRING) {
                 scripts.add(((JsonString) scriptValue).getString());
-            } else if (scriptType.equals(ValueType.ARRAY)) {
+            } else if (scriptType == ValueType.ARRAY) {
                 JsonArray scriptArray = ((JsonArray) scriptValue);
                 for (int i = 0; i < scriptArray.size(); i++) {
                     scripts.add(scriptArray.getString(i));
