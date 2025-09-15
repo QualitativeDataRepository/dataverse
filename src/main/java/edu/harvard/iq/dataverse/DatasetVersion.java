@@ -2213,9 +2213,6 @@ public class DatasetVersion implements Serializable {
                 Comparator.nullsLast(Comparator.reverseOrder())
             ));
         }
-        CurationStatus initialNullStatus = new CurationStatus(null, this, null);
-        initialNullStatus.setCreateTime(this.getCreateTime());
-        curationStatuses.add(initialNullStatus);
         return curationStatuses;
     }
 

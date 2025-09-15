@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
+import edu.harvard.iq.dataverse.CurationStatus;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.DatasetVersion.VersionState;
@@ -94,6 +95,9 @@ public class CreateDatasetVersionCommand extends AbstractDatasetCommand<DatasetV
         newVersion.setDatasetFields(newVersion.initDatasetFields());
         newVersion.setCreateTime(getTimestamp());
         newVersion.setLastUpdateTime(getTimestamp());
+        CurationStatus initialNullStatus = new CurationStatus(null, newVersion, null);
+        initialNullStatus.setCreateTime(newVersion.getCreateTime());
+        newVersion.addCurationStatus(initialNullStatus);
         //Switching the order of validate and tidy up
         //originally missing/empty required fields were not
         //throwing constraint violations because they
