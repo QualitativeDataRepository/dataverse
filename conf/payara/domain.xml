@@ -623,7 +623,7 @@
         </config>
     </configs>
     <property name="administrative.domain.name" value="domain1" />
-    <secure-admin special-admin-indicator="a369f5ce-e0a6-4d36-9bd9-8583569693b0">
+    <secure-admin special-admin-indicator="15827a57-7e55-41eb-8fcc-b3a03544e677">
         <secure-admin-principal dn="CN=localhost,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
         <secure-admin-principal dn="CN=localhost-instance,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
     </secure-admin>
