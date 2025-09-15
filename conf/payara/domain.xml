@@ -83,6 +83,7 @@
         <connector-resource pool-name="jms/__defaultConnectionFactory-Connection-Pool" object-type="system-all-req" jndi-name="jms/__defaultConnectionFactory" />
         <context-service object-type="system-all" jndi-name="concurrent/__defaultContextService" />
         <managed-thread-factory object-type="system-all" jndi-name="concurrent/__defaultManagedThreadFactory" />
+        <managed-executor-service core-pool-size="1" task-queue-capacity="1000" thread-lifetime-seconds="300" maximum-pool-size="1" jndi-name="CitationUpdateExecutor"></managed-executor-service>
     </resources>
     <servers>
         <server name="server" config-ref="server-config">
