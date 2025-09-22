@@ -4973,8 +4973,8 @@ public class Datasets extends AbstractApiBean {
                 BundleUtil.getStringFromBundle("datasets.api.creationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.modificationdate"),
                 BundleUtil.getStringFromBundle("datasets.api.curationstatus"),
-                BundleUtil.getStringFromBundle("datasets.api.curationstatuscreatetime"),
                 BundleUtil.getStringFromBundle("datasets.api.curationstatussetter"),
+                BundleUtil.getStringFromBundle("datasets.api.curationstatuscreatetime"),
                 String.join(",", assignees.keySet())));
     
         HashSet<Permission> permissions = new HashSet<Permission>();
