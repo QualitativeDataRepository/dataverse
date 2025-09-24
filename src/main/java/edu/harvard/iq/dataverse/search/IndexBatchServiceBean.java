@@ -49,6 +49,7 @@ public class IndexBatchServiceBean {
     SystemConfig systemConfig;
     
     @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Future<JsonObjectBuilder> indexStatus() {
         JsonObjectBuilder response = Json.createObjectBuilder();
         logger.info("Beginning indexStatus()");
@@ -78,6 +79,7 @@ public class IndexBatchServiceBean {
     }
 
     @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Future<JsonObjectBuilder> clearOrphans() {
         JsonObjectBuilder response = Json.createObjectBuilder();
         List<String> solrIds = new ArrayList<>();
@@ -105,6 +107,7 @@ public class IndexBatchServiceBean {
 
     
     @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Future<JsonObjectBuilder> indexAllOrSubset(long numPartitions, long partitionId, boolean skipIndexed, boolean previewOnly) {
         JsonObjectBuilder response = Json.createObjectBuilder();
         indexAllOrSubset(numPartitions, partitionId, skipIndexed);
