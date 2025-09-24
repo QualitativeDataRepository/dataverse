@@ -146,7 +146,7 @@ public class IndexBatchServiceBean {
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public Future<String> indexAllOrSubset(long numPartitions, long partitionId, boolean skipIndexed) {
+    private Future<String> indexAllOrSubset(long numPartitions, long partitionId, boolean skipIndexed) {
         long indexAllTimeBegin = System.currentTimeMillis();
         String status;
 
