@@ -39,6 +39,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 
 @Named
@@ -327,7 +328,47 @@ public class SolrIndexServiceBean {
         /**
          * @todo Do something with these responses from Solr.
          */
-        solrClientService.getSolrClient().add(docs);
+        int maxRetries = 3;
+        int retryCount = 0;
+        boolean success = false;
+
+        while (!success && retryCount < maxRetries) {
+            try {
+                if (retryCount > 0) {
+                    // Exponential backoff
+                    Thread.sleep((long) Math.pow(2, retryCount) * 1000);
+                    logger.info("Retry attempt " + retryCount + " for Solr batch");
+                }
+
+                logger.fine("persisting " + docs.size() + " docs to Solr...");
+                UpdateResponse response = solrClientService.getSolrClient().add(docs);
+
+                // Check response status
+                if (response.getStatus() == 0) {
+                    success = true;
+                    logger.fine("Successfully added " + docs.size() + " docs to Solr in " +
+                            response.getQTime() + "ms");
+                } else {
+                    logger.warning("Solr returned non-zero status: " + response.getStatus());
+                }
+            } catch (SolrServerException | IOException e) {
+                retryCount++;
+                if (e.getMessage() != null && e.getMessage().contains("Request processing has stalled")) {
+                    logger.warning("Solr request stalled. Retry " + retryCount + "/" + maxRetries);
+
+                    // If this is the last retry, rethrow
+                    if (retryCount >= maxRetries) {
+                        throw e;
+                    }
+                } else {
+                    // For other exceptions, don't retry
+                    throw e;
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Interrupted during retry backoff", e);
+            }
+        }
     }
 
 
