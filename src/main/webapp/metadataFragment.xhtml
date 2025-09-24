@@ -283,7 +283,7 @@
                                         <div class="col-sm-9" style="padding-left:2px">
                                           <div class="form-group">
                                             <div class="form-col-container col-sm-12">
-                                                <p:repeat value="#{dsf.datasetFieldValues}" var="dsfv" varStatus="valCount" id="fieldvaluelist">
+                                                <ui:repeat value="#{dsf.datasetFieldValues}" var="dsfv" varStatus="valCount" id="fieldvaluelist">
                                                     <div class="form-group dataset-field-values">
                                                         <div class="form-col-container col-sm-9 edit-field">
                                                             <ui:include src="datasetFieldForEditFragment.xhtml">
@@ -309,7 +309,7 @@
                                                             </p:commandLink>
                                                         </div>
                                                     </div>
-                                                </p:repeat>
+                                                </ui:repeat>
                                                 <ui:fragment rendered="#{dsf.datasetFieldType.controlledVocabulary}">
                                                     <div class="form-group dataset-field-values">
                                                         <div class="form-col-container col-sm-9 edit-field">
