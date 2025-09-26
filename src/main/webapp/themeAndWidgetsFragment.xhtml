@@ -199,8 +199,13 @@
                                 </label>
                                 <div class="col-sm-6">
                                     <p class="help-block">#{bundle['dataverse.theme.website.tip']}</p>
-                                    <p:inputText id="website" styleClass="form-control" binding="#{themeWidgetFragment.linkUrlInput}" validatorMessage="#{bundle['dataverse.theme.website.invalidMsg']}" validator="#{themeWidgetFragment.validateUrl}" value="#{themeWidgetFragment.editDv.dataverseTheme.linkUrl}"/>
-                                    <p:watermark for="website" value="#{bundle['dataverse.theme.website.watermark']}" id="watermark" />
+                                    <p:inputText id="website"
+                                            styleClass="form-control"
+                                            binding="#{themeWidgetFragment.linkUrlInput}"
+                                            validatorMessage="#{bundle['dataverse.theme.website.invalidMsg']}"
+                                            validator="#{themeWidgetFragment.validateUrl}"
+                                            value="#{themeWidgetFragment.editDv.dataverseTheme.linkUrl}"
+                                            placeholder="#{bundle['dataverse.theme.website.watermark']}"/>
                                     <p:message for="website" display="text"/>
                                 </div>
                             </div>

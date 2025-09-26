@@ -21,12 +21,12 @@
                              or dsfv.datasetField.datasetFieldType.fieldType == 'URL'
                              or dsfv.datasetField.datasetFieldType.fieldType == 'DATE'
                              or dsfv.datasetField.datasetFieldType.fieldType == 'EMAIL')}"
-                 onkeypress="return event.keyCode !== 13;" >
+                 onkeypress="return event.keyCode !== 13;" 
+                 placeholder="#{dsfv.datasetField.datasetFieldType.localeWatermark}">
             <c:if test="#{dsfvIndex!=0}">
                 <f:passThroughAttribute name="aria-label" value="#{bundle['dataset.additionalEntry']}" />
             </c:if>
         </p:inputText>
-        <p:watermark for="inputText" value="#{dsfv.datasetField.datasetFieldType.localeWatermark}"></p:watermark>
     </ui:fragment>
     <ui:fragment rendered="#{cvoc!=null and cvoc.getString('term-uri-field').equals(dsfv.datasetField.datasetFieldType.name)}">
         <p:inputText value="#{dsfv.valueForEdit}" id="cvocInputText" pt:aria-required="#{dsf.required}"
@@ -73,12 +73,12 @@
     
     <p:inputTextarea value="#{dsfv.valueForEdit}" id="description" pt:aria-required="#{dsf.required}"
                      rows="5" cols="60" styleClass="form-control"
-                     rendered="#{dsfv.datasetField.datasetFieldType.fieldType == 'TEXTBOX'}">
+                     rendered="#{dsfv.datasetField.datasetFieldType.fieldType == 'TEXTBOX'}"
+                     placeholder="#{dsfv.datasetField.datasetFieldType.localeWatermark}">
         <c:if test="#{dsfvIndex!=0}">
             <f:passThroughAttribute name="aria-label" value="#{bundle['dataset.additionalEntry']}" />
         </c:if>
         </p:inputTextarea>
-    <p:watermark for="description" value="#{dsfv.datasetField.datasetFieldType.localeWatermark}"></p:watermark>
 
     <div class="ui-message ui-message-error ui-widget ui-corner-all" aria-live="polite" jsf:rendered="#{dsfvIndex eq 0 and !empty dsfv.datasetField.validationMessage}">
         <span class="ui-message-error-detail">#{dsfv.datasetField.validationMessage}</span>

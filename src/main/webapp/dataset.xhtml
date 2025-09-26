@@ -1382,9 +1382,9 @@
                                     #{bundle['file.deaccessionDialog.leaveURL']}
                                     </label>
                                     <p:inputText id="forwardURLForDeaccession" styleClass="form-control" value="#{DatasetPage.deaccessionForwardURLFor}" widgetVar="forwardURLForDeaccession"
-                                                 validator="#{DatasetPage.validateForwardURL}"/>
+                                                 validator="#{DatasetPage.validateForwardURL}"
+                                                 placeholder="#{bundle['file.deaccessionDialog.leaveURL.watermark']}"/>
                                     <p:message for="forwardURLForDeaccession"/>
-                                    <p:watermark for="forwardURLForDeaccession" value="#{bundle['file.deaccessionDialog.leaveURL.watermark']}" id="watermark" />
                                 </div>
                                 <div class="button-block">
                                     <p:commandButton styleClass="btn btn-default" value="#{bundle.deaccession}"  
@@ -2043,11 +2043,11 @@
                             <p:inputTextarea id="returnReason" rows="4" value="#{DatasetPage.returnReason}" title="#{bundle['dataset.rejectMessage.label']}" maxlength="2000" widgetVar="returnReason"
                                              cols="70" counter="display" counterTemplate="{0} characters remaining." autoResize="false"
                                              required="#{param['DO_RETURN_TO_AUTHOR_VALIDATION']}"
-                                             requiredMessage="#{bundle['dataset.reject.enterReason.error']}"/>
+                                             requiredMessage="#{bundle['dataset.reject.enterReason.error']}"
+                                             placeholder="#{bundle['dataset.rejectWatermark']}" id="returnReasonWatermark"/>
                             <p>
                                 <h:outputText id="display"/>
                             </p>
-                            <p:watermark for="returnReason" value="#{bundle['dataset.rejectWatermark']}" id="returnReasonWatermark"/>
                             <h:message for="returnReason" styleClass="bg-danger text-danger"/>
                         </ui:fragment>
                         

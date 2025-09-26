@@ -30,8 +30,8 @@
                             <div class="input-group">
                                 <p:inputText type="hidden" id="selectedPage" value="#{DashboardUsersPage.selectedPage}" />
                                 <p:inputText id="searchFiles" styleClass="form-control" value="#{DashboardUsersPage.searchTerm}" widgetVar="inputSearchTerm"
-                                             onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }"/>
-                                <p:watermark for="searchFiles" value="#{bundle['dashboard.list_users.searchTerm.watermark']}"/>
+                                             onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }"
+                                             placeholder="#{bundle['dashboard.list_users.searchTerm.watermark']}"/>
                                 <p:remoteCommand name="submitsearch" action="#{DashboardUsersPage.runUserSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true"/>
                                 <span class="input-group-btn">
                                     <p:commandLink title="#{bundle['dataverse.search.btn.find']}" styleClass="btn btn-default bootstrap-button-tooltip" action="#{DashboardUsersPage.runUserSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true">

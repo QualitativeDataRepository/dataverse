@@ -20,10 +20,11 @@
     <div class="row panelSearchForm" jsf:rendered="#{!SearchIncludeFragment.solrIsDown}">
         <div class="col-xs-12">
             <h:form> 
-                <p:inputText id="searchBasic" title="#{bundle.search}" styleClass="form-control search-input" size="35" value="#{SearchIncludeFragment.query}" onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }">
+                <p:inputText id="searchBasic" title="#{bundle.search}" styleClass="form-control search-input" size="35" 
+                        value="#{SearchIncludeFragment.query}" onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }" 
+                        placeholder="#{dataverseRedirectPage == 'dataverseuser.xhtml' ? bundle['account.search.input.watermark'] : bundle['dataverse.search.input.watermark']}">
                     <f:passThroughAttribute name="aria-label" value="#{bundle.search}"/>
                 </p:inputText>
-                <p:watermark for="searchBasic" value="#{dataverseRedirectPage == 'dataverseuser.xhtml' ? bundle['account.search.input.watermark'] : bundle['dataverse.search.input.watermark']}"/>
                 <p:commandLink id="searchbutton" title="#{bundle['dataverse.search.btn.find']}" ariaLabel="#{bundle['dataverse.search.btn.find']}" styleClass="searchbutton bootstrap-button-tooltip" 
                     action="#{SearchIncludeFragment.searchRedirect(dataverseRedirectPage, DataversePage.dataverse)}">
                     <span class="glyphicon glyphicon-search no-text"/>

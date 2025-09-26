@@ -108,10 +108,10 @@
                                      onkeypress="if (event.keyCode == 13) {
                                                  submitsearch();
                                                  return false;
-                                             }">
+                                             }"
+                                     placeholder="#{bundle['file.search.placeholder']}">
                             <f:passThroughAttribute name="aria-labelledby" value="searchLabel"/>
                         </p:inputText>
-                        <p:watermark for="searchFiles" value="#{bundle['file.search.placeholder']}"/>
                         <p:remoteCommand name="submitsearch" action="#{DatasetPage.updateFileSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true"/>
 
                         <span class="input-group-btn">

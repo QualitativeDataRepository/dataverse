@@ -252,8 +252,8 @@
                                         <p:inputText id="serverUrl" styleClass="form-control"
                                                      value="#{harvestingClientsPage.newHarvestingUrl}"
                                                      readonly="#{harvestingClientsPage.initialSettingsValidated}"
-                                                     binding="#{harvestingClientsPage.newClientUrlInputField}"/>
-                                        <p:watermark for="serverUrl" value="#{bundle['harvestclients.newClientDialog.url.watermark']}" id="watermark" />
+                                                     binding="#{harvestingClientsPage.newClientUrlInputField}"
+                                                     placeholder="#{bundle['harvestclients.newClientDialog.url.watermark']}"/>
                                         <p:message for="serverUrl"/>
                                     </div>
                                 </div>
@@ -302,8 +302,8 @@
                                     <div class="col-sm-9">
                                         <p:inputText id="customHeader" styleClass="form-control"
                                                      value="#{harvestingClientsPage.newCustomHeader}"
-                                                     binding="#{harvestingClientsPage.newClientCustomHeaderInputField}"/>
-                                        <p:watermark for="customHeader" value="#{bundle['harvestclients.newClientDialog.customHeader.watermark']}" id="watermark1" />
+                                                     binding="#{harvestingClientsPage.newClientCustomHeaderInputField}"
+                                                     placeholder="#{bundle['harvestclients.newClientDialog.customHeader.watermark']}"/>
                                         <p:message for="customHeader"/>
                                         <p class="help-block" jsf:rendered="#{harvestingClientsPage.createMode}">#{bundle['harvestclients.newClientDialog.customHeader.helptext']}</p>
                                     </div>
