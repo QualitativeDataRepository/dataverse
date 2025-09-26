@@ -334,13 +334,13 @@
         <dependency>
             <groupId>org.primefaces</groupId>
             <artifactId>primefaces</artifactId>
-            <version>15.0.0</version>
+            <version>15.0.8</version>
             <classifier>jakarta</classifier>
         </dependency>
         <dependency>
             <groupId>org.primefaces</groupId>
             <artifactId>primefaces-themes</artifactId>
-            <version>15.0.0</version>
+            <version>15.0.8</version>
         </dependency>
         <dependency>
             <groupId>org.omnifaces</groupId>
