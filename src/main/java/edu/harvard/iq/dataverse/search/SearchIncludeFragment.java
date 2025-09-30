@@ -1547,13 +1547,18 @@ public class SearchIncludeFragment implements java.io.Serializable {
         });
     }
     
+    private Map<Long, Boolean> seesStatus = new HashMap<>();
+    
     public boolean canSeeCurationStatus(Long datasetId) {
-        boolean creatorsCanSeeStatus = JvmSettings.UI_SHOW_CURATION_STATUS_TO_ALL.lookupOptional(Boolean.class).orElse(false);
-        if (creatorsCanSeeStatus) {
-            return permissionsWrapper.canViewUnpublishedDataset(getDataverseRequest(),(Dataset) dvObjectService.findDvObject(datasetId));
-        } else {
-            return canPublishDataset(datasetId);
+        if (!seesStatus.containsKey(datasetId)) {
+            boolean creatorsCanSeeStatus = JvmSettings.UI_SHOW_CURATION_STATUS_TO_ALL.lookupOptional(Boolean.class).orElse(false);
+            if (creatorsCanSeeStatus) {
+                seesStatus.put(datasetId, permissionsWrapper.canViewUnpublishedDataset(getDataverseRequest(), (Dataset) dvObjectService.findDvObject(datasetId)));
+            } else {
+                seesStatus.put(datasetId, canPublishDataset(datasetId));
+            }
         }
+        return seesStatus.get(datasetId);
     }
 
     public enum SortOrder {
