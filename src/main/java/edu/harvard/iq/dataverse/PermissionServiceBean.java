@@ -21,6 +21,7 @@ import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import static edu.harvard.iq.dataverse.engine.command.CommandHelper.CH;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -1023,17 +1024,22 @@ public class PermissionServiceBean {
 
         List<String> raIds = ras.stream().map(roas -> roas.getIdentifier()).collect(Collectors.toList());
 
-        List<RoleAssignment> roleAssignments = em.createNamedQuery("RoleAssignment.listByAssigneeIdentifiers_NoDefPoint", RoleAssignment.class)
+        // Just check for existence of at least one matching record
+        // More efficient than counting all records
+        try {
+            Object result = em.createQuery(
+                "SELECT 1 FROM RoleAssignment ra " +
+                "WHERE ra.assigneeIdentifier IN :assigneeIdentifiers " +
+                "AND get_bit(ra.role.permissionsBits, :permissionBit) = true")
                 .setParameter("assigneeIdentifiers", raIds)
-                .getResultList();
-
-        for (RoleAssignment asmnt : roleAssignments) {
-            BitSet permissions = new BitSet(asmnt.getRole().getPermissionsBits());
-            if (permissions.isSet(Permission.PublishDataset.ordinal())) {
-                return true;
-            }
+                .setParameter("permissionBit", Permission.PublishDataset.ordinal())
+                .setMaxResults(1)  // Limit to just one result
+                .getSingleResult();
+            
+            return result != null;
+        } catch (NoResultException e) {
+            return false;
         }
-        return false;
     }
 
 }
