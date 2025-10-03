@@ -1001,13 +1001,13 @@ public class PermissionServiceBean {
         // More efficient than counting all records
         try {
             Object result = em.createQuery(
-                "SELECT 1 FROM RoleAssignment ra " +
-                "WHERE ra.assigneeIdentifier IN :assigneeIdentifiers " +
-                "AND get_bit(ra.role.permissionsBits, :permissionBit) = true")
-                .setParameter("assigneeIdentifiers", raIds)
-                .setParameter("permissionBit", Permission.PublishDataset.ordinal())
-                .setMaxResults(1)  // Limit to just one result
-                .getSingleResult();
+                    "SELECT ra.id FROM RoleAssignment ra " +
+                    "WHERE ra.assigneeIdentifier IN :assigneeIdentifiers " +
+                    "AND get_bit(ra.role.permissionsBits, :permissionBit) = true")
+                    .setParameter("assigneeIdentifiers", raIds)
+                    .setParameter("permissionBit", Permission.PublishDataset.ordinal())
+                    .setMaxResults(1)  // Limit to just one result
+                    .getSingleResult();
             
             return result != null;
         } catch (NoResultException e) {
