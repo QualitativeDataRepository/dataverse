@@ -209,13 +209,17 @@ public class DatasetVersion implements Serializable {
     @Transient 
     private String jsonLd;
 
-    @OneToMany(mappedBy="datasetVersion", cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy="datasetVersion", orphanRemoval = true, cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<DatasetVersionUser> datasetVersionUsers;
     
     // Is this the right mapping and cascading for when the workflowcomments table is being used for objects other than DatasetVersion?
     @OneToMany(mappedBy = "datasetVersion", cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
     private List<WorkflowComment> workflowComments;
 
+    /*
+     * As of v6.7, the NULLS LAST part of the annotation below appears to not be working. Explicit sorting has been added in the getCurationStatuses() method. The annotation is kept since, if it does work
+     * in the future, it is presumably more efficient that sorting in our code.
+     */
     @OneToMany(mappedBy = "datasetVersion", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createTime DESC NULLS LAST")
     private List<CurationStatus> curationStatuses = new ArrayList<>();
@@ -2119,30 +2123,70 @@ public class DatasetVersion implements Serializable {
         }
 
         List<FileMetadata> fileMetadatasSorted = getFileMetadatasSorted();
+
         if (fileMetadatasSorted != null && !fileMetadatasSorted.isEmpty()) {
-            JsonArrayBuilder fileArray = Json.createArrayBuilder();
-            String dataverseSiteUrl = SystemConfig.getDataverseSiteUrlStatic();
-            for (FileMetadata fileMetadata : fileMetadatasSorted) {
-                JsonObjectBuilder fileObject = NullSafeJsonBuilder.jsonObjectBuilder();
-                String filePidUrlAsString = null;
-                GlobalId gid = fileMetadata.getDataFile().getGlobalId();
-                filePidUrlAsString = gid != null ? gid.asURL() : null;
-                fileObject.add("@type", "DataDownload");
-                fileObject.add("name", fileMetadata.getLabel());
-                fileObject.add("encodingFormat", fileMetadata.getDataFile().getContentType());
-                fileObject.add("contentSize", fileMetadata.getDataFile().getFilesize());
-                fileObject.add("description", fileMetadata.getDescription());
-                fileObject.add("@id", filePidUrlAsString);
-                fileObject.add("identifier", filePidUrlAsString);
-                boolean hideFilesBoolean = JvmSettings.HIDE_SCHEMA_DOT_ORG_DOWNLOAD_URLS.lookupOptional(Boolean.class).orElse(false);
-                if (!hideFilesBoolean) {
-                    String nullDownloadType = null;
-                    fileObject.add("contentUrl", dataverseSiteUrl + FileUtil.getFileDownloadUrlPath(nullDownloadType, fileMetadata.getDataFile().getId(), false, fileMetadata.getId()));
+            Integer maxFilesForDownloadEntries = JvmSettings.EXPORTS_SCHEMA_DOT_ORG_MAX_FILES_FOR_DOWNLOAD_ENTRIES.lookupOptional(Integer.class).orElse(Integer.MAX_VALUE);
+            if (fileMetadatasSorted.size() <= maxFilesForDownloadEntries) {
+
+                JsonArrayBuilder fileArray = Json.createArrayBuilder();
+                String dataverseSiteUrl = SystemConfig.getDataverseSiteUrlStatic();
+                for (FileMetadata fileMetadata : fileMetadatasSorted) {
+                    JsonObjectBuilder fileObject = NullSafeJsonBuilder.jsonObjectBuilder();
+                    String filePidUrlAsString = null;
+                    GlobalId gid = fileMetadata.getDataFile().getGlobalId();
+                    filePidUrlAsString = gid != null ? gid.asURL() : null;
+                    fileObject.add("@type", "DataDownload");
+                    fileObject.add("name", fileMetadata.getLabel());
+                    fileObject.add("encodingFormat", fileMetadata.getDataFile().getContentType());
+                    fileObject.add("contentSize", fileMetadata.getDataFile().getFilesize());
+                    fileObject.add("description", MarkupChecker.stripAllTags(fileMetadata.getDescription()));
+                    fileObject.add("@id", filePidUrlAsString);
+                    fileObject.add("identifier", filePidUrlAsString);
+                    boolean hideFilesBoolean = JvmSettings.HIDE_SCHEMA_DOT_ORG_DOWNLOAD_URLS.lookupOptional(Boolean.class).orElse(false);
+                    if (!hideFilesBoolean) {
+                        String nullDownloadType = null;
+                        fileObject.add("contentUrl", dataverseSiteUrl + FileUtil.getFileDownloadUrlPath(nullDownloadType, fileMetadata.getDataFile().getId(), false, fileMetadata.getId()));
+                    }
+                    fileArray.add(fileObject);
                 }
-                fileArray.add(fileObject);
+                job.add("distribution", fileArray);
+            } else {
+                // If we have too many files, we don't include individual distribution entries
+                // but we can still provide a search action for file downloads
+                StringBuilder valuePattern = new StringBuilder();
+                boolean first = true;
+
+                // Build the pattern of all file IDs joined with OR operator
+                for (FileMetadata fileMetadata : fileMetadatas) {
+                    if (!first) {
+                        valuePattern.append("|");
+                    } else {
+                        first = false;
+                    }
+                    valuePattern.append(fileMetadata.getDataFile().getId());
+                }
+
+                // Create the potentialAction object
+                JsonObjectBuilder potentialAction = Json.createObjectBuilder()
+                        .add("@type", "SearchAction")
+                        .add("target", Json.createObjectBuilder()
+                                .add("@type", "EntryPoint")
+                                .add("contentType", Json.createArrayBuilder().add("*/*"))
+                                .add("urlTemplate", SystemConfig.getDataverseSiteUrlStatic() + "/api/access/datafile/{fileId}")
+                                .add("description", "Download each file from the dataset based on file id")
+                                .add("httpMethod", Json.createArrayBuilder().add("GET")))
+                        .add("query-input", Json.createArrayBuilder()
+                                .add(Json.createObjectBuilder()
+                                        .add("@type", "PropertyValueSpecification")
+                                        .add("valueName", "fileId")
+                                        .add("description", "Id of the desired file")
+                                        .add("valueRequired", true)
+                                        .add("valuePattern", "(" + valuePattern.toString() + ")")));
+
+                job.add("potentialAction", potentialAction);
             }
-            job.add("distribution", fileArray);
         }
+
         jsonLd = job.build().toString();
 
         //Most fields above should be stripped/sanitized but, since this is output in the dataset page as header metadata, do a final sanitize step to make sure
@@ -2158,6 +2202,11 @@ public class DatasetVersion implements Serializable {
     // Add methods to manage curationLabels
     public List<CurationStatus> getCurationStatuses() {
         // Sort the list to ensure null createTime values appear last
+        /*
+         * Note that the ORDER DESC NULLS LAST annotation on this list should sort this way,
+         * but, as of v6.7, the NULLS LAST aspect is not working.
+         * The code here assured both the DESC order and NULLS LAST.
+         */
         if (curationStatuses != null) {
             curationStatuses.sort(Comparator.comparing(
                 CurationStatus::getCreateTime,
@@ -2172,7 +2221,12 @@ public class DatasetVersion implements Serializable {
     }
 
     public CurationStatus getCurrentCurationStatus() {
-        return !getCurationStatuses().isEmpty() ? getCurationStatuses().get(0) : null;
+        if (curationStatuses.isEmpty()) {
+            CurationStatus initialNullStatus = new CurationStatus(null, this, null);
+            initialNullStatus.setCreateTime(this.getCreateTime());
+            return initialNullStatus;
+        }
+        return getCurationStatuses().get(0);
     }
 
     

@@ -83,6 +83,7 @@
         <connector-resource pool-name="jms/__defaultConnectionFactory-Connection-Pool" object-type="system-all-req" jndi-name="jms/__defaultConnectionFactory" />
         <context-service object-type="system-all" jndi-name="concurrent/__defaultContextService" />
         <managed-thread-factory object-type="system-all" jndi-name="concurrent/__defaultManagedThreadFactory" />
+        <managed-executor-service core-pool-size="1" task-queue-capacity="1000" thread-lifetime-seconds="300" maximum-pool-size="1" jndi-name="CitationUpdateExecutor"></managed-executor-service>
     </resources>
     <servers>
         <server name="server" config-ref="server-config">
@@ -623,7 +624,7 @@
         </config>
     </configs>
     <property name="administrative.domain.name" value="domain1" />
-    <secure-admin special-admin-indicator="a369f5ce-e0a6-4d36-9bd9-8583569693b0">
+    <secure-admin special-admin-indicator="15827a57-7e55-41eb-8fcc-b3a03544e677">
         <secure-admin-principal dn="CN=localhost,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
         <secure-admin-principal dn="CN=localhost-instance,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
     </secure-admin>

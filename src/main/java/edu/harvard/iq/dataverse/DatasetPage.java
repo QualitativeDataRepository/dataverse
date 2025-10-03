@@ -306,6 +306,7 @@ public class DatasetPage implements java.io.Serializable {
     private String dropBoxSelection = "";
     private String deaccessionReasonText = "";
     private String displayCitation;
+    private String displayTitle;
     private String deaccessionForwardURLFor = "";
     private String showVersionList = "false";
     private List<Template> dataverseTemplates = new ArrayList<>();
@@ -332,7 +333,6 @@ public class DatasetPage implements java.io.Serializable {
     private List<SelectItem> linkingDVSelectItems;
     private Dataverse linkingDataverse;
     private Dataverse selectedHostDataverse;
-    private boolean hasDataversesToChoose;
 
     public Dataverse getSelectedHostDataverse() {
         return selectedHostDataverse;
@@ -1579,6 +1579,14 @@ public class DatasetPage implements java.io.Serializable {
         this.displayCitation = displayCitation;
     }
 
+    public String getDisplayTitle() {
+        return displayTitle;
+    }
+
+    public void setDisplayTitle(String displayTitle) {
+        this.displayTitle = displayTitle;
+    }
+
     public String getDropBoxSelection() {
         return dropBoxSelection;
     }
@@ -1702,11 +1710,6 @@ public class DatasetPage implements java.io.Serializable {
         this.dataverseTemplates = dataverseTemplates;
     }
 
-    public boolean isHasDataversesToChoose() {
-        this.hasDataversesToChoose = dataverseService.findAll().size() > 1;
-        return this.hasDataversesToChoose;
-    }
-
     public Template getDefaultTemplate() {
         return defaultTemplate;
     }
@@ -1788,24 +1791,26 @@ public class DatasetPage implements java.io.Serializable {
             Iterate through List of DataverseFieldTypeInputLevel objects
             Call "setInclude" on its related DatasetField object
          --------------------------------------------------------- */
-        for (DataverseFieldTypeInputLevel oneDSFieldTypeInputLevel : dsFieldTypeInputLevels){
+        // check if not null (avoid NPE)
+        if (dsFieldTypeInputLevels != null) {
+            for (DataverseFieldTypeInputLevel oneDSFieldTypeInputLevel : dsFieldTypeInputLevels) {
 
-            if (oneDSFieldTypeInputLevel != null) {
-                // Is the DatasetField in the hash?    hash format: {  DatasetFieldType.id : DatasetField }
-                DatasetField dsf = mapDatasetFields.get(oneDSFieldTypeInputLevel.getDatasetFieldType().getId());
-                if (dsf != null){
-                    // Yes, call "setInclude"
-                    dsf.setInclude(oneDSFieldTypeInputLevel.isInclude());
-                    Boolean displayOnCreate = oneDSFieldTypeInputLevel.getDisplayOnCreate();
-                    if (displayOnCreate!= null) {
-                        dsf.getDatasetFieldType().setLocalDisplayOnCreate(displayOnCreate);
+                if (oneDSFieldTypeInputLevel != null) {
+                    // Is the DatasetField in the hash? hash format: { DatasetFieldType.id : DatasetField }
+                    DatasetField dsf = mapDatasetFields.get(oneDSFieldTypeInputLevel.getDatasetFieldType().getId());
+                    if (dsf != null) {
+                        // Yes, call "setInclude"
+                        dsf.setInclude(oneDSFieldTypeInputLevel.isInclude());
+                        Boolean displayOnCreate = oneDSFieldTypeInputLevel.getDisplayOnCreate();
+                        if (displayOnCreate != null) {
+                            dsf.getDatasetFieldType().setLocalDisplayOnCreate(displayOnCreate);
+                        }
+                        // remove from hash
+                        mapDatasetFields.remove(oneDSFieldTypeInputLevel.getDatasetFieldType().getId());
                     }
-                    // remove from hash
-                    mapDatasetFields.remove(oneDSFieldTypeInputLevel.getDatasetFieldType().getId());
                 }
-            }
-        }  // end: updateDatasetFieldInputLevels
-
+            } // end: updateDatasetFieldInputLevels
+        }
         /* ---------------------------------------------------------
             Iterate through any DatasetField objects remaining in the hash
             Call "setInclude(true) on each one
@@ -2049,6 +2054,8 @@ public class DatasetPage implements java.io.Serializable {
                 //msg("checkit " + retrieveDatasetVersionResponse.getDifferentVersionMessage());
                 JsfHelper.addWarningMessage(retrieveDatasetVersionResponse.getDifferentVersionMessage());//BundleUtil.getStringFromBundle("dataset.message.metadataSuccess"));
             }
+
+            displayTitle = workingVersion.getTitle();
 
             // init the citation
             displayCitation = dataset.getCitation(true, workingVersion, isAnonymizedAccess());

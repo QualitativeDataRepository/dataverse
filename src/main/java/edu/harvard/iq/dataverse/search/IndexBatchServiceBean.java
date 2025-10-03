@@ -15,6 +15,8 @@ import jakarta.ejb.AsyncResult;
 import jakarta.ejb.Asynchronous;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Named;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
@@ -47,6 +49,7 @@ public class IndexBatchServiceBean {
     SystemConfig systemConfig;
     
     @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Future<JsonObjectBuilder> indexStatus() {
         JsonObjectBuilder response = Json.createObjectBuilder();
         logger.info("Beginning indexStatus()");
@@ -76,6 +79,7 @@ public class IndexBatchServiceBean {
     }
 
     @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Future<JsonObjectBuilder> clearOrphans() {
         JsonObjectBuilder response = Json.createObjectBuilder();
         List<String> solrIds = new ArrayList<>();
@@ -103,6 +107,7 @@ public class IndexBatchServiceBean {
 
     
     @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public Future<JsonObjectBuilder> indexAllOrSubset(long numPartitions, long partitionId, boolean skipIndexed, boolean previewOnly) {
         JsonObjectBuilder response = Json.createObjectBuilder();
         indexAllOrSubset(numPartitions, partitionId, skipIndexed);
@@ -140,7 +145,8 @@ public class IndexBatchServiceBean {
         return response;
     }
 
-    public Future<String> indexAllOrSubset(long numPartitions, long partitionId, boolean skipIndexed) {
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    private Future<String> indexAllOrSubset(long numPartitions, long partitionId, boolean skipIndexed) {
         long indexAllTimeBegin = System.currentTimeMillis();
         String status;
 

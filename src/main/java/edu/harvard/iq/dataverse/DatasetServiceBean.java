@@ -1,8 +1,6 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.DatasetVersion.VersionState;
-import edu.harvard.iq.dataverse.api.util.FailedPIDResolutionLoggingServiceBean;
-import edu.harvard.iq.dataverse.api.util.FailedPIDResolutionLoggingServiceBean.FailedPIDResolutionEntry;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
@@ -21,7 +19,10 @@ import edu.harvard.iq.dataverse.engine.command.impl.GetDatasetStorageSizeCommand
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.globus.GlobusServiceBean;
 import edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean;
+import edu.harvard.iq.dataverse.pidproviders.FailedPIDResolutionLoggingServiceBean;
+import edu.harvard.iq.dataverse.pidproviders.FailedPIDResolutionLoggingServiceBean.FailedPIDResolutionEntry;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
+import edu.harvard.iq.dataverse.settings.FeatureFlags;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -102,6 +103,8 @@ public class DatasetServiceBean implements java.io.Serializable {
     UserNotificationServiceBean userNotificationService;
 
     private static final SimpleDateFormat logFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
+    
+    private static final boolean pidFailureLoggingEnabled = FeatureFlags.ENABLE_PID_FAILURE_LOG.enabled();
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     protected EntityManager em;
@@ -143,6 +146,7 @@ public class DatasetServiceBean implements java.io.Serializable {
                     .setHint("eclipselink.left-join-fetch", "o.files.creator")
                     .setHint("eclipselink.left-join-fetch", "o.files.alternativePersistentIndentifiers")
                     .setHint("eclipselink.left-join-fetch", "o.files.roleAssignments")
+                    .setHint("eclipselink.left-join-fetch", "o.storageUse")
                     .getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
             return null;
@@ -174,12 +178,12 @@ public class DatasetServiceBean implements java.io.Serializable {
     }
 
     public List<Long> findIdsByOwnerId(Long ownerId) {
-        return findIdsByOwnerId(ownerId, false);
+        return findIdsByOwnerId(ownerId, false, false);
     }
 
-    private List<Long> findIdsByOwnerId(Long ownerId, boolean onlyPublished) {
+    public List<Long> findIdsByOwnerId(Long ownerId, boolean onlyPublished, boolean includeHarvested) {
         List<Long> retList = new ArrayList<>();
-        if (!onlyPublished) {
+        if (!onlyPublished && includeHarvested) {
             return em.createNamedQuery("Dataset.findIdByOwnerId")
                     .setParameter("ownerId", ownerId)
                     .getResultList();
@@ -187,8 +191,18 @@ public class DatasetServiceBean implements java.io.Serializable {
             List<Dataset> results = em.createNamedQuery("Dataset.findByOwnerId")
                     .setParameter("ownerId", ownerId).getResultList();
             for (Dataset ds : results) {
-                if (ds.isReleased() && !ds.isDeaccessioned()) {
-                    retList.add(ds.getId());
+                // For harvested datasets, only add them if includeHarvested is true
+                if (ds.isHarvested()) {
+                    if (includeHarvested) {
+                        retList.add(ds.getId());
+                    }
+                // For non-harvested datasets, either
+                // - add them all (if onlyPublished is false) OR
+                // - only add them if they are released and not deaccessioned (if onlyPublished is true)
+                } else {
+                    if (!onlyPublished || (ds.isReleased() && !ds.isDeaccessioned())) {
+                        retList.add(ds.getId());
+                    }
                 }
             }
             return retList;
@@ -309,7 +323,7 @@ public class DatasetServiceBean implements java.io.Serializable {
         } else {
             // try to find with alternative PID
             retVal = (Dataset) dvObjectService.findByAltGlobalId(globalId, DvObject.DType.Dataset);
-            if (retVal == null) {
+            if (retVal == null  && pidFailureLoggingEnabled) {
                 try {
 
                     HttpServletRequest httpRequest = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest());

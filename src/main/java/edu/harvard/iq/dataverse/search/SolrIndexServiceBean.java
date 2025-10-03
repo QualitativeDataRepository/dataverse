@@ -30,6 +30,8 @@ import java.util.stream.Stream;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Named;
 import jakarta.json.Json;
 import jakarta.json.JsonObjectBuilder;
@@ -37,6 +39,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 
 @Named
@@ -45,6 +48,10 @@ public class SolrIndexServiceBean {
 
     private static final Logger logger = Logger.getLogger(SolrIndexServiceBean.class.getCanonicalName());
 
+    
+    @EJB
+    private SolrIndexServiceBean self; // Self-injection to allow calling methods in new transactions (from other methods in this bean)
+    
     @EJB
     DvObjectServiceBean dvObjectService;
     @EJB
@@ -321,138 +328,192 @@ public class SolrIndexServiceBean {
         /**
          * @todo Do something with these responses from Solr.
          */
-        solrClientService.getSolrClient().add(docs);
+        int maxRetries = 3;
+        int retryCount = 0;
+        boolean success = false;
+
+        while (!success && retryCount < maxRetries) {
+            try {
+                if (retryCount > 0) {
+                    // Exponential backoff
+                    Thread.sleep((long) Math.pow(2, retryCount) * 1000);
+                    logger.info("Retry attempt " + retryCount + " for Solr batch");
+                }
+
+                logger.fine("persisting " + docs.size() + " docs to Solr...");
+                UpdateResponse response = solrClientService.getSolrClient().add(docs);
+
+                // Check response status
+                if (response.getStatus() == 0) {
+                    success = true;
+                    logger.fine("Successfully added " + docs.size() + " docs to Solr in " +
+                            response.getQTime() + "ms");
+                } else {
+                    logger.warning("Solr returned non-zero status: " + response.getStatus());
+                }
+            } catch (SolrServerException | IOException e) {
+                retryCount++;
+                if (e.getMessage() != null && e.getMessage().contains("Request processing has stalled")) {
+                    logger.warning("Solr request stalled. Retry " + retryCount + "/" + maxRetries);
+
+                    // If this is the last retry, rethrow
+                    if (retryCount >= maxRetries) {
+                        throw e;
+                    }
+                } else {
+                    // For other exceptions, don't retry
+                    throw e;
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Interrupted during retry backoff", e);
+            }
+        }
     }
 
-    /**
-     * We use the database to determine direct children since there is no
-     * inheritance
-     */
-    public IndexResponse indexPermissionsOnSelfAndChildren(DvObject definitionPoint) {
 
-        if (definitionPoint == null) {
-            logger.log(Level.WARNING, "Cannot perform indexPermissionsOnSelfAndChildren with a definitionPoint null");
-            return null;
-        }
-        int fileQueryMin= JvmSettings.MIN_FILES_TO_USE_PROXY.lookupOptional(Integer.class).orElse(Integer.MAX_VALUE);
-        List<DataFileProxy> filesToReindexAsBatch = new ArrayList<>();
-        /**
-         * @todo Re-indexing the definition point itself seems to be necessary
-         * for revoke but not necessarily grant.
-         */
-
-        // We don't create a Solr "primary/content" doc for the root dataverse
-        // so don't create a Solr "permission" doc either.
-        final int[] counter = {0};
-        int numObjects = 0;
-        long globalStartTime = System.currentTimeMillis();
-        if (definitionPoint.isInstanceofDataverse()) {
-            Dataverse selfDataverse = (Dataverse) definitionPoint;
-            if (!selfDataverse.equals(dataverseService.findRootDataverse())) {
-                indexPermissionsForOneDvObject(definitionPoint);
-                numObjects++;
-            }
-            List<Dataset> directChildDatasetsOfDvDefPoint = datasetService.findByOwnerId(selfDataverse.getId());
-            for (Dataset dataset : directChildDatasetsOfDvDefPoint) {
-                indexPermissionsForOneDvObject(dataset);
-                numObjects++;
-                Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
-                
-                Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
-                long startTime = System.currentTimeMillis();
-                for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
-                    if (desiredCards.get(version.getVersionState())) {
-                        List<String> cachedPerms = searchPermissionsService.findDatasetVersionPerms(version);
-                        String solrIdEnd = getDatasetOrDataFileSolrEnding(version.getVersionState());
-                        Long versionId = version.getId();
-                        for (FileMetadata fmd : version.getFileMetadatas()) {
-                            DataFileProxy fileProxy = new DataFileProxy(fmd);
-                            // Since reindexFilesInBatches() re-indexes a file in all versions needed, we should not send a file already in the released version twice
-                            filesToReindexAsBatch.add(fileProxy);
-                            counter[0]++;
-                            if (counter[0] % 100 == 0) {
-                                reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
-                                filesToReindexAsBatch.clear();
-                            }
-                            if (counter[0] % 1000 == 0) {
-                                logger.fine("Progress: " + counter[0] + "files permissions reindexed");
-                            }
-                        }
-
-                        // Re-index any remaining files in the datasetversion (so that verionId, etc. remain constants for all files in the batch)
-                        reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
-                        logger.info("Progress : dataset " + dataset.getId() + " permissions reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
-                    }
-                }
-            }
-        } else if (definitionPoint.isInstanceofDataset()) {
+/**
+ * We use the database to determine direct children since there is no
+ * inheritance. This implementation uses smaller transactions to avoid memory issues.
+ */
+public IndexResponse indexPermissionsOnSelfAndChildren(DvObject definitionPoint) {
+    if (definitionPoint == null) {
+        logger.log(Level.WARNING, "Cannot perform indexPermissionsOnSelfAndChildren with a definitionPoint null");
+        return null;
+    }
+    
+    int fileQueryMin = JvmSettings.MIN_FILES_TO_USE_PROXY.lookupOptional(Integer.class).orElse(Integer.MAX_VALUE);
+    final int[] counter = {0};
+    int numObjects = 0;
+    long globalStartTime = System.currentTimeMillis();
+    
+    // Handle the definition point itself in its own transaction
+    if (definitionPoint instanceof Dataverse dataverse) {
+        if (!dataverse.equals(dataverseService.findRootDataverse())) {
             indexPermissionsForOneDvObject(definitionPoint);
             numObjects++;
-            // index files
-            Dataset dataset = (Dataset) definitionPoint;
+        }
+        
+        // Process datasets in batches
+        List<Long> datasetIds = datasetService.findIdsByOwnerId(dataverse.getId());
+        int batchSize = 10; // Process 10 datasets per transaction
+        
+        for (int i = 0; i < datasetIds.size(); i += batchSize) {
+            int endIndex = Math.min(i + batchSize, datasetIds.size());
+            List<Long> batchIds = datasetIds.subList(i, endIndex);
+            
+            // Process this batch of datasets in a new transaction
+            self.indexDatasetBatchInNewTransaction(batchIds, counter, fileQueryMin);
+            numObjects += batchIds.size();
+            
+            logger.info("Permission reindexing: Processed batch " + (i/batchSize + 1) + " of " + 
+                       (int)Math.ceil(datasetIds.size()/(double)batchSize) + 
+                       " dataset batches for dataverse " + dataverse.getId());
+        }
+    } else if (definitionPoint instanceof Dataset dataset) {
+        // For a single dataset, process it in its own transaction
+        indexPermissionsForOneDvObject(definitionPoint);
+        numObjects++;
+        
+        // Process the dataset's files in a new transaction
+        self.indexDatasetFilesInNewTransaction(dataset.getId(), counter, fileQueryMin);
+    } else {
+        // For other types (like files), just index in a new transaction
+        indexPermissionsForOneDvObject(definitionPoint);
+        numObjects++;
+    }
+
+    logger.info("Reindexed permissions for " + counter[0] + " files and " + numObjects + 
+               " datasets/collections in " + (System.currentTimeMillis() - globalStartTime) + " ms");
+    
+    return new IndexResponse("Number of dvObject permissions indexed for " + definitionPoint + ": " + numObjects);
+}
+
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+public void indexDatasetBatchInNewTransaction(List<Long> datasetIds, final int[] fileCounter, int fileQueryMin) {
+    for (Long datasetId : datasetIds) {
+        Dataset dataset = datasetService.find(datasetId);
+        if (dataset != null) {
+            indexPermissionsForOneDvObject(dataset);
+            
+            // Process files for this dataset
+            Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
             Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
+            
             for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
                 if (desiredCards.get(version.getVersionState())) {
-                    List<String> cachedPerms = searchPermissionsService.findDatasetVersionPerms(version);
-                    String solrIdEnd = getDatasetOrDataFileSolrEnding(version.getVersionState());
-                    Long versionId = version.getId();
-                    
-                    Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
-                    if (version.getFileMetadatas().size() > fileQueryMin) {
-                        // For large datasets, use a more efficient SQL query instead of loading all file metadata objects
-                        getDataFileInfoForPermissionIndexing(version.getId()).forEach(fileInfo -> {
-                            filesToReindexAsBatch.add(fileInfo);
-                            counter[0]++;
-
-                            if (counter[0] % 100 == 0) {
-                                long startTime = System.currentTimeMillis();
-                                reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
-                                filesToReindexAsBatch.clear();
-                                logger.fine("Progress: 100 file permissions at " + counter[0] + " files reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
-                            }
-                        });
-                    } else {
-                        version.getFileMetadatas().stream()
-                                .forEach(fmd -> {
-                                    DataFileProxy fileProxy = new DataFileProxy(fmd);
-                                    filesToReindexAsBatch.add(fileProxy);
-                                    counter[0]++;
-                                    if (counter[0] % 100 == 0) {
-                                        long startTime = System.currentTimeMillis();
-                                        reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
-                                        filesToReindexAsBatch.clear();
-                                        logger.fine("Progress: 100 file permissions at  " + counter[0] + "files reindexed in " + (System.currentTimeMillis() - startTime) + " ms");
-                                    }
-                                });
-                    }
-                    // Re-index any remaining files in the dataset version (versionId, etc. remain constants for all files in the batch)
-                    reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
-                    filesToReindexAsBatch.clear();
+                    processDatasetVersionFiles(version, fileDownloadersMap, fileCounter, fileQueryMin);
                 }
-
             }
-        } else {
-            indexPermissionsForOneDvObject(definitionPoint);
-            numObjects++;
         }
-
-        /**
-         * @todo Error handling? What to do with response?
-         *
-         * @todo Should update timestamps, probably, even thought these are files, see
-         *       https://github.com/IQSS/dataverse/issues/2421
-         */
-        logger.info("Reindexed permissions for " + counter[0] + " files and " + numObjects + "datasets/collections in " + (System.currentTimeMillis() - globalStartTime) + " ms");
-        return new IndexResponse("Number of dvObject permissions indexed for " + definitionPoint
-                + ": " + numObjects);
     }
+}
 
-    private String reindexFilesInBatches(List<DataFileProxy> filesToReindexAsBatch, List<String> cachedPerms, Long versionId, String solrIdEnd, Map<Long, List<String>> fileDownloadersMap) {
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+public void indexDatasetFilesInNewTransaction(Long datasetId, final int[] fileCounter, int fileQueryMin) {
+    Dataset dataset = datasetService.find(datasetId);
+    if (dataset != null) {
+        Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
+        Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
+        
+        for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
+            if (desiredCards.get(version.getVersionState())) {
+                processDatasetVersionFiles(version, fileDownloadersMap, fileCounter, fileQueryMin);
+            }
+        }
+    }
+}
+
+private void processDatasetVersionFiles(DatasetVersion version, Map<Long, List<String>> fileDownloadersMap, 
+                                       final int[] fileCounter, int fileQueryMin) {
+    List<String> cachedPerms = searchPermissionsService.findDatasetVersionPerms(version);
+    String solrIdEnd = getDatasetOrDataFileSolrEnding(version.getVersionState());
+    Long versionId = version.getId();
+    List<DataFileProxy> filesToReindexAsBatch = new ArrayList<>();
+    
+    // Process files in batches of 100
+    int batchSize = 100;
+    
+    if (version.getFileMetadatas().size() > fileQueryMin) {
+        // For large datasets, use a more efficient SQL query
+        Stream<DataFileProxy> fileStream = getDataFileInfoForPermissionIndexing(version.getId());
+        
+        // Process files in batches to avoid memory issues
+        fileStream.forEach(fileInfo -> {
+            filesToReindexAsBatch.add(fileInfo);
+            fileCounter[0]++;
+            
+            if (filesToReindexAsBatch.size() >= batchSize) {
+                reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
+                filesToReindexAsBatch.clear();
+            }
+        });
+    } else {
+        // For smaller datasets, process files directly
+        for (FileMetadata fmd : version.getFileMetadatas()) {
+            DataFileProxy fileProxy = new DataFileProxy(fmd);
+            filesToReindexAsBatch.add(fileProxy);
+            fileCounter[0]++;
+            
+            if (filesToReindexAsBatch.size() >= batchSize) {
+                reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
+                filesToReindexAsBatch.clear();
+            }
+        }
+    }
+    
+    // Process any remaining files
+    if (!filesToReindexAsBatch.isEmpty()) {
+        reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
+    }
+}
+
+    private void reindexFilesInBatches(List<DataFileProxy> filesToReindexAsBatch, List<String> cachedPerms, Long versionId, String solrIdEnd, Map<Long, List<String>> fileDownloadersMap) {
         List<SolrInputDocument> docs = new ArrayList<>();
         try {
             // Assume all files have the same owner
             if (filesToReindexAsBatch.isEmpty()) {
-                return "No files to reindex";
+                logger.warning("reindexFilesInBatches called incorrectly with an empty file list");
             }
 
                     for (DataFileProxy file : filesToReindexAsBatch) {
@@ -465,9 +526,10 @@ public class SolrIndexServiceBean {
                             docs.add(solrDoc);
                     }
             persistToSolr(docs);
-            return " " + filesToReindexAsBatch.size() + " files indexed across " + docs.size() + " Solr documents ";
+            logger.fine("Indexed " + filesToReindexAsBatch.size() + " files across " + docs.size() + " Solr documents");
         } catch (SolrServerException | IOException ex) {
-            return " tried to reindex " + filesToReindexAsBatch.size() + " files indexed across " + docs.size() + " Solr documents but caught exception: " + ex;
+            logger.log(Level.WARNING, "Failed to reindex " + filesToReindexAsBatch.size() + 
+                    " files across " + docs.size() + " Solr documents", ex);
         }
     }
 

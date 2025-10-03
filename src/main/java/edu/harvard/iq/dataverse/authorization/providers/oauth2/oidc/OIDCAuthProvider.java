@@ -1,16 +1,5 @@
 package edu.harvard.iq.dataverse.authorization.providers.oauth2.oidc;
 
-import java.io.IOException;
-import java.net.URI;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.scribejava.core.builder.api.DefaultApi20;
@@ -56,9 +45,21 @@ import edu.harvard.iq.dataverse.authorization.exceptions.AuthorizationSetupExcep
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.AbstractOAuth2AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2Exception;
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2UserRecord;
+import edu.harvard.iq.dataverse.authorization.providers.shib.ShibUtil;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
+
+import java.io.IOException;
+import java.net.URI;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * TODO: this should not EXTEND, but IMPLEMENT the contract to be used in {@link edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean}
@@ -270,18 +271,42 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             usesMFA = true;
         }
         affiliation = affiliation == null ? "" : affiliation;
-        return new OAuth2UserRecord(
-            this.getId(),
-            userInfo.getSubject().getValue(),
-            userInfo.getPreferredUsername(),
-            null,
-            new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), affiliation, role),
-            null,
-            usesMFA,
-            consentVersion
+        // Extract Shibboleth persistent identifier claim if present
+        Object shibUniqueIdObj = userInfo.getClaim(ShibUtil.uniquePersistentIdentifier);
+
+        // Extract idp claim if present
+        Object idpObj = userInfo.getClaim(OAuth2UserRecord.IDP_CLAIM_NAME);
+
+        // Extract OIDC user id claim if present
+        Object oidcUserIdObj = userInfo.getClaim(OAuth2UserRecord.OIDC_USER_ID_CLAIM_NAME);
+
+        String shibUniqueId = (shibUniqueIdObj != null) ? shibUniqueIdObj.toString() : null;
+        String idp = (idpObj != null) ? idpObj.toString() : null;
+        String oidcUserId = (oidcUserIdObj != null) ? oidcUserIdObj.toString() : null;
+
+        // Build display info from user attributes
+        AuthenticatedUserDisplayInfo displayInfo = new AuthenticatedUserDisplayInfo(
+                userInfo.getGivenName(),
+                userInfo.getFamilyName(),
+                userInfo.getEmailAddress(),
+                "",
+                ""
         );
+
+        return new OAuth2UserRecord(
+                this.getId(),
+                userInfo.getSubject().getValue(),
+                userInfo.getPreferredUsername(),
+                shibUniqueId,
+                idp,
+                oidcUserId,
+                null,
+                new AuthenticatedUserDisplayInfo(userInfo.getGivenName(), userInfo.getFamilyName(), userInfo.getEmailAddress(), affiliation, role),
+                null,
+                usesMFA,
+                consentVersion);
     }
-    
+
     /**
      * Retrieve the Access Token from provider. Encapsulate for testing.
      * @param grant
@@ -347,5 +372,4 @@ public class OIDCAuthProvider extends AbstractOAuth2AuthenticationProvider {
             throw new OAuth2Exception(-1, ex.getMessage(), BundleUtil.getStringFromBundle("auth.providers.exception.userinfo", Arrays.asList(this.getTitle())));
         }
     }
-
 }

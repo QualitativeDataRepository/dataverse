@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.harvard.iq.dataverse.api.util;
+package edu.harvard.iq.dataverse.pidproviders;
 
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.batch.util.LoggingUtil;

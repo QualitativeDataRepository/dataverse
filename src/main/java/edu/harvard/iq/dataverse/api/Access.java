@@ -1679,7 +1679,7 @@ public class Access extends AbstractApiBean {
             try {
                 AuthenticatedUser au = (AuthenticatedUser) ra;
                 userNotificationService.sendNotification(au, new Timestamp(new Date().getTime()),
-                        UserNotification.Type.REJECTFILEACCESS, dataFile.getOwner().getId());
+                        UserNotification.Type.REJECTFILEACCESS, dataFile.getOwner().getId(), null, true);
             } catch (ClassCastException e) {
                 // nothing to do here - can only send a notification to an authenticated user
             }

@@ -75,7 +75,7 @@ public enum JvmSettings {
     // INDEX CONCURENCY
     SCOPE_SOLR_CONCURENCY(SCOPE_SOLR, "concurrency"),
     MAX_ASYNC_INDEXES(SCOPE_SOLR_CONCURENCY, "max-async-indexes"),
-    
+
     // RSERVE CONNECTION
     SCOPE_RSERVE(PREFIX, "rserve"),
     RSERVE_HOST(SCOPE_RSERVE, "host"),
@@ -93,6 +93,10 @@ public enum JvmSettings {
     API_BLOCKED_ENDPOINTS(SCOPE_API_BLOCKED, "endpoints"),
     API_BLOCKED_POLICY(SCOPE_API_BLOCKED, "policy"),
     API_BLOCKED_KEY(SCOPE_API_BLOCKED, "key"),
+    // API: MDC Citation updates
+    SCOPE_API_MDC(SCOPE_API, "mdc"),
+    API_MDC_UPDATE_MIN_DELAY_MS(SCOPE_API_MDC, "min-delay-ms"),
+    
 
     // SIGNPOSTING SETTINGS
     SCOPE_SIGNPOSTING(PREFIX, "signposting"),
@@ -271,7 +275,6 @@ public enum JvmSettings {
     BAGIT_SOURCE_ORG_NAME(SCOPE_BAGIT_SOURCEORG, "name"),
     BAGIT_SOURCEORG_ADDRESS(SCOPE_BAGIT_SOURCEORG, "address"),
     BAGIT_SOURCEORG_EMAIL(SCOPE_BAGIT_SOURCEORG, "email"),
-
     // STORAGE USE SETTINGS
     SCOPE_STORAGEUSE(PREFIX, "storageuse"),
     STORAGEUSE_DISABLE_UPDATES(SCOPE_STORAGEUSE, "disable-storageuse-increments"),
@@ -279,7 +282,12 @@ public enum JvmSettings {
     //CSL CITATION SETTINGS
     SCOPE_CSL(PREFIX, "csl"),
     CSL_COMMON_STYLES(SCOPE_CSL, "common-styles"),
-    
+
+    // PersonOrOrgUtil SETTINGS
+    SCOPE_PERSONORORG(PREFIX, "person-or-org"),
+    ASSUME_COMMA_IN_PERSON_NAME(SCOPE_PERSONORORG, "assume-comma-in-person-name", "dataverse.personOrOrg.assumeCommaInPersonName"),
+    ORG_PHRASE_ARRAY(SCOPE_PERSONORORG, "org-phrase-array"),
+
     // CORS SETTINGS
     SCOPE_CORS(PREFIX, "cors"),
     CORS_ORIGIN(SCOPE_CORS, "origin"),
@@ -292,6 +300,12 @@ public enum JvmSettings {
     SCOPE_LOCALCONTEXTS(PREFIX, "localcontexts"),
     LOCALCONTEXTS_URL(SCOPE_LOCALCONTEXTS, "url"),
     LOCALCONTEXTS_API_KEY(SCOPE_LOCALCONTEXTS, "api-key"),
+    
+    //EXPORTS
+    SCOPE_EXPORTS(PREFIX, "exports"),
+    SCOPE_EXPORTS_SCHEMA_DOT_ORG(SCOPE_EXPORTS, "schema-dot-org"),
+    EXPORTS_SCHEMA_DOT_ORG_MAX_FILES_FOR_DOWNLOAD_ENTRIES(SCOPE_EXPORTS_SCHEMA_DOT_ORG, "max-files-for-download-entries"),
+    
     ;
 
     private static final String SCOPE_SEPARATOR = ".";
