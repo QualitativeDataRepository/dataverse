@@ -1024,19 +1024,27 @@ public class PermissionServiceBean {
 
         List<String> raIds = ras.stream().map(roas -> roas.getIdentifier()).collect(Collectors.toList());
 
+        List<Long> roleIds = new ArrayList<>();
+        
+        for (DataverseRole role : roleService.findAll()) {
+            if (role.permissions().contains(Permission.PublishDataset)) {
+                roleIds.add(role.getId());
+            }
+        }
         // Just check for existence of at least one matching record
         // More efficient than counting all records
         try {
-            Object result = em.createQuery(
+            em.createQuery(
                     "SELECT ra.id FROM RoleAssignment ra " +
-                    "WHERE ra.assigneeIdentifier IN :assigneeIdentifiers " +
-                    "AND get_bit(ra.role.permissionsBits, :permissionBit) = true")
+                            "WHERE ra.assigneeIdentifier IN :assigneeIdentifiers " +
+                            "AND ra.role.id IN :roleIds",
+                    Long.class)
                     .setParameter("assigneeIdentifiers", raIds)
-                    .setParameter("permissionBit", Permission.PublishDataset.ordinal())
-                    .setMaxResults(1)  // Limit to just one result
+                    .setParameter("roleIds", roleIds)
+                    .setMaxResults(1) // Limit to just one result
                     .getSingleResult();
-            
-            return result != null;
+
+            return true; // If we get here, we found at least one matching record
         } catch (NoResultException e) {
             return false;
         }
