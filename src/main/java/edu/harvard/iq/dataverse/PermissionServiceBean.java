@@ -21,6 +21,7 @@ import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import static edu.harvard.iq.dataverse.engine.command.CommandHelper.CH;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
@@ -1023,17 +1024,30 @@ public class PermissionServiceBean {
 
         List<String> raIds = ras.stream().map(roas -> roas.getIdentifier()).collect(Collectors.toList());
 
-        List<RoleAssignment> roleAssignments = em.createNamedQuery("RoleAssignment.listByAssigneeIdentifiers_NoDefPoint", RoleAssignment.class)
-                .setParameter("assigneeIdentifiers", raIds)
-                .getResultList();
-
-        for (RoleAssignment asmnt : roleAssignments) {
-            BitSet permissions = new BitSet(asmnt.getRole().getPermissionsBits());
-            if (permissions.isSet(Permission.PublishDataset.ordinal())) {
-                return true;
+        List<Long> roleIds = new ArrayList<>();
+        
+        for (DataverseRole role : roleService.findAll()) {
+            if (role.permissions().contains(Permission.PublishDataset)) {
+                roleIds.add(role.getId());
             }
         }
-        return false;
+        // Just check for existence of at least one matching record
+        // More efficient than counting all records
+        try {
+            em.createQuery(
+                    "SELECT ra.id FROM RoleAssignment ra " +
+                            "WHERE ra.assigneeIdentifier IN :assigneeIdentifiers " +
+                            "AND ra.role.id IN :roleIds",
+                    Long.class)
+                    .setParameter("assigneeIdentifiers", raIds)
+                    .setParameter("roleIds", roleIds)
+                    .setMaxResults(1) // Limit to just one result
+                    .getSingleResult();
+
+            return true; // If we get here, we found at least one matching record
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 
 }
