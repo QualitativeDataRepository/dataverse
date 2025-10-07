@@ -1021,6 +1021,10 @@ public class BagGenerator {
         return request;
     }
 
+    /** Get a stream supplier for the given URI.
+     * 
+     *  Caller must close the stream when done.
+     */
     InputStreamSupplier getInputStreamSupplier(final String uriString) {
         return new InputStreamSupplier() {
             public InputStream get() {
@@ -1030,13 +1034,12 @@ public class BagGenerator {
                     while (tries < 5) {
                         logger.fine("Get # " + tries + " for " + uriString);
                         HttpGet getFile = createNewGetRequest(uri, null);
-                        logger.finest("Retrieving " + tries + ": " + uriString);
-                        
+
                         try {
                             // Execute the request directly and keep the response open
-                            final CloseableHttpResponse response = (CloseableHttpResponse) client.executeOpen(null, getFile,HttpClientContext.create());
+                            final CloseableHttpResponse response = (CloseableHttpResponse) client.executeOpen(null, getFile, HttpClientContext.create());
                             int statusCode = response.getCode();
-                            
+
                             if (statusCode == 200) {
                                 logger.finest("Retrieved: " + uri);
                                 // Return a wrapped stream that will close the response when the stream is closed
@@ -1060,9 +1063,8 @@ public class BagGenerator {
                                 }
                             } else {
                                 // Close the response for non-200 responses
-                                EntityUtils.consume(response.getEntity());
                                 response.close();
-                                
+
                                 logger.warning("Attempt: " + tries + " - Unexpected Status when retrieving " + uriString
                                         + " : " + statusCode);
 
@@ -1072,16 +1074,16 @@ public class BagGenerator {
                                 } else {
                                     tries++;
                                     try {
-                                        // Calculate exponential backoff: 2^tries * baseWaitTimeMs
-                                        long waitTime = (long) (Math.pow(2, tries) * 1000); // Using 1 second as base wait time
-                                        
+                                        // Calculate exponential backoff: 2^tries * baseWaitTimeMs (1 sec)
+                                        long waitTime = (long) (Math.pow(2, tries) * baseWaitTimeMs);
+
                                         // Add jitter: random value between 0-30% of the wait time
                                         long jitter = (long) (waitTime * 0.3 * Math.random());
                                         waitTime = waitTime + jitter;
-                                        
-                                        // Cap the wait time at 30 seconds
-                                        waitTime = Math.min(waitTime, 30000);
-                                        
+
+                                        // Cap the wait time at maxWaitTimeMs (30 seconds)
+                                        waitTime = Math.min(waitTime, maxWaitTimeMs);
+
                                         logger.fine("Sleeping for " + waitTime + "ms before retry attempt " + tries);
                                         Thread.sleep(waitTime);
                                     } catch (InterruptedException ie) {
@@ -1098,15 +1100,14 @@ public class BagGenerator {
                             tries++;
                             logger.log(Level.WARNING, "Attempt# " + tries + " : Unable to retrieve file: " + uriString, e);
                             if (tries == 5) {
-                                logger.severe("Final attempt failed for " + uriString);
+                                logger.log(Level.SEVERE, "Final attempt failed for " + uriString, e);
                             }
-                            e.printStackTrace();
                         }
                     }
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    logger.severe("URISyntaxException for: " + uriString);
                 }
-                
+
                 logger.severe("Could not read: " + uriString);
                 return null;
             }
