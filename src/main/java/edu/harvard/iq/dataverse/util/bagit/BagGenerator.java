@@ -35,7 +35,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 
-import edu.harvard.iq.dataverse.util.BundleUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
 import org.apache.commons.compress.archivers.zip.ScatterZipOutputStream;
@@ -76,7 +75,6 @@ import edu.harvard.iq.dataverse.DataFile.ChecksumType;
 import edu.harvard.iq.dataverse.pidproviders.PidUtil;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.json.JsonLDTerm;
-import java.util.Optional;
 
 public class BagGenerator {
 
@@ -1033,7 +1031,7 @@ public class BagGenerator {
                             }
                             logger.warning("Attempt: " + tries + " - Unexpected Status when retrieving " + uriString
                                     + " : " + statusCode);
-                            if (statusCode !=429 | statusCode < 500) {
+                            if (statusCode !=429 || statusCode < 500) {
                                 logger.fine("Will not retry for 40x errors");
                                 tries += 5;
                             } else {
