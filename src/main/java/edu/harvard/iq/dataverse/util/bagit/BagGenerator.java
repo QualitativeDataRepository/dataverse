@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,11 +53,13 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -1019,65 +1022,74 @@ public class BagGenerator {
     }
 
     InputStreamSupplier getInputStreamSupplier(final String uriString) {
-
         return new InputStreamSupplier() {
             public InputStream get() {
                 try {
                     URI uri = new URI(uriString);
-
                     int tries = 0;
                     while (tries < 5) {
-
                         logger.fine("Get # " + tries + " for " + uriString);
                         HttpGet getFile = createNewGetRequest(uri, null);
                         logger.finest("Retrieving " + tries + ": " + uriString);
+                        
                         try {
-                            // Use a custom response handler that captures status code and content
-                            ResponseData responseData = client.execute(getFile, response -> {
-                                int statusCode = response.getCode();
-                                InputStream content = null;
-
-                                if (statusCode == 200) {
-                                    logger.finest("Retrieved: " + uri);
-                                    content = response.getEntity().getContent();
-                                }
-
-                                return new ResponseData(statusCode, content);
-                            });
-                            // Process the response outside the handler to maintain retry logic
-                            int statusCode = responseData.getStatusCode();
+                            // Execute the request directly and keep the response open
+                            final CloseableHttpResponse response = (CloseableHttpResponse) client.executeOpen(null, getFile,HttpClientContext.create());
+                            int statusCode = response.getCode();
+                            
                             if (statusCode == 200) {
-                                return responseData.getContent();
-                            }
-
-                            logger.warning("Attempt: " + tries + " - Unexpected Status when retrieving " + uriString
-                                    + " : " + statusCode);
-
-                            if (statusCode != 429 && statusCode < 500) {
-                                logger.fine("Will not retry for 40x errors");
-                                tries += 5; // Skip remaining attempts
+                                logger.finest("Retrieved: " + uri);
+                                // Return a wrapped stream that will close the response when the stream is closed
+                                final HttpEntity entity = response.getEntity();
+                                if (entity != null) {
+                                    // Create a wrapper stream that closes the response when the stream is closed
+                                    return new FilterInputStream(entity.getContent()) {
+                                        @Override
+                                        public void close() throws IOException {
+                                            try {
+                                                super.close();
+                                            } finally {
+                                                response.close();
+                                            }
+                                        }
+                                    };
+                                } else {
+                                    response.close();
+                                    logger.warning("No content in response for: " + uriString);
+                                    return null;
+                                }
                             } else {
-                                tries++;
-                                try {
-                                    // Calculate exponential backoff: 2^tries * baseWaitTimeMs
-                                    long waitTime = (long) (Math.pow(2, tries) * baseWaitTimeMs);
+                                // Close the response for non-200 responses
+                                EntityUtils.consume(response.getEntity());
+                                response.close();
+                                
+                                logger.warning("Attempt: " + tries + " - Unexpected Status when retrieving " + uriString
+                                        + " : " + statusCode);
 
-                                    // Add jitter: random value between 0-30% of the wait time
-                                    long jitter = (long) (waitTime * 0.3 * Math.random());
-                                    waitTime = waitTime + jitter;
-
-                                    // Cap the wait time at maxWaitTimeMs
-                                    waitTime = Math.min(waitTime, maxWaitTimeMs);
-
-                                    logger.fine("Sleeping for " + waitTime + "ms before retry attempt " + tries +
-                                            " (exponential backoff with jitter)");
-                                    Thread.sleep(waitTime);
-                                } catch (InterruptedException ie) {
-                                    logger.warning("Sleep interrupted during retry delay");
+                                if (statusCode != 429 && statusCode < 500) {
+                                    logger.fine("Will not retry for 40x errors");
                                     tries += 5; // Skip remaining attempts
+                                } else {
+                                    tries++;
+                                    try {
+                                        // Calculate exponential backoff: 2^tries * baseWaitTimeMs
+                                        long waitTime = (long) (Math.pow(2, tries) * 1000); // Using 1 second as base wait time
+                                        
+                                        // Add jitter: random value between 0-30% of the wait time
+                                        long jitter = (long) (waitTime * 0.3 * Math.random());
+                                        waitTime = waitTime + jitter;
+                                        
+                                        // Cap the wait time at 30 seconds
+                                        waitTime = Math.min(waitTime, 30000);
+                                        
+                                        logger.fine("Sleeping for " + waitTime + "ms before retry attempt " + tries);
+                                        Thread.sleep(waitTime);
+                                    } catch (InterruptedException ie) {
+                                        logger.warning("Sleep interrupted during retry delay");
+                                        tries += 5; // Skip remaining attempts
+                                    }
                                 }
                             }
-
                         } catch (ClientProtocolException e) {
                             tries += 5;
                             e.printStackTrace();
@@ -1094,30 +1106,11 @@ public class BagGenerator {
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }
-
+                
                 logger.severe("Could not read: " + uriString);
                 return null;
             }
         };
-    }
-
-    // Helper class to store response data
-    private static class ResponseData {
-        private final int statusCode;
-        private final InputStream content;
-
-        public ResponseData(int statusCode, InputStream content) {
-            this.statusCode = statusCode;
-            this.content = content;
-        }
-
-        public int getStatusCode() {
-            return statusCode;
-        }
-
-        public InputStream getContent() {
-            return content;
-        }
     }
     
     /**
