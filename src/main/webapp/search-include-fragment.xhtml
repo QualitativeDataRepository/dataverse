@@ -406,7 +406,7 @@
 
             <div id="resultsCountPaginatorBlock" class="row" jsf:rendered="#{SearchIncludeFragment.searchResultsCount > 0}">
                 <!-- RESULTS COUNT -->
-                <div class="results-count col-xs-6">
+                <div class="results-count col-6">
                     <h:outputFormat value="#{bundle['dataverse.results.count.toofresults']}">
                         <f:param value="#{SearchIncludeFragment.paginationGuiStart}"/>
                         <f:param value="#{SearchIncludeFragment.paginationGuiEnd}"/>
@@ -414,15 +414,15 @@
                     </h:outputFormat>
                 </div>
                 <!-- SORT + PAGINATOR -->
-                <div class="results-sort-pagination col-xs-6">
+                <div class="results-sort-pagination col-6">
                     <!-- SORT BY -->
-                    <div class="btn-group pull-right">
-                        <button type="button" class="btn dropdown-toggle color-btn" data-toggle="dropdown">
+                    <div class="btn-group float-end">
+                        <button type="button" class="btn dropdown-toggle color-btn" data-bs-toggle="dropdown"  aria-expanded="false">
                             #{bundle['dataverse.results.btn.sort']} <span class="caret"/>
                         </button>
-                        <ul class="dropdown-menu pull-right text-left">
+                        <ul class="dropdown-menu dropdown-menu-end text-start">
                             <li>
-                                <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}">
+                                <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
                                     <h:outputText value="#{bundle['dataverse.results.btn.sort.option.nameAZ']}" styleClass="#{SearchIncludeFragment.sortedByNameAsc ? 'highlightBold' : ''}"/>
                                     <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                     <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
@@ -435,7 +435,7 @@
                                 </h:outputLink>
                             </li>
                             <li>
-                                <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}">
+                                <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
                                     <h:outputText value="#{bundle['dataverse.results.btn.sort.option.nameZA']}" styleClass="#{SearchIncludeFragment.sortedByNameDesc ? 'highlightBold' : ''}"/>
                                     <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                     <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
@@ -448,7 +448,7 @@
                                 </h:outputLink>
                             </li>
                             <li>
-                                <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}">
+                                <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
                                     <h:outputText value="#{bundle['dataverse.results.btn.sort.option.newest']}" styleClass="#{SearchIncludeFragment.sortedByReleaseDateDesc? 'highlightBold' : ''}"/>
                                     <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                     <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
@@ -461,7 +461,7 @@
                                 </h:outputLink>
                             </li>
                             <li>
-                                <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}">
+                                <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
                                     <h:outputText value="#{bundle['dataverse.results.btn.sort.option.oldest']}" styleClass="#{SearchIncludeFragment.sortedByReleaseDateAsc? 'highlightBold' : ''}"/>
                                     <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                     <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
@@ -475,7 +475,7 @@
                             </li>
                             <ui:fragment rendered="#{SearchIncludeFragment.mode == SearchIncludeFragment.searchModeString}">
                                 <li>
-                                    <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}">
+                                    <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
                                         <h:outputText value="#{bundle['dataverse.results.btn.sort.option.relevance']}" styleClass="#{SearchIncludeFragment.sortedByRelevance ? 'highlightBold' : ''}"/>
                                         <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                         <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
