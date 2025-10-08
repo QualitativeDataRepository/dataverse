@@ -661,11 +661,7 @@ div[id$='roleDisplay'] span.label, div[id$='roleDetails'] span.label {display:in
 
 #title {font-size:36px !important;line-height:1.1;font-weight:bold;margin-top:0px;margin-bottom:0px;}
 #author, #contact {display:block; margin-bottom:.5em;}
-/* RESPONSIVE ORDER HACK BOOTSTRAP 3 https://stackoverflow.com/a/24834574 */
-#dataset-colorder-block {height: 50px;}
-@media(min-width:992px){
-    #dataset-colorder-block + div {margin-top: -50px;}
-}
+
 .bg-citation {background:#DFDFE7; border-color: #DFDFE7;}
 #iframeForm div.alert.bg-citation {margin-bottom:0 !important;}
 .bg-citation-file {background:#dfdfe7; border: 1px solid #DDD;}
