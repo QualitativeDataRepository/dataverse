@@ -9,7 +9,7 @@
                 xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
         
         <ui:fragment rendered="#{enableEdit}">
-            <div class="text-right">
+            <div class="text-end">
                 <h:outputLink styleClass="btn btn-default"                             
                               value="/guestbook.xhtml?id=#{selectedGuestbook.id}&#38;ownerId=#{ownerId}">
                     <span class="glyphicon glyphicon-pencil"></span> #{bundle['dataset.manageGuestbooks.tab.action.btn.edit']}

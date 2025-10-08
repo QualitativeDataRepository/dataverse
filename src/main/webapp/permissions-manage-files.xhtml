@@ -30,7 +30,7 @@
                             <div data-toggle="collapse" data-target="#panelCollapseUsersGroups" class="panel-heading text-info">
                                 #{bundle['dataverse.permissionsFiles.usersOrGroups']} <span class="glyphicon glyphicon-chevron-up"/>
 
-                                <span class="text-muted small pull-right">#{bundle['dataverse.permissionsFiles.usersOrGroups.description']}</span>
+                                <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.usersOrGroups.description']}</span>
                             </div>
                             <div id="panelCollapseUsersGroups" class="collapse in">
                                 <div class="panel-body">
@@ -40,7 +40,7 @@
                                         </div>
                                     </p:fragment>
                                     <p:fragment id="usersGroups">
-                                        <div class="margin-bottom text-right">
+                                        <div class="margin-bottom text-end">
                                             <p:commandLink id="userGroupsAdd" styleClass="btn btn-default"
                                                            actionListener="#{manageFilePermissionsPage.initAssignDialog}"
                                                            update="assignDialog, filesFragment, usersGroups"
@@ -153,7 +153,7 @@
                             <div data-toggle="collapse" data-target="#panelCollapseFiles" class="panel-heading text-info">
                                 #{bundle['dataverse.permissionsFiles.files']} <span class="glyphicon glyphicon-chevron-down"/>
 
-                                <span class="text-muted small pull-right">#{bundle['dataverse.permissionsFiles.files.description']}</span>
+                                <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.files.description']}</span>
                             </div>
                             <div id="panelCollapseFiles" class="collapse">
                                 <div class="panel-body">
@@ -223,12 +223,12 @@
                     <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
                     <div class="panel panel-default" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
                       <div data-toggle="collapse" data-target="#panelCollapseHistory" class="panel-heading text-info">
-                        #{bundle['dataverse.permissions.history']} <span class="glyphicon glyphicon-chevron-down" /> <span class="text-muted small pull-right">#{bundle['dataverse.permissions.history.description']}</span>
+                        #{bundle['dataverse.permissions.history']} <span class="glyphicon glyphicon-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
                       </div>
                       <div id="panelCollapseHistory" class="collapse">
                         <div class="panel-body">
                             <!-- Download button for file permissions history -->
-                            <div class="button-group margin-bottom text-right">
+                            <div class="button-group margin-bottom text-end">
                                 <h:outputLink value="#{manageFilePermissionsPage.signedUrlForRAHistoryCsv}" 
                                              styleClass="btn btn-default" 
                                              onclick="downloadRAHistoryCSV(this.href, '#{manageFilePermissionsPage.permissionsHistoryFilename}'); return false;">

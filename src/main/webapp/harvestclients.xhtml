@@ -27,7 +27,7 @@
 
                     <p:fragment id="emptyClientsTable" rendered="#{empty harvestingClientsPage.configuredHarvestingClients}">
                         <div class="row">
-                            <div class="col-sm-12 text-right">
+                            <div class="col-sm-12 text-end">
                                 <p:commandLink type="button" id="addClientEmpty" styleClass="btn btn-default margin-bottom"
                                                actionListener="#{harvestingClientsPage.initNewClient}"
                                                update=":harvestingClientsForm:newHarvestingClientDialog"
@@ -81,7 +81,7 @@
                                     </div>
                                     </ui:remove>
                                 </div>
-                                <div class="col-sm-6 text-right">
+                                <div class="col-sm-6 text-end">
                                     <div id="datatable_length" class="dataTables_length">
                                         <!-- FIXME -->
                                         <!-- removed render logic {harvestingClientsPage.dataverseId != null} -->

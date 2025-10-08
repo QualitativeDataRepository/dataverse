@@ -37,7 +37,7 @@
                 </h:outputLink>
             </h:form>
         </div>
-        <div class="col-12 text-right col-manage-action" jsf:rendered="#{!widgetWrapper.widgetView}">
+        <div class="col-12 text-end col-manage-action" jsf:rendered="#{!widgetWrapper.widgetView}">
             <div class="button-block">
                 <!-- ADD DATA -->
                 <o:importFunctions type="edu.harvard.iq.dataverse.authorization.groups.impl.builtin.AuthenticatedUsers" />
@@ -62,7 +62,7 @@
                           <div></div>
                           <span>#{bundle['dataverse.results.btn.addData']}</span>
                         </button>
-                        <ul class="dropdown-menu pull-right text-left">
+                        <ul class="dropdown-menu float-end text-left">
                             <ui:fragment rendered="#{permissionsWrapper.canIssueCreateDataverseCommand(SearchIncludeFragment.dataverse) }">
                                 <li><a href="/dataverse.xhtml?ownerId=#{SearchIncludeFragment.dataverse.id}">#{bundle['dataverse.results.btn.addData.newDataverse']}</a></li>
                             </ui:fragment>
@@ -505,9 +505,9 @@
                     <!--DATAVERSE CARDS-->
                     <div class="dataverseResult clearfix" jsf:rendered="#{result.type == 'dataverses'}">
                         <div class="card-title-icon-block">
-                            <span class="glyphicon glyphicon-link text-brand pull-right" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
-                            <span class="glyphicon glyphicon-new-window text-brand pull-right" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
-                            <span class="icon-dataverse text-brand pull-right" title="#{bundle.dataverse}"/>
+                            <span class="glyphicon glyphicon-link text-brand float-end" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
+                            <span class="glyphicon glyphicon-new-window text-brand float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
+                            <span class="icon-dataverse text-brand float-end" title="#{bundle.dataverse}"/>
                             <c:set var="dvUrl" value="/dataverse/#{result.dataverseAlias}"/>
                             <h:outputLink value="#{!SearchIncludeFragment.rootDv and !result.isInTree ? dvUrl : widgetWrapper.wrapURL(dvUrl)}" target="#{!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView ? '_blank' : ''}">
                                 <h:outputText value="#{result.name}" style="padding:4px 0;" rendered="#{result.nameHighlightSnippet == null}"/>
@@ -569,9 +569,9 @@
                     <div class="datasetResult clearfix" jsf:rendered="#{result.type == 'datasets'}">
                         <div class="card-title-icon-block">
                             <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
-                            <span class="glyphicon glyphicon-link text-info pull-right" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
-                            <span class="glyphicon glyphicon-new-window text-info pull-right" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
-                            <!-- <span class="icon-dataset text-info pull-right" title="#{bundle.dataset}"/> -->
+                            <span class="glyphicon glyphicon-link text-info float-end" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
+                            <span class="glyphicon glyphicon-new-window text-info float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
+                            <!-- <span class="icon-dataset text-info float-end" title="#{bundle.dataset}"/> -->
                             <a href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? result.datasetUrl : widgetWrapper.wrapURL(result.datasetUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}">
                                 <h:outputText value="#{result.nameSort}" style="padding:4px 0;" rendered="#{result.titleHighlightSnippet == null}"/>
                                 <h:outputText value="#{result.titleHighlightSnippet}" style="padding:4px 0;" rendered="#{result.titleHighlightSnippet != null}" escape="false"/>
@@ -648,9 +648,9 @@
                     <!--FILE CARDS-->
                     <div class="fileResult clearfix" jsf:rendered="#{result.type == 'files'}">
                         <div class="card-title-icon-block">
-                            <span class="glyphicon glyphicon-link text-muted pull-right" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
-                            <span class="glyphicon glyphicon-new-window text-muted pull-right" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
-                            <span class="icon-file text-muted pull-right" title="#{bundle.file}"/>
+                            <span class="glyphicon glyphicon-link text-muted float-end" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
+                            <span class="glyphicon glyphicon-new-window text-muted float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
+                            <span class="icon-file text-muted float-end" title="#{bundle.file}"/>
 
                             <span class="text-danger glyphicon glyphicon-lock" data-toggle="tooltip" title="#{bundle.restricted}" jsf:rendered="#{result.entity.restricted and !permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
                             <span class="text-success icon-unlock" data-toggle="tooltip" title="#{bundle.restrictedaccess}" jsf:rendered="#{result.entity.restricted and permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>

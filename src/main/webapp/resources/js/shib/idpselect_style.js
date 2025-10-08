@@ -13,7 +13,7 @@ $(document).ready(function() {
 
     $('#idpSelectListButton, #idpSelectSelectButton').addClass("btn btn-default");
     
-    $('a.IdPSelectHelpButton').addClass('pull-right');
+    $('a.IdPSelectHelpButton').addClass('float-end');
     
     //$('ul.IdPSelectDropDown').addClass('dropdown-menu');
 });

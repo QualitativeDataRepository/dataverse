@@ -44,11 +44,11 @@
 
                     <div class="row">
                         <div class="col-12" style="margin-bottom: 1em;">
-                            <div class="btn-group pull-right">
+                            <div class="btn-group float-end">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                     <span class="glyphicon glyphicon-sort"></span> #{bundle['dataverse.results.btn.sort']} <span class="caret"></span>
                                 </button>
-                                <ul class="dropdown-menu pull-right text-left">
+                                <ul class="dropdown-menu float-end text-left">
                                     <ui:repeat value="#{DashboardUsersPage.getSortingMap().entrySet()}" var="sortFieldEntry">
                                         <li>
                                             <p:commandLink action="#{DashboardUsersPage.runUserSearchWithSort(sortFieldEntry.key)}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true">

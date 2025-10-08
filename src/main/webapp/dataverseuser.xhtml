@@ -489,7 +489,7 @@
                             </div>
                         </p:tab>
                         <p:tab id="accountInfo" title="#{bundle['header.user.selectTab.accountInfo']}">
-                            <div class="button-block tab-header margin-bottom text-right" jsf:rendered="#{empty DataverseUserPage.editMode and (DataverseUserPage.passwordEditable or DataverseUserPage.accountDetailsEditable)}">
+                            <div class="button-block tab-header margin-bottom text-end" jsf:rendered="#{empty DataverseUserPage.editMode and (DataverseUserPage.passwordEditable or DataverseUserPage.accountDetailsEditable)}">
                                 <div class="btn-group">
                                     <button type="button" id="editAccount" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                         <ui:fragment rendered="#{DataverseUserPage.accountDetailsEditable}">
@@ -497,7 +497,7 @@
                                         </ui:fragment>
                                         <span class="caret"></span>
                                     </button>
-                                    <ul class="dropdown-menu pull-right text-left">
+                                    <ul class="dropdown-menu float-end text-left">
                                         <ui:fragment rendered="#{DataverseUserPage.passwordEditable or DataverseUserPage.accountDetailsEditable}">
                                             <li>
                                                 <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/user">

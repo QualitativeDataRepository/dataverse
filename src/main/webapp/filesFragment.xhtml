@@ -121,7 +121,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="col-7 text-right">
+                <div class="col-7 text-end">
                     <p:outputPanel id="filesButtons" class="button-block no-margin-top"
                                     rendered="#{canUpdateAndAuthenticated}">
                         <!-- DOWNLOAD DCM SCRIPT BUTTON -->
@@ -270,7 +270,7 @@
                     
 
                 
-                <div class="file-sort col-5 text-right #{DatasetPage.indexedVersion ? '' : 'col-offset-7'}">
+                <div class="file-sort col-5 text-end #{DatasetPage.indexedVersion ? '' : 'col-offset-7'}">
                     <div class="file-group-by col-7 text-left text-muted small" style="font-weight:normal;" jsf:rendered="#{DatasetPage.allowUserManagementOfOrder()}">
                                     <p:selectBooleanCheckbox id="fps" value="#{DatasetPage.folderPresort}" itemLabel="#{bundle['file.results.presort.folder']}" title="#{bundle['file.results.presort.folder.desc']} rendered='#{DatasetPage.orderByFolder()}'">
                         <p:ajax update="filesTable, messagePanel" process="fps, tps" listener="#{DatasetPage.sort()}"/>
@@ -284,7 +284,7 @@
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="glyphicon glyphicon-sort"></span> #{bundle['file.results.btn.sort']} <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu pull-right text-left">
+                        <ul class="dropdown-menu float-end text-left">
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
                                     <h:outputText styleClass="#{((empty DatasetPage.fileSortField) or DatasetPage.fileSortField == 'name') and (empty DatasetPage.fileSortOrder) ? 'highlightBold' : ''}" value="#{bundle['file.results.btn.sort.option.nameAZ']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
@@ -403,7 +403,7 @@
             </ui:include>
         </p:column>
 
-        <p:column class="col-file-action button-block text-right" style="width:40%;" ariaHeaderText="#{bundle['file.actionsBlock']}">
+        <p:column class="col-file-action button-block text-end" style="width:40%;" ariaHeaderText="#{bundle['file.actionsBlock']}">
             <f:facet name="header">
                 <script type="text/javascript">
                     function downloadFiles(url, filelist) {
@@ -421,7 +421,7 @@
                             disabled="#{uploadButtonDisabled}">
                         <span class="glyphicon glyphicon-pencil"/> #{bundle['file.editFiles']} <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu multi-level pull-right text-left">
+                    <ul class="dropdown-menu multi-level float-end text-left">
                         <ui:include src="file-edit-button-fragment.xhtml">
                             <ui:param name="datasetVersion" value="#{DatasetPage.workingVersion}"/>
                             <ui:param name="fileMetadataForAction" value="#{DatasetPage.fileMetadataForAction}"/>
@@ -461,7 +461,7 @@
                     <button type="button" class="btn btn-default btn-download dropdown-toggle" data-toggle="dropdown">  
                         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download} <span class="caret"></span>
                     </button>
-                    <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level pull-right text-left">
+                    <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level float-end text-left">
                         <li jsf:rendered="#{DatasetPage.canDownloadFiles()}">
                             <p:commandLink
                                            disabled="#{false and DatasetPage.lockedFromDownload}"
@@ -568,7 +568,7 @@
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tabindex="0">
                        <span class="glyphicon glyphicon-download-alt"/><span class="sr-only">#{bundle['file.accessBtn']}</span><span class="caret"></span>
                     </a>
-                    <ul class="dropdown-menu pull-right text-left">
+                    <ul class="dropdown-menu float-end text-left">
                         <!-- Explore/Download/Request Button Block -->
                         <ui:include src="file-download-button-fragment.xhtml">
                             <ui:param name="fileMetadata" value="#{fileMetadata}"/>
@@ -625,7 +625,7 @@
                        tabindex="0">
                         <span class="glyphicon glyphicon-option-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span><span class="caret"></span>
                     </a>
-                    <ul class="dropdown-menu multi-level pull-right text-left">
+                    <ul class="dropdown-menu multi-level float-end text-left">
                         <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="glyphicon glyphicon-pencil"/></li>                           
                         <!-- TO-DO NEW FILE-LEVEL EDIT OPTIONS... RENDER LOGIC, LINKS, DISABLED LOGIC -->
                         <!-- Edit Options -->

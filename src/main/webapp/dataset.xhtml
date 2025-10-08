@@ -196,7 +196,7 @@
                                         <!-- END: CITATION BLOCK -->
                                     </div>
 
-                                    <div class="col-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-3 float-end margin-bottom">
                                         <!-- ActionButtonBlock -->
                                         <div id="actionButtonBlock" jsf:rendered="#{!widgetWrapper.widgetView}">
                                             <!-- DOWNLOAD/ACCESS DATASET -->
@@ -207,7 +207,7 @@
                                                         #{(((datasetExploreToolsSize >= 1) or (sessionUserAuthenticated
                                                             and showComputeButton)) ? bundle['dataset.accessBtn'] : bundle['dataset.downloadBtn'])} <span class="caret"></span>
                                                     </button>
-                                                    <ul class="dropdown-menu pull-right text-left" style="padding-left:1em; padding-right:1em;" >
+                                                    <ul class="dropdown-menu float-end text-left" style="padding-left:1em; padding-right:1em;" >
                                                         <!-- DOWNLOAD -->
                                                         <ui:fragment rendered="#{canDownloadFiles}">
                                                             <ui:fragment rendered="#{!tooLargeToDownload}">
@@ -373,7 +373,7 @@
                                                     #{showPublishLink ? bundle['dataset.publishBtn'] : (latestVersionInReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitBtn'])} <span jsf:rendered="#{(showSubmitForReviewLink or showReturnToAuthorLink) and showPublishLink}" class="caret"></span>
                                                 </h:outputLink>
                                                 <!-- Publish BTN DROPDOWN-MENU OPTIONS -->
-                                                <ul class="dropdown-menu pull-right text-left">
+                                                <ul class="dropdown-menu float-end text-left">
                                                         <li jsf:rendered="#{showPublishLink}" class="#{!DatasetPage.hasValidTermsOfAccess or ( DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}">
                                                         <!-- Publish LINK -->
                                                             <p:commandLink styleClass="#{!DatasetPage.hasValidTermsOfAccess or (DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}" 
@@ -411,7 +411,7 @@
                                                         disabled="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
                                                     #{bundle['dataset.editBtn']} <span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu pull-right text-left">
+                                                <ul class="dropdown-menu float-end text-left">
                                                     <li>
                                                             <h:outputLink value="/editdatafiles.xhtml?datasetId=#{DatasetPage.dataset.id}&#38;mode=UPLOAD" rendered="#{DatasetPage.hasValidTermsOfAccess}">
                                                             <h:outputText value="#{bundle['dataset.editBtn.itemLabel.upload']}"/>
@@ -524,7 +524,7 @@
                                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                     #{bundle['dataset.curationStatusMenu']} <span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu multi-level pull-right text-left">
+                                                <ul class="dropdown-menu multi-level float-end text-left">
                                                     <ui:fragment rendered="#{(not empty DatasetPage.allowedCurationStatuses) and DatasetPage.canPublishDataset() and version.draft}">
                                                     <li class="dropdown-submenu pull-left">
                                                         <a tabindex="0">#{bundle['dataset.changestatus']}</a>
@@ -599,7 +599,7 @@
                                     <!-- END: ActionButtonBlock -->
                                 </div>
 
-                                <div style="clear:right;" class="col-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom" 
+                                <div style="clear:right;" class="col-12 col-sm-12 col-md-4 col-lg-3 float-end margin-bottom" 
                                      jsf:rendered="#{!(settingsWrapper.rsyncDownload or deaccessioned)}">
                                     <!-- Metrics -->
                                     <div id="metrics-block">
@@ -922,7 +922,7 @@
                             <p:tab id="metadataMapTab" title="#{bundle['file.dataFilesTab.metadata.header']}"
                                         rendered="#{(!deaccessioned or (deaccessioned and canUpdateDataset)) 
                                              and (empty DatasetPage.editMode or DatasetPage.editMode == 'METADATA')}">
-                                <div class="button-block tab-header margin-bottom text-right" jsf:rendered="#{empty DatasetPage.editMode}">
+                                <div class="button-block tab-header margin-bottom text-end" jsf:rendered="#{empty DatasetPage.editMode}">
                                     <p:commandLink styleClass="btn btn-default btn-access" actionListener="#{DatasetPage.edit('METADATA')}" update="@form,:messagePanel" 
                                                    disabled="#{DatasetPage.lockedFromEdits or !DatasetPage.hasValidTermsOfAccess}" 
                                                    rendered="#{!widgetWrapper.widgetView 
@@ -939,7 +939,7 @@
                                         <button class="btn btn-default btn-export dropdown-toggle" type="button" data-toggle="dropdown">
                                             <span class="glyphicon glyphicon-export"/> #{bundle['dataset.exportBtn']} <span class="caret"></span>
                                         </button>
-                                        <ul class="dropdown-menu pull-right text-left">
+                                        <ul class="dropdown-menu float-end text-left">
                                             <ui:repeat var="exporter" value="#{DatasetPage.exporters}">
                                                 <li>
                                                     <h:outputLink value="#{exporter[1]}" target="_blank">
@@ -1856,7 +1856,7 @@
                     </p:dialog>
                     <p:remoteCommand name="unlinkDatasetCommand" oncomplete="PF('unlinkDatasetForm').hide();" update=":messagePanel  @([id$=Messages])" actionListener="#{DatasetPage.deleteLinkingDataverses}"/>
                     <p:dialog id="computeBatchListPopup" header="#{bundle['dataset.compute.computeBatchListHeader']}" widgetVar="computeBatchListPopup" modal="true">
-                        <div class="text-right">
+                        <div class="text-end">
                             <!-- Clear link -->
                             <p:commandButton styleClass="btn btn-default" action="#{DatasetPage.clearCart()}" update=":datasetForm,:messagePanel">
                                 <span class="glyphicon glyphicon-remove"/> <h:outputText value="#{bundle['dataset.compute.computeBatchClear']}"/>

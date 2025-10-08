@@ -499,13 +499,13 @@
                                     </div>
                                 </div>
                             </p:column>
-                            <p:column class="col-file-action button-block text-right" style="width:30%;" ariaHeaderText="#{bundle['file.actionsBlock']}">
-                                <f:facet name="header" class="col-file-action text-right">
+                            <p:column class="col-file-action button-block text-end" style="width:30%;" ariaHeaderText="#{bundle['file.actionsBlock']}">
+                                <f:facet name="header" class="col-file-action text-end">
                                     <div jsf:id="editFilesRestrictDeletePanel" style="margin-right:14px;" class="btn-group" jsf:rendered="#{hasFileMetadatas and !hasPackageFile}">
                                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                             <span class="glyphicon glyphicon-pencil"/> #{bundle['file.editFilesSelected']} <span class="caret"></span>
                                         </button>
-                                        <ul class="dropdown-menu multi-level pull-right text-left">
+                                        <ul class="dropdown-menu multi-level float-end text-left">
                                             <li class="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
                                                 <p:commandLink  onclick="if (!testFilesSelected2()) return false;" 
                                                                 oncomplete="PF('deleteFileConfirmation').show();">                                                  
@@ -556,7 +556,7 @@
                                             disabled="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
                                         <span class="glyphicon glyphicon-option-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span><span class="caret"></span>
                                     </button>
-                                    <ul class="dropdown-menu multi-level pull-right text-left">
+                                    <ul class="dropdown-menu multi-level float-end text-left">
                                         <!-- Edit Options -->
                                         <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="glyphicon glyphicon-pencil"/></li>
                                         <ui:fragment rendered="#{systemConfig.provCollectionEnabled}">

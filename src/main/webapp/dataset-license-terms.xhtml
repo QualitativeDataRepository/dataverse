@@ -14,7 +14,7 @@
                                         or !empty termsOfUseAndAccess.studyCompletion
                                         }"/>
     
-    <div class="text-right margin-bottom" 
+    <div class="text-end margin-bottom" 
          jsf:rendered="#{dataverseSession.user.authenticated and empty editMode and !widgetWrapper.widgetView
                          and permissionsWrapper.canIssueUpdateDatasetCommand(DatasetPage.dataset)}">
         <p:commandLink styleClass="btn btn-default btn-access" actionListener="#{DatasetPage.edit('LICENSE')}" 
@@ -528,7 +528,7 @@
                                    <div class="panel panel-default">
                                        <div class="panel-body">
                                            <p class="form-control-static pull-left">#{DatasetPage.dataset.guestbook.name}</p>
-                                           <p:commandButton styleClass="btn btn-default pull-right"
+                                           <p:commandButton styleClass="btn btn-default float-end"
                                                           value="#{bundle['file.dataFilesTab.terms.list.guestbook.viewBtn']}"
                                                           action="#{DatasetPage.viewSelectedGuestbook(DatasetPage.dataset.guestbook)}"
                                                           update=":datasetForm:previewGuestbook" oncomplete="PF('viewGuestbook').show();"/>
@@ -567,7 +567,7 @@
                                            <p class="form-control-static pull-left">
                                                <h:outputText value="#{guestbook.name}"/>
                                            </p>
-                                           <p:commandButton styleClass="btn btn-default pull-right"
+                                           <p:commandButton styleClass="btn btn-default float-end"
                                                           value="#{bundle['file.dataFilesTab.terms.list.guestbook.viewBtn']}"
                                                           action="#{DatasetPage.viewSelectedGuestbook(guestbook)}"
                                                           update=":datasetForm:previewGuestbook" oncomplete="PF('viewGuestbook').show();"/>

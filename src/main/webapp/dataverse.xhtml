@@ -479,7 +479,7 @@
                                 </div>
                                 <!-- END: Metrics for Root Dataverse-->
                                 <!-- ActionButtonBlock -->
-                                <div class="#{DataversePage.isRootDataverse() ? 'col-10' : 'col-12'} text-right padding-none">
+                                <div class="#{DataversePage.isRootDataverse() ? 'col-10' : 'col-12'} text-end padding-none">
                                     <!-- Email/Link/Share Button Group -->
                                     <div class="btn-group" role="group">
                                         <p:commandLink type="button" styleClass="text-button btn-contact bootstrap-button-tooltip" title="#{bundle['dataverse.contact']}"
@@ -519,7 +519,7 @@
                                                 <button type="button" class="btn btn-default btn-access dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                                     <span class="glyphicon glyphicon-link"/> #{bundle['link']} <span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu pull-right text-left">
+                                                <ul class="dropdown-menu float-end text-left">
                                                     <li class="#{DataversePage.dataverse.owner != null ? '' : 'disabled'}">
                                                         <p:commandLink action="#{DataversePage.setupLinkingPopup('link')}"
                                                                        oncomplete="PF('linkDataverseForm').show()"
@@ -544,7 +544,7 @@
                                                 <button type="button" class="btn btn-default btn-access dropdown-toggle" data-toggle="dropdown">
                                                     <span class="glyphicon glyphicon-pencil"/> #{bundle['dataverse.edit']} <span class="caret"></span>
                                                 </button>
-                                                <ul class="dropdown-menu pull-right text-left">
+                                                <ul class="dropdown-menu float-end text-left">
                                                     <li>
                                                         <div id="dataverse-info-dropdown">
                                                             <div class="dataverse-info-logo-icon">

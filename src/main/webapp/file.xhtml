@@ -196,7 +196,7 @@
                                 </div>
                                 <!-- END: CITATION BLOCK -->
 
-                                <div class="col-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom">
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-3 float-end margin-bottom">
                                     <!-- ActionButtonBlock -->
                                     <div id="actionButtonBlock">
                                             <!-- DOWNLOAD/ACCESS DATASET -->
@@ -206,7 +206,7 @@
                                                     <button type="button" class="btn btn-default btn-access-file dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         #{((not empty FilePage.exploreTools) or FilePage.showComputeButton()) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']} <span class="caret"></span>
                                                     </button>
-                                                    <ul class="dropdown-menu pull-right text-left">
+                                                    <ul class="dropdown-menu float-end text-left">
                                                         <!-- Explore/Download/Request Button Block -->
                                                         <ui:fragment rendered="#{!FilePage.fileMetadata.dataFile.filePackage
                                                                                    or FilePage.fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload}">
@@ -250,7 +250,7 @@
                                                             disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
                                                         #{bundle['file.editBtn']} <span class="caret"></span>
                                                     </button>
-                                                    <ul class="dropdown-menu pull-right text-left">
+                                                    <ul class="dropdown-menu float-end text-left">
                                                         <ui:include src="file-edit-button-fragment.xhtml">
                                                             <ui:param name="datasetVersion" value="#{FilePage.fileMetadata.datasetVersion}"/>
                                                             <ui:param name="fileMetadata" value="#{FilePage.fileMetadata}"/>
@@ -287,7 +287,7 @@
                                         <!-- END: ActionButtonBlock -->
                                     </div>
 
-                                <div style="clear:right;" class="col-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom"
+                                <div style="clear:right;" class="col-12 col-sm-12 col-md-4 col-lg-3 float-end margin-bottom"
                                      jsf:rendered="#{!(widgetWrapper.widgetView or FilePage.fileMetadata.dataFile.filePackage or FilePage.fileMetadata.datasetVersion.deaccessioned)}">
                                     <!-- Metrics -->
                                     <div id="metrics-block">
@@ -491,7 +491,7 @@
                                    rendered="#{(!FilePage.fileMetadata.datasetVersion.deaccessioned or
                                                               (FilePage.fileMetadata.datasetVersion.deaccessioned and FilePage.canUpdateDataset()))}">
                                 <!-- Metadata -->
-                                <div class="button-block tab-header margin-bottom text-right">
+                                <div class="button-block tab-header margin-bottom text-end">
                                     <!-- Add + Edit Metadata Button -->
                                     <h:outputLink styleClass="btn btn-default btn-access #{FilePage.lockedFromEdits ? 'disabled' : ''}"
                                                   value="/editdatafiles.xhtml?selectedFileIds=#{FilePage.fileMetadata.dataFile.id}&#38;datasetId=#{FilePage.fileMetadata.datasetVersion.dataset.id}&#38;referrer=FILE"
@@ -514,7 +514,7 @@
                                         <button class="btn btn-default btn-export dropdown-toggle" type="button" data-toggle="dropdown">
                                             <span class="glyphicon glyphicon-export"/> #{bundle['dataset.exportBtn']} <span class="caret"/>
                                         </button>
-                                        <ul class="dropdown-menu pull-right text-left">
+                                        <ul class="dropdown-menu float-end text-left">
                                             <ui:repeat var="exporter" value="#{FilePage.getExporters()}">
                                                 <li>
                                                     <h:outputLink value="#{exporter[1]}" target="_blank">
