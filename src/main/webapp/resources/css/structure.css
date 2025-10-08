@@ -227,7 +227,7 @@ a.tooltip-icon:hover, a.tool-tip:focus, a.tool-tip:active {text-decoration: none
 
 /* -------- HEADER -------- */
 #dataverse-header-block {padding-top:10px;}
-nav {display: none;}
+#dataverse-header-block nav {display: none !important;}
 body.widget-view #dataverse-header-block {padding-top:0px;}
 #dataverseHeader {margin:0 auto;}
 /* #dataverseHeader .dataverseHeaderBlock {display:table-row;} */
@@ -850,7 +850,7 @@ div[id$="filesTable"] td.col-file-action .btn-group .btn-link {font-size:2em !im
 div[id$="filesTable"] div.ui-datatable-header.ui-widget-header {padding:0 10px;}
 div[id$="filesHeaderBlock"] {margin-bottom:10px;}
 div[id$="cloudStorageBlock"] {margin-bottom:12px;}
-div[id$="cloudStorageBlock"] div.form-group.col-xs-12 {border-bottom:1px solid #ddd;margin:0;padding:0 0 12px 0;}
+div[id$="cloudStorageBlock"] div.form-group.col-12 {border-bottom:1px solid #ddd;margin:0;padding:0 0 12px 0;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-state-default {border:0; box-shadow:none; border-radius:0; background-image:none; border-top: 1px solid #e6e6e6; border-bottom: 1px solid #e6e6e6;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-state-default:first-of-type {border-left:1px solid #e6e6e6; border-top-left-radius:4px;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-state-default:last-of-type {border-right: 1px solid #e6e6e6; border-top-right-radius: 4px;}
