@@ -109,7 +109,7 @@
                     </div>
 
                     <div class="col-sm-12 button-block">
-                        <p:commandButton id="move" styleClass="btn btn-default" 
+                        <p:commandButton id="move" styleClass="btn btn-secondary" 
                                        value="#{bundle['saveChanges']}"
                                        update="movedataverse-form"
                                        validateClient="true"
@@ -123,7 +123,7 @@
                     <p:dialog id="moveDataverseConfirmation" header="#{bundle['dashboard.move.dataverse.message.summary']}" widgetVar="moveDataverseConfirmation" modal="true">
                         <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['dashboard.move.dataverse.confirm.dialog']}</p>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" value="#{bundle['dashboard.move.dataverse.confirm.yes']}"
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle['dashboard.move.dataverse.confirm.yes']}"
                                              onclick="PF('moveDataverseConfirmation').hide();" 
                                              action="#{DashboardMoveDataversePage.move()}"
                                              update="@form,:messagePanel" partialSubmit="true"/>

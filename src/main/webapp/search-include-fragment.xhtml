@@ -58,7 +58,7 @@
                 <h:form id="addDataForm" class="btn-form"
                         rendered="#{dataverseSession.user.authenticated and permissionsWrapper.canIssueCreateDataverseCommand(SearchIncludeFragment.dataverse)}">
                     <div class="btn-group">
-                        <button type="button" class="add-data-plus-wrapper dropdown-toggle" data-toggle="dropdown">
+                        <button type="button" class="add-data-plus-wrapper dropdown-toggle" data-bs-toggle="dropdown">
                           <div></div>
                           <span>#{bundle['dataverse.results.btn.addData']}</span>
                         </button>
@@ -289,7 +289,7 @@
 
             <!--toggle sidebar button-->
             <p class="visible-xs-block">
-              <button type="button" class="btn btn-default btn-xs" data-toggle="offcanvas"><span class="glyphicon glyphicon-chevron-left"></span> #{bundle['dataverse.results.btn.filterResults']}</button>
+              <button type="button" class="btn btn-secondary btn-xs" data-toggle="offcanvas"><span class="glyphicon glyphicon-chevron-left"></span> #{bundle['dataverse.results.btn.filterResults']}</button>
             </p>
 
             <!-- Message for zero results -->

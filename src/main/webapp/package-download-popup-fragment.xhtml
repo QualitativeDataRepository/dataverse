@@ -28,7 +28,7 @@
             <p><code>#{systemConfig.getDataverseSiteUrl()}/api/access/datafile/#{packagePopupFragmentBean.fileMetadata.dataFile.id}</code></p>
         </div>
         <div class="col-sm-12 button-block margin-top">              
-            <p:commandButton styleClass="btn btn-default" id="downloadPackagePopupCancelButton" value="#{bundle.close}" update="downloadPackagePopup" onclick="PF('downloadPackagePopup').hide();" immediate="true"/>
+            <p:commandButton styleClass="btn btn-secondary" id="downloadPackagePopupCancelButton" value="#{bundle.close}" update="downloadPackagePopup" onclick="PF('downloadPackagePopup').hide();" immediate="true"/>
         </div>
     </div>
 </ui:composition>

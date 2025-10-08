@@ -277,7 +277,7 @@
                                             </li>
                                             <li>
                                                 <h:outputText value="#{bundle['file.rsyncUpload.step2']} &#158; " escape="false"/>
-                                                <h:commandLink id="rsyncDLEff" actionListener="#{EditDatafilesPage.downloadRsyncScript()}" styleClass="btn btn-default btn-xs">
+                                                <h:commandLink id="rsyncDLEff" actionListener="#{EditDatafilesPage.downloadRsyncScript()}" styleClass="btn btn-secondary btn-xs">
                                                     <span class="glyphicon glyphicon-download-alt"/> <h:outputText value=" #{bundle['file.rsyncUpload.step2.downloadScriptButton']}"/>
                                                 </h:commandLink>
                                             </li>
@@ -502,7 +502,7 @@
                             <p:column class="col-file-action button-block text-end" style="width:30%;" ariaHeaderText="#{bundle['file.actionsBlock']}">
                                 <f:facet name="header" class="col-file-action text-end">
                                     <div jsf:id="editFilesRestrictDeletePanel" style="margin-right:14px;" class="btn-group" jsf:rendered="#{hasFileMetadatas and !hasPackageFile}">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
                                             <span class="glyphicon glyphicon-pencil"/> #{bundle['file.editFilesSelected']} <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu multi-level float-end text-left">
@@ -645,11 +645,11 @@
     <p:dialog id="fileTypeDifferentPopup" styleClass="smallPopUp" header="#{bundle['file.addreplace.content_type.header']}" widgetVar="fileTypeDifferentPopup" modal="true">
         <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{EditDatafilesPage.warningMessageForFileTypeDifferentPopUp}</p>
         <div class="button-block">
-            <p:commandButton styleClass="btn btn-default" value="#{bundle['file.delete']}" onclick="PF('fileTypeDifferentPopup').hide()" oncomplete="uploadWidgetDropMsg();
+            <p:commandButton styleClass="btn btn-secondary" value="#{bundle['file.delete']}" onclick="PF('fileTypeDifferentPopup').hide()" oncomplete="uploadWidgetDropMsg();
                                    #{useDirectUpload ? 'setupDirectUpload(true);': ''}"
                              action="#{EditDatafilesPage.deleteFiles()}"
                              update=":#{p:resolveClientId('datasetForm:filesTable', view)},:messagePanel,:#{p:resolveClientId('datasetForm:fileUpload', view)},uploadMessage"/>
-            <button class="btn btn-default" onclick="PF('fileTypeDifferentPopup').hide();" type="button">
+            <button class="btn btn-secondary" onclick="PF('fileTypeDifferentPopup').hide();" type="button">
                 #{bundle.continue}
             </button>
         </div>
@@ -664,10 +664,10 @@
                 </h:outputFormat>
             </p>
         <div class="button-block">
-            <p:commandButton  styleClass="btn btn-default" value="#{EditDatafilesPage.labelForDeleteFilesPopup}" onclick="PF('fileAlreadyExistsPopup').hide()" oncomplete="uploadWidgetDropMsg();"
+            <p:commandButton  styleClass="btn btn-secondary" value="#{EditDatafilesPage.labelForDeleteFilesPopup}" onclick="PF('fileAlreadyExistsPopup').hide()" oncomplete="uploadWidgetDropMsg();"
                               action="#{EditDatafilesPage.deleteDuplicateFiles()}"
                              update=":#{p:resolveClientId('datasetForm:filesTable', view)},:messagePanel,:#{p:resolveClientId('datasetForm:fileUpload', view)},uploadMessage,@([id$=filesButtons])"/>
-            <button class="btn btn-default" onclick="PF('fileAlreadyExistsPopup').hide();" type="button">
+            <button class="btn btn-secondary" onclick="PF('fileAlreadyExistsPopup').hide();" type="button">
                 #{bundle.continue}
             </button>
         </div>
@@ -851,7 +851,7 @@
             </div>
         </div>
         <div class="button-block">
-            <p:commandButton styleClass="btn btn-default" id="fileAdvancedOptionsSaveButton" value="#{bundle.saveChanges}" oncomplete="PF('fileAdvancedOptions').hide();" update=":datasetForm:filesTable,:messagePanel" actionListener="#{EditDatafilesPage.saveAdvancedOptions()}"/>
+            <p:commandButton styleClass="btn btn-secondary" id="fileAdvancedOptionsSaveButton" value="#{bundle.saveChanges}" oncomplete="PF('fileAdvancedOptions').hide();" update=":datasetForm:filesTable,:messagePanel" actionListener="#{EditDatafilesPage.saveAdvancedOptions()}"/>
             <p:commandButton styleClass="btn btn-link" id="fileAdvancedOptionsCancelButton" value="#{bundle.cancel}" onclick="PF('fileAdvancedOptions').hide();PF('blockFileForm').hide();"  actionListener="#{EditDatafilesPage.clearFileMetadataSelectedForIngestOptionsPopup()}"/>
         </div>
     </p:dialog>
@@ -872,7 +872,7 @@
             </div>
         </div>
         <div class="button-block">
-            <p:commandButton styleClass="btn btn-default" id="fileSetThumbnailSaveBtn" value="#{bundle.saveChanges}" oncomplete="PF('fileSetThumbnail').hide();" update=":datasetForm:filesTable,:messagePanel" actionListener="#{EditDatafilesPage.saveAsDesignatedThumbnail()}"/>
+            <p:commandButton styleClass="btn btn-secondary" id="fileSetThumbnailSaveBtn" value="#{bundle.saveChanges}" oncomplete="PF('fileSetThumbnail').hide();" update=":datasetForm:filesTable,:messagePanel" actionListener="#{EditDatafilesPage.saveAsDesignatedThumbnail()}"/>
             <p:commandButton styleClass="btn btn-link" id="fileSetThumbnailCancelBtn" value="#{bundle.cancel}" onclick="PF('fileSetThumbnail').hide();PF('blockFileForm').hide();"  actionListener="#{EditDatafilesPage.clearFileMetadataSelectedForThumbnailPopup()}"/>
         </div>
     </p:dialog>
@@ -883,7 +883,7 @@
             </p>
         </div>
         <div class="button-block">
-            <p:commandButton styleClass="btn btn-default" id="fileThumbnailConfirmCntBtn" value="#{bundle.continue}" oncomplete="PF('fileThumbnailConfirm').hide();" update=":datasetForm:filesTable,:messagePanel" actionListener="#{EditDatafilesPage.deleteDatasetLogoAndUseThisDataFileAsThumbnailInstead()}"/>
+            <p:commandButton styleClass="btn btn-secondary" id="fileThumbnailConfirmCntBtn" value="#{bundle.continue}" oncomplete="PF('fileThumbnailConfirm').hide();" update=":datasetForm:filesTable,:messagePanel" actionListener="#{EditDatafilesPage.deleteDatasetLogoAndUseThisDataFileAsThumbnailInstead()}"/>
             <button class="btn btn-link" onclick="PF('fileThumbnailConfirm').hide();PF('blockFileForm').hide();" type="button">                              
                 #{bundle.cancel}
             </button>
@@ -937,7 +937,7 @@
                                          type="text" value="#{EditDatafilesPage.newCategoryName}"
                                          placeholder="#{bundle['file.editTagsDialog.newName']}"
                                          onkeypress="if (event.keyCode == 13) {return false;}"/>
-                            <p:commandButton styleClass="btn btn-default" style="margin-left:.5em;" value="#{bundle.apply}" action="#{EditDatafilesPage.saveNewCategory}" update="selectedTagsListEFF, fileTagAddNew, fileTagsMenu"/>
+                            <p:commandButton styleClass="btn btn-secondary" style="margin-left:.5em;" value="#{bundle.apply}" action="#{EditDatafilesPage.saveNewCategory}" update="selectedTagsListEFF, fileTagAddNew, fileTagsMenu"/>
                             <p:message for="fileTagAddNew" display="text"/>
                         </div>
                     </div>
@@ -970,7 +970,7 @@
             </div> -->
         </div>
         <div class="button-block">
-            <p:commandButton styleClass="btn btn-default" id="editFileTagsPopupSaveButton" value="#{bundle.saveChanges}" oncomplete="PF('editFileTagsPopup').hide();" update=":datasetForm:filesTable" actionListener="#{EditDatafilesPage.saveFileTagsAndCategories()}"/>
+            <p:commandButton styleClass="btn btn-secondary" id="editFileTagsPopupSaveButton" value="#{bundle.saveChanges}" oncomplete="PF('editFileTagsPopup').hide();" update=":datasetForm:filesTable" actionListener="#{EditDatafilesPage.saveFileTagsAndCategories()}"/>
             <p:commandButton styleClass="btn btn-link" id="editFileTagsPopupCancelButton" value="#{bundle.cancel}" onclick="PF('editFileTagsPopup').hide();PF('blockFileForm').hide();" update=":datasetForm:filesTable" actionListener="#{EditDatafilesPage.clearFileMetadataSelectedForTagsPopup()}"/>
         </div>
     </p:dialog>     
@@ -979,7 +979,7 @@
               header="#{bundle['dataset.noSelectedFiles.header']}" widgetVar="selectFiles2" modal="true">
         <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.noSelectedFiles']}</p>
         <div class="button-block">
-            <button class="btn btn-default" onclick="PF('selectFiles2').hide();" type="button">
+            <button class="btn btn-secondary" onclick="PF('selectFiles2').hide();" type="button">
                 #{bundle.close}
             </button>
         </div>

@@ -21,7 +21,7 @@
               header="#{bundle['file.alreadyDeleted.warning.header']}" widgetVar="fileAlreadyDeletedPrevious" modal="true">
         <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['file.alreadyDeleted.previous.warningMessage']}</p>
         <div class="button-block">
-            <button class="btn btn-default" onclick="PF('fileAlreadyDeletedPrevious').hide();" type="button">
+            <button class="btn btn-secondary" onclick="PF('fileAlreadyDeletedPrevious').hide();" type="button">
                 #{bundle.close}
             </button>
         </div>
@@ -83,7 +83,7 @@
         </div>
 
         <div class="button-block">
-            <p:commandLink id="restrictFileButton"  styleClass="btn btn-default" value="#{bundle.saveChanges}"                             
+            <p:commandLink id="restrictFileButton"  styleClass="btn btn-secondary" value="#{bundle.saveChanges}"                             
                              onclick="testTOA();"
                              update="popupWarning" />
             <button class="btn btn-link" onclick="PF('accessPopup').hide();PF('blockDatasetForm').hide();" type="button">
@@ -162,7 +162,7 @@
             </div>
         </h:panelGroup>
         <div class="button-block">
-            <p:commandButton rendered="#{bean.validEmbargoSelection}" styleClass="btn btn-default" id="fileEmbargoPopupSaveButton" value="#{bundle.saveChanges}" 
+            <p:commandButton rendered="#{bean.validEmbargoSelection}" styleClass="btn btn-secondary" id="fileEmbargoPopupSaveButton" value="#{bundle.saveChanges}" 
             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('fileEmbargoPopup').hide();return false;" update="#{updateElements}" action="#{bean[saveEmbargoAction]}"/>
             <p:commandButton styleClass="btn btn-link" id="fileEmbargoPopupCancelButton" value="#{bundle.cancel}" onclick="PF('fileEmbargoPopup').hide();
                     PF('blockDatasetForm').hide();" action="#{bean.clearEmbargoPopup()}" update="#{updateElements}" immediate="true"/>
@@ -238,7 +238,7 @@
             </div>
         </h:panelGroup>
         <div class="button-block">
-            <p:commandButton rendered="#{bean.validRetentionSelection}" styleClass="btn btn-default" id="fileRetentionPopupSaveButton" value="#{bundle.saveChanges}"
+            <p:commandButton rendered="#{bean.validRetentionSelection}" styleClass="btn btn-secondary" id="fileRetentionPopupSaveButton" value="#{bundle.saveChanges}"
                              oncomplete="if (args &amp;&amp; !args.validationFailed) PF('fileRetentionPopup').hide();return false;" update="#{updateRetentionElements}" action="#{bean[saveRetentionAction]}"/>
             <p:commandButton styleClass="btn btn-link" id="fileRetentionPopupCancelButton" value="#{bundle.cancel}" onclick="PF('fileRetentionPopup').hide();
                     PF('blockDatasetForm').hide();" action="#{bean.clearRetentionPopup()}" update="#{updateRetentionElements}" immediate="true"/>
@@ -251,7 +251,7 @@
             <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteFileDialog.failed.tip']}</p>
         </ui:fragment>
         <div class="button-block">
-            <p:commandButton styleClass="btn btn-default" value="#{bundle['file.delete']}" onclick="PF('deleteFileConfirmation').hide()" 
+            <p:commandButton styleClass="btn btn-secondary" value="#{bundle['file.delete']}" onclick="PF('deleteFileConfirmation').hide()" 
                              action="#{bean[deleteFileAction]}"/>
             <button class="btn btn-link" onclick="PF('deleteFileConfirmation').hide()" type="button">
                 #{bundle.cancel}
@@ -270,7 +270,7 @@
               header="#{bundle['dataset.noSelectedFiles.header']}" widgetVar="selectFiles" modal="true">
         <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.noSelectedFiles']}</p>
         <div class="button-block">
-            <button class="btn btn-default" onclick="PF('selectFiles').hide();" type="button">
+            <button class="btn btn-secondary" onclick="PF('selectFiles').hide();" type="button">
                 #{bundle.close}
             </button>
         </div>

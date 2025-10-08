@@ -271,7 +271,7 @@
             <!--REGULAR DOWNLOAD BUTTON, NO EXTERNAL TOOL, NOT THE PREVIEW TAB-->
             <!--Note: the guestbookResponse.fileFormat is being set in xhtml via the initial download buttons in file-download-button-fragment.xhtml -->
             
-            <p:commandButton styleClass="btn btn-default" value="#{bundle.acceptTerms}"
+            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.acceptTerms}"
                              rendered="#{guestbookResponse.fileFormat != 'externalTool' and
                                          guestbookResponse.fileFormat != 'package' and
                                          popupContext != 'previewTab' and not isGlobusTransfer}"
@@ -280,7 +280,7 @@
                 <f:param name="DO_GB_VALIDATION_#{popupContext}" value="true"/>
             </p:commandButton>
             <!--  REGULAR GLOBUS TRANSFER -->
-            <p:commandButton styleClass="btn btn-default" value="#{bundle.acceptTerms}"
+            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.acceptTerms}"
                              rendered="#{guestbookResponse.fileFormat != 'externalTool' and
                                          guestbookResponse.fileFormat != 'package' and
                                          popupContext != 'previewTab' and isGlobusTransfer}"
@@ -289,7 +289,7 @@
                 <f:param name="DO_GB_VALIDATION_#{popupContext}" value="true"/>
             </p:commandButton>
                         <!--PREVIEW TAB BUTTON-->
-            <p:commandButton styleClass="btn btn-default" value="#{bundle.acceptTerms}"
+            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.acceptTerms}"
                              rendered="#{popupContext == 'previewTab'}"
                              actionListener="#{FilePage.showPreview(guestbookResponse)}"
                              process="previewTab"
@@ -298,13 +298,13 @@
             </p:commandButton>
             <!--EXTERNAL TOOL BUTTON-->
             <!--On the dataset page (but not the file page), "tool" is null so we get the tool from the guestbookResponse.-->
-            <p:commandButton styleClass="btn btn-default" value="#{bundle.acceptTerms}" rendered="#{guestbookResponse.fileFormat == 'externalTool'}"
+            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.acceptTerms}" rendered="#{guestbookResponse.fileFormat == 'externalTool'}"
                              action="#{fileDownloadHelper.writeGuestbookAndLaunchExploreTool(guestbookResponse, fileMetadata, tool)}"
                              update="guestbookUIFragment">
                 <f:param name="DO_GB_VALIDATION_#{popupContext}" value="true"/>
             </p:commandButton>
             <!--PACKAGE FILE BUTTON-->
-            <p:commandButton styleClass="btn btn-default" value="#{bundle.acceptTerms}" rendered="#{guestbookResponse.fileFormat == 'package'}"
+            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.acceptTerms}" rendered="#{guestbookResponse.fileFormat == 'package'}"
                              actionListener="#{fileDownloadHelper.writeGuestbookAndLaunchPackagePopup(guestbookResponse)}"
                              update="guestbookUIFragment">
                 <f:param name="DO_GB_VALIDATION_#{popupContext}" value="true"/>
@@ -315,21 +315,21 @@
         </div>
         <div class="button-block" jsf:rendered="#{termsGuestbookPopupAction == bundle['file.requestAccess']}">
         <!--TODO - add "Accept and" if ToA exist?-->
-            <p:commandLink type="button" styleClass="btn btn-default" rendered="#{!guestbookPopupRequiredAtDownload}" value="#{bundle['file.requestAccess']}"
+            <p:commandLink type="button" styleClass="btn btn-secondary" rendered="#{!guestbookPopupRequiredAtDownload}" value="#{bundle['file.requestAccess']}"
                     actionListener="#{fileDownloadHelper.writeGuestbookResponseAndRequestAccess(guestbookResponse)}"
                     update="guestbookUIFragment"
                     oncomplete="if (!args || (args &amp;&amp; !args.validationFailed)){PF('guestbookAndTermsPopup').hide();window.location.replace(window.location.href);}">
                     <f:param name="DO_GB_VALIDATION_#{popupContext}" value="true"/>
             </p:commandLink>
 
-            <p:commandLink type="button" styleClass="btn btn-default" rendered="#{guestbookPopupRequiredAtDownload}" value="#{bundle['file.requestAccess']}"
+            <p:commandLink type="button" styleClass="btn btn-secondary" rendered="#{guestbookPopupRequiredAtDownload}" value="#{bundle['file.requestAccess']}"
                     actionListener="#{fileDownloadHelper.requestAccessIndirect()}"
                     update="guestbookUIFragment"
                     oncomplete="if (!args || (args &amp;&amp; !args.validationFailed)){PF('guestbookAndTermsPopup').hide();window.location.replace(window.location.href);}">
                     <f:param name="DO_GB_VALIDATION_#{popupContext}" value="true"/>
             </p:commandLink>
 
-            <button type="button" class="btn btn-default" onclick="PF('guestbookAndTermsPopup').hide();PF('blockDatasetForm').hide();" value="#{bundle.cancel}">#{bundle.cancel}</button>
+            <button type="button" class="btn btn-secondary" onclick="PF('guestbookAndTermsPopup').hide();PF('blockDatasetForm').hide();" value="#{bundle.cancel}">#{bundle.cancel}</button>
         </div>
     </ui:fragment>
 </ui:composition>

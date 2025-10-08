@@ -33,7 +33,7 @@
                         </ui:fragment>
 
                         <div class="float-end">
-                            <h:outputLink styleClass="btn btn-default"
+                            <h:outputLink styleClass="btn btn-secondary"
                                           value="/template.xhtml?ownerId=#{manageTemplatesPage.dataverse.id}">
                                 <span class="glyphicon glyphicon-plus"/> <h:outputText value="#{bundle['dataset.manageTemplates.createBtn']}"/>
                             </h:outputLink>
@@ -83,12 +83,12 @@
                                         </h:outputFormat>
                                     </em>
                                 </div>
-                                <p:commandLink styleClass="btn btn-default"
+                                <p:commandLink styleClass="btn btn-secondary"
                                                value="#{bundle['dataset.manageTemplates.tab.action.btn.makeDefault']}"
                                                rendered="#{manageTemplatesPage.dataverse.defaultTemplate != template}"
                                                actionListener="#{manageTemplatesPage.makeDefault(template)}"
                                                update="@form,:messagePanel"/>
-                                <p:commandLink styleClass="btn btn-default"
+                                <p:commandLink styleClass="btn btn-secondary"
                                                value="#{bundle['dataset.manageTemplates.tab.action.btn.default']}"
                                                rendered="#{manageTemplatesPage.dataverse.defaultTemplate == template}"
                                                actionListener="#{manageTemplatesPage.unselectDefault(template)}"
@@ -96,21 +96,21 @@
                                     <span class="glyphicon glyphicon-eye-open"></span>
                                 </p:commandLink>
                                 <div class="btn-group" role="group">
-                                    <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                    <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    title="#{bundle['dataset.manageTemplates.tab.action.btn.view']}"
                                                    action="#{manageTemplatesPage.viewSelectedTemplate(template)}"
                                                    oncomplete="PF('viewTemplate').show();"
                                                    update=":manageTemplatesForm">
                                         <span class="glyphicon glyphicon-eye-open"></span>
                                     </p:commandLink>
-                                    <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                    <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    title="#{bundle['dataset.manageTemplates.tab.action.btn.copy']}"
                                                    action="#{manageTemplatesPage.cloneTemplate(template)}"
                                                    update="@form">
                                         <span class="glyphicon glyphicon-duplicate"></span>
                                     </p:commandLink>
                                     <div class="btn-group" jsf:rendered="#{manageTemplatesPage.dataverse.id eq template.dataverse.id}">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+                                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
                                             <span class="glyphicon glyphicon-pencil"/> #{bundle['dataset.manageTemplates.tab.action.btn.edit']} <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu">
@@ -126,7 +126,7 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                    <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    title="#{bundle['dataset.manageTemplates.tab.action.btn.delete']}"
                                                    update="@form,:messagePanel"
                                                    action="#{manageTemplatesPage.setSelectedTemplate(template)}"
@@ -156,7 +156,7 @@
                             </ul>
                         </ui:fragment>
                         <div class="button-block">
-                            <p:commandButton id="contDeleteTemplateBtn" styleClass="btn btn-default" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{manageTemplatesPage.deleteTemplate()}" update="@form,:messagePanel"/>
+                            <p:commandButton id="contDeleteTemplateBtn" styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{manageTemplatesPage.deleteTemplate()}" update="@form,:messagePanel"/>
                             <button class="btn btn-link" onclick="PF('deleteConfirmation').hide();" type="button">
                                 #{bundle.cancel}
                             </button>
@@ -187,7 +187,7 @@
                             <ui:param name="termsOfUseAndAccess" value="#{TemplatePage.template.termsOfUseAndAccess}" />
                         </ui:include>
                         <div class="button-block">
-                            <button class="btn btn-default" onclick="PF('viewTemplate').hide()" type="button">
+                            <button class="btn btn-secondary" onclick="PF('viewTemplate').hide()" type="button">
                                 #{bundle.close}
                             </button>
                         </div>

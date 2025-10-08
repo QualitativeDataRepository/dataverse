@@ -65,8 +65,8 @@
                             </div>
                             <div class="col-sm-7 inline-buttons">
                                 <div class="button-block">
-                                    <p:commandButton styleClass="btn btn-default" id="editProvenanceJsonPreview" value="#{bundle.preview}" actionListener="#{provPopupFragmentBean.showJsonPreviewNewWindow()}" onclick="this.form.target='_blank'" ajax="false" immediate="true"/>
-                                    <p:commandButton styleClass="btn btn-default" id="editProvenanceJsonRemove" value="#{bundle.remove}" rendered="#{!provPopupFragmentBean.provJsonAlreadyPublishedRendering()}" update="provPopupOutput,assignMessages" immediate="true" actionListener="#{provPopupFragmentBean.removeJsonAndRelatedData()}"/>
+                                    <p:commandButton styleClass="btn btn-secondary" id="editProvenanceJsonPreview" value="#{bundle.preview}" actionListener="#{provPopupFragmentBean.showJsonPreviewNewWindow()}" onclick="this.form.target='_blank'" ajax="false" immediate="true"/>
+                                    <p:commandButton styleClass="btn btn-secondary" id="editProvenanceJsonRemove" value="#{bundle.remove}" rendered="#{!provPopupFragmentBean.provJsonAlreadyPublishedRendering()}" update="provPopupOutput,assignMessages" immediate="true" actionListener="#{provPopupFragmentBean.removeJsonAndRelatedData()}"/>
                                 </div>
                             </div>
                         </ui:fragment>
@@ -132,7 +132,7 @@
                 </div>
             </div>
             <div class="button-block">              
-                <p:commandButton styleClass="btn btn-default" id="editProvenancePopupSaveButton" value="#{bundle.continue}" disabled="#{provPopupFragmentBean.isDataFilePublishedWithDraftRendering() and !provPopupFragmentBean.isDatasetInDraftRendering()}" update="provPopupOutput,assignMessages,confirmProvenancePopup" oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('editProvenancePopup').hide();PF('confirmProvenancePopup').show();}"/>
+                <p:commandButton styleClass="btn btn-secondary" id="editProvenancePopupSaveButton" value="#{bundle.continue}" disabled="#{provPopupFragmentBean.isDataFilePublishedWithDraftRendering() and !provPopupFragmentBean.isDatasetInDraftRendering()}" update="provPopupOutput,assignMessages,confirmProvenancePopup" oncomplete="if (args &amp;&amp; !args.validationFailed) { PF('editProvenancePopup').hide();PF('confirmProvenancePopup').show();}"/>
                 <p:commandButton styleClass="btn btn-link" id="editProvenancePopupCancelButton" value="#{bundle.cancel}" update="provPopupOutput,assignMessages,confirmProvenancePopup" onclick="PF('editProvenancePopup').hide();" immediate="true" actionListener="#{provPopupFragmentBean.removeJsonAndRelatedData()}"/>
             </div>
         </div>
@@ -162,14 +162,14 @@
                 <div class="col-sm-9">
                     <div class="col-sm-7 inline-buttons">
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" id="editProvenanceJsonPreview2" value="#{bundle.preview}" actionListener="#{provPopupFragmentBean.showJsonPreviewNewWindow()}" onclick="this.form.target='_blank'" ajax="false" immediate="true"/>
+                            <p:commandButton styleClass="btn btn-secondary" id="editProvenanceJsonPreview2" value="#{bundle.preview}" actionListener="#{provPopupFragmentBean.showJsonPreviewNewWindow()}" onclick="this.form.target='_blank'" ajax="false" immediate="true"/>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="button-block">
-            <p:commandButton styleClass="btn btn-default" id="confirmProvenancePopupSaveButton" 
+            <p:commandButton styleClass="btn btn-secondary" id="confirmProvenancePopupSaveButton" 
                              value="#{bundle.saveChanges}" oncomplete="PF('confirmProvenancePopup').hide();" 
                              action="#{provPopupFragmentBean.stagePopupChanges(saveInPopup == 'true')}" update=":messagePanel"/>
             <button type="button" jsf:id="confirmProvenancePopupCancelButton" class="btn btn-link" 

@@ -120,12 +120,12 @@ function writeHypothesisFields(json, date, title, authors, parentUrl) {
           .html(
               "This is the annotations-only view of the ATI data project <a href=\"javascript:returnToDataset(parentUrl);\">"
                   + title + "</a> by " + authors + "."));
-  header.append($("<div/>").addClass("btn btn-default").append(
+  header.append($("<div/>").addClass("btn btn-secondary").append(
       $("<a/>").attr("href", json.rows[0].links.incontext).text(
           "View Annotations In Context")));
   header
       .append($("<div/>")
-          .addClass("btn btn-default")
+          .addClass("btn btn-secondary")
           .html(
               "<a href=\"javascript:returnToDataset(parentUrl);\">Return To The Data Project.</a>"));
   header.append($("<div/>").addClass("annotation-note").text(

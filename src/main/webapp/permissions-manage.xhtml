@@ -40,7 +40,7 @@
                                                     <iqbs:messages  collapsible="true" rendered="#{managePermissionsPage.renderConfigureMessages}"/>
                                                 </div>
                                             </p:fragment>
-                                            <p:commandLink id="configureButton" styleClass="btn btn-default float-end"
+                                            <p:commandLink id="configureButton" styleClass="btn btn-secondary float-end"
                                                            actionListener="#{managePermissionsPage.initAccessSettings}"
                                                            update="accessDialog"
                                                            oncomplete="PF('accessForm').show();">
@@ -101,7 +101,7 @@
                                         </div>
                                     </p:fragment>
                                     <div class="margin-bottom text-end">
-                                        <p:commandLink id="userGroupsAdd" styleClass="btn btn-default"
+                                        <p:commandLink id="userGroupsAdd" styleClass="btn btn-secondary"
                                                        actionListener="#{managePermissionsPage.initAssigneeDialog}"
                                                        update="userGroupDialog roleAssignmentHistory"
                                                        oncomplete="PF('userGroupsForm').show();handleResizeDialog('userGroupDialog');">
@@ -130,7 +130,7 @@
                                                 <h:outputFormat styleClass="text-muted italic" value="#{bundle['dataverse.permissions.usersOrGroups.assignedAt']}" rendered="#{managePermissionsPage.dvObject ne roleAssignment.definitionPoint}">
                                                     <f:param value="#{roleAssignment.assignedDvName}"/>
                                                 </h:outputFormat>
-                                                <p:commandLink styleClass="btn btn-default"
+                                                <p:commandLink styleClass="btn btn-secondary"
                                                                rendered="#{managePermissionsPage.dvObject eq roleAssignment.definitionPoint}"
                                                                onclick="PF('confirmation').show()">
                                                     <f:setPropertyActionListener value="#{roleAssignment.roleAssignment}" target="#{managePermissionsPage.selectedRoleAssignment}" />
@@ -158,7 +158,7 @@
                                         </div>
                                     </p:fragment>
                                     <div class="margin-bottom text-end">
-                                        <p:commandLink id="rolesAdd" styleClass="btn btn-default"
+                                        <p:commandLink id="rolesAdd" styleClass="btn btn-secondary"
                                                        rendered="#{managePermissionsPage.dvObject.instanceofDataverse and permissionsWrapper.canManagePermissions(managePermissionsPage.dvObject)
                                                                     and dataverseSession.user.superuser}"
                                                        actionListener="#{managePermissionsPage.createNewRole}"
@@ -207,7 +207,7 @@
                                 <div class="panel-body">
                                     <div class="button-group margin-bottom text-end">
                                         <h:outputLink value="#{managePermissionsPage.signedUrlForRAHistoryCsv}" 
-                                                     styleClass="btn btn-default" 
+                                                     styleClass="btn btn-secondary" 
                                                      onclick="downloadRAHistoryCSV(this.href, '#{managePermissionsPage.permissionsHistoryFilename}'); return false;">
                                             <span class="glyphicon glyphicon-download"></span> #{bundle['dataverse.permissions.history.download']}
                                         </h:outputLink>
@@ -251,7 +251,7 @@
                         <p:focus context="accessDialog"/>
                         <ui:include src="permissions-configure.xhtml"/>
                         <div class="button-block">
-                            <p:commandButton value="#{bundle['saveChanges']}" styleClass="btn btn-default"
+                            <p:commandButton value="#{bundle['saveChanges']}" styleClass="btn btn-secondary"
                                            update=":#{p:resolveClientId('rolesPermissionsForm:configureSettings', view)} @([id$=assignedRoles]) assignedRoles roleAssignmentHistory @([id$=Messages])"
                                            actionListener="#{managePermissionsPage.saveConfiguration}"
                                            oncomplete="PF('accessForm').hide()"/>
@@ -271,7 +271,7 @@
                             <span class="glyphicon glyphicon-warning-sign text-danger"/> <span class="text-danger">#{bundle['dataverse.permissions.usersOrGroups.removeBtn.confirmation']}</span>
                         </p>
                         <div class="button-block">
-                            <p:commandButton value="#{bundle.continue}" styleClass="btn btn-default" onclick="PF('confirmation').hide()" 
+                            <p:commandButton value="#{bundle.continue}" styleClass="btn btn-secondary" onclick="PF('confirmation').hide()" 
                                              action="#{managePermissionsPage.removeRoleAssignment()}" 
                                              update=":#{p:resolveClientId('rolesPermissionsForm:configureSettings', view)} assignedRoles roleAssignmentHistory @([id$=Messages])" />
                             <button class="btn btn-link" onclick="PF('confirmation').hide()" type="button">

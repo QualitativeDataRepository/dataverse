@@ -28,7 +28,7 @@
                     <p:fragment id="emptyClientsTable" rendered="#{empty harvestingClientsPage.configuredHarvestingClients}">
                         <div class="row">
                             <div class="col-sm-12 text-end">
-                                <p:commandLink type="button" id="addClientEmpty" styleClass="btn btn-default margin-bottom"
+                                <p:commandLink type="button" id="addClientEmpty" styleClass="btn btn-secondary margin-bottom"
                                                actionListener="#{harvestingClientsPage.initNewClient}"
                                                update=":harvestingClientsForm:newHarvestingClientDialog"
                                                oncomplete="PF('newHarvestingClientForm').show();handleResizeDialog('newHarvestingClientDialog');">
@@ -85,7 +85,7 @@
                                     <div id="datatable_length" class="dataTables_length">
                                         <!-- FIXME -->
                                         <!-- removed render logic {harvestingClientsPage.dataverseId != null} -->
-                                        <p:commandLink style="margin-left:1em;" id="addClient" styleClass="btn btn-default"
+                                        <p:commandLink style="margin-left:1em;" id="addClient" styleClass="btn btn-secondary"
                                                         actionListener="#{harvestingClientsPage.initNewClient}"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();handleResizeDialog('newHarvestingClientDialog');">
@@ -115,14 +115,14 @@
                             <div class="button-block">
                                 <div class="btn-group" role="group">
                                     <!-- TODO: a confirmation dialog? - "sure you want to run harvest now?" -->
-                                    <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                    <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{harvestClient.harvestingNow or harvestClient.deleteInProgress}"
                                                    action="#{harvestingClientsPage.runHarvest(harvestClient)}"
                                                    update=":harvestingClientsForm,:messagePanel,:harvestingClientsForm:clientsTable"
                                                    title="#{bundle['harvestclients.tab.header.action.btn.run']}">
                                         <span class="glyphicon glyphicon-play no-text"></span>
                                     </p:commandLink>
-                                    <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                    <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{harvestClient.harvestingNow or harvestClient.deleteInProgress}"
                                                    action="#{harvestingClientsPage.editClient(harvestClient)}"
                                                    oncomplete="PF('newHarvestingClientForm').show();handleResizeDialog('newHarvestingClientDialog');"
@@ -130,7 +130,7 @@
                                                    title="#{bundle['harvestclients.tab.header.action.btn.edit']}">
                                         <span class="glyphicon glyphicon-pencil no-text"></span>
                                     </p:commandLink>
-                                    <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                    <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{harvestClient.harvestingNow or harvestClient.deleteInProgress}"
                                                    action="#{harvestingClientsPage.setClientForDelete(harvestClient)}"
                                                    oncomplete="PF('deleteConfirmation').show();"
@@ -170,7 +170,7 @@
                             </h:outputFormat>
                         </p -->
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{harvestingClientsPage.deleteClient()}" update=":harvestingClientsForm :messagePanel"/>
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{harvestingClientsPage.deleteClient()}" update=":harvestingClientsForm :messagePanel"/>
                             <p:commandButton styleClass="btn btn-link" value="#{bundle.cancel}" onclick="PF('deleteConfirmation').hide()" type="button" update=":harvestingClientsForm"/>
                         </div>
                     </p:dialog>
@@ -313,7 +313,7 @@
                                     <div class="col-sm-9 col-sm-offset-2 button-block">
                                         <p:commandLink rendered="#{!harvestingClientsPage.initialSettingsValidated}"
                                                         id="validateInitialSettingsBtn"
-                                                        styleClass="btn btn-default"
+                                                        styleClass="btn btn-secondary"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         action="#{harvestingClientsPage.validateInitialSettings()}">
@@ -394,14 +394,14 @@
                                 <div class="form-group">
                                     <div class="col-sm-6 col-sm-offset-3 button-block">
                                         <p:commandLink id="createStepTwoPrevious"
-                                                        styleClass="btn btn-default"
+                                                        styleClass="btn btn-secondary"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.backToStepOne()}">
                                             <span class="glyphicon glyphicon-menu-left"/> #{bundle.previous}
                                         </p:commandLink>
                                         <p:commandLink id="createStepTwoNext"
-                                                        styleClass="btn btn-default"
+                                                        styleClass="btn btn-secondary"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.goToStepThree()}">
@@ -488,14 +488,14 @@
                                 <div class="form-group">
                                     <div class="col-sm-6 col-sm-offset-3 button-block">
                                         <p:commandLink id="createStepThreePrevious"
-                                                        styleClass="btn btn-default"
+                                                        styleClass="btn btn-secondary"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.backToStepTwo()}">
                                             <span class="glyphicon glyphicon-menu-left"/> #{bundle.previous}
                                         </p:commandLink>
                                         <p:commandLink id="createStepThreeNext"
-                                                        styleClass="btn btn-default"
+                                                        styleClass="btn btn-secondary"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.goToStepFour()}">
@@ -564,14 +564,14 @@
                                 <div class="form-group">
                                     <div class="col-sm-6 col-sm-offset-3 button-block">
                                         <p:commandLink id="createStepFourPrevious"
-                                                        styleClass="btn btn-default"
+                                                        styleClass="btn btn-secondary"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.backToStepThree()}">
                                             <span class="glyphicon glyphicon-menu-left"/> #{bundle.previous}
                                         </p:commandLink>
                                         <!-- note that there are 2 different buttons rendered for "create" and "save"! -->
-                                        <p:commandLink styleClass="btn btn-default"
+                                        <p:commandLink styleClass="btn btn-secondary"
                                                        rendered="#{harvestingClientsPage.createMode and harvestingClientsPage.initialSettingsValidated}"
                                                        value="#{bundle['harvestclients.newClientDialog.btn.create']}"
                                                        update="newHarvestingClientDialogContent :messagePanel :harvestingClientsForm clientsTable emptyClientsTable"
@@ -579,7 +579,7 @@
                                                        oncomplete="if (args &amp;&amp; !args.validationFailed) PF('newHarvestingClientForm').hide(); else PF('newHarvestingClientForm').show();">
                                             <f:param name="DO_VALIDATION" value="true"/>
                                         </p:commandLink>
-                                        <p:commandLink styleClass="btn btn-default"
+                                        <p:commandLink styleClass="btn btn-secondary"
                                                        rendered="#{harvestingClientsPage.editMode and harvestingClientsPage.initialSettingsValidated}"
                                                        value="#{bundle['harvestclients.viewEditDialog.btn.save']}"
                                                        update="newHarvestingClientDialogContent :messagePanel :harvestingClientsForm clientsTable emptyClientsTable"

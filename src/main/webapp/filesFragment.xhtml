@@ -92,7 +92,7 @@
                     <div class="col-md-4 col-sm-5 col-6 input-group">
                         <div id="copy-input" class="form-control">#{DatasetPage.swiftContainerName}</div>
                         <span class="input-group-btn">
-                            <button class="btn btn-default btn-copy" type="button" id="copy-button" data-clipboard-action="copy" data-clipboard-target="#copy-input">
+                            <button class="btn btn-secondary btn-copy" type="button" id="copy-button" data-clipboard-action="copy" data-clipboard-target="#copy-input">
                                 <span class="glyphicon glyphicon-copy"></span> #{bundle['file.copy']}
                             </button>
                         </span>
@@ -125,13 +125,13 @@
                     <p:outputPanel id="filesButtons" class="button-block no-margin-top"
                                     rendered="#{canUpdateAndAuthenticated}">
                         <!-- DOWNLOAD DCM SCRIPT BUTTON -->
-                        <h:commandLink id="rsyncDLFF" actionListener="#{DatasetPage.downloadRsyncScript()}" styleClass="btn btn-default"
+                        <h:commandLink id="rsyncDLFF" actionListener="#{DatasetPage.downloadRsyncScript()}" styleClass="btn btn-secondary"
                                        rendered="#{  hasFileMetadata and DatasetPage.lockedDueToDcmUpload}">
                             <span class="glyphicon glyphicon-download-alt"/> <h:outputText value=" #{bundle['file.rsyncUpload.step2.downloadScriptButton']}"/>
                         </h:commandLink>
                         <!-- UPLOAD FILES BUTTON -->
                         <h:outputLink value="/editdatafiles.xhtml?datasetId=#{DatasetPage.dataset.id}&#38;mode=UPLOAD"
-                                      type="button" styleClass="btn btn-default btn-access #{uploadButtonDisabled}"
+                                      type="button" styleClass="btn btn-secondary btn-access #{uploadButtonDisabled}"
                                       disabled="#{lockedFromEdits}">
                             <span class="glyphicon glyphicon-plus"/> <h:outputText id="uploadFile-s-Link" value="#{bundle['file.uploadFiles']}"/>
                         </h:outputLink>
@@ -281,7 +281,7 @@
                 </div>                
                     <!-- FILES SORT -->
                     <div class="btn-group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="glyphicon glyphicon-sort"></span> #{bundle['file.results.btn.sort']} <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu float-end text-left">
@@ -417,7 +417,7 @@
                 <!-- EDIT -->
                 <div style="margin-right:14px;" class="btn-group" jsf:rendered="#{DatasetPage.sessionUserAuthenticated
                                                                                   and DatasetPage.canUpdateDataset() and !widgetWrapper.widgetView and (DatasetPage.fileMetadatasSearch.size() gt 0)}">
-                    <button type="button" class="btn btn-default btn-access dropdown-toggle" data-toggle="dropdown"
+                    <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-toggle="dropdown"
                             disabled="#{uploadButtonDisabled}">
                         <span class="glyphicon glyphicon-pencil"/> #{bundle['file.editFiles']} <span class="caret"></span>
                     </button>
@@ -444,7 +444,7 @@
                                      and fileMetadataCount > 1) and DatasetPage.downloadButtonAvailable
                                      and  !(DatasetPage.isVersionHasTabular()||DatasetPage.isVersionHasGlobus())}">
                     <p:commandLink 
-                                   styleClass="btn btn-default btn-download"
+                                   styleClass="btn btn-secondary btn-download"
                                    disabled="#{false and DatasetPage.lockedFromDownload}"
                                    onclick="if (!testFilesSelected()) return false;" 
                                    action="#{DatasetPage.startDownloadSelectedOriginal()}"
@@ -458,7 +458,7 @@
                      jsf:rendered="#{(!(empty DatasetPage.workingVersion.fileMetadatas) 
                                      and fileMetadataCount > 1) and DatasetPage.downloadButtonAvailable
                                      and (DatasetPage.isVersionHasTabular()||DatasetPage.isVersionHasGlobus())}">
-                    <button type="button" class="btn btn-default btn-download dropdown-toggle" data-toggle="dropdown">  
+                    <button type="button" class="btn btn-secondary btn-download dropdown-toggle" data-toggle="dropdown">  
                         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download} <span class="caret"></span>
                     </button>
                     <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level float-end text-left">
@@ -499,7 +499,7 @@
                 </div>
 
                 <p:commandLink rendered="#{DatasetPage.fileAccessRequestMultiButtonRequired}"
-                               styleClass="btn btn-default btn-request"
+                               styleClass="btn btn-secondary btn-request"
                                update="@form, @([id$=messagePanel])" 
                                action="#{DatasetPage.validateFilesForRequestAccess()}"
                                disabled="#{DatasetPage.locked or !DatasetPage.fileAccessRequestMultiButtonEnabled}">
@@ -507,7 +507,7 @@
                     <span class="glyphicon glyphicon-bullhorn"/> #{bundle['file.requestAccess']}
                 </p:commandLink>
                 <p:commandLink rendered="#{DatasetPage.fileAccessRequestMultiSignUpButtonRequired}"
-                               styleClass="btn btn-default btn-request"
+                               styleClass="btn btn-secondary btn-request"
                                onclick="PF('accessSignUpLogIn_popup').show()"
                                disabled="#{DatasetPage.locked}">
                     <span class="glyphicon glyphicon-bullhorn"/> #{bundle['file.requestAccess']}

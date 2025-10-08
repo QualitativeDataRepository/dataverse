@@ -11,7 +11,7 @@ $(document).ready(function() {
 
     $('#idpSelectSelector, #idpSelectInput').addClass("form-control");
 
-    $('#idpSelectListButton, #idpSelectSelectButton').addClass("btn btn-default");
+    $('#idpSelectListButton, #idpSelectSelectButton').addClass("btn btn-secondary");
     
     $('a.IdPSelectHelpButton').addClass('float-end');
     

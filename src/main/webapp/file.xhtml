@@ -111,9 +111,9 @@
                                                 <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.draft']}"/>
                                             </div>
-                                            <div class="pull-left row col-sm-9 padding-none" jsf:rendered="#{!FilePage.anonymizedAccess}">
+                                            <div class="pull-left row col-sm-9 p-0" jsf:rendered="#{!FilePage.anonymizedAccess}">
                                                 <div class="col-sm-3 col-md-4 col-lg-3 btn-group margin-bottom citation-download" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}">
-                                                    <button type="button" class="btn btn-link dropdown-toggle padding-none downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                          #{bundle['file.cite.file.downloadBtn']} <span class="caret"></span>
                                                     </button>
                                                     <ul class="dropdown-menu">
@@ -160,9 +160,9 @@
                                                 <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.deassessioned']}"/>
                                             </div>
-                                            <div class="pull-left row col-sm-9 padding-none"  jsf:rendered="#{!FilePage.anonymizedAccess}">
+                                            <div class="pull-left row col-sm-9 p-0"  jsf:rendered="#{!FilePage.anonymizedAccess}">
                                                 <div class="col-sm-3 col-md-4 col-lg-3 btn-group margin-bottom citation-download" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}">
-                                                    <button type="button" class="btn btn-link dropdown-toggle padding-none downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         #{bundle['dataset.cite.downloadBtn']} <span class="caret"></span>
                                                     </button>
                                                     <ul class="dropdown-menu">
@@ -203,7 +203,7 @@
                                             <div class="btn-group btn-group-justified"
                                                  jsf:rendered="#{showAccessFileButtonGroup}">
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-default btn-access-file dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <button type="button" class="btn btn-secondary btn-access-file dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         #{((not empty FilePage.exploreTools) or FilePage.showComputeButton()) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']} <span class="caret"></span>
                                                     </button>
                                                     <ul class="dropdown-menu float-end text-left">
@@ -237,7 +237,7 @@
                                                 <div class="btn-group" jsf:rendered="#{dataverseSession.user.authenticated
                                                                          and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                                          and FilePage.deletedFile}">
-                                                    <p:commandLink styleClass="btn btn-default btn-access btn-edit" onclick="PF('fileAlreadyDeletedPrevious').show()"
+                                                    <p:commandLink styleClass="btn btn-secondary btn-access btn-edit" onclick="PF('fileAlreadyDeletedPrevious').show()"
                                                                    title="#{bundle['file.editBtn']}">
                                                         #{bundle['file.editBtn']}
                                                     </p:commandLink>
@@ -246,7 +246,7 @@
                                                                          and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                                          and FilePage.hasValidTermsOfAccess
                                                                          and !FilePage.deletedFile}">
-                                                    <button type="button" id="editFile" class="btn btn-default btn-access btn-edit dropdown-toggle #{FilePage.lockedFromEdits ? 'disabled' : ''}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                    <button type="button" id="editFile" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{FilePage.lockedFromEdits ? 'disabled' : ''}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                             disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
                                                         #{bundle['file.editBtn']} <span class="caret"></span>
                                                     </button>
@@ -268,7 +268,7 @@
 
                                             <!-- Contact/Share Button Group -->
                                             <div class="btn-group btn-group-justified" jsf:rendered="#{!widgetWrapper.widgetView}">
-                                                <p:commandLink class="btn btn-default btn-xs btn-contact" title="#{bundle['dataset.email.datasetContactTitle']}"
+                                                <p:commandLink class="btn btn-secondary btn-xs btn-contact" title="#{bundle['dataset.email.datasetContactTitle']}"
                                                                update=":contactDialog" oncomplete="PF('contactForm').show()" actionListener="#{sendFeedbackDialog.initUserInput}">
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.userEmail}" value=""/>
@@ -276,7 +276,7 @@
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{FilePage.fileMetadata.dataFile}"/>
                                                     #{bundle['file.contactBtn']}
                                                 </p:commandLink>
-                                                <p:commandLink styleClass="btn btn-default btn-xs btn-share" rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}"
+                                                <p:commandLink styleClass="btn btn-secondary btn-xs btn-share" rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}"
                                                                title="#{bundle['file.share.fileShare']}"
                                                                oncomplete="PF('shareDialog').show();sharrre();">
                                                     #{bundle['file.shareBtn']}
@@ -398,7 +398,7 @@
                         <div class="file-row-panel-backdrop"></div>
                         <p:tabView id="tabView" widgetVar="content" activeIndex="#{FilePage.selectedTabIndex}">
                             <p:ajax event="tabChange" listener="#{FilePage.tabChanged}" update="@this" />
-                            <p:tab id="accessTab" class="padding-none" title="#{bundle['file.dataFilesTab.dataAccess']}"
+                            <p:tab id="accessTab" class="p-0" title="#{bundle['file.dataFilesTab.dataAccess']}"
                                    rendered="#{settingsWrapper.rsyncDownload and FilePage.fileMetadata.dataFile.filePackage and systemConfig.rsyncDownload
                                         and !FilePage.fileMetadata.getDataFile().getOwner().getStorageIdentifier().startsWith('s3://') }">
                                 <!-- Access -->
@@ -432,7 +432,7 @@
                                 <div class="btn-toolbar margin-bottom" role="toolbar" aria-label="#{bundle['file.previewTab.button.label']}">
                                     <!-- Preview Button Group -->
                                     <div class="btn-group" jsf:rendered="#{FilePage.allAvailableTools.size() > 1 and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata)}">
-                                        <button type="button" id="selectTool" class="btn btn-default btn-access dropdown-toggle" data-toggle="dropdown">
+                                        <button type="button" id="selectTool" class="btn btn-secondary btn-access dropdown-toggle" data-toggle="dropdown">
                                             <span class="glyphicon glyphicon-eye-open"/> #{bundle['file.toolsTab.button.label']} <span class="caret"></span>
                                         </button>
 
@@ -455,7 +455,7 @@
 
                                         <h:commandLink rendered="#{(!FilePage.guestbookAndTermsPopupRequired) or FilePage.termsMet}"
                                                          type="submit"
-                                                         styleClass="btn btn-default #{(FilePage.fileMetadata.dataFile.ingestInProgress) ? 'disabled' : ''}"
+                                                         styleClass="btn btn-secondary #{(FilePage.fileMetadata.dataFile.ingestInProgress) ? 'disabled' : ''}"
                                                          disabled="#{(FilePage.fileMetadata.dataFile.ingestInProgress or lockedFromDownload) ? 'disabled' : ''}"
                                                          action="#{FilePage.fileDownloadService.explore(FilePage.guestbookResponse, FilePage.fileMetadata, FilePage.selectedTool)}">
                                             <span class="glyphicon glyphicon-#{FilePage.selectedTool.exploreTool ? 'equalizer' : 'new-window'}"></span>
@@ -466,7 +466,7 @@
                                         </h:commandLink>
                                         <p:commandLink rendered="#{FilePage.guestbookAndTermsPopupRequired and !FilePage.termsMet}"
                                                          action="#{FilePage.guestbookResponseService.modifyDatafileAndFormat(FilePage.guestbookResponse, FilePage.fileMetadata, 'externalTool', FilePage.selectedTool)}"
-                                                         styleClass="btn btn-default"
+                                                         styleClass="btn btn-secondary"
                                                          disabled="#{(FilePage.fileMetadata.dataFile.ingestInProgress or lockedFromDownload) ? 'disabled' : ''}"
                                                          type="submit"
                                                          process="@this"
@@ -487,13 +487,13 @@
                                 </div>
                                 </ui:fragment>
                             </p:tab>
-                            <p:tab id="metadataMapTab" class="padding-none" title="#{bundle['file.dataFilesTab.metadata.header']}"
+                            <p:tab id="metadataMapTab" class="p-0" title="#{bundle['file.dataFilesTab.metadata.header']}"
                                    rendered="#{(!FilePage.fileMetadata.datasetVersion.deaccessioned or
                                                               (FilePage.fileMetadata.datasetVersion.deaccessioned and FilePage.canUpdateDataset()))}">
                                 <!-- Metadata -->
                                 <div class="button-block tab-header margin-bottom text-end">
                                     <!-- Add + Edit Metadata Button -->
-                                    <h:outputLink styleClass="btn btn-default btn-access #{FilePage.lockedFromEdits ? 'disabled' : ''}"
+                                    <h:outputLink styleClass="btn btn-secondary btn-access #{FilePage.lockedFromEditsutton" styleClass="text-button btn-contact bootstrap-button-tooltip" title="#{bundle['dataverse.contact']}" ? 'disabled' : ''}"
                                                   value="/editdatafiles.xhtml?selectedFileIds=#{FilePage.fileMetadata.dataFile.id}&#38;datasetId=#{FilePage.fileMetadata.datasetVersion.dataset.id}&#38;referrer=FILE"
                                                   rendered="#{!widgetWrapper.widgetView and (dataverseSession.user.authenticated
                                                      and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
@@ -504,14 +504,14 @@
                                     <div class="btn-group" jsf:rendered="#{!widgetWrapper.widgetView and (dataverseSession.user.authenticated
                                                          and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                          and (FilePage.deletedFile))}">
-                                        <button class="btn btn-default btn-access #{FilePage.lockedFromEdits ? 'disabled' : ''}" onclick="PF('fileAlreadyDeletedPrevious').show()" type="button"
+                                        <button class="btn btn-secondary btn-access #{FilePage.lockedFromEdits ? 'disabled' : ''}" onclick="PF('fileAlreadyDeletedPrevious').show()" type="button"
                                                 disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
                                             <span class="glyphicon glyphicon-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
                                         </button>
                                     </div>
                                     <!-- Export Button -->
                                     <div class="btn-group" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released}">
-                                        <button class="btn btn-default btn-export dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-toggle="dropdown">
                                             <span class="glyphicon glyphicon-export"/> #{bundle['dataset.exportBtn']} <span class="caret"/>
                                         </button>
                                         <ul class="dropdown-menu float-end text-left">
@@ -705,7 +705,7 @@
                         <p class="help-block">#{bundle['file.share.tip']}</p>
                         <div id="sharrre-widget" data-text="#{bundle['file.share.text']}" data-url="#{systemConfig.dataverseSiteUrl}/file.xhtml?#{empty FilePage.fileMetadata.dataFile.globalId ? 'fileId' : 'persistentId'}=#{empty FilePage.fileMetadata.dataFile.globalId ? FilePage.fileMetadata.dataFile.id : FilePage.fileMetadata.dataFile.globalId.asString()}&amp;version=#{FilePage.fileMetadata.datasetVersion.friendlyVersionNumber}"></div>
                         <div class="button-block">
-                            <button class="btn btn-default" onclick="PF('shareDialog').hide()" type="button">
+                            <button class="btn btn-secondary" onclick="PF('shareDialog').hide()" type="button">
                                 #{bundle.close}
                             </button>
                         </div>
@@ -749,7 +749,7 @@
                             </h:outputFormat>
                         </p>
                         <div class="button-block">
-                            <button class="btn btn-default" onclick="PF('accessSignUpLogIn_popup').hide();" type="button">
+                            <button class="btn btn-secondary" onclick="PF('accessSignUpLogIn_popup').hide();" type="button">
                                 #{bundle.close}
                             </button>
                         </div>
@@ -757,7 +757,7 @@
                     <p:dialog id="computeAccessDenied" styleClass="smallPopUp" header="#{bundle['dataset.compute.computeBtn']}" widgetVar="computeAccessDeniedPopup" modal="true">
                         <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['file.compute.fileAccessDenied']}</p>
                         <div class="button-block">
-                            <button class="btn btn-default" onclick="PF('computeAccessDeniedPopup').hide();" type="button">
+                            <button class="btn btn-secondary" onclick="PF('computeAccessDeniedPopup').hide();" type="button">
                                 #{bundle.close}
                             </button>
                         </div>

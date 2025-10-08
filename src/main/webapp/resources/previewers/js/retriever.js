@@ -146,9 +146,9 @@ function addStandardPreviewHeader(file, title, authors, parentUrl) {
 			$('<span/>').text(" (version " + version + ")").attr('id',
 					'version')).append(
 			$('<span/>').text(", by " + authors).attr('id', 'authors')));
-	header.append($("<div/>").addClass("btn btn-default").html(
+	header.append($("<div/>").addClass("btn btn-secondary").html(
 			"<a href='" + fileDownloadUrl + "'>Download File</a>"));
-	header.append($("<div/>").addClass("btn btn-default").html(
+	header.append($("<div/>").addClass("btn btn-secondary").html(
 			"<a href=\"javascript:returnToUrl(parentUrl);\">" + returnLabel
 					+ "</a>"));
 	header.append($("<div/>").addClass("preview-note").text(

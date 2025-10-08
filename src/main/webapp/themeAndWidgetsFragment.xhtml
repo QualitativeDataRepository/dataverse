@@ -267,14 +267,14 @@
                     </ui:fragment>
                 </p:fragment>
                 <div class="button-block">
-                    <p:commandButton class="btn btn-default" value="#{bundle.saveChanges}" update=":#{p:resolveClientId('messagePanel', view)}, :themeWidgetsForm" action="#{themeWidgetFragment.save()}"/>
+                    <p:commandButton class="btn btn-secondary" value="#{bundle.saveChanges}" update=":#{p:resolveClientId('messagePanel', view)}, :themeWidgetsForm" action="#{themeWidgetFragment.save()}"/>
                     <p:commandButton id="themeCancel" class="btn btn-link" value="#{bundle.cancel}" action="#{themeWidgetFragment.cancel()}" immediate="true"/>
                 </div>
             </p:tab>
             <p:tab id="themeTabDisabled" title="#{bundle['dataverse.theme.title']}" rendered="#{themeWidgetFragment.editDv.owner == null and settingsWrapper.rootDataverseThemeDisabled}">
                 <div>#{bundle['dataverse.theme.disabled']}</div>
                 <div class="button-block">
-                    <p:commandButton id="themeTabDisabledDone" class="btn btn-default" value="#{bundle.done}" action="#{themeWidgetFragment.cancel()}" immediate="true"/>
+                    <p:commandButton id="themeTabDisabledDone" class="btn btn-secondary" value="#{bundle.done}" action="#{themeWidgetFragment.cancel()}" immediate="true"/>
                 </div>
             </p:tab>
             <p:tab id="widgetsTab" title="#{bundle['dataverse.widgets.title']}">
@@ -331,7 +331,7 @@
                         <textarea rows="3" cols="54" class="form-control">&lt;script id=&quot;dataverse-widget-js&quot; src=&quot;#{systemConfig.dataverseSiteUrl}/resources/js/widgets.js?alias=#{themeWidgetFragment.editDv.alias}&amp;amp;dvUrl=#{systemConfig.dataverseSiteUrl}&amp;amp;widgetScope=#{themeWidgetFragment.editDv.alias}&amp;amp;widget=iframe&amp;amp;heightPx=500&quot;&gt;&lt;/script&gt;</textarea>
                     </div>
                     <div class="button-block">
-                        <p:commandButton id="widgetsDone" class="btn btn-default" value="#{bundle.done}" action="#{themeWidgetFragment.cancel()}" immediate="true"/>
+                        <p:commandButton id="widgetsDone" class="btn btn-secondary" value="#{bundle.done}" action="#{themeWidgetFragment.cancel()}" immediate="true"/>
                     </div>
                 </ui:fragment>
             </p:tab>

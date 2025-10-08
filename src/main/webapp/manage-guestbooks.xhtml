@@ -37,11 +37,11 @@
                         </div>
                         <div class="col-6">
                             <p class="button-block text-end">
-                                <h:outputLink styleClass="btn btn-default"
+                                <h:outputLink styleClass="btn btn-secondary"
                                               value="/guestbook.xhtml?ownerId=#{manageGuestbooksPage.dataverse.id}">
                                     <span class="glyphicon glyphicon-plus"/> <h:outputText value="#{bundle['dataset.manageGuestbooks.createBtn']}"/>
                                 </h:outputLink>
-                                <button class="btn btn-default" jsf:id="downloadResponsesLink" jsf:action="#{manageGuestbooksPage.streamResponsesByDataverse()}"
+                                <button class="btn btn-secondary" jsf:id="downloadResponsesLink" jsf:action="#{manageGuestbooksPage.streamResponsesByDataverse()}"
                                         jsf:rendered="#{manageGuestbooksPage.displayDownloadAll}">
                                      <span class="glyphicon glyphicon-download-alt"/> #{bundle['dataset.manageGuestbooks.download.all.responses']}
                                 </button>
@@ -99,40 +99,40 @@
                                     </em>
                                 </div>
                                 <div class="button-block">
-                                    <p:commandLink styleClass="btn btn-default"
+                                    <p:commandLink styleClass="btn btn-secondary"
                                                    value="#{bundle['dataset.manageGuestbooks.tab.action.btn.enable']}"
                                                    rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id and !guestbook.enabled}"
                                                    action="#{manageGuestbooksPage.enableGuestbook(guestbook)}"
                                                    update="@form,:messagePanel"/>
-                                    <p:commandLink styleClass="btn btn-default"
+                                    <p:commandLink styleClass="btn btn-secondary"
                                                    value="#{bundle['dataset.manageGuestbooks.tab.action.btn.disable']}"
                                                    rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id and guestbook.enabled}"
                                                    action="#{manageGuestbooksPage.disableGuestbook(guestbook)}"
                                                    update="@form,:messagePanel"/>
                                     <div class="btn-group" role="group">
-                                        <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                        <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                        action="#{manageGuestbooksPage.viewSelectedGuestbook(guestbook)}"
                                                        oncomplete="PF('viewGuestbook').show();"
                                                        update=":manageGuestbooksForm"
                                                        title="#{bundle['dataset.manageGuestbooks.tab.action.btn.view']}">
                                             <span class="glyphicon glyphicon-eye-open no-text"></span>
                                         </p:commandLink>
-                                        <h:outputLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                        <h:outputLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                       value="/guestbook.xhtml?ownerId=#{manageGuestbooksPage.dataverse.id}&#38;sourceId=#{guestbook.id}"
                                                       title="#{bundle['dataset.manageGuestbooks.tab.action.btn.copy']}">
                                             <span class="glyphicon glyphicon-duplicate no-text"></span>
                                         </h:outputLink>
-                                        <h:outputLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                        <h:outputLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                       rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id}"
                                                       value="/guestbook.xhtml?id=#{guestbook.id}&#38;ownerId=#{manageGuestbooksPage.dataverse.id}"
                                                       title="#{bundle['dataset.manageGuestbooks.tab.action.btn.edit']}">
                                             <span class="glyphicon glyphicon-pencil no-text"></span>
                                         </h:outputLink>
-                                        <button class="btn btn-default" data-toggle="tooltip" title="#{bundle['dataset.manageGuestbooks.download.responses']}"
+                                        <button class="btn btn-secondary" data-toggle="tooltip" title="#{bundle['dataset.manageGuestbooks.download.responses']}"
                                                 jsf:id="downloadResponsesByDvAndGuestbook" jsf:action="#{manageGuestbooksPage.streamResponsesByDataverseAndGuestbook(guestbook.id)}">
                                             <span class="glyphicon glyphicon-download-alt"/>
                                         </button>
-                                        <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                        <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                        action="#{manageGuestbooksPage.setSelectedGuestbook(guestbook)}"
                                                        rendered="#{manageGuestbooksPage.dataverse.id eq guestbook.dataverse.id and guestbook.deletable}"
                                                        oncomplete="PF('deleteConfirmation').show();"
@@ -140,7 +140,7 @@
                                             <span class="glyphicon glyphicon-trash no-text"></span>
                                         </p:commandLink>
                                     </div>
-                                    <h:outputLink styleClass="btn btn-default" value="/guestbook-responses.xhtml?dataverseId=#{manageGuestbooksPage.dataverse.id}&#38;guestbookId=#{guestbook.id}">
+                                    <h:outputLink styleClass="btn btn-secondary" value="/guestbook-responses.xhtml?dataverseId=#{manageGuestbooksPage.dataverse.id}&#38;guestbookId=#{guestbook.id}">
                                         <span>#{bundle['dataset.manageGuestbooks.tab.action.btn.viewCollectedData']}</span>
                                     </h:outputLink>
                                 </div>
@@ -153,7 +153,7 @@
                             <span class="glyphicon glyphicon-warning-sign text-warning"/> <span class="text-warning">#{bundle['dataset.manageGuestbooks.tab.action.btn.delete.dialog.tip']}</span>
                         </p>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{manageGuestbooksPage.deleteGuestbook()}" update="@form,:messagePanel"/>
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{manageGuestbooksPage.deleteGuestbook()}" update="@form,:messagePanel"/>
                             <button class="btn btn-link" onclick="PF('deleteConfirmation').hide();" type="button">
                                 #{bundle.cancel}
                             </button>

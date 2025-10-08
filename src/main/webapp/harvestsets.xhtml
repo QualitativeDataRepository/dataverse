@@ -54,7 +54,7 @@
                         <!-- we DON'T want to show the "add set" button until the service is enabled! -->
                         <div class="row" jsf:rendered="#{!harvestingSetsPage.hasNamedOAISets and harvestingSetsPage.harvestingServerEnabled}">
                             <div class="col-sm-12 text-end">
-                                <p:commandLink id="addSetEmpty" styleClass="btn btn-default margin-bottom"
+                                <p:commandLink id="addSetEmpty" styleClass="btn btn-secondary margin-bottom"
                                                actionListener="#{harvestingSetsPage.initNewSet}"
                                                update=":harvestingSetsForm:newOAISetDialog"
                                                oncomplete="PF('newOAISetForm').show();handleResizeDialog('newOAISetDialog');">
@@ -108,7 +108,7 @@
                                 </div>
                                 <div class="col-sm-6 text-end">
                                     <div id="datatable_length" class="dataTables_length">                                        
-                                        <p:commandLink id="addSet" styleClass="btn btn-default"
+                                        <p:commandLink id="addSet" styleClass="btn btn-secondary"
                                                        actionListener="#{harvestingSetsPage.initNewSet}"
                                                        update=":harvestingSetsForm:newOAISetDialog"
                                                        oncomplete="PF('newOAISetForm').show();handleResizeDialog('newOAISetDialog');">
@@ -147,14 +147,14 @@
                             <div class="button-block">
                                 <div class="btn-group" role="group">
                                     <!-- TODO: a confirmation dialog? - "sure you want to run export now?" -->
-                                    <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                    <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{oaiSet.updateInProgress or oaiSet.deleteInProgress}"
                                                    action="#{harvestingSetsPage.startSetExport(oaiSet)}"
                                                    update=":harvestingSetsForm  :messagePanel :harvestingSetsForm:setsTable"
                                                    title="#{bundle['harvestserver.tab.header.action.btn.export']}">
                                         <span class="glyphicon glyphicon-play no-text"></span>
                                     </p:commandLink>
-                                    <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                    <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{oaiSet.updateInProgress or oaiSet.deleteInProgress}"
                                                    action="#{harvestingSetsPage.editSet(oaiSet)}"
                                                    oncomplete="PF('newOAISetForm').show();handleResizeDialog('newOAISetDialog');"
@@ -162,7 +162,7 @@
                                                    title="#{bundle['harvestserver.tab.header.action.btn.edit']}">
                                         <span class="glyphicon glyphicon-pencil no-text"></span>
                                     </p:commandLink>
-                                    <p:commandLink styleClass="btn btn-default bootstrap-button-tooltip"
+                                    <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{oaiSet.defaultSet or oaiSet.updateInProgress or oaiSet.deleteInProgress}"
                                                    action="#{harvestingSetsPage.setSelectedSet(oaiSet)}"
                                                    oncomplete="PF('deleteConfirmation').show();"
@@ -184,7 +184,7 @@
                             </h:outputFormat>
                         </p>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{harvestingSetsPage.deleteSet()}" update=":harvestingSetsForm :messagePanel"/>
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{harvestingSetsPage.deleteSet()}" update=":harvestingSetsForm :messagePanel"/>
                             <p:commandButton styleClass="btn btn-link" value="#{bundle.cancel}" onclick="PF('deleteConfirmation').hide()" type="button" update=":harvestingSetsForm"/>
                         </div>
                     </p:dialog>
@@ -243,7 +243,7 @@
                                 <div class="form-group" jsf:rendered="#{!harvestingSetsPage.setQueryValidated}">
                                     <div class="col-sm-8 col-sm-offset-3 button-block">
                                         <p:commandLink id="validateSetQueryBtn"
-                                                         styleClass="btn btn-default"
+                                                         styleClass="btn btn-secondary"
                                                          oncomplete="PF('newOAISetForm').show();"
                                                          update=":harvestingSetsForm:newOAISetDialog"
                                                          action="#{harvestingSetsPage.validateSetQuery()}">
@@ -294,13 +294,13 @@
                                         <div class="col-sm-6 col-sm-offset-3 button-block">
                                             <!-- note that there are 2 different buttons rendered for "create" and "save"! -->
                                             <p:commandLink id="backToQuery"
-                                                        styleClass="btn btn-default"
+                                                        styleClass="btn btn-secondary"
                                                         update=":harvestingSetsForm:newOAISetDialog"
                                                         oncomplete="PF('newOAISetForm').show();"
                                                         action="#{harvestingSetsPage.backToQuery()}">
                                             <span class="glyphicon glyphicon-menu-left"/> #{bundle.previous}
                                             </p:commandLink>
-                                            <p:commandLink styleClass="btn btn-default"
+                                            <p:commandLink styleClass="btn btn-secondary"
                                                            rendered="#{harvestingSetsPage.createMode and harvestingSetsPage.setQueryValidated}"
                                                            value="#{bundle['harvestserver.newSetDialog.btn.create']}"
                                                            update="newOAISetDialogContent :messagePanel :harvestingSetsForm setsTable emptySetsTable"
@@ -308,7 +308,7 @@
                                                            oncomplete="if (args &amp;&amp; !args.validationFailed) PF('newOAISetForm').hide(); else PF('newOAISetForm').show();">
                                                 <f:param name="DO_VALIDATION" value="true"/>
                                             </p:commandLink>
-                                            <p:commandLink styleClass="btn btn-default"
+                                            <p:commandLink styleClass="btn btn-secondary"
                                                            rendered="#{harvestingSetsPage.editMode and harvestingSetsPage.setQueryValidated}"
                                                            value="#{bundle['harvestserver.viewEditDialog.btn.save']}"
                                                            update="newOAISetDialogContent :messagePanel :harvestingSetsForm setsTable emptySetsTable"

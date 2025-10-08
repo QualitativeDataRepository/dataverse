@@ -34,7 +34,7 @@
                                              placeholder="#{bundle['dashboard.list_users.searchTerm.watermark']}"/>
                                 <p:remoteCommand name="submitsearch" action="#{DashboardUsersPage.runUserSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true"/>
                                 <span class="input-group-btn">
-                                    <p:commandLink title="#{bundle['dataverse.search.btn.find']}" styleClass="btn btn-default bootstrap-button-tooltip" action="#{DashboardUsersPage.runUserSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true">
+                                    <p:commandLink title="#{bundle['dataverse.search.btn.find']}" styleClass="btn btn-secondary bootstrap-button-tooltip" action="#{DashboardUsersPage.runUserSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true">
                                         <span class="glyphicon glyphicon-search no-text"/>
                                     </p:commandLink>
                                 </span>
@@ -45,7 +45,7 @@
                     <div class="row">
                         <div class="col-12" style="margin-bottom: 1em;">
                             <div class="btn-group float-end">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                     <span class="glyphicon glyphicon-sort"></span> #{bundle['dataverse.results.btn.sort']} <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu float-end text-left">
@@ -91,7 +91,7 @@
                             <p:commandButton id="removeRolesButton" 
                                             rendered="#{!empty user.roles}" 
                                             value="#{bundle['dashboard.list_users.tbl_header.roles.removeAll']}" 
-                                            styleClass="btn btn-default">
+                                            styleClass="btn btn-secondary">
                                 <p:ajax event="click" 
                                         oncomplete="PF('removeRolesConfirm').show();"
                                         process="@this" 
@@ -121,14 +121,14 @@
                             </h:outputFormat>
                         </p>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" value="#{bundle.yes}" action="#{DashboardUsersPage.saveSuperuserStatus()}" update="userTable,:messagePanel" onclick="PF('toggleSuperuserConfirmation').hide();"/>
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.yes}" action="#{DashboardUsersPage.saveSuperuserStatus()}" update="userTable,:messagePanel" onclick="PF('toggleSuperuserConfirmation').hide();"/>
                             <p:commandButton styleClass="btn btn-link" value="#{bundle.no}" action="#{DashboardUsersPage.cancelSuperuserStatusChange()}" update=":dashboardUsersForm:userTable,:messagePanel" onclick="PF('toggleSuperuserConfirmation').hide();"/>
                         </div>
                     </p:dialog>
                     <p:dialog id="removeRolesConfirm" header="#{bundle['dashboard.list_users.tbl_header.roles.removeAll.header']}" widgetVar="removeRolesConfirm" modal="true" closable="false">
                         <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{DashboardUsersPage.confirmRemoveRolesMessage}</p>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" value="#{bundle.yes}" update="userTable,:messagePanel" oncomplete="PF('removeRolesConfirm').hide();" action="#{DashboardUsersPage.removeUserRoles()}"/>
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.yes}" update="userTable,:messagePanel" oncomplete="PF('removeRolesConfirm').hide();" action="#{DashboardUsersPage.removeUserRoles()}"/>
                             <button class="btn btn-link" onclick="PF('removeRolesConfirm').hide()" type="button">
                                 #{bundle.no}
                             </button>

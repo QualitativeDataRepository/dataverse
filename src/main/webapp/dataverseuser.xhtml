@@ -94,7 +94,7 @@
                                                 </p:selectManyCheckbox>
                                             </div>
                                         </div>
-                                        <p:commandButton id="save" styleClass="btn btn-default" value="#{bundle.saveChanges}"
+                                        <p:commandButton id="save" styleClass="btn btn-secondary" value="#{bundle.saveChanges}"
                                             action="#{DataverseUserPage.save}" onclick="PF('muteCollapse').collapse('hide')" update="@form"/>
                                     </div>
                                 </div>
@@ -491,7 +491,7 @@
                         <p:tab id="accountInfo" title="#{bundle['header.user.selectTab.accountInfo']}">
                             <div class="button-block tab-header margin-bottom text-end" jsf:rendered="#{empty DataverseUserPage.editMode and (DataverseUserPage.passwordEditable or DataverseUserPage.accountDetailsEditable)}">
                                 <div class="btn-group">
-                                    <button type="button" id="editAccount" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <button type="button" id="editAccount" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
                                         <ui:fragment rendered="#{DataverseUserPage.accountDetailsEditable}">
                                             <span class="glyphicon glyphicon-pencil"/> #{bundle['account.edit']}
                                         </ui:fragment>
@@ -594,7 +594,7 @@
                                                 </p>
                                                 &#160;
                                                 <!--QDR - disable local email verification-->
-                                                <p:commandLink rendered="false and #{DataverseUserPage.showVerifyEmailButton()}" styleClass="btn btn-default" 
+                                                <p:commandLink rendered="false and #{DataverseUserPage.showVerifyEmailButton()}" styleClass="btn btn-secondary" 
                                                                 id="verifyEmailButton"
                                                                 action="#{DataverseUserPage.sendConfirmEmail()}"
                                                                 update="@([id$=verifyEmailButton]), :messagePanel"
@@ -624,7 +624,7 @@
                                             <td>
                                                 <p:commandButton value="#{bundle['user.orcid.authenticate']}"
                                                                  action="#{DataverseUserPage.startOrcidAuthentication()}"
-                                                                 styleClass="btn btn-default"
+                                                                 styleClass="btn btn-secondary"
                                                                  update="@form">
                                                     <span class="glyphicon glyphicon-link"></span>
                                                 </p:commandButton>
@@ -702,13 +702,13 @@
                                 //]]>
                             </script>
                             <div class="btn-toolbar" role="toolbar">
-                                <button class="btn btn-default btn-copy" data-clipboard-action="copy" data-clipboard-text="#{ApiTokenPage.apiToken}" type="button" jsf:rendered="#{ApiTokenPage.checkForApiToken() and !ApiTokenPage.tokenIsExpired()}">
+                                <button class="btn btn-secondary btn-copy" data-clipboard-action="copy" data-clipboard-text="#{ApiTokenPage.apiToken}" type="button" jsf:rendered="#{ApiTokenPage.checkForApiToken() and !ApiTokenPage.tokenIsExpired()}">
                                     #{bundle['copyClipboard']}
                                 </button>
-                                <button class="btn btn-default" jsf:action="#{ApiTokenPage.generate()}">
+                                <button class="btn btn-secondary" jsf:action="#{ApiTokenPage.generate()}">
                                     #{ApiTokenPage.checkForApiToken() ? bundle['apitoken.regenerateBtn'] : bundle['apitoken.generateBtn']}
                                 </button>
-                                <button class="btn btn-default" jsf:action="#{ApiTokenPage.revoke()}" jsf:rendered="#{ApiTokenPage.apiTokenExpiration != ''}">
+                                <button class="btn btn-secondary" jsf:action="#{ApiTokenPage.revoke()}" jsf:rendered="#{ApiTokenPage.apiTokenExpiration != ''}">
                                     #{bundle['apitoken.revokeBtn']}
                                 </button>
                             </div>
@@ -858,7 +858,7 @@
                                 </ui:fragment>
                                 <div class="form-group">
                                     <div class="col-sm-12 button-block">
-                                        <p:commandButton id="save" styleClass="btn btn-default"
+                                        <p:commandButton id="save" styleClass="btn btn-secondary"
                                                          value="#{DataverseUserPage.editMode == 'CREATE' ? bundle['user.createBtn']:bundle.saveChanges}"
                                                          action="#{DataverseUserPage.save}" update="@form,:messagePanel,:userDisplayInfoTitle"/>
                                         <p:commandButton id="cancel" styleClass="btn btn-link" value="#{bundle.cancel}"

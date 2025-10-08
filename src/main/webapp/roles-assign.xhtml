@@ -88,7 +88,7 @@
                 </div>
             </div>
             <div class="button-block">
-                <p:commandButton styleClass="btn btn-default" value="#{bundle.saveChanges}"
+                <p:commandButton styleClass="btn btn-secondary" value="#{bundle.saveChanges}"
                                update="assignRoleContent assignedRoles roleAssignmentHistory @([id$=Messages])"
                                actionListener="#{managePermissionsPage.assignRole}" 
                                oncomplete="if (args &amp;&amp; !args.validationFailed) PF('userGroupsForm').hide();">

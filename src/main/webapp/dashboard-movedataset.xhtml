@@ -111,7 +111,7 @@
                     </div>
 
                     <div class="col-sm-12 button-block">
-                        <p:commandButton id="move" styleClass="btn btn-default" 
+                        <p:commandButton id="move" styleClass="btn btn-secondary" 
                                        value="#{bundle['saveChanges']}"
                                        update="movedataset-form"
                                        validateClient="true"
@@ -130,7 +130,7 @@
                     <p:dialog id="moveDatasetConfirmation" header="#{bundle['dashboard.card.move.dataset.manage']}" widgetVar="moveDatasetConfirmation" modal="true">
                         <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['dashboard.move.dataset.confirm.dialog']}</p>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" value="#{bundle['dashboard.move.dataset.confirm.yes']}"
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle['dashboard.move.dataset.confirm.yes']}"
                                              onclick="PF('moveDatasetConfirmation').hide();" 
                                              action="#{DashboardMoveDatasetPage.move()}"
                                              update="@form,:messagePanel" partialSubmit="true"/>

@@ -10,7 +10,7 @@
         
         <ui:fragment rendered="#{enableEdit}">
             <div class="text-end">
-                <h:outputLink styleClass="btn btn-default"                             
+                <h:outputLink styleClass="btn btn-secondary"                             
                               value="/guestbook.xhtml?id=#{selectedGuestbook.id}&#38;ownerId=#{ownerId}">
                     <span class="glyphicon glyphicon-pencil"></span> #{bundle['dataset.manageGuestbooks.tab.action.btn.edit']}
                 </h:outputLink>
@@ -75,7 +75,7 @@
             </div>
         </div>
         <div class="button-block">
-            <button class="btn btn-default" onclick="PF('viewGuestbook').hide()" type="button">
+            <button class="btn btn-secondary" onclick="PF('viewGuestbook').hide()" type="button">
                 #{bundle.close}
             </button>
         </div>

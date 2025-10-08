@@ -45,7 +45,7 @@
                             </div>
                         </div>
 
-                        <h:outputLink styleClass="btn btn-default" value="/manage-templates.xhtml?dataverseId=#{TemplatePage.ownerId}">
+                        <h:outputLink styleClass="btn btn-secondary" value="/manage-templates.xhtml?dataverseId=#{TemplatePage.ownerId}">
                             <h:outputText value="#{bundle['dataset.template.returnBtn']}"/>
                         </h:outputLink>
                         
@@ -116,12 +116,12 @@
                     </ui:fragment>
                     <!-- Create/Save Dataset Button Panel -->
                     <div class="button-block" jsf:rendered="#{!empty TemplatePage.editMode}">
-                        <p:commandButton styleClass="btn btn-default" action="#{TemplatePage.save('Terms')}" update="@form,messagePanel"
+                        <p:commandButton styleClass="btn btn-secondary" action="#{TemplatePage.save('Terms')}" update="@form,messagePanel"
                                          value="#{bundle['dataset.create.add.terms']}"
                                          rendered="#{TemplatePage.editMode == 'CREATE'}">  
                              <f:ajax onerror="window.scrollTo(0, 0)"/>
                         </p:commandButton>
-                        <p:commandButton styleClass="btn btn-default" action="#{TemplatePage.save('')}" update="@form,messagePanel"
+                        <p:commandButton styleClass="btn btn-secondary" action="#{TemplatePage.save('')}" update="@form,messagePanel"
                                          value="#{TemplatePage.editMode == 'LICENSEADD' ? bundle['dataset.manageTemplates.saveNewTerms'] : bundle.saveChanges}"
                                          rendered="#{TemplatePage.editMode == 'METADATA'  or TemplatePage.editMode == 'CLONE' or TemplatePage.editMode == 'LICENSE' or TemplatePage.editMode == 'LICENSEADD'}">
                             <f:ajax onerror="window.scrollTo(0, 0)"/>
