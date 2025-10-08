@@ -9,7 +9,7 @@
 
 
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <p class="help-block">
                 #{bundle['mydataFragment.infoAccess']}
             </p>
@@ -17,7 +17,7 @@
     </div>
     
     <div class="row margin-bottom" id="my_data_filter_column2">
-        <div class="col-xs-7">
+        <div class="col-7">
             <input type="text" size="40" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all search-input" name="mydata_search_term" id="mydata_search_term" placeholder="#{bundle['mydataFragment.search']}" />
             &#160; <a id="btn_find_my_data" class="btn btn-default"><span class="glyphicon glyphicon-search"></span>#{bundle['find']}</a>
         </div>
@@ -28,7 +28,7 @@
     <!-- start: row -->
     <div class="row">
         <!-- start filter column -->
-        <div class="col-xs-3" id="my_data_filter_column">
+        <div class="col-3" id="my_data_filter_column">
             <!--form id="mydata_filter_form" name="mydata_filter_form"-->
             <input type="hidden" name="selected_page" id="selected_page" value="1" />
                        
@@ -81,7 +81,7 @@
             <div id="div-search-params" class="well" style="display:none;"></div>
         </div><!-- end: filter column -->
         <!-- start: workspace column -->
-        <div class="col-xs-9" id="my_data_filter_column3">
+        <div class="col-9" id="my_data_filter_column3">
             <div class="text-right" style="" jsf:rendered="#{MyDataPage.isSuperuser()}">
                 #{bundle['mydataFragment.resultsByUserName']}
                 <input type="text" name="userIdentifier" id="userIdentifier" value="#{MyDataPage.getAuthUserIdentifier()}" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all search-input"/>

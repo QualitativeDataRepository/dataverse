@@ -168,7 +168,7 @@
                                     <f:selectItems value="#{DatasetWidgetsPage.datasetThumbnails}" var="thumb" itemLabel="#{thumb}" itemValue="#{thumb.dataFile}"/>
                                 </p:selectOneRadio>
                                 <c:forEach items="#{DatasetWidgetsPage.datasetThumbnails}" var="thumbnail" varStatus="loop">
-                                    <div class="col-xs-4 text-center radio">
+                                    <div class="col-4 text-center radio">
                                         <p:radioButton for="selectDatasetThumbnail" id="opt#{loop.index}" itemIndex="#{loop.index}" />
                                         <h:outputLabel for="opt#{loop.index}" style="padding:4px;">
                                             <div><img src="#{thumbnail.base64image}" alt="#{thumbnail.filename}"/></div>

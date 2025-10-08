@@ -19,7 +19,7 @@
     </div>
     <div jsf:rendered="#{not datasetVersion.draft}">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <p class="help-block">
                     <h:outputFormat value=" #{bundle['file.dataFilesTab.dataAccess.info']}" escape="false">
                         <f:param value="#{systemConfig.guidesBaseUrl}"/>
@@ -29,7 +29,7 @@
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-xs-12 col-lg-3 control-label">
+            <label class="col-12 col-lg-3 control-label">
                 #{bundle['file.dataFilesTab.dataAccess.local.label']}
                 <span class="glyphicon glyphicon-question-sign tooltip-icon"
                       data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['file.dataFilesTab.dataAccess.local.tooltip']}"></span>
@@ -41,12 +41,12 @@
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-xs-12 col-lg-3 control-label">
+            <label class="col-12 col-lg-3 control-label">
                 #{bundle['file.dataFilesTab.dataAccess.download.label']}
                 <span class="glyphicon glyphicon-question-sign tooltip-icon"
                       data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['file.dataFilesTab.dataAccess.download.tooltip']}"></span>
             </label>
-            <div class="col-xs-12 col-lg-9 row">
+            <div class="col-12 col-lg-9 row">
                 <ui:repeat value="#{repositoryStorageAbstractionLayerPage.getRsyncSites(datasetVersion)}" var="site">
                     <div class="col-sm-12">
                         <code><h:outputText value="#{site.rsyncDownloadcommand}"/></code>
@@ -56,7 +56,7 @@
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-xs-12 col-lg-3 control-label">
+            <label class="col-12 col-lg-3 control-label">
                 #{bundle['file.dataFilesTab.dataAccess.verify.label']}
                 <span class="glyphicon glyphicon-question-sign tooltip-icon"
                       data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['file.dataFilesTab.dataAccess.verify.tooltip']}"></span>

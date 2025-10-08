@@ -12,7 +12,7 @@
     <div id="dataverseFooter" jsf:rendered="#{!widgetView and !dataverseHeaderFragment.isRootDataverseThemeDisabled(dataverse) and !empty dataverse.dataverseTheme.logoFooter}">
         <div class="container">
             <div class="row">
-                <div class="dataverseFooterLogo col-xs-12" style="text-align:#{!empty dataverse.dataverseTheme.logoFooterAlignment ? dataverse.dataverseTheme.logoFooterAlignment : 'center'};background:##{!empty dataverse.dataverseTheme.logoFooterBackgroundColor ? dataverse.dataverseTheme.logoFooterBackgroundColor : 'FFFFFF'};">
+                <div class="dataverseFooterLogo col-12" style="text-align:#{!empty dataverse.dataverseTheme.logoFooterAlignment ? dataverse.dataverseTheme.logoFooterAlignment : 'center'};background:##{!empty dataverse.dataverseTheme.logoFooterBackgroundColor ? dataverse.dataverseTheme.logoFooterBackgroundColor : 'FFFFFF'};">
                     <img src="/logos/#{dataverse.logoOwnerId}/#{dataverse.dataverseTheme.logoFooter}" alt="#{of:format1(bundle['alt.logo'], dataverse.name)}"/>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                             <h:outputText value="#{settingsWrapper.footerCopyrightAndYear}#{settingsWrapper.get(':FooterCopyright')}" escape="false"/> <ui:fragment rendered="#{!empty settingsWrapper.get(':ApplicationPrivacyPolicyUrl')}">&#160;|&#160; <h:outputLink value="#{settingsWrapper.get(':ApplicationPrivacyPolicyUrl')}" target="_blank" rel="noopener">#{bundle['footer.privacyPolicy']}</h:outputLink></ui:fragment>
                         </p>
                     </div>
-                    <div class="col-xs-7 small" jsf:rendered="#{widgetView}">
+                    <div class="col-7 small" jsf:rendered="#{widgetView}">
                         <span class="widgetBrandMsg">
                             <h:outputFormat value="#{bundle['footer.widget.datastored']}" escape="false">
                                 <o:param>
@@ -42,7 +42,7 @@
                             </ui:fragment>
                         </span>
                     </div>
-                    <div class="#{widgetView ? 'col-xs-5' : 'col-sm-4'} text-right">
+                    <div class="#{widgetView ? 'col-5' : 'col-sm-4'} text-right">
                         <div class="poweredbylogo">
                             <span>#{bundle['footer.poweredby']}</span>
                             <a href="https://dataverse.org/" title="#{bundle['footer.dataverseProject']}" target="_blank" rel="noopener"><img src="/resources/images/dataverse_project_logo.svg" width="118" height="40" onerror="this.src='/resources/images/dataverseproject_logo.png'" alt="#{of:format1(bundle['alt.logo'], bundle['footer.dataverseProject'])}"/></a>

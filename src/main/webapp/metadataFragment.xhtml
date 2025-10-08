@@ -293,7 +293,7 @@
                                                             </ui:include>
                                                         </div>
                                                         <!-- Add / Remove buttons -->
-                                                        <div class="col-xs-3 field-add-delete" jsf:rendered="#{dsf.datasetFieldType.allowMultiples and !dsf.datasetFieldType.controlledVocabulary}">
+                                                        <div class="col-3 field-add-delete" jsf:rendered="#{dsf.datasetFieldType.allowMultiples and !dsf.datasetFieldType.controlledVocabulary}">
                                                             <p:commandLink title="#{bundle.add}"
                                                                            styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                            actionListener="#{dsf.addDatasetFieldValue(valCount.index + 1)}"

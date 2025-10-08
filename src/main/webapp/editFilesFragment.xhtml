@@ -404,7 +404,7 @@
                                      ariaRowLabel="#{bundle['file.select.action']} #{fileMetadata.label}">
                             <f:facet name="header">
                                 <div jsf:id="filesHeaderBlock" class="row">
-                                    <div id="filesHeaderCount" class="col-xs-6 text-left">
+                                    <div id="filesHeaderCount" class="col-6 text-left">
                                         <!-- Files Count -->
                                         <h:outputFormat value="#{datasetPage ? bundle['file.count.shown'] : bundle['file.count.shown']}" styleClass="highlightBold" rendered="#{!empty hasFileMetadatas}">
                                             <f:param value="#{fileMetadatas.size()}"/>

@@ -28,11 +28,11 @@
 
     <!-- Toggle Files Display Components -->
     <div jsf:id="filesDisplayToggleBlock" jsf:rendered="#{DatasetPage.fileTreeViewRequired}" class="row">
-        <div class="form-group col-xs-12">
-            <label class="col-xs-2 control-label" style="padding:.3em 1em;">
+        <div class="form-group col-12">
+            <label class="col-2 control-label" style="padding:.3em 1em;">
                 #{bundle['file.display.label']}
             </label>
-            <div class="col-xs-4 input-group">
+            <div class="col-4 input-group">
                 <p:selectOneButton id="displayValue" styleClass="form-control" value="#{DatasetPage.fileDisplayMode}" 
                                    style="padding:0;border:0;box-shadow:none;">
                     <f:selectItem itemLabel="#{bundle['file.display.table']}" itemValue="Table" />
@@ -74,8 +74,8 @@
         <f:facet name="header">
             <div class="row form-inline" jsf:id="cloudStorageBlock" jsf:rendered="#{DatasetPage.showComputeButton()}">
                 <!-- Cloud Storage Access -->
-                <div class="form-group col-xs-12 text-left">
-                    <div class="col-xs-12">
+                <div class="form-group col-12 text-left">
+                    <div class="col-12">
                         <p class="help-block">
                             <h:outputFormat value="#{bundle['file.cloudStorageAccess.help']}" escape="false">
                                 <f:param value="#{systemConfig.guidesBaseUrl}"/>
@@ -89,7 +89,7 @@
                         <span class="glyphicon glyphicon-question-sign tooltip-icon"
                               data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['file.cloudStorageAccess.tip']}"></span>
                     </label>
-                    <div class="col-md-4 col-sm-5 col-xs-6 input-group">
+                    <div class="col-md-4 col-sm-5 col-6 input-group">
                         <div id="copy-input" class="form-control">#{DatasetPage.swiftContainerName}</div>
                         <span class="input-group-btn">
                             <button class="btn btn-default btn-copy" type="button" id="copy-button" data-clipboard-action="copy" data-clipboard-target="#copy-input">
@@ -100,7 +100,7 @@
                 </div>
             </div>
             <div jsf:id="filesHeaderBlock" class="row">
-                <div class="col-xs-5">
+                <div class="col-5">
                     <!-- FILE SEARCH -->
                     <div class="input-group" jsf:rendered="#{fileMetadataCount gt 1}">
                         <label id="searchLabel" class="sr-only" jsf:for="searchFiles">#{bundle.search}</label>
@@ -121,7 +121,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="col-xs-7 text-right">
+                <div class="col-7 text-right">
                     <p:outputPanel id="filesButtons" class="button-block no-margin-top"
                                     rendered="#{canUpdateAndAuthenticated}">
                         <!-- DOWNLOAD DCM SCRIPT BUTTON -->
@@ -141,7 +141,7 @@
 
             <!-- FILES FILTER FACETS -->
             <div class="row" style="margin-bottom:10px;" jsf:rendered="#{(fileMetadataCount gt 1)}">
-                <div class="col-xs-7 text-left" jsf:rendered="#{DatasetPage.indexedVersion}">
+                <div class="col-7 text-left" jsf:rendered="#{DatasetPage.indexedVersion}">
                     <div class="text-muted small" style="font-weight:normal;" jsf:rendered="#{(DatasetPage.fileMetadatasSearch.size() gt 0)}">#{bundle['file.results.filter']}</div>
                     <!-- FACET: TYPE -->
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileTypeFacetLabels)}">
@@ -270,8 +270,8 @@
                     
 
                 
-                <div class="file-sort col-xs-5 text-right #{DatasetPage.indexedVersion ? '' : 'col-xs-offset-7'}">
-                    <div class="file-group-by col-xs-7 text-left text-muted small" style="font-weight:normal;" jsf:rendered="#{DatasetPage.allowUserManagementOfOrder()}">
+                <div class="file-sort col-5 text-right #{DatasetPage.indexedVersion ? '' : 'col-offset-7'}">
+                    <div class="file-group-by col-7 text-left text-muted small" style="font-weight:normal;" jsf:rendered="#{DatasetPage.allowUserManagementOfOrder()}">
                                     <p:selectBooleanCheckbox id="fps" value="#{DatasetPage.folderPresort}" itemLabel="#{bundle['file.results.presort.folder']}" title="#{bundle['file.results.presort.folder.desc']} rendered='#{DatasetPage.orderByFolder()}'">
                         <p:ajax update="filesTable, messagePanel" process="fps, tps" listener="#{DatasetPage.sort()}"/>
                     </p:selectBooleanCheckbox>
@@ -354,7 +354,7 @@
             </div>
 
             <div class="row" jsf:rendered="#{fileMetadataCount gt 10 and (DatasetPage.selectedFiles.size() gt 0)}">
-                <div class="col-xs-12 bg-warning text-left" style="font-weight:normal;padding-top:.5em;">
+                <div class="col-12 bg-warning text-left" style="font-weight:normal;padding-top:.5em;">
                     <!-- SELECTION MESSAGE -->
                     <p>
                         <h:outputFormat value="#{bundle['file.numFilesSelected']}">
@@ -375,7 +375,7 @@
             </div>
             <div class="row" jsf:rendered="#{(!DatasetPage.isVersionHasGlobus()) and (DatasetPage.sizeOfSelectedMaxNumeric gt settingsWrapper.zipDownloadLimit)
                                              and DatasetPage.selectedFiles.size() > 1}">
-                <div class="col-xs-12 bg-warning text-left" style="font-weight:normal;padding-top:.5em;">
+                <div class="col-12 bg-warning text-left" style="font-weight:normal;padding-top:.5em;">
                     <h:outputFormat value="#{bundle['file.zip.download.exceeds.limit']}">
                         <f:param value="#{DatasetPage.sizeOfSelectedMaxAsString}"/>
                         <f:param value="#{DatasetPage.zipDownloadLimitAsString}"/>

@@ -26,7 +26,7 @@
                 <h:form id="dashboardUsersForm">
                     <p:focus for="searchFiles"/>
                     <div jsf:id="userssHeaderBlock" class="row">
-                        <div class="col-xs-6">
+                        <div class="col-6">
                             <div class="input-group">
                                 <p:inputText type="hidden" id="selectedPage" value="#{DashboardUsersPage.selectedPage}" />
                                 <p:inputText id="searchFiles" styleClass="form-control" value="#{DashboardUsersPage.searchTerm}" widgetVar="inputSearchTerm"
@@ -43,7 +43,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-xs-12" style="margin-bottom: 1em;">
+                        <div class="col-12" style="margin-bottom: 1em;">
                             <div class="btn-group pull-right">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                     <span class="glyphicon glyphicon-sort"></span> #{bundle['dataverse.results.btn.sort']} <span class="caret"></span>

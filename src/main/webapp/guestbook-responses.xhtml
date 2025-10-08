@@ -26,7 +26,7 @@
                 <h:form id="manageGuestbooksForm">
                     <p:fragment id="tooManyEntries" rendered="#{guestbookResponsesPage.guestbook.responseCount gt systemConfig.guestbookResponsesPageDisplayLimit}">
                         <div class="row">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div id="no-clients-message" class="alert alert-warning" role="alert">
                                     <span class="glyphicon glyphicon-warning-sign"/>
                                     <h:outputFormat value=" #{bundle['dataset.guestbooksResponses.tooManyResponses.message']}" escape="false">
@@ -46,7 +46,7 @@
                         </div>
                     </div>
                     <div class="row" id="resultsCountPaginatorBlock">
-                        <div class="col-xs-6">
+                        <div class="col-6">
                             <!-- number of results -->
                             <div class="results-count margin-top">
                                 <h:outputFormat rendered="#{guestbookResponsesPage.guestbook.responseCount lt systemConfig.guestbookResponsesPageDisplayLimit}"
@@ -61,7 +61,7 @@
                                 </h:outputFormat>
                             </div>
                         </div>
-                        <div class="col-xs-6">
+                        <div class="col-6">
                             <p class="button-block text-right">
                                 <button class="btn btn-default" jsf:id="downloadResponsesLink" jsf:action="#{guestbookResponsesPage.streamResponsesByDataverseAndGuestbook()}">
                                      <span class="glyphicon glyphicon-download-alt"/> #{bundle['dataset.manageGuestbooks.download.responses']}

@@ -159,9 +159,9 @@
                     <!-- Top Button/Citation Blocks -->
                     <p:fragment id="topDatasetBlockFragment">
                         <div class="row" jsf:rendered="#{empty DatasetPage.editMode}">
-                            <div class="col-xs-12">
+                            <div class="col-12">
                                 <div id="datasetVersionBlock" class="row">
-                                    <div id="title-block" class="col-xs-12 margin-bottom-half" jsf:rendered="#{!empty DatasetPage.displayTitle}">
+                                    <div id="title-block" class="col-12 margin-bottom-half" jsf:rendered="#{!empty DatasetPage.displayTitle}">
                                         <h1 id="title">#{DatasetPage.displayTitle}</h1>
                                         <div id="title-label-block" class="margin-top-half">
                                             <!-- DATASET Publication Status -->
@@ -185,7 +185,7 @@
 
                                 <!-- START: NEW RESPONSIVE ABOVE FOLD BLOCK -->
                                 <div id="datasetCitationActionSummaryBlock" class="row">
-                                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-9">
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-9">
                                         <!-- CITATION BLOCK -->
                                         <ui:fragment rendered="#{!empty displayCitation}">
                                             <ui:include src="dataset-citation.xhtml">
@@ -196,7 +196,7 @@
                                         <!-- END: CITATION BLOCK -->
                                     </div>
 
-                                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom">
                                         <!-- ActionButtonBlock -->
                                         <div id="actionButtonBlock" jsf:rendered="#{!widgetWrapper.widgetView}">
                                             <!-- DOWNLOAD/ACCESS DATASET -->
@@ -599,7 +599,7 @@
                                     <!-- END: ActionButtonBlock -->
                                 </div>
 
-                                <div style="clear:right;" class="col-xs-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom" 
+                                <div style="clear:right;" class="col-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom" 
                                      jsf:rendered="#{!(settingsWrapper.rsyncDownload or deaccessioned)}">
                                     <!-- Metrics -->
                                     <div id="metrics-block">
@@ -665,8 +665,8 @@
                                 <!-- END: RESPONSIVE ORDER HACK BOOTSTRAP 3 -->
 
                                 <!-- DEACCESSION REASON -->
-                                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-9 margin-bottom" jsf:rendered="#{deaccessioned}">
-                                    <div id="deaccession-reason-block" class="col-xs-12 bg-danger">
+                                <div class="col-12 col-sm-12 col-md-8 col-lg-9 margin-bottom" jsf:rendered="#{deaccessioned}">
+                                    <div id="deaccession-reason-block" class="col-12 bg-danger">
                                         <h5 class="margin-top-half">#{bundle['dataset.deaccession.reason']}</h5>
                                         <p>#{version.deaccessionNote}</p>
                                         <ui:fragment rendered="#{!empty version.deaccessionLink}">
@@ -680,7 +680,7 @@
                                 <!-- END: DEACCESSION REASON -->
 
                                 <!-- BEGIN: DATASET SUMMARY -->
-                                <div id="dataset-summary-metadata" class="col-xs-12 col-sm-12 col-md-8 col-lg-9 metadata-container padding-none margin-bottom">
+                                <div id="dataset-summary-metadata" class="col-12 col-sm-12 col-md-8 col-lg-9 metadata-container padding-none margin-bottom">
                                     <table class="metadata">
                                         <tbody>
                                             <ui:repeat value="#{DatasetPage.datasetSummaryFields}" var="dsf">
@@ -1743,10 +1743,10 @@
                                 </h:outputFormat>
                             </p>
                             <div class="form-group">
-                                <label class="col-xs-3 control-label">
+                                <label class="col-3 control-label">
                                     <h:outputText value="#{bundle['dataverse.link.yourDataverses']}"/>
                                 </label>
-                                <div class="col-xs-8">
+                                <div class="col-8">
                                     <p:fragment id="linkNameContent">
                                         <p:autoComplete id="dataverseLinkName"
                                                         placeholder="#{bundle['dataverse.link.yourDataverses.inputPlaceholder']}"
@@ -1809,10 +1809,10 @@
                                 </h:outputFormat>
                             </p>
                             <div class="form-group">
-                                <label class="col-xs-3 control-label">
+                                <label class="col-3 control-label">
                                     <h:outputText value="#{bundle['dataverse.link.yourDataverses']}"/>
                                 </label>
-                                <div class="col-xs-8">
+                                <div class="col-8">
                                     <p:fragment id="unlinkNameContent">
                                         <p:autoComplete id="dataverseUnLinkName"
                                                         placeholder="#{bundle['dataverse.link.yourDataverses.inputPlaceholder']}"

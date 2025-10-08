@@ -56,7 +56,7 @@
                     <ui:fragment rendered="#{DataversePage.editMode == 'INFO' or DataversePage.editMode == 'CREATE'}">
                         <p:focus context="dataverseForm"/>
                         <div class="row">
-                            <div class="col-xs-6 form-group">
+                            <div class="col-6 form-group">
                                 <span class="glyphicon glyphicon-asterisk text-danger"/> <h:outputText value="#{bundle['dataset.asterisk.tip']}"/>
                             </div>
                         </div>
@@ -178,7 +178,7 @@
                         <div class="row">
                             <div class="col-md-6 form-group">
                                 <div class="row">
-                                    <div class="col-xs-12 form-group">
+                                    <div class="col-12 form-group">
                                         <h:outputLabel for="dataverseCategory" styleClass="control-label">
                                             #{bundle['dataverse.category']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/>
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
@@ -201,7 +201,7 @@
                                             <p:message for="dataverseCategory" display="text"/>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 form-group">
+                                    <div class="col-12 form-group">
                                         <p:fragment>
                                             <p:autoUpdate/>
                                             <p:outputLabel id="contactEmailLabel" styleClass="control-label">
@@ -211,8 +211,8 @@
                                             </p:outputLabel>
                                             <div class="form-col-container edit-compound-field">
                                                 <ui:repeat value="#{DataversePage.dataverse.dataverseContacts}" var="contacts" varStatus="valCount">
-                                                    <div class="row col-xs-12 form-group">
-                                                        <div class="col-xs-9 form-col-container">
+                                                    <div class="row col-12 form-group">
+                                                        <div class="col-9 form-col-container">
                                                             <p:inputText id="contactEmail" styleClass="form-control" value="#{contacts.contactEmail}" required="#{param['DO_VALIDATION']}">
                                                                 <f:validateBean disabled="#{param['SKIP_VALIDATION']}"/>
                                                                 <f:passThroughAttribute name="aria-labelledby" value="dataverseForm:contactEmailLabel"/>
@@ -220,7 +220,7 @@
                                                             <p:message for="contactEmail" display="text"/>
                                                         </div>
                                                         <!-- Add / Remove buttons -->
-                                                        <div class="col-xs-3 form-col-container field-add-delete">
+                                                        <div class="col-3 form-col-container field-add-delete">
                                                             <p:commandLink styleClass="btn btn-default btn-sm bootstrap-button-tooltip" title="#{bundle.add}"
                                                                              actionListener="#{DataversePage.dataverse.addDataverseContact(valCount.index + 1)}">
                                                                 <f:param name="SKIP_VALIDATION" value="true"/>
@@ -255,7 +255,7 @@
                             </div>
                             <div class="col-md-6 form-group">
                                 <div class="row">
-                                    <div class="col-xs-12 form-group">
+                                    <div class="col-12 form-group">
                                 <h:outputLabel for="description" styleClass="control-label">
                                     #{bundle.description}
                                     <span class="glyphicon glyphicon-question-sign tooltip-icon"
@@ -272,7 +272,7 @@
                                     <p:message for="description" display="text"/>
                                 </div>
                                 </div>
-                                    <div class="col-xs-12 form-group" jsf:rendered="#{DataversePage.getGuestbookEntryOptions().size()>2}">
+                                    <div class="col-12 form-group" jsf:rendered="#{DataversePage.getGuestbookEntryOptions().size()>2}">
                                         <h:outputLabel for="dsGuestbookEntryOption" styleClass="control-label">
                                             #{bundle.guestbookEntryOption} 
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
@@ -285,7 +285,7 @@
                                             <p:message for="dsGuestbookEntryOption" display="text"/>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 form-group" jsf:rendered="#{dataverseSession.user.superuser and DataversePage.getPidProviderOptions().size()>2}">
+                                    <div class="col-12 form-group" jsf:rendered="#{dataverseSession.user.superuser and DataversePage.getPidProviderOptions().size()>2}">
                                         <h:outputLabel for="dsPidProviderOption" styleClass="control-label">
                                             #{bundle.pidProviderOption} 
                                             <span class="glyphicon glyphicon-question-sign tooltip-icon"
@@ -459,10 +459,10 @@
                     <!-- END Edit Mode -->
                     <!-- View Mode / Description Panel -->
                     <ui:fragment rendered="#{empty DataversePage.editMode}">
-                        <div id="actionButtonBlock" class="col-xs-12 button-block margin-bottom" jsf:rendered="#{!widgetWrapper.widgetView}">
+                        <div id="actionButtonBlock" class="col-12 button-block margin-bottom" jsf:rendered="#{!widgetWrapper.widgetView}">
                             <div class="row">
                                 <!-- Metrics for Root Dataverse -->
-                                <div id="metrics-block1" class="col-xs-2" jsf:rendered="#{DataversePage.isRootDataverse() and !settingsWrapper.rsyncOnly}">
+                                <div id="metrics-block1" class="col-2" jsf:rendered="#{DataversePage.isRootDataverse() and !settingsWrapper.rsyncOnly}">
                                     <div id="metrics-label" class="small text-center">
                                         <h:outputLink value="#{settingsWrapper.metricsUrl}" target="_blank" title="#{bundle['metrics.title.tip']}" rendered="#{settingsWrapper.metricsUrl != null}">
                                             <span class="glyphicon glyphicon-stats"/> #{bundle['metrics.title']}
@@ -479,7 +479,7 @@
                                 </div>
                                 <!-- END: Metrics for Root Dataverse-->
                                 <!-- ActionButtonBlock -->
-                                <div class="#{DataversePage.isRootDataverse() ? 'col-xs-10' : 'col-xs-12'} text-right padding-none">
+                                <div class="#{DataversePage.isRootDataverse() ? 'col-10' : 'col-12'} text-right padding-none">
                                     <!-- Email/Link/Share Button Group -->
                                     <div class="btn-group" role="group">
                                         <p:commandLink type="button" styleClass="text-button btn-contact bootstrap-button-tooltip" title="#{bundle['dataverse.contact']}"
@@ -623,13 +623,13 @@
                         <ui:fragment rendered="#{SearchIncludeFragment.filterQueries.size() == 0 and SearchIncludeFragment.mode != SearchIncludeFragment.searchModeString}">
                             <o:importFunctions type="edu.harvard.iq.dataverse.util.MarkupChecker" />
                             <div class="row margin-bottom" jsf:rendered="#{!empty DataversePage.dataverse.description and !widgetWrapper.widgetView}">
-                                <div id="dataverseDesc" class="col-xs-12">
+                                <div id="dataverseDesc" class="col-12">
                                    <h:outputText value="#{MarkupChecker:sanitizeBasicHTML(DataversePage.dataverse.description)}" escape="false"/>
                                 </div>
                             </div>
                             <!-- Featured Dataverses Carousel -->
                             <div id="carouselBlocksWrapper" class="row" jsf:rendered="#{!empty DataversePage.carouselFeaturedDataverses}">
-                                <div id="featuredDataversesBlock" class="col-xs-12">
+                                <div id="featuredDataversesBlock" class="col-12">
                                     <div class="customNavigation">
                                         <a class="btn prev1" title="#{bundle['dataverse.page.pre']}"><span class="glyphicon glyphicon-chevron-left"/></a>
                                     </div>
