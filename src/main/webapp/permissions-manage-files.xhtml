@@ -138,7 +138,7 @@
                                                                        actionListener="#{manageFilePermissionsPage.showUserGroupMessages}"
                                                                        onclick="PF('confirmation').show()">
                                                             <f:setPropertyActionListener value="#{ra.value}" target="#{manageFilePermissionsPage.selectedRoleAssignmentRows}" />
-                                                            <span class="glyphicon glyphicon-remove"/> #{bundle['dataverse.permissionsFiles.viewRemoveDialog.removeBtn']}
+                                                            <span class="bi bi-x"/> #{bundle['dataverse.permissionsFiles.viewRemoveDialog.removeBtn']}
                                                         </p:commandLink>
                                                     </p:column>
                                                 </p:dataTable>
@@ -306,7 +306,7 @@
                         <div class="button-block">
                             <p:commandLink styleClass="btn btn-secondary"
                                            update="userGroups restrictedFiles @([id$=Messages])" onclick="PF('confirmation').show()">
-                                <span class="glyphicon glyphicon-remove"/>
+                                <span class="bi bi-x"/>
                                 <h:outputText value="#{bundle['dataverse.permissionsFiles.viewRemoveDialog.removeBtn']}"/>
                             </p:commandLink>
                             <button class="btn btn-link" onclick="PF('viewRemoveWidget').hide()" type="button">

@@ -55,7 +55,7 @@
                                         <span class="glyphicon glyphicon-info-sign"/>
                                         <span> #{bundle['file.ingestFailed.header']}&#160;</span>
                                         <span>
-                                            <a tabindex="0" role="button" class="glyphicon glyphicon-question-sign tooltip-icon"
+                                            <a tabindex="0" role="button" class="bi bi-question-circle tooltip-icon"
                                                data-toggle="popover" data-placement="auto top" data-trigger="focus" data-html="true"
                                                data-content="#{FilePage.ingestMessage} #{FilePage.fileMetadata.dataFile.ingestReportMessage}"/>
                                         </span>
@@ -106,9 +106,9 @@
                                                 <span id="citation-select-2" onclick="if (event.target) { selectText(event.target); } else{ selectText(this); }">
                                                     <h:outputText value="#{FilePage.fileMetadata.dataFile.isIdentifierRegistered() ? FilePage.fileMetadata.getDirectFileCitation(true, FilePage.anonymizedAccess) : FilePage.fileMetadata.getFileCitation(true, FilePage.anonymizedAccess)}" escape="false"/>
                                                 </span>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"
+                                                <span class="bi bi-question-circle text-primary" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.released']}"/>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}"
+                                                <span class="bi bi-question-circle text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.draft']}"/>
                                             </div>
                                             <div class="pull-left row col-sm-9 p-0" jsf:rendered="#{!FilePage.anonymizedAccess}">
@@ -153,11 +153,11 @@
                                                 <span class="citation-select" onclick="if (event.target) { selectText(event.target); } else{ selectText(this); }">
                                                     <h:outputText value="#{FilePage.fileMetadata.datasetVersion.getCitation(true, FilePage.anonymizedAccess)}" escape="false"/>
                                                 </span>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"
+                                                <span class="bi bi-question-circle text-primary" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.released']}"/>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}"
+                                                <span class="bi bi-question-circle text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.draft']}"/>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"
+                                                <span class="bi bi-question-circle text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.deassessioned']}"/>
                                             </div>
                                             <div class="pull-left row col-sm-9 p-0"  jsf:rendered="#{!FilePage.anonymizedAccess}">
@@ -294,11 +294,11 @@
                                         <div id="metrics-heading">
                                             #{bundle['metrics.file.title']}
                                             <ui:fragment rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
-                                                <span class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="tooltip" data-placement="auto top"
+                                                <span class="bi bi-question-circle tooltip-icon" data-toggle="tooltip" data-placement="auto top"
                                                     data-trigger="hover" data-original-title="#{bundle['metrics.file.tip.default']}"></span>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
-                                                <a tabindex="0" role="button" class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="popover" data-placement="auto top"
+                                                <a tabindex="0" role="button" class="bi bi-question-circle tooltip-icon" data-toggle="popover" data-placement="auto top"
                                                     data-trigger="focus" data-html="true" data-content="#{bundle['metrics.file.tip.makedatacount']}"></a>
                                             </ui:fragment>
                                         </div>
@@ -309,7 +309,7 @@
                                                 <h:outputFormat value="{0} #{bundle['metrics.downloads']}">
                                                     <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDataFileId(FilePage.fileId)}"/>
                                                 </h:outputFormat>
-                                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                <span class="bi bi-question-circle tooltip-icon"
                                                       data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.file.downloads.tip']}"></span>
                                             </div>
                                             <!-- Make Data Count downloads -->
@@ -317,7 +317,7 @@
                                                 <h:outputFormat value="{0} #{bundle['metrics.downloads']}">
                                                     <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDataFileId(FilePage.fileId)}"/>
                                                 </h:outputFormat>
-                                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                <span class="bi bi-question-circle tooltip-icon"
                                                         data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.file.downloads.nonmdc.tip']}"></span>
                                             </div>
                                         </div>

@@ -134,7 +134,7 @@
                                                                rendered="#{managePermissionsPage.dvObject eq roleAssignment.definitionPoint}"
                                                                onclick="PF('confirmation').show()">
                                                     <f:setPropertyActionListener value="#{roleAssignment.roleAssignment}" target="#{managePermissionsPage.selectedRoleAssignment}" />
-                                                    <span class="glyphicon glyphicon-remove"/> #{bundle['dataverse.permissions.usersOrGroups.removeBtn']}
+                                                    <span class="bi bi-x"/> #{bundle['dataverse.permissions.usersOrGroups.removeBtn']}
                                                 </p:commandLink>
                                             </p:column>
                                         </p:dataTable>

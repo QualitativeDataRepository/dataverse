@@ -481,7 +481,7 @@
                                         <div class="notification-item-cell">
                                             <p:commandLink title="#{bundle.removeNotification}" styleClass="bootstrap-button-tooltip"
                                                            action="#{DataverseUserPage.remove(item.id)}" update="@form">
-                                                <span class="glyphicon glyphicon-remove"></span>
+                                                <span class="bi bi-x"></span>
                                             </p:commandLink>
                                         </div>
                                     </div>
@@ -732,8 +732,8 @@
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                     <!-- Username -->                                   
                                     <h:outputLabel value="#{bundle['user.username']}" for="userName" class="col-sm-3 control-label">
-                                        <span class="glyphicon glyphicon-asterisk text-danger"/>
-                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                        <span class="bi bi-asterisk text-danger"/>
+                                        <span class="bi bi-question-circle tooltip-icon"
                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.username.illegal.tip']}"></span>
                                     </h:outputLabel> 
                                                                        
@@ -755,8 +755,8 @@
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
                                 <!-- Current Password -->
                                     <label for="currentPassword" class="col-sm-3 control-label">
-                                        #{bundle['user.currentPasswd']} <span class="glyphicon glyphicon-asterisk text-danger"/>
-                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                        #{bundle['user.currentPasswd']} <span class="bi bi-asterisk text-danger"/>
+                                        <span class="bi bi-question-circle tooltip-icon"
                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.currentPasswd.tip']}"></span>
                                     </label>
                                     <div class="col-sm-4">
@@ -767,8 +767,8 @@
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
                                 <!-- Password -->
                                 <h:outputLabel value="#{DataverseUserPage.editMode == 'CREATE' ? bundle['user.password'] : bundle['user.newPassword']}"   for="inputPassword"  class="col-sm-3 control-label" >
-                                    <span class="glyphicon glyphicon-asterisk text-danger"></span>
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <span class="bi bi-asterisk text-danger"></span>
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.passwd.illegal.tip']}"></span>
                                 </h:outputLabel>      
                                     <div class="col-sm-9">
@@ -785,8 +785,8 @@
                                 </div>
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
                                     <!-- Retype Password -->
-                                    <h:outputLabel value="#{bundle['user.rePasswd']}" for="retypePassword" class="col-sm-3 control-label"> <span class="glyphicon glyphicon-asterisk text-danger"/>
-                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <h:outputLabel value="#{bundle['user.rePasswd']}" for="retypePassword" class="col-sm-3 control-label"> <span class="bi bi-asterisk text-danger"/>
+                                        <span class="bi bi-question-circle tooltip-icon"
                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.rePasswd.tip']}"></span>
                                     </h:outputLabel>
                                     <div class="col-sm-4">
@@ -796,8 +796,8 @@
                                 </div>
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                 <!-- First Name -->                                       
-                                <h:outputLabel value="#{bundle['user.firstName']}" for="firstName" class="col-sm-3 control-label" > <span class="glyphicon glyphicon-asterisk text-danger"/>
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                <h:outputLabel value="#{bundle['user.firstName']}" for="firstName" class="col-sm-3 control-label" > <span class="bi bi-asterisk text-danger"/>
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.firstName.tip']}"></span>
                                 </h:outputLabel>
                                     <div class="col-sm-4">
@@ -807,8 +807,8 @@
                                 </div>
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                     <!-- Last Name -->
-                                    <h:outputLabel value="#{bundle['user.lastName']}" for="lastName" class="col-sm-3 control-label" >  <span class="glyphicon glyphicon-asterisk text-danger"/>
-                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <h:outputLabel value="#{bundle['user.lastName']}" for="lastName" class="col-sm-3 control-label" >  <span class="bi bi-asterisk text-danger"/>
+                                        <span class="bi bi-question-circle tooltip-icon"
                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.lastName.tip']}"></span>
                                     </h:outputLabel>
                                     <div class="col-sm-4">
@@ -818,8 +818,8 @@
                                 </div>
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                     <!-- Email -->
-                                    <h:outputLabel value="#{bundle['email']}" for="email" class="col-sm-3 control-label">   <span class="glyphicon glyphicon-asterisk text-danger"/>
-                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <h:outputLabel value="#{bundle['email']}" for="email" class="col-sm-3 control-label">   <span class="bi bi-asterisk text-danger"/>
+                                        <span class="bi bi-question-circle tooltip-icon"
                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.email.tip']}"></span>
                                     </h:outputLabel>
                                     <div class="col-sm-4">
@@ -833,7 +833,7 @@
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                     <!-- Affiliation -->
                                     <h:outputLabel value="#{bundle.affiliation}" for="affiliation" class="col-sm-3 control-label">
-                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                        <span class="bi bi-question-circle tooltip-icon"
                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.affiliation.tip']}"></span>
                                     </h:outputLabel>
                                     <div class="col-sm-4">
@@ -844,7 +844,7 @@
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                 <!-- Position -->
                                 <h:outputLabel value="#{bundle.position}" for="position" class="col-sm-3 control-label">
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.position.tip']}"></span>
                                 </h:outputLabel>
                                     <div class="col-sm-4">

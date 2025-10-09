@@ -157,7 +157,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label" for="guestbookuser_nameText">
                             #{bundle.name}
-                        <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{workingVersion.dataset.guestbook.nameRequired}" />
+                        <span class="bi bi-asterisk text-danger" jsf:rendered="#{workingVersion.dataset.guestbook.nameRequired}" />
                     </label>
                     <div class="col-sm-6">
                         <p:inputText id="guestbookuser_nameText"
@@ -172,7 +172,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label" for="guestbookuser_email">
                         #{bundle.email}
-                        <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{workingVersion.dataset.guestbook.emailRequired}" />
+                        <span class="bi bi-asterisk text-danger" jsf:rendered="#{workingVersion.dataset.guestbook.emailRequired}" />
                     </label>
                     <div class="col-sm-6">
                         <p:inputText id="guestbookuser_email" required="#{param[validateThisContext] and workingVersion.dataset.guestbook.emailRequired}"
@@ -186,7 +186,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label" for="guestbookuser_institution">
                         #{bundle.institution}
-                        <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{workingVersion.dataset.guestbook.institutionRequired}" />
+                        <span class="bi bi-asterisk text-danger" jsf:rendered="#{workingVersion.dataset.guestbook.institutionRequired}" />
                     </label>
                     <div class="col-sm-6">
                         <p:inputText id="guestbookuser_institution" required="#{param[validateThisContext] and workingVersion.dataset.guestbook.institutionRequired}"
@@ -200,7 +200,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label" for="guestbookuser_position">
                         #{bundle.position}
-                        <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{workingVersion.dataset.guestbook.positionRequired}" />
+                        <span class="bi bi-asterisk text-danger" jsf:rendered="#{workingVersion.dataset.guestbook.positionRequired}" />
                     </label>
                     <div class="col-sm-6">
                         <p:inputText id="guestbookuser_position"  required="#{param[validateThisContext] and workingVersion.dataset.guestbook.positionRequired}"
@@ -220,7 +220,7 @@
                             <div class="text-left">
                                 <label class="control-label">
                                     <h:outputText value="#{customQuestionResponse.customQuestion.questionString} "/>
-                                    <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{customQuestionResponse.customQuestion.required}" />
+                                    <span class="bi bi-asterisk text-danger" jsf:rendered="#{customQuestionResponse.customQuestion.required}" />
                                 </label>
                                 <p:inputText id="customQuestionResponse"
                                              styleClass="form-control" value="#{customQuestionResponse.response}"

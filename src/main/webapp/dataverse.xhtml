@@ -57,7 +57,7 @@
                         <p:focus context="dataverseForm"/>
                         <div class="row">
                             <div class="col-6 form-group">
-                                <span class="glyphicon glyphicon-asterisk text-danger"/> <h:outputText value="#{bundle['dataset.asterisk.tip']}"/>
+                                <span class="bi bi-asterisk text-danger"/> <h:outputText value="#{bundle['dataset.asterisk.tip']}"/>
                             </div>
                         </div>
                         <!-- Edit Info Panel -->
@@ -65,7 +65,7 @@
                             <div class="col-md-6 form-group">
                                 <p:outputLabel for="#{DataversePage.editMode == 'CREATE' ? 'selectHostDataverse' : 'hostDataverseStatic'}" styleClass="control-label">
                                     #{bundle.hostDataverse}
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.host.title']}"></span>
                                 </p:outputLabel>
                                 <div class="form-col-container">
@@ -107,8 +107,8 @@
                         <div class="row">
                             <div class="col-md-6 form-group">
                                 <h:outputLabel for="name" styleClass="control-label">
-                                    #{bundle['dataverse.name']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/>
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    #{bundle['dataverse.name']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.name.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -121,7 +121,7 @@
                             <div class="col-md-6 form-group">
                                 <h:outputLabel for="affiliation" styleClass="control-label">
                                     #{bundle.affiliation}
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.affiliation.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -133,8 +133,8 @@
                         <div class="row">
                             <div class="col-md-6 form-group">
                                 <h:outputLabel for="identifier" styleClass="control-label">
-                                    #{bundle.identifier} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/>
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    #{bundle.identifier} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.identifier.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -151,7 +151,7 @@
                             <div class="col-md-6 form-group" jsf:rendered="#{dataverseSession.user.superuser}">
                                 <h:outputLabel for="dataverseStorage" styleClass="control-label">
                                     #{bundle.storage} 
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.storage.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -164,7 +164,7 @@
                             <div class="col-md-6 form-group" jsf:rendered="#{dataverseSession.user.superuser and DataversePage.getCurationLabelSetOptions().size() >0}">
                                 <h:outputLabel for="dataverseCurationLabels" styleClass="control-label">
                                     #{bundle.curationLabels} 
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.curationLabels.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -180,8 +180,8 @@
                                 <div class="row">
                                     <div class="col-12 form-group">
                                         <h:outputLabel for="dataverseCategory" styleClass="control-label">
-                                            #{bundle['dataverse.category']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/>
-                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                            #{bundle['dataverse.category']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                            <span class="bi bi-question-circle tooltip-icon"
                                                   data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.category.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
@@ -205,8 +205,8 @@
                                         <p:fragment>
                                             <p:autoUpdate/>
                                             <p:outputLabel id="contactEmailLabel" styleClass="control-label">
-                                                #{bundle['dataverse.email']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/>
-                                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                #{bundle['dataverse.email']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                                <span class="bi bi-question-circle tooltip-icon"
                                                       data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.email.title']}"></span>
                                             </p:outputLabel>
                                             <div class="form-col-container edit-compound-field">
@@ -241,7 +241,7 @@
                                     <div class="col-md-6 form-group" jsf:rendered="#{DataversePage.getMetadataLanguages().size()>2}">
                                         <h:outputLabel for="dsMetadataLanguage" styleClass="control-label">
                                             #{bundle.metadataLanguage} 
-                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon"
                                                   data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.metadatalanguage.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
@@ -258,7 +258,7 @@
                                     <div class="col-12 form-group">
                                 <h:outputLabel for="description" styleClass="control-label">
                                     #{bundle.description}
-                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                    <span class="bi bi-question-circle tooltip-icon"
                                           data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.description.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -275,7 +275,7 @@
                                     <div class="col-12 form-group" jsf:rendered="#{DataversePage.getGuestbookEntryOptions().size()>2}">
                                         <h:outputLabel for="dsGuestbookEntryOption" styleClass="control-label">
                                             #{bundle.guestbookEntryOption} 
-                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon"
                                                   data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.guestbookentryatrequest.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
@@ -288,7 +288,7 @@
                                     <div class="col-12 form-group" jsf:rendered="#{dataverseSession.user.superuser and DataversePage.getPidProviderOptions().size()>2}">
                                         <h:outputLabel for="dsPidProviderOption" styleClass="control-label">
                                             #{bundle.pidProviderOption} 
-                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon"
                                                   data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.pidProvider.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
@@ -489,12 +489,12 @@
                                             <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>
                                             <f:param name="DO_VALIDATION" value="false"/>
                                             <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{DataversePage.dataverse}"/>
-                                                <span class="glyphicon glyphicon-envelope"/> #{bundle['contact.contact']}
+                                                <span class="bi bi-envelope"/> #{bundle['contact.contact']}
                                         </p:commandLink>
                                         <p:commandLink type="button" styleClass="text-button btn-share bootstrap-button-tooltip"
                                            title="#{bundle['dataverse.share.dataverseShare']}"
                                            oncomplete="PF('shareDialog').show();sharrre();">
-                                            <span class="bi bi-globe"/> #{bundle['share']}
+                                            <span class="bi bi-share"/> #{bundle['share']}
                                         </p:commandLink>
                                     </div>
                                     <!-- END: Email/Link/Share Button Group -->

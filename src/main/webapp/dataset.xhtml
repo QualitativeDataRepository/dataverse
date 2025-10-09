@@ -605,11 +605,11 @@
                                     <div id="metrics-block">
                                         <h:outputFormat  id="metrics-heading" value="#{settingsWrapper.makeDataCountDisplayEnabled ? bundle['metrics.dataset.makedatacount.title'] : bundle['metrics.dataset.title']}" escape = "false"/>
                                         <ui:fragment rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
-                                            <span class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="tooltip" data-placement="auto top" 
+                                            <span class="bi bi-question-circle tooltip-icon" data-toggle="tooltip" data-placement="auto top" 
                                                 data-trigger="hover" data-original-title="#{bundle['metrics.dataset.tip.default']}"></span>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
-                                            <span class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="tooltip" data-placement="auto top" 
+                                            <span class="bi bi-question-circle tooltip-icon" data-toggle="tooltip" data-placement="auto top" 
                                                 data-original-title="#{bundle['metrics.dataset.tip.makedatacount']}"></span>
                                                 <div id="metrics-heading-subtitle">#{bundle['metrics.dataset.makedatacount.since']} #{settingsWrapper.getMDCStartDate().toString()}</div>
                                         </ui:fragment>
@@ -619,7 +619,7 @@
                                                 <h:outputFormat value="{0} #{bundle['metrics.downloads']}">
                                                     <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id)}"/>
                                                 </h:outputFormat>
-                                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                <span class="bi bi-question-circle tooltip-icon"
                                                         data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.downloads.default.tip']}"></span>
                                             </div>
                                             <!-- Make Data Count views -->
@@ -627,7 +627,7 @@
                                                 <h:outputFormat value="{0} #{bundle['metrics.views']}">
                                                     <f:param value="#{datasetMetricsServiceBean.getMetrics(DatasetPage.dataset).getViewsTotal()}"/>
                                                 </h:outputFormat>
-                                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                <span class="bi bi-question-circle tooltip-icon"
                                                         data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.views.tip']}"></span>
                                             </div>
                                             <!-- Make Data Count downloads -->
@@ -635,13 +635,13 @@
                                                 <h:outputFormat value="{0} #{bundle['metrics.downloads']}">
                                                     <f:param value="#{datasetMetricsServiceBean.getMetrics(DatasetPage.dataset).getDownloadsTotal()}"/>
                                                 </h:outputFormat>
-                                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                <span class="bi bi-question-circle tooltip-icon"
                                                         data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.downloads.makedatacount.tip']}"></span>
                                                 <span jsf:rendered="#{(settingsWrapper.getMDCStartDate()!=null) and (guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id, settingsWrapper.getMDCStartDate()) > 0)}">        
                                                     <h:outputFormat value="#{bundle['metrics.downloads.nonMDC']}">
                                                         <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id, settingsWrapper.getMDCStartDate())}"/>
                                                     </h:outputFormat>
-                                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                    <span class="bi bi-question-circle tooltip-icon"
                                                         data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.downloads.premakedatacount.tip']}"></span>)
                                                 </span>
                                             </div>
@@ -652,7 +652,7 @@
                                                         <f:param value="#{fn:length(datasetExternalCitationsServiceBean.getDatasetExternalCitationsByDataset(DatasetPage.dataset))}"/>
                                                     </h:outputFormat>
                                                 </p:commandLink>
-                                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                <span class="bi bi-question-circle tooltip-icon"
                                                         data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.citations.tip']}"></span>
                                             </div>
                                         </div>
@@ -683,7 +683,7 @@
                                                 <tr id="keywords" jsf:rendered="#{!empty DatasetPage.datasetVersionUI.keywordDisplay and dsf.datasetFieldType.id==DatasetPage.datasetVersionUI.keyword.datasetFieldType.id}">
                                                     <th scope="row">
                                                         #{bundle['dataset.keywordDisplay.title']}
-                                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                        <span class="bi bi-question-circle tooltip-icon"
                                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{DatasetPage.datasetVersionUI.keyword.datasetFieldType.localeDescription}"></span>
                                                     </th>
                                                     <td>#{DatasetPage.datasetVersionUI.keywordDisplay}</td>
@@ -691,7 +691,7 @@
                                                 <tr id="publication" jsf:rendered="#{!empty DatasetPage.datasetVersionUI.relPublicationCitation and dsf.datasetFieldType.name=='publication'}">
                                                     <th scope="row">
                                                         #{DatasetPage.datasetVersionUI.datasetRelPublications.get(0).title}
-                                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                        <span class="bi bi-question-circle tooltip-icon"
                                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{DatasetPage.datasetVersionUI.datasetRelPublications.get(0).description}"></span>
                                                     </th>
                                                     <td jsf:rendered="#{!anonymizedAccess or !settingsWrapper.shouldBeAnonymized(dsf)}">
@@ -707,7 +707,7 @@
                                                 <tr id="#{dsf.datasetFieldType.name}" jsf:rendered="#{dsf.datasetFieldType.name!='publication' and dsf.datasetFieldType.name!='keyword'}">
                                                     <th scope="row">
                                                         #{dsf.datasetFieldType.localeTitle}
-                                                        <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                        <span class="bi bi-question-circle tooltip-icon"
                                                               data-toggle="tooltip" data-placement="auto right" data-original-title="#{dsf.datasetFieldType.localeDescription}"></span>
                                                     </th>
                                                     <td jsf:rendered="#{!anonymizedAccess or !settingsWrapper.shouldBeAnonymized(dsf)}">
@@ -773,7 +773,7 @@
                         <div class="form-group">
                             <label jsf:for="#{DatasetPage.editMode == 'CREATE' ? 'selectHostDataverse_input' : 'select_HostDataverse_Static'}" class="col-md-3 control-label">
                                 #{bundle.hostDataverse}
-                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                <span class="bi bi-question-circle tooltip-icon"
                                       data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.host.title']}"></span>
                             </label>
                             <div class="col-md-7">
@@ -822,7 +822,7 @@
                         <div class="form-group" jsf:rendered="#{!empty DatasetPage.dataverseTemplates and DatasetPage.editMode == 'CREATE'}">
                             <label jsf:for="select_DatasetTemplate" class="col-md-3 control-label">
                                 #{bundle['dataset.manageTemplates.tab.action.btn.view.dialog.datasetTemplate']}
-                                <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                <span class="bi bi-question-circle tooltip-icon"
                                       data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.manageTemplates.tab.action.btn.view.dialog.datasetTemplate.title']}"></span>
                             </label>
                             <div class="col-md-7">
@@ -1222,7 +1222,7 @@
                             <p>
                              <p>
                                  <h:outputText  styleClass="highlightBold" value="#{bundle['dataset.privateurl.anonymous.title']}"></h:outputText>
-                                 <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                 <span class="bi bi-question-circle tooltip-icon"
                                        data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.privateurl.anonymous.tooltip.preface']} #{DatasetPage.getAnonymizedFieldTypeNames()} "></span>
                              </p>   
                             <p>#{bundle['dataset.privateurl.anonymous.description']}</p>  
@@ -1341,7 +1341,7 @@
                                     </p>
                                 </div>
                                 <div class="form-group" jsf:rendered="#{DatasetPage.releasedVersionTabList.size() > 1}">
-                                    <label for="selectVersionChk">#{bundle['file.deaccessionDialog.reason.question1']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
+                                    <label for="selectVersionChk">#{bundle['file.deaccessionDialog.reason.question1']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/></label>
                                     <p:selectManyCheckbox id="selectVersionChk" value="#{DatasetPage.selectedDeaccessionVersions}" converter="datasetVersionConverter"
                                                           layout="pageDirection" required="#{param['DO_DEACCESSION_VALIDATION']}" requiredMessage="#{bundle['file.deaccessionDialog.dialog.selectVersion.error']}" widgetVar="selectVersionChk">
                                         <f:selectItems value="#{DatasetPage.releasedVersionTabList}" var="versionTab" itemLabel="#{bundle['file.deaccessionDialog.version']} #{versionTab.versionNumber}.#{versionTab.minorVersionNumber}, #{versionTab.versionDate}"  itemValue="#{versionTab}" />
@@ -1349,7 +1349,7 @@
                                     <p:message for="selectVersionChk"/>
                                 </div>
                                 <div class="form-group">
-                                    <label for="reasonOptions">#{bundle['file.deaccessionDialog.reason.question2']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
+                                    <label for="reasonOptions">#{bundle['file.deaccessionDialog.reason.question2']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/></label>
                                     <p:selectOneMenu widgetVar="reasonOptions" id="reasonOptions" styleClass="form-control" value="#{DatasetPage.deaccessionReasonRadio}" required="#{param['DO_DEACCESSION_VALIDATION']}" 
                                                      binding="#{reasonRadio}" requiredMessage="#{bundle['file.deaccessionDialog.dialog.reason.error']}">
                                         <f:selectItem itemLabel="#{bundle.select}" itemValue="#{null}" noSelectionOption="true" />
@@ -1859,7 +1859,7 @@
                         <div class="text-end">
                             <!-- Clear link -->
                             <p:commandButton styleClass="btn btn-secondary" action="#{DatasetPage.clearCart()}" update=":datasetForm,:messagePanel">
-                                <span class="glyphicon glyphicon-remove"/> <h:outputText value="#{bundle['dataset.compute.computeBatchClear']}"/>
+                                <span class="bi bi-x"/> <h:outputText value="#{bundle['dataset.compute.computeBatchClear']}"/>
                             </p:commandButton>
                         </div>
                         <h:dataTable id="computeBatch" class="table table-striped" value="#{DatasetPage.cartList}" var='computeCartDatasetList'>

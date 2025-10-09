@@ -245,7 +245,7 @@
                             <h:outputFormat value=" &#40;{0}&#41;">
                                 <f:param value="#{facetLabel.count}"/>
                             </h:outputFormat>
-                            <span class="glyphicon glyphicon-remove"></span>
+                            <span class="bi bi-x"></span>
                             <f:param name="q" value="#{DataversePage.query}"/>
                             <c:forEach items="#{DataversePage.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                 <f:param name="fq#{status.index}" value='#{clickedFilterQuery}' disable="#{clickedFilterQuery == facetLabel.filterQuery}"/>
@@ -392,7 +392,7 @@
                                 <f:passThroughAttribute name="data-cvoc-headers" value="#{cvocConf.get(SearchIncludeFragment.getFieldTypeId(friendlyNames.get(0))).containsKey('headers') ? cvocConf.get(SearchIncludeFragment.getFieldTypeId(friendlyNames.get(0))).get('headers').toString() : '{}'}"/>
                                 <f:passThroughAttribute name="data-cvoc-protocol" value="#{cvocConf.get(SearchIncludeFragment.getFieldTypeId(friendlyNames.get(0))).getString('protocol','')}" />
                         </h:outputText>
-                        <span class="glyphicon glyphicon-remove"></span>
+                        <span class="bi bi-x"></span>
                         <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                         <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}' disable="#{clickedFilterQuery == filterQuery}"/>

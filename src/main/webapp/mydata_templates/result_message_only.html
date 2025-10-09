@@ -3,12 +3,12 @@
 <div id="resultsFacetsTopBlock">
     {% for pub_stat in data.selected_filters.publication_statuses %}
         <a class="lnk_cbox_remove facetLink facetSelected" rel="id_cbox_{{ pub_stat|lower }}">
-            Status: {{ pub_stat }} <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            Status: {{ pub_stat }} <span class="bi bi-x" aria-hidden="true"></span>
         </a>
     {% endfor %}
     {% for role_name in data.selected_filters.role_names %}
         <a class="lnk_cbox_remove facetLink facetSelected" rel="id_cbox_{{ role_name|lower|replace(" + ", "")|replace(" ", "") }}">
-            Role: {{ role_name }} <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            Role: {{ role_name }} <span class="bi bi-x" aria-hidden="true"></span>
         </a>
     {% endfor %}
 </div>    

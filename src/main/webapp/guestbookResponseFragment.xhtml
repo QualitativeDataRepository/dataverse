@@ -27,7 +27,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label" for="guestbookuser_name">
                         #{bundle.name}
-                        <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{DatasetPage.dataset.guestbook.nameRequired}" />
+                        <span class="bi bi-asterisk text-danger" jsf:rendered="#{DatasetPage.dataset.guestbook.nameRequired}" />
                     </label>
                     <div class="col-sm-6">
                         <h:inputText id="guestbookuser_name" styleClass="form-control" value="#{DatasetPage.guestbookResponse.name}"/>
@@ -36,7 +36,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label" for="guestbookuser_email">
                         #{bundle.email}
-                        <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{DatasetPage.dataset.guestbook.emailRequired}" />
+                        <span class="bi bi-asterisk text-danger" jsf:rendered="#{DatasetPage.dataset.guestbook.emailRequired}" />
                     </label>
                     <div class="col-sm-6">
                         <h:inputText id="guestbookuser_email" styleClass="form-control" value="#{DatasetPage.guestbookResponse.email}"/>
@@ -45,7 +45,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label" for="guestbookuser_institution">
                         #{bundle.institution}
-                        <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{DatasetPage.dataset.guestbook.institutionRequired}" />
+                        <span class="bi bi-asterisk text-danger" jsf:rendered="#{DatasetPage.dataset.guestbook.institutionRequired}" />
                     </label>
                     <div class="col-sm-6">
                         <h:inputText id="guestbookuser_institution" styleClass="form-control" value="#{DatasetPage.guestbookResponse.institution}"/>
@@ -54,7 +54,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label" for="guestbookuser_position">
                         #{bundle.position}
-                        <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{DatasetPage.dataset.guestbook.positionRequired}" />
+                        <span class="bi bi-asterisk text-danger" jsf:rendered="#{DatasetPage.dataset.guestbook.positionRequired}" />
                     </label>
                     <div class="col-sm-6">
                         <h:inputText id="guestbookuser_position" styleClass="form-control" value="#{DatasetPage.guestbookResponse.position}"/>
@@ -69,7 +69,7 @@
                             <div>
                                 <label class="control-label">
                                     <h:outputText value="#{customQuestionResponse.customQuestion.questionString}"/>
-                                    <span class="glyphicon glyphicon-asterisk text-danger" jsf:rendered="#{customQuestionResponse.customQuestion.required}" />
+                                    <span class="bi bi-asterisk text-danger" jsf:rendered="#{customQuestionResponse.customQuestion.required}" />
                                 </label>
                                 <h:inputText styleClass="form-control" value="#{customQuestionResponse.response}"
                                              rendered="#{customQuestionResponse.customQuestion.questionType=='text'}"/>
