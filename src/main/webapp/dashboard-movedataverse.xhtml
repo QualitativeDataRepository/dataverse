@@ -121,7 +121,7 @@
                     </div>
                     
                     <p:dialog id="moveDataverseConfirmation" header="#{bundle['dashboard.move.dataverse.message.summary']}" widgetVar="moveDataverseConfirmation" modal="true">
-                        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['dashboard.move.dataverse.confirm.dialog']}</p>
+                        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['dashboard.move.dataverse.confirm.dialog']}</p>
                         <div class="button-block">
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle['dashboard.move.dataverse.confirm.yes']}"
                                              onclick="PF('moveDataverseConfirmation').hide();" 

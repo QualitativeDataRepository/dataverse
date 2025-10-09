@@ -64,7 +64,7 @@
                         <p:tab id="notifications" title="#{bundle['header.user.selectTab.notifications']}">
                             <div class="panel panel-default" jsf:rendered="#{settingsWrapper.showMuteOptions}">
                                 <div data-toggle="collapse" data-target="#muteCollapse" aria-expanded="false" class="panel-heading text-info" role="button" aria-controls="muteCollapse">
-                                    #{bundle['notification.muteOptions']} <span class="glyphicon glyphicon-chevron-down" />
+                                    #{bundle['notification.muteOptions']} <span class="bi bi-chevron-down" />
                                 </div>
                                 <div id="muteCollapse" class="collapse">
                                     <div class="panel-body">
@@ -493,7 +493,7 @@
                                 <div class="btn-group">
                                     <button type="button" id="editAccount" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
                                         <ui:fragment rendered="#{DataverseUserPage.accountDetailsEditable}">
-                                            <span class="glyphicon glyphicon-pencil"/> #{bundle['account.edit']}
+                                            <span class="bi bi-pencil"/> #{bundle['account.edit']}
                                         </ui:fragment>
                                         <span class="caret"></span>
                                     </button>
@@ -585,11 +585,11 @@
                                                     &#160;
                                                     <!--QDR - disable local email verification-->
                                                     <span class="text-danger" jsf:rendered="false and #{DataverseUserPage.emailNotVerified}">
-                                                        <span class="glyphicon glyphicon-ban-circle"/> #{bundle['confirmEmail.notVerified']}
+                                                        <span class="bi bi-slash-circle"/> #{bundle['confirmEmail.notVerified']}
                                                     </span>
                                                     <!--QDR - disable local email verification-->
                                                     <span class="text-success" jsf:rendered="false and #{!DataverseUserPage.emailNotVerified}">
-                                                        <span class="glyphicon glyphicon-ok"/> #{bundle['confirmEmail.verified']}
+                                                        <span class="bi bi-check"/> #{bundle['confirmEmail.verified']}
                                                     </span>
                                                 </p>
                                                 &#160;
@@ -599,7 +599,7 @@
                                                                 action="#{DataverseUserPage.sendConfirmEmail()}"
                                                                 update="@([id$=verifyEmailButton]), :messagePanel"
                                                                >
-                                                    <span class="glyphicon glyphicon-ok"></span> #{bundle['confirmEmail.submitRequest']}
+                                                    <span class="bi bi-check"></span> #{bundle['confirmEmail.submitRequest']}
                                                 </p:commandLink>
                                             </td>
                                         </tr>
@@ -626,7 +626,7 @@
                                                                  action="#{DataverseUserPage.startOrcidAuthentication()}"
                                                                  styleClass="btn btn-secondary"
                                                                  update="@form">
-                                                    <span class="glyphicon glyphicon-link"></span>
+                                                    <span class="bi bi-link"></span>
                                                 </p:commandButton>
                                             </td>
                                         </tr>
@@ -670,12 +670,12 @@
                                                 <h:outputText value="#{ApiTokenPage.apiTokenExpiration}"/>
                                             </td>
                                             <td class="text-warning" jsf:rendered="#{ApiTokenPage.tokenIsExpired()}">
-                                                <span class="glyphicon glyphicon-warning-sign"></span>
+                                                <span class="bi bi-exclamation-triangle-fill"></span>
                                                 <h:outputText value=" #{bundle['apitoken.expired.error']}"/>
                                             </td>
                                             <!-- leaving warning off for now -->
                                             <td class="text-danger" jsf:rendered="#{false}">
-                                                <span class="glyphicon glyphicon-exclamation-sign"></span>
+                                                <span class="bi bi-exclamation-circle-fill"></span>
                                                 <h:outputText value=" #{bundle['apitoken.expired.warning']}"/>
                                             </td>
                                         </tr>

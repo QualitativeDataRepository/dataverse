@@ -12,7 +12,7 @@
     xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
         
         <!-- Configure Options -->
-        <li class="dropdown-header">#{bundle['file.optionsBtn.header.configure']} <span class="glyphicon glyphicon-cog"/></li>
+        <li class="dropdown-header">#{bundle['file.optionsBtn.header.configure']} <span class="bi bi-gear"/></li>
         <ui:repeat value="#{configureTools}" var="tool">
             <li>
                 <p:commandLink update="@([id$=configureToolPopup])"

@@ -9,11 +9,11 @@ function bind_bsui_components(){
     
     // Collapse Header Icons
     $('div[id^="panelCollapse"]').on('shown.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+      $(this).siblings('div.panel-heading').children('span.bi').removeClass("bi-chevron-down").addClass("bi-chevron-up");
     });
 
     $('div[id^="panelCollapse"]').on('hidden.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+      $(this).siblings('div.panel-heading').children('span.bi').removeClass("bi-chevron-up").addClass("bi-chevron-down");
     });
     
     // Button dropdown menus 
@@ -248,18 +248,18 @@ function clickCopyClipboard(){
 
         // check which selector was clicked
         // swap icon for success ok
-        if ($(e.trigger).hasClass('glyphicon')) {
-            $(e.trigger).removeClass('glyphicon-copy').addClass('glyphicon-ok text-success');
+        if ($(e.trigger).hasClass('bi')) {
+            $(e.trigger).removeClass('bi-clipboard').addClass('bi-check text-success');
             // then swap icon back to clipboard
             // https://stackoverflow.com/a/54270499
             setTimeout(()=> { // use arrow function
-                $(e.trigger).removeClass('glyphicon-ok text-success').addClass('glyphicon-copy')
+                $(e.trigger).removeClass('bi-check text-success').addClass('bi-clipboard')
             }, 2000);
         }
         else {
-            $(e.trigger).next('.btn-copy.glyphicon').removeClass('glyphicon-copy').addClass('glyphicon-ok text-success');
+            $(e.trigger).next('.btn-copy.bi').removeClass('bi-clipboard').addClass('bi-check text-success');
             setTimeout(()=> {
-                $(e.trigger).next('.btn-copy.glyphicon').removeClass('glyphicon-ok text-success').addClass('glyphicon-copy')
+                $(e.trigger).next('.btn-copy.bi').removeClass('bi-check text-success').addClass('bi-clipboard')
             }, 2000);
         }
     });

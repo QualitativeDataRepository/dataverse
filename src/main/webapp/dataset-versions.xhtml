@@ -38,7 +38,7 @@
     <div class="text-end margin-bottom">
         <ui:fragment rendered="#{DatasetPage.compareVersionsCount > 2}">
             <button type="button" class="btn btn-secondary" onclick="testCheckBoxes();">
-                <span class="glyphicon glyphicon-transfer"/> #{bundle['file.dataFilesTab.versions.viewDiffBtn']}
+                <span class="bi bi-arrow-left-right"/> #{bundle['file.dataFilesTab.versions.viewDiffBtn']}
             </button>
         </ui:fragment>
         <p:commandButton value="#{bundle['file.dataFilesTab.button.direct']}" id="compareVersions"

@@ -32,7 +32,7 @@
                                                actionListener="#{harvestingClientsPage.initNewClient}"
                                                update=":harvestingClientsForm:newHarvestingClientDialog"
                                                oncomplete="PF('newHarvestingClientForm').show();handleResizeDialog('newHarvestingClientDialog');">
-                                    <span class="glyphicon glyphicon-plus"/> #{bundle['harvestclients.btn.add']}
+                                    <span class="bi bi-plus"/> #{bundle['harvestclients.btn.add']}
                                 </p:commandLink>
                             </div>
                         </div>
@@ -89,7 +89,7 @@
                                                         actionListener="#{harvestingClientsPage.initNewClient}"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();handleResizeDialog('newHarvestingClientDialog');">
-                                             <span class="glyphicon glyphicon-plus"/> #{bundle['harvestclients.btn.add']}
+                                             <span class="bi bi-plus"/> #{bundle['harvestclients.btn.add']}
                                          </p:commandLink>
                                     </div>
                                 </div>
@@ -120,7 +120,7 @@
                                                    action="#{harvestingClientsPage.runHarvest(harvestClient)}"
                                                    update=":harvestingClientsForm,:messagePanel,:harvestingClientsForm:clientsTable"
                                                    title="#{bundle['harvestclients.tab.header.action.btn.run']}">
-                                        <span class="glyphicon glyphicon-play no-text"></span>
+                                        <span class="bi bi-play no-text"></span>
                                     </p:commandLink>
                                     <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{harvestClient.harvestingNow or harvestClient.deleteInProgress}"
@@ -128,7 +128,7 @@
                                                    oncomplete="PF('newHarvestingClientForm').show();handleResizeDialog('newHarvestingClientDialog');"
                                                    update=":harvestingClientsForm,:harvestingClientsForm:newHarvestingClientDialog"
                                                    title="#{bundle['harvestclients.tab.header.action.btn.edit']}">
-                                        <span class="glyphicon glyphicon-pencil no-text"></span>
+                                        <span class="bi bi-pencil no-text"></span>
                                     </p:commandLink>
                                     <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{harvestClient.harvestingNow or harvestClient.deleteInProgress}"
@@ -136,7 +136,7 @@
                                                    oncomplete="PF('deleteConfirmation').show();"
                                                    update=":harvestingClientsForm, :messagePanel,:harvestingClientsForm:clientsTable, :harvestingClientsForm:deleteConfirmation, :harvestingClientsForm:newHarvestingClientDialog"
                                                    title="#{bundle['harvestclients.tab.header.action.btn.delete']}">
-                                        <span class="glyphicon glyphicon-trash no-text"></span>
+                                        <span class="bi bi-trash no-text"></span>
                                     </p:commandLink>
                                 </div>
                             </div>
@@ -158,7 +158,7 @@
                               modal="true" width="65%"
                               header="#{bundle['harvestclients.tab.header.action.btn.delete.dialog.header']}">
                         <p class="help-block">
-                            <span class="glyphicon glyphicon-warning-sign text-warning"/>
+                            <span class="bi bi-exclamation-triangle-fill text-warning"/>
                             <h:outputFormat styleClass="text-warning" value=" #{bundle['harvestclients.tab.header.action.btn.delete.dialog.warning']}">
                                 <f:param value="#{harvestingClientsPage.getSelectedClient().name}"/>
                             </h:outputFormat>
@@ -317,7 +317,7 @@
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         action="#{harvestingClientsPage.validateInitialSettings()}">
-                                            <span class="glyphicon glyphicon-menu-right"/> #{bundle.next}
+                                            <span class="bi-chevron-right"/> #{bundle.next}
                                         </p:commandLink>
                                         <button class="btn btn-link"
                                                 jsf:rendered="#{!harvestingClientsPage.initialSettingsValidated}"
@@ -357,7 +357,7 @@
                                         <p class="help-block" jsf:rendered="#{harvestingClientsPage.createMode and empty harvestingClientsPage.oaiSetsSelectItems}">#{bundle['harvestclients.newClientDialog.oaiSets.helptext.noset']}</p>
                                         
                                         <p class="help-block" jsf:rendered="#{harvestingClientsPage.setListTruncated}">
-                                            <span class="glyphicon glyphicon-warning-sign text-warning"/>
+                                            <span class="bi bi-exclamation-triangle-fill text-warning"/>
                                             #{bundle['harvestclients.newClientDialog.oaiSets.listTruncated']}
                                         </p>
                                     </div>
@@ -398,7 +398,7 @@
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.backToStepOne()}">
-                                            <span class="glyphicon glyphicon-menu-left"/> #{bundle.previous}
+                                            <span class="bi-chevron-left"/> #{bundle.previous}
                                         </p:commandLink>
                                         <p:commandLink id="createStepTwoNext"
                                                         styleClass="btn btn-secondary"
@@ -406,7 +406,7 @@
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.goToStepThree()}">
                                             <f:param name="DO_VALIDATION" value="true"/>
-                                            <span class="glyphicon glyphicon-menu-right"/> #{bundle.next}
+                                            <span class="bi-chevron-right"/> #{bundle.next}
                                         </p:commandLink>
                                         <button class="btn btn-link" onclick="PF('newHarvestingClientForm').hide()" type="button">
                                             #{bundle.cancel}
@@ -492,14 +492,14 @@
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.backToStepTwo()}">
-                                            <span class="glyphicon glyphicon-menu-left"/> #{bundle.previous}
+                                            <span class="bi-chevron-left"/> #{bundle.previous}
                                         </p:commandLink>
                                         <p:commandLink id="createStepThreeNext"
                                                         styleClass="btn btn-secondary"
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.goToStepFour()}">
-                                            <span class="glyphicon glyphicon-menu-right"/> #{bundle.next}
+                                            <span class="bi-chevron-right"/> #{bundle.next}
                                         </p:commandLink>
                                         <button class="btn btn-link" onclick="PF('newHarvestingClientForm').hide()" type="button">
                                             #{bundle.cancel}
@@ -568,7 +568,7 @@
                                                         update=":harvestingClientsForm:newHarvestingClientDialog"
                                                         oncomplete="PF('newHarvestingClientForm').show();"
                                                         action="#{harvestingClientsPage.backToStepThree()}">
-                                            <span class="glyphicon glyphicon-menu-left"/> #{bundle.previous}
+                                            <span class="bi-chevron-left"/> #{bundle.previous}
                                         </p:commandLink>
                                         <!-- note that there are 2 different buttons rendered for "create" and "save"! -->
                                         <p:commandLink styleClass="btn btn-secondary"

@@ -211,7 +211,7 @@
                                                         <!-- DOWNLOAD -->
                                                         <ui:fragment rendered="#{canDownloadFiles}">
                                                             <ui:fragment rendered="#{!tooLargeToDownload}">
-                                                                <li class="dropdown-header">#{bundle['dataset.accessBtn.header.download']} <span class="glyphicon glyphicon-download-alt"/></li>
+                                                                <li class="dropdown-header">#{bundle['dataset.accessBtn.header.download']} <span class="bi bi-download"/></li>
                                                                 <!-- NORMAL DOWNLOAD BUTTON (NO TABULAR FILES) -->
                                                                 <li jsf:rendered="#{!  versionHasTabular}">
                                                                     <p:commandLink update="@form" actionListener="#{DatasetPage.startDownloadAllOriginal()}" styleClass="btn-download" 
@@ -284,7 +284,7 @@
 
                                                     <!-- EXPLORE -->
                                                     <ui:fragment rendered="#{datasetExploreToolsSize >= 1}">
-                                                        <li class="dropdown-header">#{bundle['dataset.accessBtn.header.explore']} <span class="glyphicon glyphicon-equalizer"/></li>
+                                                        <li class="dropdown-header">#{bundle['dataset.accessBtn.header.explore']} <span class="bi bi-bar-chart-fill"/></li>
                                                         <!-- Explore tool links -->
                                                         <ui:repeat var="tool" value="#{DatasetPage.datasetExploreTools}">
                                                             <li>
@@ -299,7 +299,7 @@
                                                     <!-- COMPUTE -->
                                                     <ui:fragment rendered="#{sessionUserAuthenticated
                                                                                 and showComputeButton}">
-                                                        <li class="dropdown-header">#{bundle['dataset.accessBtn.header.compute']} <span class="glyphicon glyphicon-flash"/></li>
+                                                        <li class="dropdown-header">#{bundle['dataset.accessBtn.header.compute']} <span class="bi bi-lightning"/></li>
                                                         <li>
                                                             <a tabindex="0" id="computeBatch" class="btn-compute">#{bundle['dataset.compute.computeBtn']}</a>
                                                             <ul class="dropdown-menu">
@@ -477,7 +477,7 @@
                                                         </h:outputLink>
                                                     </li>
                                                         <ui:fragment rendered="#{DatasetPage.datasetConfigureTools.size() >= 1}">
-                                                            <li class="dropdown-header">#{bundle['dataset.accessBtn.header.configure']} <span class="glyphicon glyphicon-cog"/></li>
+                                                            <li class="dropdown-header">#{bundle['dataset.accessBtn.header.configure']} <span class="bi bi-gear"/></li>
                                                             <!-- Configure tool links -->
                                                             <ui:repeat var="tool" value="#{DatasetPage.datasetConfigureTools}">
                                                                 <li>
@@ -930,14 +930,14 @@
                                                                and empty DatasetPage.editMode and !widgetWrapper.widgetView
                                                                and canUpdateDataset)}"><!-- and !DatasetPage.dataset.deaccessioned -->
                                         <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="0"/>
-                                        <span class="glyphicon glyphicon-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
+                                        <span class="bi bi-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
                                     </p:commandLink>
                                     <div class="btn-group" jsf:rendered="#{DatasetPage.dataset.released 
                                                                            and (!DatasetPage.dataset.deaccessioned
                                                                            or (deaccessioned and canUpdateDataset))
                                                                            and !anonymizedAccess}">
                                         <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-toggle="dropdown">
-                                            <span class="glyphicon glyphicon-export"/> #{bundle['dataset.exportBtn']} <span class="caret"></span>
+                                            <span class="bi bi-box-arrow-up-right"/> #{bundle['dataset.exportBtn']} <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu float-end text-left">
                                             <ui:repeat var="exporter" value="#{DatasetPage.exporters}">
@@ -1070,7 +1070,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="downloadInvalid" styleClass="smallPopUp" header="#{DatasetPage.cantDownloadDueToEmbargoOrDVAccess ? bundle['dataset.inValidSelectedFilesForDownloadWithEmbargo'] : bundle['dataset.inValidSelectedFilesForDownload']}" widgetVar="downloadInvalid" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.noValidSelectedFilesForDownload']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.noValidSelectedFilesForDownload']}</p>
                         <ui:fragment rendered="#{DatasetPage.dataset.fileAccessRequest}">
                             <p class="help-block">#{DatasetPage.cantDownloadDueToEmbargoOrDVAccess ? bundle['dataset.requestAccessToRestrictedFilesWithEmbargo'] : bundle['dataset.requestAccessToRestrictedFiles']}</p>
                         </ui:fragment>
@@ -1081,7 +1081,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="transferInvalid" styleClass="smallPopUp" header="#{bundle['dataset.inValidSelectedFilesForTransfer']}" widgetVar="transferInvalid" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.noValidSelectedFilesForTransfer']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.noValidSelectedFilesForTransfer']}</p>
                         <ui:fragment rendered="#{DatasetPage.dataset.fileAccessRequest}">
                             <p class="help-block">#{DatasetPage.cantDownloadDueToEmbargoOrDVAccess ? bundle['dataset.requestAccessToRestrictedFilesWithEmbargo'] : bundle['dataset.requestAccessToRestrictedFiles']}</p>
                         </ui:fragment>
@@ -1092,7 +1092,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="downloadTooLarge" styleClass="smallPopUp" header="#{bundle['file.zip.download.exceeds.limit.header']}" widgetVar="downloadTooLarge" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/>  #{bundle['file.zip.download.exceeds.limit.info']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/>  #{bundle['file.zip.download.exceeds.limit.info']}</p>
   
                         <p class="help-block">
                             <h:outputFormat value="#{bundle['file.zip.download.exceeds.limit.detail']}" escape="false">
@@ -1105,7 +1105,7 @@
                     </p:dialog>
                     <p:dialog id="selectFilesForDownload" styleClass="smallPopUp"
                               header="#{bundle['dataset.noSelectedFiles.header']}" widgetVar="selectFilesForDownload" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.noSelectedFilesForDownload']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.noSelectedFilesForDownload']}</p>
                         <div class="button-block">
                             <button class="btn btn-secondary" onclick="PF('selectFilesForDownload').hide();PF('blockDatasetForm').hide();" type="button">
                                 #{bundle.close}
@@ -1113,7 +1113,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="downloadMixed" styleClass="smallPopUp" header="#{DatasetPage.cantDownloadDueToEmbargoOrDVAccess ? bundle['dataset.inValidSelectedFilesForDownloadWithEmbargo'] : bundle['dataset.inValidSelectedFilesForDownload']}" widgetVar="downloadMixed" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{DatasetPage.cantDownloadDueToEmbargoOrDVAccess ? bundle['dataset.mixedSelectedFilesForDownloadWithEmbargo'] : bundle['dataset.mixedSelectedFilesForDownload']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{DatasetPage.cantDownloadDueToEmbargoOrDVAccess ? bundle['dataset.mixedSelectedFilesForDownloadWithEmbargo'] : bundle['dataset.mixedSelectedFilesForDownload']}</p>
                         <table>
                             <ui:repeat var="resFile" value="#{DatasetPage.selectedNonDownloadableFiles}" >
                                 <tr>
@@ -1135,7 +1135,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="globusTransferMixed" styleClass="smallPopUp" header="#{bundle['dataset.inValidSelectedFilesForTransfer']}" widgetVar="globusTransferMixed" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.mixedSelectedFilesForTransfer']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.mixedSelectedFilesForTransfer']}</p>
                         <table>
                             <ui:repeat var="resFile" value="#{DatasetPage.selectedNonGlobusTransferableFiles}" >
                                 <tr>
@@ -1157,7 +1157,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="deleteConfirmation" styleClass="smallPopUp" header="#{bundle['file.deleteDialog.header']}" widgetVar="deleteConfirmation" modal="true">
-                        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteDialog.tip']}</p>
+                        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deleteDialog.tip']}</p>
                         <div class="button-block">
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{DatasetPage.deleteDataset()}"/>
                             <button class="btn btn-link" onclick="PF('deleteConfirmation').hide();PF('blockDatasetForm').hide();" type="button">
@@ -1166,7 +1166,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="deleteVersionConfirmation" styleClass="smallPopUp" header="#{bundle['file.deleteDraftDialog.header']}" widgetVar="deleteVersionConfirmation" modal="true">
-                        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteDraftDialog.tip']}</p>
+                        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deleteDraftDialog.tip']}</p>
                         <div class="button-block">
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('deleteVersionConfirmation').hide()" action="#{DatasetPage.deleteDatasetVersion()}"/>
                             <button class="btn btn-link" onclick="PF('deleteVersionConfirmation').hide();PF('blockDatasetForm').hide();" type="button">
@@ -1288,7 +1288,7 @@
                             </button> 
                         </p:fragment>
                         <p:fragment id="privateUrlPanelCannotCreate" rendered="#{!DatasetPage.userCanCreatePrivateURL}">
-                            <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.privateurl.cannotCreate']}</p>
+                            <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.privateurl.cannotCreate']}</p>
                             <div class="button-block">
                                 <button class="btn btn-link" onclick="PF('privateUrlConfirmation').hide();PF('blockDatasetForm').hide();" type="button">
                                     #{bundle.cancel}
@@ -1297,7 +1297,7 @@
                         </p:fragment>
                     </p:dialog>
                     <p:dialog id="disablePrivateUrlConfirmation" styleClass="smallPopUp" header="#{bundle['dataset.privateurl.header']}" widgetVar="disablePrivateUrlConfirmation" modal="true" closable="false">
-                        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.privateurl.disableConfirmationText']}</p>
+                        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['dataset.privateurl.disableConfirmationText']}</p>
                         <div class="button-block">
                             
                             <p:commandButton rendered="#{DatasetPage.anonymizedPrivateUrl}" styleClass="btn btn-secondary" value="#{bundle['dataset.privateurl.disableAnonPreviewUrlConfirm']}" action="#{DatasetPage.disablePrivateUrl()}" update="privateUrlPanel,:messagePanel" onclick="PF('disablePrivateUrlConfirmation').hide();"/>
@@ -1309,9 +1309,9 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="deleteSelectedFileConfirmation" styleClass="smallPopUp" header="#{bundle['file.deleteFileDialog.header']}" widgetVar="deleteSelectedFileConfirmation" modal="true">
-                        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteFileDialog.multiple.immediate']}</p>
+                        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deleteFileDialog.multiple.immediate']}</p>
                         <ui:fragment rendered="#{DatasetPage.dataset.released}">
-                            <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteFileDialog.failed.tip']}</p>
+                            <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deleteFileDialog.failed.tip']}</p>
                         </ui:fragment>
                         <div class="button-block">
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle['file.delete']}" onclick="PF('deleteSelectedFileConfirmation').hide()"
@@ -1322,7 +1322,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="computeInvalid" styleClass="smallPopUp" header="#{bundle['dataset.compute.computeBtn']}" widgetVar="computeInvalid" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.compute.computeBatchRestricted']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.compute.computeBatchRestricted']}</p>
                         <div class="button-block">
                             <button class="btn btn-secondary" onclick="PF('computeInvalid').hide();" type="button">
                                 #{bundle.close}
@@ -1335,7 +1335,7 @@
                             <p:dialog id="deaccessionBlock" rendered="#{DatasetPage.renderDeaccessionPopup}" header="#{bundle['dataset.editBtn.itemLabel.deaccession']}" widgetVar="deaccessionBlock" modal="true" visible="#{facesContext.validationFailed}">
                                 <p:focus for="selectVersionChk"/>
                                 <div class="alert alert-warning">
-                                    <span class="glyphicon glyphicon-warning-sign">&#160;</span><h:outputFormat value="#{bundle['file.deaccessionDialog.tip.permanent']}" escape="false" />
+                                    <span class="bi bi-exclamation-triangle-fill">&#160;</span><h:outputFormat value="#{bundle['file.deaccessionDialog.tip.permanent']}" escape="false" />
                                     <p><br/>
                                         <h:outputFormat value="#{bundle['file.deaccessionDialog.tip']}" escape="false" />
                                     </p>
@@ -1393,7 +1393,7 @@
                         </p:outputPanel>
                     </p:fragment>
                     <p:dialog id="deaccessionConfirmation" header="#{bundle['dataset.editBtn.itemLabel.deaccession']}" widgetVar="deaccessionConfirmation" modal="true">
-                        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deaccessionDialog.deaccession.tip']}</p>
+                        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deaccessionDialog.deaccession.tip']}</p>
                         <div class="button-block">
                             <h:commandButton styleClass="btn btn-secondary" value="#{bundle.yes}" onclick="PF('deaccessionConfirmation').hide();
                                     PF('deaccessionBlock').hide()" action="#{DatasetPage.deaccessionVersions}" />
@@ -1403,7 +1403,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="deaccessionAllConfirmation" header="#{bundle['dataset.editBtn.itemLabel.deaccession']}" widgetVar="deaccessionAllConfirmation" modal="true">
-                        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deaccessionDialog.deaccessionDataset.tip']}</p>
+                        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deaccessionDialog.deaccessionDataset.tip']}</p>
                         <div class="button-block">
                             <h:commandButton styleClass="btn btn-secondary" value="#{bundle.yes}" 
                                             onclick="PF('deaccessionAllConfirmation').hide();PF('deaccessionBlock').hide();PF('blockDatasetForm').hide();" 
@@ -1414,7 +1414,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="compareTwo" header="#{bundle['file.viewDiffDialog.header']}" widgetVar="compareTwo" modal="true">
-                        <p class="help-block"><span class="glyphicon glyphicon-exclamation-sign text-danger"/> <span class="text-danger">#{bundle['file.viewDiffDialog.dialog.warning']}</span></p>
+                        <p class="help-block"><span class="bi bi-exclamation-circle-fill text-danger"/> <span class="text-danger">#{bundle['file.viewDiffDialog.dialog.warning']}</span></p>
                         <div class="button-block">
                             <button class="btn btn-secondary" onclick="PF('compareTwo').hide();PF('blockDatasetForm').hide();" type="button">
                                 #{bundle.close}
@@ -1556,7 +1556,7 @@
                     </p:dialog>
                     <p:dialog id="selectFilesForRequestAccess" styleClass="smallPopUp"
                               header="#{bundle['dataset.noSelectedFiles.header']}" widgetVar="selectFilesForRequestAccess" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.noSelectedFilesForRequestAccess']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.noSelectedFilesForRequestAccess']}</p>
                         <div class="button-block">
                             <button class="btn btn-secondary" onclick="PF('selectFilesForRequestAccess').hide();PF('blockDatasetForm').hide();" type="button">
                                 #{bundle.close}
@@ -1565,7 +1565,7 @@
                     </p:dialog>
                     <p:dialog id="selectEmbargoedFilesForRequestAccess" styleClass="smallPopUp"
                               header="#{bundle['dataset.noSelectedFiles.header']}" widgetVar="selectEmbargoedFilesForRequestAccess" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.embargoedSelectedFilesForRequestAccess']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.embargoedSelectedFilesForRequestAccess']}</p>
                         <div class="button-block">
                             <button class="btn btn-secondary" onclick="PF('selectEmbargoedFilesForRequestAccess').hide();PF('blockDatasetForm').hide();" type="button">
                                 #{bundle.close}
@@ -1663,7 +1663,7 @@
                     <!-- Request Access Sign Up/Log In Button -->
                     <p:dialog id="accessSignUpLogIn" header="#{bundle['file.requestAccess']}" widgetVar="accessSignUpLogIn_popup" modal="true">
                         <p class="help-block">
-                            <span class="glyphicon glyphicon-warning-sign text-danger"/>&#160;
+                            <span class="bi bi-exclamation-triangle-fill text-danger"/>&#160;
                             <h:outputFormat styleClass="text-danger" value="#{dataverseHeaderFragment.signupAllowed ? bundle['file.requestAccess.dialog.msg.signup'] : bundle['file.requestAccess.dialog.msg']}" escape="false">
                                 <f:param value="#{dataverseHeaderFragment.getSignupUrl(navigationWrapper.getSSOLoginPath())}"/>
                                 <f:param value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/user/register"/>
@@ -1887,10 +1887,10 @@
                     </p:dialog>
                     <p:dialog id="inreview" header="#{bundle['dataset.submitBtn']}" widgetVar="inreview" modal="true">
                         <p class="text-warning">
-                            <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.submitMessage']}
+                            <span class="bi bi-exclamation-triangle-fill"/> #{bundle['dataset.submitMessage']}
                         </p>
                         <p jsf:rendered="#{!valid}" class="text-warning">
-                            <span class="glyphicon glyphicon-warning-sign"/><b style="color:red;"> #{bundle['dataset.message.incomplete.warning']}</b>
+                            <span class="bi bi-exclamation-triangle-fill"/><b style="color:red;"> #{bundle['dataset.message.incomplete.warning']}</b>
                         </p>
                         <c:if test="#{showSubmitForReviewLink}">
                             <ui:include src="datasetLicenseInfoFragment.xhtml"/>
@@ -1915,7 +1915,7 @@
                         </ui:fragment>
                         <ui:fragment rendered="#{releaseBoth}">
                             <p class="text-warning">
-                                <span class="glyphicon glyphicon-warning-sign"/>
+                                <span class="bi bi-exclamation-triangle-fill"/>
                                 <h:outputFormat value="#{bundle['dataset.mayNotPublish.both']}" escape="false">
                                     <o:param>
                                         <a href="/dataverse/#{DatasetPage.dataset.owner.alias}" title="#{DatasetPage.dataset.owner.displayName}">
@@ -1928,7 +1928,7 @@
                         <ui:fragment rendered="#{releaseDraft}">
                             <p:focus for="options"/>
                             <p class="text-warning">
-                                <span class="glyphicon glyphicon-warning-sign" /> #{bundle['dataset.republish.tip']}
+                                <span class="bi bi-exclamation-triangle-fill" /> #{bundle['dataset.republish.tip']}
                             </p>
                         </ui:fragment>
                         <ui:fragment rendered="#{releaseBoth}">
@@ -1990,7 +1990,7 @@
                     </p:dialog>
                     <p:dialog id="mayNotRelease" header="#{bundle['dataset.publish.header']}" widgetVar="mayNotRelease" modal="true">
                         <p class="text-danger">
-                            <span class="glyphicon glyphicon-exclamation-sign"/>
+                            <span class="bi bi-exclamation-circle-fill"/>
                             <h:outputFormat value="#{bundle['dataset.mayNotPublish.administrator']}" escape="false">
                                 <o:param>
                                     <a href="/dataverse.xhtml?alias=#{DatasetPage.dataset.owner.alias}" title="#{DatasetPage.dataset.owner.displayName}">
@@ -2008,7 +2008,7 @@
                     </p:dialog>
                     <p:dialog id="maynotPublishParent" header="#{bundle['dataset.publish.header']}" widgetVar="maynotPublishParent" modal="true"  rendered="#{DatasetPage.dataset.owner.owner != null}">
                         <p class="text-danger">
-                            <span class="glyphicon glyphicon-exclamation-sign"/>
+                            <span class="bi bi-exclamation-circle-fill"/>
                             <h:outputFormat value="#{bundle['dataset.mayNotPublish.twoGenerations']}" escape="false">
                                 <o:param>
                                     <a href="/dataverse/#{DatasetPage.dataset.owner.alias}" title="#{DatasetPage.dataset.owner.displayName}">
@@ -2032,7 +2032,7 @@
                     <p:dialog id="sendBackToContributor" header="#{bundle['dataset.rejectBtn']}" widgetVar="sendBackToContributor" modal="true">
                     <ui:param name="disableReasonField" value="#{FeatureFlags.DISABLE_RETURN_TO_AUTHOR_REASON.enabled()}"/>
                         <p class="text-warning">
-                            <span class="glyphicon glyphicon-warning-sign"/> #{bundle['dataset.rejectMessage']} #{disableReasonField ? '':bundle['dataset.rejectMessageReason']}
+                            <span class="bi bi-exclamation-triangle-fill"/> #{bundle['dataset.rejectMessage']} #{disableReasonField ? '':bundle['dataset.rejectMessageReason']}
                         </p>
                         
                         <ui:fragment  rendered="#{!disableReasonField}">
@@ -2140,7 +2140,7 @@
                             </script>
                             <h:outputText value="#{bundle['dataset.cite.cslDialog.generating']}"/>
                         </p:outputPanel>
-                        <span class="glyphicon glyphicon-copy btn-copy"
+                        <span class="bi bi-clipboard btn-copy"
                                     data-toggle="tooltip" data-placement="top" data-html="true"
                                     data-clipboard-action="copy"
                                     data-clipboard-target=".csl-entry"

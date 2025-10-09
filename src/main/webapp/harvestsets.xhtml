@@ -58,7 +58,7 @@
                                                actionListener="#{harvestingSetsPage.initNewSet}"
                                                update=":harvestingSetsForm:newOAISetDialog"
                                                oncomplete="PF('newOAISetForm').show();handleResizeDialog('newOAISetDialog');">
-                                    <span class="glyphicon glyphicon-plus"/> #{bundle['harvestserver.btn.add']}
+                                    <span class="bi bi-plus"/> #{bundle['harvestserver.btn.add']}
                                 </p:commandLink>
                             </div>
                         </div>
@@ -112,7 +112,7 @@
                                                        actionListener="#{harvestingSetsPage.initNewSet}"
                                                        update=":harvestingSetsForm:newOAISetDialog"
                                                        oncomplete="PF('newOAISetForm').show();handleResizeDialog('newOAISetDialog');">
-                                            <span class="glyphicon glyphicon-plus"/> #{bundle['harvestserver.btn.add']}
+                                            <span class="bi bi-plus"/> #{bundle['harvestserver.btn.add']}
                                         </p:commandLink>
                                     </div>
                                 </div>
@@ -152,7 +152,7 @@
                                                    action="#{harvestingSetsPage.startSetExport(oaiSet)}"
                                                    update=":harvestingSetsForm  :messagePanel :harvestingSetsForm:setsTable"
                                                    title="#{bundle['harvestserver.tab.header.action.btn.export']}">
-                                        <span class="glyphicon glyphicon-play no-text"></span>
+                                        <span class="bi bi-play no-text"></span>
                                     </p:commandLink>
                                     <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{oaiSet.updateInProgress or oaiSet.deleteInProgress}"
@@ -160,7 +160,7 @@
                                                    oncomplete="PF('newOAISetForm').show();handleResizeDialog('newOAISetDialog');"
                                                    update=":harvestingSetsForm:newOAISetDialog"
                                                    title="#{bundle['harvestserver.tab.header.action.btn.edit']}">
-                                        <span class="glyphicon glyphicon-pencil no-text"></span>
+                                        <span class="bi bi-pencil no-text"></span>
                                     </p:commandLink>
                                     <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                    disabled="#{oaiSet.defaultSet or oaiSet.updateInProgress or oaiSet.deleteInProgress}"
@@ -168,7 +168,7 @@
                                                    oncomplete="PF('deleteConfirmation').show();"
                                                    update=":harvestingSetsForm,:harvestingSetsForm:deleteConfirmation,:harvestingSetsForm:newOAISetDialog"
                                                    title="#{bundle['harvestserver.tab.header.action.btn.delete']}">
-                                        <span class="glyphicon glyphicon-trash no-text"></span>
+                                        <span class="bi bi-trash no-text"></span>
                                     </p:commandLink>
                                 </div>
                             </div>
@@ -178,7 +178,7 @@
                     <!-- confirmation dialog for deleting a set: -->
                     <p:dialog id="deleteConfirmation" header="#{bundle['harvestserver.tab.header.action.btn.delete.dialog.header']}" widgetVar="deleteConfirmation" modal="true">
                         <p class="help-block">
-                            <span class="glyphicon glyphicon-warning-sign text-warning"/> 
+                            <span class="bi bi-exclamation-triangle-fill text-warning"/> 
                             <h:outputFormat styleClass="text-warning" value=" #{bundle['harvestserver.tab.header.action.btn.delete.dialog.tip']}">
                                 <f:param value="#{harvestingSetsPage.getSelectedSet().spec}"/>
                             </h:outputFormat>
@@ -219,13 +219,13 @@
                                         <p class="help-block" jsf:rendered="#{!harvestingSetsPage.setQueryValidated}">#{bundle['harvestserver.newSetDialog.setquery.helptext']}</p>
                                         
                                         <p class="help-block" jsf:rendered="#{harvestingSetsPage.setQueryValidated and harvestingSetsPage.setQueryResult gt 0}">
-                                            <span class="glyphicon glyphicon-ok-sign text-success"/> 
+                                            <span class="bi bi-check-circle-fill text-success"/> 
                                             <h:outputFormat styleClass="text-success" value=" #{bundle['harvestserver.newSetDialog.setquery.results']}">
                                                 <f:param value="#{harvestingSetsPage.setQueryResult}"/>
                                             </h:outputFormat>
                                         </p>
                                         <p class="help-block" jsf:rendered="#{!harvestingSetsPage.selectedSet.defaultSet and harvestingSetsPage.setQueryValidated and harvestingSetsPage.setQueryResult lt 1}">
-                                            <span class="glyphicon glyphicon-exclamation-sign text-danger"/> <h:outputText class="text-danger" value=" #{bundle['harvestserver.newSetDialog.setquery.empty']}"/>
+                                            <span class="bi bi-exclamation-circle-fill text-danger"/> <h:outputText class="text-danger" value=" #{bundle['harvestserver.newSetDialog.setquery.empty']}"/>
                                         </p>
                                     </div>
                                 </div>
@@ -247,7 +247,7 @@
                                                          oncomplete="PF('newOAISetForm').show();"
                                                          update=":harvestingSetsForm:newOAISetDialog"
                                                          action="#{harvestingSetsPage.validateSetQuery()}">
-                                            <span class="glyphicon glyphicon-menu-right"/> #{bundle.next}
+                                            <span class="bi-chevron-right"/> #{bundle.next}
                                         </p:commandLink>
                                         <button class="btn btn-link" 
                                                 onclick="PF('newOAISetForm').hide()" type="button">
@@ -298,7 +298,7 @@
                                                         update=":harvestingSetsForm:newOAISetDialog"
                                                         oncomplete="PF('newOAISetForm').show();"
                                                         action="#{harvestingSetsPage.backToQuery()}">
-                                            <span class="glyphicon glyphicon-menu-left"/> #{bundle.previous}
+                                            <span class="bi-chevron-left"/> #{bundle.previous}
                                             </p:commandLink>
                                             <p:commandLink styleClass="btn btn-secondary"
                                                            rendered="#{harvestingSetsPage.createMode and harvestingSetsPage.setQueryValidated}"

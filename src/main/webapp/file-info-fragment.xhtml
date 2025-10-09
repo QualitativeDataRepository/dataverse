@@ -55,7 +55,7 @@
                 </span>
                 <!-- Restricted File Icon -->
                 <div class="file-icon-restricted-block" title="#{bundle['file.metaData.fileAccess']}#{bundle['restricted']}" data-toggle="tooltip" jsf:rendered="#{fileMetadata.restricted and !canDownloadFile}">
-                    <span class="glyphicon glyphicon-lock text-danger"/>
+                    <span class="bi bi-lock-fill text-danger"/>
                 </div>
                 <div class="file-icon-restricted-block" title="#{bundle['file.metaData.fileAccess']}#{bundle['restrictedaccess']}" data-toggle="tooltip" jsf:rendered="#{fileMetadata.restricted and canDownloadFile}">
                     <span class="icon-unlock text-success"/>
@@ -97,7 +97,7 @@
                                   data-clipboard-action="copy"
                                   data-clipboard-text="#{checksumValue}"
                                   title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{checksumValue}">#{dataFile.checksumType}: #{checksumValue}</span>
-                    <span class="glyphicon glyphicon-copy btn-copy checksum-tooltip" 
+                    <span class="bi bi-clipboard btn-copy checksum-tooltip" 
                                   data-toggle="tooltip" data-placement="top" data-html="true"
                                   data-clipboard-action="copy"
                                   data-clipboard-text="#{checksumValue}" 
@@ -114,7 +114,7 @@
                                   data-clipboard-action="copy"
                                   data-clipboard-text="#{unfValue}"
                                   title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{unfValue}">#{unfValue}</span>
-                    <span class="glyphicon glyphicon-copy btn-copy checksum-tooltip" jsf:rendered="#{!(empty unfValue)}" 
+                    <span class="bi bi-clipboard btn-copy checksum-tooltip" jsf:rendered="#{!(empty unfValue)}" 
                                   data-toggle="tooltip" data-placement="top" data-html="true"
                                   data-clipboard-action="copy"
                                   data-clipboard-text="#{unfValue}" 

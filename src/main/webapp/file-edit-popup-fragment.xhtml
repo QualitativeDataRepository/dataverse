@@ -19,7 +19,7 @@
     
     <p:dialog id="fileAlreadyDeletedPrevious" styleClass="smallPopUp"
               header="#{bundle['file.alreadyDeleted.warning.header']}" widgetVar="fileAlreadyDeletedPrevious" modal="true">
-        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['file.alreadyDeleted.previous.warningMessage']}</p>
+        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['file.alreadyDeleted.previous.warningMessage']}</p>
         <div class="button-block">
             <button class="btn btn-secondary" onclick="PF('fileAlreadyDeletedPrevious').hide();" type="button">
                 #{bundle.close}
@@ -97,8 +97,8 @@
     <p:dialog id="fileEmbargoPopup" styleClass="smallPopUp" resizable="false" header="#{bundle['file.editEmbargo']}" widgetVar="fileEmbargoPopup" modal="true" rendered="#{bean != EditDatafilesPage}">
         <p:focus for="fileEmbargoDate"/>
         <p class="help-block" jsf:rendered="#{bean.validEmbargoSelection}">#{bundle['file.editEmbargoDialog.tip']}</p>
-        <p class="text-warning embargo" jsf:rendered="#{bean.validEmbargoSelection and !bean.embargoForWholeSelection}"><span class="glyphicon glyphicon-warning-sign"/>#{bundle['file.editEmbargoDialog.some.tip']} #{bundle['file.editEmbargoDialog.partial.tip']}</p>
-        <p class="text-danger embargo" jsf:rendered="#{!bean.validEmbargoSelection}"><span class="glyphicon glyphicon-exclamation-sign"/>#{bundle['file.editEmbargoDialog.none.tip']}</p>
+        <p class="text-warning embargo" jsf:rendered="#{bean.validEmbargoSelection and !bean.embargoForWholeSelection}"><span class="bi bi-exclamation-triangle-fill"/>#{bundle['file.editEmbargoDialog.some.tip']} #{bundle['file.editEmbargoDialog.partial.tip']}</p>
+        <p class="text-danger embargo" jsf:rendered="#{!bean.validEmbargoSelection}"><span class="bi bi-exclamation-circle-fill"/>#{bundle['file.editEmbargoDialog.none.tip']}</p>
 
         <h:panelGroup id="embargoInputs">
             <div class="embargo">
@@ -173,8 +173,8 @@
     <p:dialog id="fileRetentionPopup" styleClass="smallPopUp" resizable="false" header="#{bundle['file.editRetention']}" widgetVar="fileRetentionPopup" modal="true" rendered="#{bean != EditDatafilesPage}">
         <p:focus for="fileRetentionDate"/>
         <p class="help-block" jsf:rendered="#{bean.validRetentionSelection}">#{bundle['file.editRetentionDialog.tip']}</p>
-        <p class="text-warning retention" jsf:rendered="#{bean.validRetentionSelection and !bean.retentionForWholeSelection}"><span class="glyphicon glyphicon-warning-sign"/>#{bundle['file.editRetentionDialog.some.tip']} #{bundle['file.editRetentionDialog.partial.tip']}</p>
-        <p class="text-danger retention" jsf:rendered="#{!bean.validRetentionSelection}"><span class="glyphicon glyphicon-exclamation-sign"/>#{bundle['file.editRetentionDialog.none.tip']}</p>
+        <p class="text-warning retention" jsf:rendered="#{bean.validRetentionSelection and !bean.retentionForWholeSelection}"><span class="bi bi-exclamation-triangle-fill"/>#{bundle['file.editRetentionDialog.some.tip']} #{bundle['file.editRetentionDialog.partial.tip']}</p>
+        <p class="text-danger retention" jsf:rendered="#{!bean.validRetentionSelection}"><span class="bi bi-exclamation-circle-fill"/>#{bundle['file.editRetentionDialog.none.tip']}</p>
 
         <h:panelGroup id="retentionInputs">
             <div class="retention">
@@ -246,9 +246,9 @@
     </p:dialog>
 
     <p:dialog id="deleteFileConfirm" styleClass="smallPopUp" header="#{bundle['file.deleteFileDialog.header']}" widgetVar="deleteFileConfirmation" modal="true">
-        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteFileDialog.immediate']}</p>
+        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deleteFileDialog.immediate']}</p>
         <ui:fragment rendered="#{datasetVersion.dataset.released}">
-            <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteFileDialog.failed.tip']}</p>
+            <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deleteFileDialog.failed.tip']}</p>
         </ui:fragment>
         <div class="button-block">
             <p:commandButton styleClass="btn btn-secondary" value="#{bundle['file.delete']}" onclick="PF('deleteFileConfirmation').hide()" 
@@ -268,7 +268,7 @@
     <!-- Simple Popup For Select Files-->
     <p:dialog id="selectFiles" styleClass="smallPopUp"
               header="#{bundle['dataset.noSelectedFiles.header']}" widgetVar="selectFiles" modal="true">
-        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.noSelectedFiles']}</p>
+        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.noSelectedFiles']}</p>
         <div class="button-block">
             <button class="btn btn-secondary" onclick="PF('selectFiles').hide();" type="button">
                 #{bundle.close}

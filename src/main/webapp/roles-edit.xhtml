@@ -58,10 +58,10 @@
             </p:panel>
             <p:panel id="editRolePermissionPanel" styleClass="panelLayoutBlock form-group" header="#{bundle['dataverse.permissions.roles.roleList.header']}">
                 <p class="help-block">
-                    <span class="glyphicon bi bi-asterisk text-info"></span> <span class="text-info">#{bundle['dataverse.permissions.roles.roleList.authorizedUserOnly']}</span>
+                    <span class="bi bi-asterisk text-info"></span> <span class="text-info">#{bundle['dataverse.permissions.roles.roleList.authorizedUserOnly']}</span>
                 </p>
                 <c:set var="authOnlyRemark">
-                    <span class="glyphicon bi bi-asterisk text-info"></span>
+                    <span class="bi bi-asterisk text-info"></span>
                 </c:set>
                 <h:selectManyCheckbox value="#{managePermissionsPage.selectedPermissions}"
                                       layout="pageDirection" styleClass="selectManyCheckboxBlock">

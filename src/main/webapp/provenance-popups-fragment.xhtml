@@ -33,7 +33,7 @@
                 </label>
                 <div class="col-sm-9">
                     <div jsf:rendered="#{provPopupFragmentBean.isDataFilePublishedRendering() and provPopupFragmentBean.jsonUploadedState and !provPopupFragmentBean.provJsonAlreadyPublishedRendering()}" class="text-warning">
-                        <span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.provConfirm.published.json']}
+                        <span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.provConfirm.published.json']}
                     </div>
                     
                     <ui:fragment rendered="#{provPopupFragmentBean.provJsonAlreadyPublishedRendering()}">
@@ -60,7 +60,7 @@
                         <ui:fragment rendered="#{provPopupFragmentBean.jsonUploadedState or provPopupFragmentBean.provJsonAlreadyPublishedRendering()}">
                             <div id="provFileText" class="col-sm-5 text-success">
                                 <div class="margin-top-half">
-                                    <span class="glyphicon glyphicon-ok"></span> #{bundle['file.editProvenanceDialog.uploadSuccess']}
+                                    <span class="bi bi-check"></span> #{bundle['file.editProvenanceDialog.uploadSuccess']}
                                 </div>
                             </div>
                             <div class="col-sm-7 inline-buttons">
@@ -142,16 +142,16 @@
         <div class="form-horizontal">
             <div class="form-group text-left">
                 <div id="ifJsonUp" jsf:rendered="#{provPopupFragmentBean.jsonUpdated}" class="col-sm-12 text-warning">
-                    <span class="glyphicon glyphicon-warning-sign"></span> 
+                    <span class="bi bi-exclamation-triangle-fill"></span> 
                     <h:outputText rendered="#{!provPopupFragmentBean.isDataFilePublishedRendering()}" value=" #{bundle['file.provConfirm.unpublished.json']}"/>
                     <h:outputText rendered="#{provPopupFragmentBean.isDataFilePublishedRendering()}" value=" #{bundle['file.provConfirm.published.json']}"/>
                 </div>
                 <div id="ifFreeformUp" jsf:rendered="#{provPopupFragmentBean.freeformUpdated}" class="col-sm-12 text-warning">
-                    <span class="glyphicon glyphicon-warning-sign"></span> 
+                    <span class="bi bi-exclamation-triangle-fill"></span> 
                     <h:outputText value=" #{bundle['file.provConfirm.freeform']}"/>
                 </div>
                 <div id="noChanges" jsf:rendered="#{!provPopupFragmentBean.freeformUpdated and !provPopupFragmentBean.jsonUpdated}" class="col-sm-12 text-warning">
-                    <span class="glyphicon glyphicon-warning-sign"></span> 
+                    <span class="bi bi-exclamation-triangle-fill"></span> 
                     <h:outputText value=" #{bundle['file.provConfirm.empty']}" />
                 </div>
             </div>

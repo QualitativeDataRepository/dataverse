@@ -25,7 +25,7 @@
                             <p:commandLink id="createGroup" styleClass="btn btn-secondary"
                                            actionListener="#{manageGroupsPage.initExplicitGroupDialog}"
                                            update="explicitGroupNewDialog" oncomplete="PF('explicitGroupForm').show();handleResizeDialog('explicitGroupNewDialog');">
-                                <span class="glyphicon glyphicon-plus"/> #{bundle['dataverse.manageGroups.createBtn']}
+                                <span class="bi bi-plus"/> #{bundle['dataverse.manageGroups.createBtn']}
                             </p:commandLink>
                         </div>
                     </div>
@@ -73,14 +73,14 @@
                                                        oncomplete="PF('viewGroup').show();"
                                                        update=":manageGroupsForm"
                                                        title="#{bundle['dataverse.manageGroups.tab.action.btn.edit']}">
-                                            <span class="glyphicon glyphicon-edit"></span>
+                                            <span class="bi bi-pencil"></span>
                                         </p:commandLink>
                                         <p:commandLink styleClass="btn btn-secondary bootstrap-button-tooltip"
                                                        action="#{manageGroupsPage.clickDeleteGroup(explicitGroup)}"
                                                        update="@form"
                                                        oncomplete="PF('deleteConfirmation').show()"
                                                        title="#{bundle['dataverse.manageGroups.tab.action.btn.delete']}">
-                                            <span class="glyphicon glyphicon-trash"></span>
+                                            <span class="bi bi-trash"></span>
                                         </p:commandLink>
                                     </div>
                                 </div>
@@ -89,7 +89,7 @@
                     </div>
                     <p:dialog id="deleteGroupConfirm" header="#{bundle['dataverse.manageGroups.tab.action.btn.delete.dialog.header']}" widgetVar="deleteConfirmation" modal="true">
                         <p class="help-block">
-                            <span class="glyphicon glyphicon-warning-sign text-warning"/> <span class="text-warning">#{bundle['dataverse.manageGroups.tab.action.btn.delete.dialog.tip']}</span>
+                            <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['dataverse.manageGroups.tab.action.btn.delete.dialog.tip']}</span>
                         </p>
                         <div class="button-block">
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" rendered="#{manageGroupsPage.renderDeletePopup}"  onclick="PF('deleteConfirmation').hide()" action="#{manageGroupsPage.deleteGroup()}" update="manageGroupsForm,messagePanel"/>
@@ -161,7 +161,7 @@
                                                update="groupMembers"
                                                action="#{manageGroupsPage.removeMemberFromSelectedGroup(groupMember)}"
                                                title="#{bundle['dataverse.manageGroups.tab.action.btn.view.dialog.groupView.delete']}">
-                                    <span class="glyphicon glyphicon-trash"></span>
+                                    <span class="bi bi-trash"></span>
                                 </p:commandLink>
                             </p:column>
                         </p:dataTable>

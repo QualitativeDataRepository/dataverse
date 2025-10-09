@@ -41,7 +41,7 @@
                         </div>
                         <div class="panel panel-default">
                             <div data-toggle="collapse" data-target="#panelCollapseDataversesFieldList" class="panel-heading">
-                                <h:outputText value="#{bundle['advanced.search.header.dataverses']}"/> &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                                <h:outputText value="#{bundle['advanced.search.header.dataverses']}"/> &#160;<span class="bi bi-chevron-up"/>
                             </div>
                             <div id="panelCollapseDataversesFieldList" class="panel-body form-horizontal collapse in">
                                 <div class="form-group">
@@ -105,7 +105,7 @@
                         <ui:repeat id="block" value="#{AdvancedSearchPage.metadataBlocks}" var="mdb" varStatus="status">
                             <div class="panel panel-default" jsf:rendered="#{not empty AdvancedSearchPage.metadataFieldMap.get(mdb.getId())}">
                                 <div data-toggle="collapse" data-target="#panelCollapseCitationFieldList#{mdb.id}" class="panel-heading">
-                                    <h:outputText value="#{bundle['advanced.search.header.datasets']}: #{mdb.localeDisplayName}"/> &#160;<span class="glyphicon glyphicon-chevron-down"/>
+                                    <h:outputText value="#{bundle['advanced.search.header.datasets']}: #{mdb.localeDisplayName}"/> &#160;<span class="bi bi-chevron-down"/>
                                 </div>
                                 <div id="panelCollapseCitationFieldList#{mdb.id}" class="collapse in panel-body form-horizontal">
                                     <ui:repeat id="field" value="#{AdvancedSearchPage.metadataFieldMap.get(mdb.getId())}" var="item" varStatus="fieldStatus">
@@ -171,7 +171,7 @@
 
                         <div class="panel panel-default">
                             <div data-toggle="collapse" data-target="#panelCollapseFilesFieldList" class="panel-heading">
-                                <h:outputText value="#{bundle['advanced.search.header.files']}"/> &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                                <h:outputText value="#{bundle['advanced.search.header.files']}"/> &#160;<span class="bi bi-chevron-up"/>
                             </div>
                             <div id="panelCollapseFilesFieldList" class="panel-body form-horizontal collapse in">
                                 <div class="form-group">

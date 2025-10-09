@@ -12,10 +12,10 @@
     xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
     
     <!-- Access Status -->
-    <li class="dropdown-header">#{bundle['file.accessBtn.header.access']} <span class="glyphicon glyphicon-file"/></li>
+    <li class="dropdown-header">#{bundle['file.accessBtn.header.access']} <span class="bi bi-file-earmark"/></li>
     <li><span class="dropdown-item-text">
-            <span class="#{dataFileServiceBean.isRetentionExpired(fileMetadata) ? 'glyphicon glyphicon-lock text-danger' : !fileMetadata.restricted ?
-                           'glyphicon glyphicon-globe text-success' : (!fileDownloadHelper.canDownloadFile(fileMetadata) ? 'glyphicon glyphicon-lock text-danger' : 'icon-unlock text-success')}"/>
+            <span class="#{dataFileServiceBean.isRetentionExpired(fileMetadata) ? 'bi bi-lock-fill text-danger' : !fileMetadata.restricted ?
+                           'bi bi-globe text-success' : (!fileDownloadHelper.canDownloadFile(fileMetadata) ? 'bi bi-lock-fill text-danger' : 'icon-unlock text-success')}"/>
             
             <!-- TODO - add Embargo state -->
             <h:outputText 
@@ -58,7 +58,7 @@
     <!-- CAN DOWNLOAD ACCESS Options -->
     <ui:fragment rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata)}">
         <!-- Download Options -->
-        <li class="dropdown-header">#{bundle['file.accessBtn.header.download']} <span class="glyphicon glyphicon-download-alt"/></li>
+        <li class="dropdown-header">#{bundle['file.accessBtn.header.download']} <span class="bi bi-download"/></li>
         
         <!-- GlobusTransfer, orig file only  -->
          <o:importFunctions type="edu.harvard.iq.dataverse.dataaccess.DataAccess" />
@@ -221,7 +221,7 @@
     <!-- END: CAN DOWNLOAD ACCESS Options -->
     
     <!-- Download Metadata -->
-    <li class="dropdown-header">#{bundle['file.accessBtn.header.metadata']} <span class="glyphicon glyphicon-download-alt"/></li>
+    <li class="dropdown-header">#{bundle['file.accessBtn.header.metadata']} <span class="bi bi-download"/></li>
     
     <ui:fragment rendered="#{fileMetadata.dataFile.tabularData and fileDownloadHelper.canDownloadFile(fileMetadata)}">
         <li>
@@ -272,7 +272,7 @@
     <!-- AUX FILES DOWNLOAD OPTIONS -->
     <ui:fragment rendered="#{not empty auxiliaryFileServiceBean.findAuxiliaryFiles(fileMetadata.dataFile)}">
         <!-- Download Auxiliary Files -->
-        <li class="dropdown-header">#{bundle['file.auxfiles.download.header']} <span class="glyphicon glyphicon-download-alt"/></li>
+        <li class="dropdown-header">#{bundle['file.auxfiles.download.header']} <span class="bi bi-download"/></li>
         <!-- Aux Files in Bundle (DP, etc.)-->
         <ui:repeat var="auxFileType" value="#{auxiliaryFileServiceBean.findAuxiliaryFileTypes(fileMetadata.dataFile, true)}">
             <li class="dropdown-submenu pull-left">
@@ -310,7 +310,7 @@
     <!-- Explore Options -->
     <ui:fragment rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and not empty exploreTools}">
         <!--exploreTools is set as a ui:param by the file and dataset pages-->
-        <li class="dropdown-header">#{bundle['dataset.accessBtn.header.explore']} <span class="glyphicon glyphicon-equalizer"/></li>
+        <li class="dropdown-header">#{bundle['dataset.accessBtn.header.explore']} <span class="bi bi-bar-chart-fill"/></li>
         <!-- externalTools -->
         <ui:repeat var="tool" value="#{exploreTools}">
             <li>
@@ -340,7 +340,7 @@
     <!-- Query Options -->
     <ui:fragment rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and not empty queryTools}">
         <!--query Tools is set as a ui:param by the file and dataset pages-->
-        <li class="dropdown-header">#{bundle['file.accessBtn.header.query']} <span class="glyphicon glyphicon-equalizer"/></li>
+        <li class="dropdown-header">#{bundle['file.accessBtn.header.query']} <span class="bi bi-bar-chart-fill"/></li>
         <!-- query Tools -->
         <ui:repeat var="tool" value="#{queryTools}">
             <li>
@@ -366,7 +366,7 @@
     </ui:fragment>
     <!-- Compute Options -->
     <ui:fragment rendered="#{(isFilePg ? FilePage.showComputeButton() : DatasetPage.showComputeButton(fileMetadata)) and fileDownloadHelper.canDownloadFile(fileMetadata)}">
-        <li class="dropdown-header">#{bundle['dataset.accessBtn.header.compute']} <span class="glyphicon glyphicon-flash"/></li>
+        <li class="dropdown-header">#{bundle['dataset.accessBtn.header.compute']} <span class="bi bi-lightning"/></li>
         <li>
             <h:outputLink value="#{isFilePg ? FilePage.computeUrl : DatasetPage.getComputeUrl(fileMetadata)}" styleClass="btn-compute" 
                           target="_blank" rel="noopener">

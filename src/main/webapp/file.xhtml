@@ -52,7 +52,7 @@
                                     <!-- FILE LEVEL MSGs -->
                                     <div class="bg-info text-info text-center margin-bottom-half" jsf:rendered="#{FilePage.fileMetadata.dataFile.ingestProblem and FilePage.canUpdateDataset()}">
                                         <!-- Ingest failed -->
-                                        <span class="glyphicon glyphicon-info-sign"/>
+                                        <span class="bi bi-info-circle-fill"/>
                                         <span> #{bundle['file.ingestFailed.header']}&#160;</span>
                                         <span>
                                             <a tabindex="0" role="button" class="bi bi-question-circle tooltip-icon"
@@ -71,7 +71,7 @@
                                     <div id="title-label-block" class="margin-top-half">
 
                                         <!-- Restricted File Icon -->
-                                        <span class="glyphicon glyphicon-lock text-danger" title="#{bundle['restricted']}" data-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted and !(fileDownloadHelper.canDownloadFile(FilePage.fileMetadata))}" />
+                                        <span class="bi bi-lock-fill text-danger" title="#{bundle['restricted']}" data-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted and !(fileDownloadHelper.canDownloadFile(FilePage.fileMetadata))}" />
                                         <span class="icon-unlock text-success" title="#{bundle['restrictedaccess']}" data-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted  and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata) }" />
                                         <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
                                         
@@ -433,7 +433,7 @@
                                     <!-- Preview Button Group -->
                                     <div class="btn-group" jsf:rendered="#{FilePage.allAvailableTools.size() > 1 and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata)}">
                                         <button type="button" id="selectTool" class="btn btn-secondary btn-access dropdown-toggle" data-toggle="dropdown">
-                                            <span class="glyphicon glyphicon-eye-open"/> #{bundle['file.toolsTab.button.label']} <span class="caret"></span>
+                                            <span class="bi bi-eye"/> #{bundle['file.toolsTab.button.label']} <span class="caret"></span>
                                         </button>
 
                                         <ui:fragment rendered="#{FilePage.allAvailableTools.size() > 1}">
@@ -458,7 +458,7 @@
                                                          styleClass="btn btn-secondary #{(FilePage.fileMetadata.dataFile.ingestInProgress) ? 'disabled' : ''}"
                                                          disabled="#{(FilePage.fileMetadata.dataFile.ingestInProgress or lockedFromDownload) ? 'disabled' : ''}"
                                                          action="#{FilePage.fileDownloadService.explore(FilePage.guestbookResponse, FilePage.fileMetadata, FilePage.selectedTool)}">
-                                            <span class="glyphicon glyphicon-#{FilePage.selectedTool.exploreTool ? 'equalizer' : 'new-window'}"></span>
+                                            <span class="bi bi-#{FilePage.selectedTool.exploreTool ? 'bar-chart-fill' : 'box-arrow-up-right'}"></span>
                                             <h:outputFormat value="#{FilePage.selectedTool.exploreTool ? bundle['file.previewTab.exploreBtn'] : bundle['file.previewTab.openBtn']}">
                                                 <f:param value="#{bundle.explore}"/>
                                                 <f:param value="#{FilePage.selectedTool.getDisplayNameLang()}"/>
@@ -473,7 +473,7 @@
                                                          update="@widgetVar(guestbookAndTermsPopup)"
                                                          oncomplete="PF('guestbookAndTermsPopup').show();handleResizeDialog('guestbookAndTermsPopup');">
                                             <f:actionListener binding="#{FilePage.setTermsGuestbookPopupAction(bundle.download)}"/>
-                                            <span class="glyphicon glyphicon-#{FilePage.selectedTool.exploreTool ? 'equalizer' : 'new-window'}"></span>
+                                            <span class="bi bi-#{FilePage.selectedTool.exploreTool ? 'bar-chart-fill' : 'box-arrow-up-right'}"></span>
                                             <h:outputFormat value="#{FilePage.selectedTool.exploreTool ? bundle['file.previewTab.exploreBtn'] : bundle['file.previewTab.openBtn']}">
                                                 <f:param value="#{bundle.explore}"/>
                                                 <f:param value="#{FilePage.selectedTool.getDisplayNameLang()}"/>
@@ -499,20 +499,20 @@
                                                      and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                      and !FilePage.deletedFile)}"
                                                   disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
-                                        <span class="glyphicon glyphicon-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
+                                        <span class="bi bi-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
                                     </h:outputLink>
                                     <div class="btn-group" jsf:rendered="#{!widgetWrapper.widgetView and (dataverseSession.user.authenticated
                                                          and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                          and (FilePage.deletedFile))}">
                                         <button class="btn btn-secondary btn-access #{FilePage.lockedFromEdits ? 'disabled' : ''}" onclick="PF('fileAlreadyDeletedPrevious').show()" type="button"
                                                 disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
-                                            <span class="glyphicon glyphicon-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
+                                            <span class="bi bi-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
                                         </button>
                                     </div>
                                     <!-- Export Button -->
                                     <div class="btn-group" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released}">
                                         <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-toggle="dropdown">
-                                            <span class="glyphicon glyphicon-export"/> #{bundle['dataset.exportBtn']} <span class="caret"/>
+                                            <span class="bi bi-box-arrow-up-right"/> #{bundle['dataset.exportBtn']} <span class="caret"/>
                                         </button>
                                         <ul class="dropdown-menu float-end text-left">
                                             <ui:repeat var="exporter" value="#{FilePage.getExporters()}">
@@ -527,7 +527,7 @@
                                 </div>
                                 <div class="panel">
                                     <div data-toggle="collapse" data-target="#panelCollapseFMD" class="panel-heading text-info">
-                                        #{bundle['file.metadataTab.fileMetadata.header']} &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                                        #{bundle['file.metadataTab.fileMetadata.header']} &#160;<span class="bi bi-chevron-up"/>
                                     </div>
                                     <div id="panelCollapseFMD" class="collapse in">
                                         <div class="panel-body metadata-container">
@@ -742,7 +742,7 @@
                     <!-- Request Access Sign Up/Log In Button -->
                     <p:dialog id="accessGuest" header="#{bundle['file.requestAccess']}" widgetVar="accessSignUpLogIn_popup" modal="true">
                         <p class="help-block">
-                            <span class="glyphicon glyphicon-exclamation-sign text-danger"/>&#160;
+                            <span class="bi bi-exclamation-circle-fill text-danger"/>&#160;
                             <h:outputFormat styleClass="text-danger" value="#{dataverseHeaderFragment.signupAllowed ? bundle['file.requestAccess.dialog.msg.signup'] : bundle['file.requestAccess.dialog.msg']}" escape="false">
                                 <f:param value="#{dataverseHeaderFragment.getSignupUrl(navigationWrapper.getSSOLoginPath())}"/>
                                 <f:param value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/user/register"/>
@@ -755,7 +755,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="computeAccessDenied" styleClass="smallPopUp" header="#{bundle['dataset.compute.computeBtn']}" widgetVar="computeAccessDeniedPopup" modal="true">
-                        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['file.compute.fileAccessDenied']}</p>
+                        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['file.compute.fileAccessDenied']}</p>
                         <div class="button-block">
                             <button class="btn btn-secondary" onclick="PF('computeAccessDeniedPopup').hide();" type="button">
                                 #{bundle.close}

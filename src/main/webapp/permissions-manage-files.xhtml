@@ -28,7 +28,7 @@
                         <!-- Users/Groups Access Panel -->
                         <div class="panel panel-default">
                             <div data-toggle="collapse" data-target="#panelCollapseUsersGroups" class="panel-heading text-info">
-                                #{bundle['dataverse.permissionsFiles.usersOrGroups']} <span class="glyphicon glyphicon-chevron-up"/>
+                                #{bundle['dataverse.permissionsFiles.usersOrGroups']} <span class="bi bi-chevron-up"/>
 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.usersOrGroups.description']}</span>
                             </div>
@@ -45,7 +45,7 @@
                                                            actionListener="#{manageFilePermissionsPage.initAssignDialog}"
                                                            update="assignDialog, filesFragment, usersGroups"
                                                            oncomplete="PF('assignWidget').show();handleResizeDialog('assignDialog');">
-                                                <span class="glyphicon glyphicon-user"/> #{bundle['dataverse.permissionsFiles.usersOrGroups.assignBtn']}
+                                                <span class="bi bi-person-fill"/> #{bundle['dataverse.permissionsFiles.usersOrGroups.assignBtn']}
                                             </p:commandLink>
                                         </div>
                                         <div class="panel-group">
@@ -96,7 +96,7 @@
                                                                            #{p:resolveClientId('rolesPermissionsForm:usersGroups', view)}
                                                                            #{p:resolveClientId('rolesPermissionsForm:roleAssignmentHistory', view)}
                                                                            @([id$=Messages])">
-                                                                <span class="glyphicon glyphicon-ok"/> #{bundle['dataverse.permissionsFiles.assignDialog.grantBtn']}
+                                                                <span class="bi bi-check"/> #{bundle['dataverse.permissionsFiles.assignDialog.grantBtn']}
                                                             </p:commandLink>
                                                             <p:commandLink styleClass="btn btn-secondary"
                                                                            actionListener="#{manageFilePermissionsPage.rejectAccessToAllRequests(access.key)}"
@@ -105,7 +105,7 @@
                                                                            #{p:resolveClientId('rolesPermissionsForm:usersGroups', view)}
                                                                            #{p:resolveClientId('rolesPermissionsForm:roleAssignmentHistory', view)}
                                                                            @([id$=Messages])">
-                                                                <span class="glyphicon glyphicon-ban-circle"/> #{bundle['dataverse.permissionsFiles.assignDialog.rejectBtn']}
+                                                                <span class="bi bi-slash-circle"/> #{bundle['dataverse.permissionsFiles.assignDialog.rejectBtn']}
                                                             </p:commandLink>
                                                         </div>
                                                     </p:column>
@@ -151,7 +151,7 @@
                         <!-- Files (Restricted) Panel -->
                         <div class="panel panel-default">
                             <div data-toggle="collapse" data-target="#panelCollapseFiles" class="panel-heading text-info">
-                                #{bundle['dataverse.permissionsFiles.files']} <span class="glyphicon glyphicon-chevron-down"/>
+                                #{bundle['dataverse.permissionsFiles.files']} <span class="bi bi-chevron-down"/>
 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.files.description']}</span>
                             </div>
@@ -211,7 +211,7 @@
                                                 <p:commandLink styleClass="btn btn-secondary" rendered="#{!fileEntry.key.deleted}"
                                                                actionListener="#{manageFilePermissionsPage.initAssignDialogByFile(fileEntry.key)}"
                                                                update=":#{p:resolveClientId('rolesPermissionsForm:assignDialog', view)}, :#{p:resolveClientId('rolesPermissionsForm:filesFragment', view)}, :#{p:resolveClientId('rolesPermissionsForm:usersGroups', view)}"
-                                                               oncomplete="PF('assignWidget').show();handleResizeDialog('assignDialog');"><span class="glyphicon glyphicon-plus"/> #{bundle['dataverse.permissionsFiles.files.assignBtn']}</p:commandLink>
+                                                               oncomplete="PF('assignWidget').show();handleResizeDialog('assignDialog');"><span class="bi bi-plus"/> #{bundle['dataverse.permissionsFiles.files.assignBtn']}</p:commandLink>
                                             </p:column>
                                         </p:dataTable>
                                     </p:fragment>
@@ -223,7 +223,7 @@
                     <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
                     <div class="panel panel-default" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
                       <div data-toggle="collapse" data-target="#panelCollapseHistory" class="panel-heading text-info">
-                        #{bundle['dataverse.permissions.history']} <span class="glyphicon glyphicon-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
+                        #{bundle['dataverse.permissions.history']} <span class="bi bi-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
                       </div>
                       <div id="panelCollapseHistory" class="collapse">
                         <div class="panel-body">
@@ -232,7 +232,7 @@
                                 <h:outputLink value="#{manageFilePermissionsPage.signedUrlForRAHistoryCsv}" 
                                              styleClass="btn btn-secondary" 
                                              onclick="downloadRAHistoryCSV(this.href, '#{manageFilePermissionsPage.permissionsHistoryFilename}'); return false;">
-                                    <span class="glyphicon glyphicon-download"></span> #{bundle['dataverse.permissions.history.download']}
+                                    <span class="bi bi-download"></span> #{bundle['dataverse.permissions.history.download']}
                                 </h:outputLink>
                             </div>
                             <p:dataTable id="roleAssignmentHistory" widgetVar="roleAssignmentHistory" var="historyEntry" value="#{manageFilePermissionsPage.roleAssignmentHistory}" sortMode="multiple" paginator="true"
@@ -395,19 +395,19 @@
                                                update="assignRoleContent userGroups restrictedFiles roleAssignmentHistory @([id$=Messages])"
                                                actionListener="#{manageFilePermissionsPage.grantAccess}" oncomplete="if (args &amp;&amp; !args.validationFailed) PF('assignWidget').hide();">
                                     <f:param name="DO_VALIDATION" value="true"/>
-                                    <span class="glyphicon glyphicon-ok"/>
+                                    <span class="bi bi-check"/>
                                     <h:outputText value="#{bundle['dataverse.permissionsFiles.assignDialog.grantBtn']}"/>
                                 </p:commandLink>
                                 <p:commandLink styleClass="btn btn-secondary" rendered="#{!empty manageFilePermissionsPage.fileRequester}"
                                                update="assignRoleContent userGroups fileAccessRequests restrictedFiles roleAssignmentHistory @([id$=Messages])"
                                                actionListener="#{manageFilePermissionsPage.grantAccessToRequests(manageFilePermissionsPage.fileRequester)}" oncomplete="PF('assignWidget').hide();">
-                                    <span class="glyphicon glyphicon-ok"/>
+                                    <span class="bi bi-check"/>
                                     <h:outputText value="#{bundle['dataverse.permissionsFiles.assignDialog.grantBtn']}"/>
                                 </p:commandLink>
                                 <p:commandLink styleClass="btn btn-secondary" rendered="#{!empty manageFilePermissionsPage.fileRequester}"
                                                update="assignRoleContent userGroups fileAccessRequests restrictedFiles @([id$=Messages])"
                                                actionListener="#{manageFilePermissionsPage.rejectAccessToRequests(manageFilePermissionsPage.fileRequester)}" oncomplete="PF('assignWidget').hide();">
-                                    <span class="glyphicon glyphicon-ban-circle"/>
+                                    <span class="bi bi-slash-circle"/>
                                     <h:outputText value="#{bundle['dataverse.permissionsFiles.assignDialog.rejectBtn']}"/>
                                 </p:commandLink>
                                 <button class="btn btn-link" onclick="PF('assignWidget').hide()" type="button">
@@ -418,7 +418,7 @@
                     </p:dialog>
                     <p:dialog id="accessFileRemoveConfirm" header="#{bundle['dataverse.permissionsFiles.viewRemoveDialog.removeBtn']}" widgetVar="confirmation" modal="true">
                         <p class="help-block">
-                            <span class="glyphicon glyphicon-warning-sign text-warning"/> <span class="text-warning">#{bundle['dataverse.permissionsFiles.viewRemoveDialog.removeBtn.confirmation']}</span>
+                            <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['dataverse.permissionsFiles.viewRemoveDialog.removeBtn.confirmation']}</span>
                         </p>
                         <div class="button-block">
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('confirmation').hide()"

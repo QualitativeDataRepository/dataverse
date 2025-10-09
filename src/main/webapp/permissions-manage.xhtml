@@ -29,7 +29,7 @@
                             <c:if test="#{managePermissionsPage.dvObject.instanceofDataverse}">
                                 <div class="panel panel-default">
                                     <div data-toggle="collapse" data-target="#panelCollapsePermissions" class="panel-heading text-info">
-                                        #{bundle['dataverse.permissions.title']} <span class="glyphicon glyphicon-chevron-up"/>
+                                        #{bundle['dataverse.permissions.title']} <span class="bi bi-chevron-up"/>
                                         
                                         <span class="text-muted small float-end">#{bundle['dataverse.permissions.description']}</span>
                                     </div>
@@ -44,7 +44,7 @@
                                                            actionListener="#{managePermissionsPage.initAccessSettings}"
                                                            update="accessDialog"
                                                            oncomplete="PF('accessForm').show();">
-                                                <span class="glyphicon glyphicon-cog"/> #{bundle['dataverse.permissions.access.accessBtn']}
+                                                <span class="bi bi-gear"/> #{bundle['dataverse.permissions.access.accessBtn']}
                                             </p:commandLink>
                                             <p class="help-block clearfix">#{bundle['dataverse.permissions.tip']}</p>
                                             <div>
@@ -89,7 +89,7 @@
                         <!-- Role Assignments Panel -->
                         <div class="panel panel-default">
                             <div data-toggle="collapse" data-target="#panelCollapseUsersGroups" class="panel-heading text-info">
-                                #{bundle['dataverse.permissions.usersOrGroups']} <span class="glyphicon #{!managePermissionsPage.dvObject.instanceofDataverse ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
+                                #{bundle['dataverse.permissions.usersOrGroups']} <span class="bi #{!managePermissionsPage.dvObject.instanceofDataverse ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
                                 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissions.usersOrGroups.description']}</span>
                             </div>
@@ -105,7 +105,7 @@
                                                        actionListener="#{managePermissionsPage.initAssigneeDialog}"
                                                        update="userGroupDialog roleAssignmentHistory"
                                                        oncomplete="PF('userGroupsForm').show();handleResizeDialog('userGroupDialog');">
-                                            <span class="glyphicon glyphicon-user"/> #{bundle['dataverse.permissions.usersOrGroups.assignBtn']}
+                                            <span class="bi bi-person-fill"/> #{bundle['dataverse.permissions.usersOrGroups.assignBtn']}
                                         </p:commandLink>
                                     </div>
                                     <div>
@@ -146,7 +146,7 @@
                         <!-- Roles Panel -->
                         <div class="panel panel-default">
                             <div data-toggle="collapse" data-target="#panelCollapseRoles" class="panel-heading text-info">
-                                #{bundle['dataverse.permissions.roles']} <span class="glyphicon glyphicon-chevron-down"/>
+                                #{bundle['dataverse.permissions.roles']} <span class="bi bi-chevron-down"/>
                                 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissions.roles.description']}</span>
                             </div>
@@ -164,7 +164,7 @@
                                                        actionListener="#{managePermissionsPage.createNewRole}"
                                                        oncomplete="PF('roleForm').show();handleResizeDialog('rolesPermissionsDialog');"
                                                        update=":#{p:resolveClientId('rolesPermissionsForm:editRolePanel', view)}">
-                                            <span class="glyphicon glyphicon-plus"/> #{bundle['dataverse.permissions.roles.add']}
+                                            <span class="bi bi-plus"/> #{bundle['dataverse.permissions.roles.add']}
                                         </p:commandLink>
                                     </div>
                                     <p:fragment id="roleDisplay">
@@ -178,13 +178,13 @@
                                                                             and dataverseSession.user.superuser}"
                                                                actionListener="#{managePermissionsPage.editRole(role.id)}"
                                                                oncomplete="PF('roleForm').show();handleResizeDialog('rolesPermissionsDialog');"
-                                                               update=":#{p:resolveClientId('rolesPermissionsForm:editRolePanel', view)}"><span class="glyphicon glyphicon-pencil"></span></p:commandLink>
+                                                               update=":#{p:resolveClientId('rolesPermissionsForm:editRolePanel', view)}"><span class="bi bi-pencil"></span></p:commandLink>
                                                 <p:commandLink title="#{bundle['dataverse.permissions.roles.copy']}" styleClass="icon-inline-action bootstrap-button-tooltip"
                                                                rendered="#{managePermissionsPage.dvObject.instanceofDataverse and permissionsWrapper.canManagePermissions(managePermissionsPage.dvObject)
                                                                             and dataverseSession.user.superuser}"
                                                                actionListener="#{managePermissionsPage.cloneRole(role.id)}"
                                                                oncomplete="PF('roleForm').show();handleResizeDialog('rolesPermissionsDialog');"
-                                                               update=":#{p:resolveClientId('rolesPermissionsForm:editRolePanel', view)}"><span class="glyphicon glyphicon-duplicate"></span></p:commandLink>
+                                                               update=":#{p:resolveClientId('rolesPermissionsForm:editRolePanel', view)}"><span class="bi bi-files"></span></p:commandLink>
                                                 <div>
                                                     <ui:repeat value="#{role.permissions().toArray()}" var="prm">
                                                         <span class="label label-default">#{bundle['permission.'.concat(prm).concat('.label')]}</span>
@@ -200,7 +200,7 @@
                         <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
                         <div class="panel panel-default" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
                           <div data-toggle="collapse" data-target="#panelCollapseHistory" class="panel-heading text-info">
-                            #{bundle['dataverse.permissions.history']} <span class="glyphicon glyphicon-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
+                            #{bundle['dataverse.permissions.history']} <span class="bi bi-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
                           </div>
                           <div id="panelCollapseHistory" class="collapse">
                             <p:panel id="historyPanel" deferred="true" deferredMode="visible">
@@ -209,7 +209,7 @@
                                         <h:outputLink value="#{managePermissionsPage.signedUrlForRAHistoryCsv}" 
                                                      styleClass="btn btn-secondary" 
                                                      onclick="downloadRAHistoryCSV(this.href, '#{managePermissionsPage.permissionsHistoryFilename}'); return false;">
-                                            <span class="glyphicon glyphicon-download"></span> #{bundle['dataverse.permissions.history.download']}
+                                            <span class="bi bi-download"></span> #{bundle['dataverse.permissions.history.download']}
                                         </h:outputLink>
                                     </div>
                                     <p:dataTable id="roleAssignmentHistory" widgetVar="roleAssignmentHistory" var="historyEntry" value="#{managePermissionsPage.roleAssignmentHistory}"
@@ -268,7 +268,7 @@
                     
                     <p:dialog id="accessRemoveConfirm" header="#{bundle['dataverse.permissions.usersOrGroups.removeBtn']}" widgetVar="confirmation" modal="true">
                         <p class="help-block">
-                            <span class="glyphicon glyphicon-warning-sign text-danger"/> <span class="text-danger">#{bundle['dataverse.permissions.usersOrGroups.removeBtn.confirmation']}</span>
+                            <span class="bi bi-exclamation-triangle-fill text-danger"/> <span class="text-danger">#{bundle['dataverse.permissions.usersOrGroups.removeBtn.confirmation']}</span>
                         </p>
                         <div class="button-block">
                             <p:commandButton value="#{bundle.continue}" styleClass="btn btn-secondary" onclick="PF('confirmation').hide()" 

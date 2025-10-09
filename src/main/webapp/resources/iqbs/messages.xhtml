@@ -15,13 +15,13 @@
     <cc:implementation>
         <ui:fragment rendered="#{not empty flash['successMsg']}">
             <div class="alert alert-success">
-                <span class="glyphicon glyphicon glyphicon-ok-sign"></span>&#160;<strong>#{bundle['messages.success']}</strong> – <h:outputText escape="false" value="#{flash['successMsg']}"/>
+                <span class="bi bi-check-circle-fill"></span>&#160;<strong>#{bundle['messages.success']}</strong> – <h:outputText escape="false" value="#{flash['successMsg']}"/>
             </div>
         </ui:fragment>
         <ui:fragment rendered="#{not empty flash['errorMsg']}">
             <div class="alert alert-danger">
                 <o:form useRequestURI="true">
-                    <span class="glyphicon glyphicon-warning-sign"></span>&#160;<strong>#{bundle['messages.error']}</strong> – 
+                    <span class="bi bi-exclamation-triangle-fill"></span>&#160;<strong>#{bundle['messages.error']}</strong> – 
                     <h:outputText value="#{flash['errorMsg']} " escape="false"/>
                     <h:outputFormat value="#{bundle['error.support.message']}" escape="false">
                         <o:param>
@@ -34,28 +34,28 @@
         </ui:fragment>
         <ui:fragment rendered="#{not empty flash['infoMsg']}">
             <div class="alert alert-info">
-                <span class="glyphicon glyphicon-info-sign"></span>&#160;<strong>#{bundle['messages.info']}</strong> – <h:outputText escape="false" value="#{flash['infoMsg']} "/>
+                <span class="bi bi-info-circle-fill"></span>&#160;<strong>#{bundle['messages.info']}</strong> – <h:outputText escape="false" value="#{flash['infoMsg']} "/>
             </div>
         </ui:fragment>
         <ui:fragment rendered="#{not empty flash['warningMsg']}">
             <div class="alert alert-warning">
-                <span class="glyphicon glyphicon-exclamation-sign"></span>&#160;<strong>#{bundle['messages.info']}</strong> – <h:outputText escape="false" value="#{flash['warningMsg']} "/>
+                <span class="bi bi-exclamation-circle-fill"></span>&#160;<strong>#{bundle['messages.info']}</strong> – <h:outputText escape="false" value="#{flash['warningMsg']} "/>
             </div>
         </ui:fragment>
         <ui:fragment rendered="#{facesContext.validationFailed}">
             <div class="alert alert-danger">
-                <span class="glyphicon glyphicon-warning-sign"></span>&#160;<strong>#{bundle['messages.validation']}</strong> – #{bundle['messages.validation.msg']}
+                <span class="bi bi-exclamation-triangle-fill"></span>&#160;<strong>#{bundle['messages.validation']}</strong> – #{bundle['messages.validation.msg']}
             </div>
         </ui:fragment>
         <ui:repeat rendered="#{!facesContext.validationFailed}" value="#{facesContext.messageList}" var="msg">
             #{level = fn:split(msg.severity,' ')[0]; "" }
             #{bsClass = (level eq 'INFO' ? 'info' : (level eq 'WARN' ? 'warning' : 'danger')); ""}
-            #{bsIcon = (level eq 'INFO' ? 'info' : (level eq 'WARN' ? 'exclamation' : 'warning')); ""}
+            #{bsIcon = (level eq 'INFO' ? 'info-circle' : (level eq 'WARN' ? 'exclamation-circle' : 'exclamation-triangle')); ""}
             <div class="alert #{cc.attrs.collapsible ? 'alert-dismissable' :''} alert-#{bsClass}">
                 <ui:fragment rendered="#{cc.attrs.collapsible}">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                 </ui:fragment>
-                <span class="glyphicon glyphicon-#{bsIcon}-sign"></span>&#160;<strong>#{msg.summary}</strong> – <h:outputText escape="false" value="#{msg.detail}" rendered="#{!empty msg.detail and (msg.detail != msg.summary)}"/>
+                <span class="bi bi-#{bsIcon}-fill"></span>&#160;<strong>#{msg.summary}</strong> – <h:outputText escape="false" value="#{msg.detail}" rendered="#{!empty msg.detail and (msg.detail != msg.summary)}"/>
                 <ui:fragment rendered="#{level eq 'FATAL'}">
                     Please contact <a href="#" onclick="event.preventDefault();PF('contactForm').show();" title="Contact #{settingsWrapper.supportTeamName}">#{settingsWrapper.supportTeamName}</a> for assistance.
                     <strong>Date/Time: </strong>

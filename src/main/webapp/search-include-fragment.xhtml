@@ -27,7 +27,7 @@
                 </p:inputText>
                 <p:commandLink id="searchbutton" title="#{bundle['dataverse.search.btn.find']}" ariaLabel="#{bundle['dataverse.search.btn.find']}" styleClass="searchbutton bootstrap-button-tooltip" 
                     action="#{SearchIncludeFragment.searchRedirect(dataverseRedirectPage, DataversePage.dataverse)}">
-                    <span class="glyphicon glyphicon-search no-text"/>
+                    <span class="bi bi-search no-text"/>
                 </p:commandLink>
                 <p:remoteCommand name="submitsearch" action="#{SearchIncludeFragment.searchRedirect(dataverseRedirectPage, DataversePage.dataverse)}"/>
                     <h:outputLink rel="nofollow" id="advsearchlink" styleClass = "advsearchlink" value="#{widgetWrapper.wrapURL('/search/advanced.xhtml')}">
@@ -80,7 +80,7 @@
     <div class="row" jsf:rendered="#{SearchIncludeFragment.solrIsDown}">
         <div class="col-sm-12">
             <div class="bg-danger padding-12 margin-bottom">
-                <span class="glyphicon glyphicon-warning-sign text-danger"/>&#160;
+                <span class="bi bi-exclamation-triangle-fill text-danger"/>&#160;
                 <h:outputText value="#{SearchIncludeFragment.searchException.message}" styleClass="text-danger highlightBold"/>
             </div>
             <pre><h:outputText value="#{SearchIncludeFragment.searchException.cause.message}"/></pre>
@@ -289,7 +289,7 @@
 
             <!--toggle sidebar button-->
             <p class="visible-xs-block">
-              <button type="button" class="btn btn-secondary btn-xs" data-toggle="offcanvas"><span class="glyphicon glyphicon-chevron-left"></span> #{bundle['dataverse.results.btn.filterResults']}</button>
+              <button type="button" class="btn btn-secondary btn-xs" data-toggle="offcanvas"><span class="bi bi-chevron-left"></span> #{bundle['dataverse.results.btn.filterResults']}</button>
             </p>
 
             <!-- Message for zero results -->
@@ -505,8 +505,8 @@
                     <!--DATAVERSE CARDS-->
                     <div class="dataverseResult clearfix" jsf:rendered="#{result.type == 'dataverses'}">
                         <div class="card-title-icon-block">
-                            <span class="glyphicon glyphicon-link text-brand float-end" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
-                            <span class="glyphicon glyphicon-new-window text-brand float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
+                            <span class="bi bi-link text-brand float-end" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
+                            <span class="bi bi-box-arrow-up-right text-brand float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
                             <span class="icon-dataverse text-brand float-end" title="#{bundle.dataverse}"/>
                             <c:set var="dvUrl" value="/dataverse/#{result.dataverseAlias}"/>
                             <h:outputLink value="#{!SearchIncludeFragment.rootDv and !result.isInTree ? dvUrl : widgetWrapper.wrapURL(dvUrl)}" target="#{!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView ? '_blank' : ''}">
@@ -569,8 +569,8 @@
                     <div class="datasetResult clearfix" jsf:rendered="#{result.type == 'datasets'}">
                         <div class="card-title-icon-block">
                             <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
-                            <span class="glyphicon glyphicon-link text-info float-end" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
-                            <span class="glyphicon glyphicon-new-window text-info float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
+                            <span class="bi bi-link text-info float-end" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
+                            <span class="bi bi-box-arrow-up-right text-info float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
                             <!-- <span class="icon-dataset text-info float-end" title="#{bundle.dataset}"/> -->
                             <a href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? result.datasetUrl : widgetWrapper.wrapURL(result.datasetUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}">
                                 <h:outputText value="#{result.nameSort}" style="padding:4px 0;" rendered="#{result.titleHighlightSnippet == null}"/>
@@ -648,11 +648,11 @@
                     <!--FILE CARDS-->
                     <div class="fileResult clearfix" jsf:rendered="#{result.type == 'files'}">
                         <div class="card-title-icon-block">
-                            <span class="glyphicon glyphicon-link text-muted float-end" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
-                            <span class="glyphicon glyphicon-new-window text-muted float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
+                            <span class="bi bi-link text-muted float-end" title="#{bundle.linked}" jsf:rendered="#{!SearchIncludeFragment.rootDv and !result.isInTree}"/>
+                            <span class="bi bi-box-arrow-up-right text-muted float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
                             <span class="icon-file text-muted float-end" title="#{bundle.file}"/>
 
-                            <span class="text-danger glyphicon glyphicon-lock" data-toggle="tooltip" title="#{bundle.restricted}" jsf:rendered="#{result.entity.restricted and !permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
+                            <span class="text-danger bi bi-lock-fill" data-toggle="tooltip" title="#{bundle.restricted}" jsf:rendered="#{result.entity.restricted and !permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
                             <span class="text-success icon-unlock" data-toggle="tooltip" title="#{bundle.restrictedaccess}" jsf:rendered="#{result.entity.restricted and permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
                             <a rel="nofollow" href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? (result.harvested ? result.fileDatasetUrl : result.fileUrl) : widgetWrapper.wrapURL(result.harvested ? result.fileDatasetUrl : result.fileUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}">
                                 <h:outputText value="#{result.name}" style="padding:4px 0;" rendered="#{result.nameHighlightSnippet == null}"/>
@@ -692,7 +692,7 @@
                                           data-clipboard-action="copy"
                                           data-clipboard-text="#{result.fileChecksumValue}"
                                           title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{result.fileChecksumValue}">#{result.fileChecksumType}: #{result.fileChecksumValue}</span>
-                                <span class="glyphicon glyphicon-copy btn-copy checksum-tooltip"
+                                <span class="bi bi-clipboard btn-copy checksum-tooltip"
                                         data-toggle="tooltip" data-placement="top" data-html="true"
                                         data-clipboard-action="copy"
                                         data-clipboard-text="#{result.fileChecksumValue}" title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{result.fileChecksumValue}"></span>
@@ -706,7 +706,7 @@
                                           data-clipboard-action="copy"
                                           data-clipboard-text="#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"
                                           title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}">#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}</span>
-                                <span class="glyphicon glyphicon-copy btn-copy checksum-tooltip" jsf:rendered="#{!empty SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"
+                                <span class="bi bi-clipboard btn-copy checksum-tooltip" jsf:rendered="#{!empty SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"
                                         data-toggle="tooltip" data-placement="top" data-html="true"
                                         data-clipboard-action="copy"
                                         data-clipboard-text="#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}" title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"></span>

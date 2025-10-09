@@ -28,7 +28,7 @@
                     </ui:fragment>
                     <div class="alert alert-info messagePanel">
                         <p>
-                            <span class="glyphicon glyphicon-info-sign"/>
+                            <span class="bi bi-info-circle-fill"/>
                             <h:outputFormat value=" #{bundle['shib.welcomeExistingUserMessage']}">
                                 <f:param value="#{Shib.friendlyNameForInstitution}"/>
                             </h:outputFormat>
@@ -36,7 +36,7 @@
                     </div>
                     <div class="alert alert-danger messagePanel" jsf:rendered="#{Shib.passwordRejected}">
                         <p>
-                            <span class="glyphicon glyphicon-exclamation-sign"/> <h:outputText value=" #{bundle['shib.passwordRejected']}" escape="false"/>
+                            <span class="bi bi-exclamation-circle-fill"/> <h:outputText value=" #{bundle['shib.passwordRejected']}" escape="false"/>
                         </p>
                     </div>
                 </ui:fragment>
@@ -44,7 +44,7 @@
                 <ui:fragment rendered="#{Shib.offerToCreateNewAccount}">
                     <!-- THIS MSG SHOULD BE IN THE BACKING BEAN + BUNDLE, NOT HARDCODED HERE IN THE XHTML -->
                     <div class="alert alert-info messagePanel">
-                        <span class="glyphicon glyphicon-info-sign"/> <strong>#{bundle['shib.accountInformation']}</strong> – #{bundle['shib.offerToCreateNewAccount']}
+                        <span class="bi bi-info-circle-fill"/> <strong>#{bundle['shib.accountInformation']}</strong> – #{bundle['shib.offerToCreateNewAccount']}
                     </div>
                     <!-- END: THIS MSG SHOULD BE IN THE BACKING BEAN + BUNDLE, NOT HARDCODED HERE IN THE XHTML -->
                 </ui:fragment>

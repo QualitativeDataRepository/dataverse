@@ -67,12 +67,12 @@
                     
                     <div jsf:id="httpPanel" jsf:rendered="#{settingsWrapper.HTTPUpload}" class="panel panel-default">
                         <div role="tab" id="headingHTTP" data-toggle="collapse" data-target="#panelCollapseHTTP" class="panel-heading text-info" aria-expanded="true" aria-controls="panelCollapseHTTP">
-                            #{bundle['file.fromHTTP']} &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                            #{bundle['file.fromHTTP']} &#160;<span class="bi bi-chevron-up"/>
                         </div>
                         <div id="panelCollapseHTTP" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingHTTP">
                             <div class="panel-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackage" jsf:rendered="#{hasPackageFile and !isDatasetReleased}">
                                 <p class="help-block">
-                                    <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+                                    <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                     <h:outputFormat class="text-warning" value=" #{bundle['file.rsyncUpload.httpUploadDisabledDueToRsyncFileExisting']}" escape="false">
                                         <o:param>
                                             <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
@@ -87,7 +87,7 @@
                             </div>
                             <div class="panel-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackagePublished" jsf:rendered="#{hasPackageFile and isDatasetReleased}">
                                 <p class="help-block">
-                                    <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+                                    <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                     <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.httpUploadDisabledDueToRsyncFileExistingAndPublished']}"/>
                                 </p>
                             </div>
@@ -211,7 +211,7 @@
                                 </div>
                                 <div jsf:id="hypothesisBlock" jsf:rendered="#{settingsWrapper.isHasHypothesisKey() and !lockedFromEdits }"  class="margin-top">
                                     <!-- Hypothesis upload widget -->
-                                    <p class="help-block"><span class="glyphicon glyphicon-info-sign"/> #{bundle['file.fromHypothesis.tip']}</p>
+                                    <p class="help-block"><span class="bi bi-info-circle-fill"/> #{bundle['file.fromHypothesis.tip']}</p>
                                     <div>
                                       <label for="datasetForm:hypothesisUrlInput" class="col-sm-1 control-label">
                                         <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['dataset.hypothesis.url.tip']}">
@@ -243,9 +243,9 @@
                     </div>
                     
                     <div jsf:id="rsyncPanel" jsf:rendered="#{rsyncSupported and !EditDatafilesPage.fileReplaceOperation}" class="panel panel-default">
-                        <!-- NOTE: conditional logic for 'glyphicon-chevron-up' icon in rsync header if HTTP is off, but isn't scalable when a third upload mode is added -->
+                        <!-- NOTE: conditional logic for 'bi-chevron-up' icon in rsync header if HTTP is off, but isn't scalable when a third upload mode is added -->
                         <div role="tab" id="headingRsync" data-toggle="collapse" data-target="#panelCollapseRsync" class="panel-heading text-info" aria-expanded="true" aria-controls="panelCollapseRsync">
-                            #{bundle['file.fromRsync']} &#160;<span class="glyphicon #{!settingsWrapper.HTTPUpload ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
+                            #{bundle['file.fromRsync']} &#160;<span class="bi #{!settingsWrapper.HTTPUpload ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
                         </div>
                         <!-- NOTE: conditional logic for 'in' style class opens the rsync panel if HTTP is off, but isn't scalable when a third upload mode is added -->
                         <div id="panelCollapseRsync" class="panel-collapse collapse #{!settingsWrapper.HTTPUpload ? 'in' : ''}" role="tabpanel" aria-labelledby="headingRsync">
@@ -258,7 +258,7 @@
                                     </ui:fragment>
                                     <ui:fragment rendered="#{hasFileMetadatas}">
                                         <p class="help-block">
-                                            <span class="glyphicon glyphicon-warning-sign text-warning"/> <span class="text-warning">#{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}</span>
+                                            <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}</span>
                                         </p>
                                     </ui:fragment>
                                 </ui:fragment>
@@ -278,7 +278,7 @@
                                             <li>
                                                 <h:outputText value="#{bundle['file.rsyncUpload.step2']} &#158; " escape="false"/>
                                                 <h:commandLink id="rsyncDLEff" actionListener="#{EditDatafilesPage.downloadRsyncScript()}" styleClass="btn btn-secondary btn-xs">
-                                                    <span class="glyphicon glyphicon-download-alt"/> <h:outputText value=" #{bundle['file.rsyncUpload.step2.downloadScriptButton']}"/>
+                                                    <span class="bi bi-download"/> <h:outputText value=" #{bundle['file.rsyncUpload.step2.downloadScriptButton']}"/>
                                                 </h:commandLink>
                                             </li>
                                             <li>
@@ -294,7 +294,7 @@
                                     <!-- RSYNC/PACKAGE FILE ALREADY EXISTS. THERE CAN BE ONLY ONE. -->
                                     <ui:fragment rendered="#{hasPackageFile}">
                                         <p class="help-block">
-                                            <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+                                            <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                             <h:outputFormat class="text-warning" value=" #{bundle['file.rsyncUpload.filesExist']}" escape="false">
                                                 <o:param>
                                                     <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
@@ -309,26 +309,26 @@
                                     </ui:fragment>
                                     <ui:fragment rendered="#{hasNonPackageFile and !EditDatafilesPage.workingVersion.dataset.released}">
                                         <p class="help-block">
-                                            <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+                                            <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                             <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}"/>
                                         </p>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{hasNonPackageFile and EditDatafilesPage.workingVersion.dataset.released}">
                                         <p class="help-block">
-                                            <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+                                            <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                             <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttpAndPublished']}"/>
                                         </p>
                                     </ui:fragment>
                                     <!-- HTTP FILE ALREADY EXISTS. THERE CAN BE ONLY ONE. -->
                                     <ui:fragment rendered="#{hasFileMetadatas}">
                                         <p class="help-block">
-                                            <span class="glyphicon glyphicon-warning-sign text-warning"/> <span class="text-warning">#{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}</span>
+                                            <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}</span>
                                         </p>
                                     </ui:fragment>
                                     <!-- CAN'T DOWNLOAD RSYNC SCRIPT DUE to DCM BACKEND BROKEN. -->
                                     <ui:fragment rendered="#{empty EditDatafilesPage.workingVersion.fileMetadatas and !hasRsyncScript}">
                                         <p class="help-block">
-                                            <span class="glyphicon glyphicon-exclamation-sign text-danger"></span>
+                                            <span class="bi bi-exclamation-circle-fill text-danger"></span>
                                             <h:outputFormat class="text-danger" value=" #{bundle['file.rsyncUpload.noScriptBroken']}" escape="false">
                                                 <o:param>
                                                     <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
@@ -345,7 +345,7 @@
                                     <!-- TODO: Figure out if we can detect the difference between the DCM being down and the DCM being busy. -->
                                     <ui:fragment rendered="#{false}">
                                         <p class="help-block">
-                                            <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+                                            <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                             <h:outputFormat class="text-warning" value=" #{bundle['file.rsyncUpload.noScriptBusy']}" escape="false">
                                                 <o:param>
                                                     <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
@@ -503,7 +503,7 @@
                                 <f:facet name="header" class="col-file-action text-end">
                                     <div jsf:id="editFilesRestrictDeletePanel" style="margin-right:14px;" class="btn-group" jsf:rendered="#{hasFileMetadatas and !hasPackageFile}">
                                         <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
-                                            <span class="glyphicon glyphicon-pencil"/> #{bundle['file.editFilesSelected']} <span class="caret"></span>
+                                            <span class="bi bi-pencil"/> #{bundle['file.editFilesSelected']} <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu multi-level float-end text-left">
                                             <li class="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
@@ -547,18 +547,18 @@
                                 <!-- FILE LEVEL MSGs -->
                                 <div class="bg-warning text-warning text-center margin-bottom-half" jsf:rendered="#{!(empty fileMetadata.dataFile.duplicateFilename)}">
                                     <!-- Duplicate file name -->
-                                    <span class="glyphicon glyphicon-warning-sign"/> #{fileMetadata.dataFile.duplicateFilename}
+                                    <span class="bi bi-exclamation-triangle-fill"/> #{fileMetadata.dataFile.duplicateFilename}
                                 </div>
                                 <!-- END: FILE LEVEL MSGs -->
                                 
                                 <div style="margin-right:14px;" class="btn-group">
                                     <button class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle" title="#{bundle['file.optionsBtn']}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                             disabled="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
-                                        <span class="glyphicon glyphicon-option-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span><span class="caret"></span>
+                                        <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span><span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu multi-level float-end text-left">
                                         <!-- Edit Options -->
-                                        <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="glyphicon glyphicon-pencil"/></li>
+                                        <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="bi bi-pencil"/></li>
                                         <ui:fragment rendered="#{systemConfig.provCollectionEnabled}">
                                             <li class="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
                                                 <p:commandLink id="fileProvenanceButton"
@@ -643,7 +643,7 @@
 
     <!-- Popups -->
     <p:dialog id="fileTypeDifferentPopup" styleClass="smallPopUp" header="#{bundle['file.addreplace.content_type.header']}" widgetVar="fileTypeDifferentPopup" modal="true">
-        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{EditDatafilesPage.warningMessageForFileTypeDifferentPopUp}</p>
+        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{EditDatafilesPage.warningMessageForFileTypeDifferentPopUp}</p>
         <div class="button-block">
             <p:commandButton styleClass="btn btn-secondary" value="#{bundle['file.delete']}" onclick="PF('fileTypeDifferentPopup').hide()" oncomplete="uploadWidgetDropMsg();
                                    #{useDirectUpload ? 'setupDirectUpload(true);': ''}"
@@ -656,7 +656,7 @@
     </p:dialog>
     
     <p:dialog id="fileAlreadyExistsPopup" styleClass="smallPopUp" header="#{EditDatafilesPage.headerForAlreadyExistsPopUp}" widgetVar="fileAlreadyExistsPopup" modal="true">
-        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{EditDatafilesPage.warningMessageForAlreadyExistsPopUp}</p>
+        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{EditDatafilesPage.warningMessageForAlreadyExistsPopUp}</p>
             <p class="help-block no-margin-top">                                           
                 <h:outputFormat value="#{bundle['dataset.file.upload.popup.explanation.tip']}" escape="false">
                     <f:param value="#{systemConfig.guidesBaseUrl}"/>
@@ -879,7 +879,7 @@
     <p:dialog id="fileThumbnailConfirm" styleClass="smallPopUp" header="#{bundle['file.setThumbnail.header']}" widgetVar="fileThumbnailConfirm" modal="true">
         <div>
             <p class="help-block">
-                <span class="glyphicon glyphicon-exclamation-sign text-danger"/> <span class="text-danger">#{bundle['file.setThumbnail.confirmation']}</span>
+                <span class="bi bi-exclamation-circle-fill text-danger"/> <span class="text-danger">#{bundle['file.setThumbnail.confirmation']}</span>
             </p>
         </div>
         <div class="button-block">
@@ -977,7 +977,7 @@
     <!-- Simple Popup For Select Files-->
     <p:dialog id="selectFiles2" styleClass="smallPopUp"
               header="#{bundle['dataset.noSelectedFiles.header']}" widgetVar="selectFiles2" modal="true">
-        <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['dataset.noSelectedFiles']}</p>
+        <p class="text-danger"><span class="bi bi-exclamation-circle-fill"/> #{bundle['dataset.noSelectedFiles']}</p>
         <div class="button-block">
             <button class="btn btn-secondary" onclick="PF('selectFiles2').hide();" type="button">
                 #{bundle.close}

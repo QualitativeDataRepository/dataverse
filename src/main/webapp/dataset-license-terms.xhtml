@@ -20,13 +20,13 @@
         <p:commandLink styleClass="btn btn-secondary btn-access" actionListener="#{DatasetPage.edit('LICENSE')}" 
                        update="@form,:messagePanel" disabled="#{DatasetPage.lockedFromEdits}">
             <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="0" />
-            <span class="glyphicon glyphicon-briefcase"/> #{bundle['file.dataFilesTab.terms.editTermsBtn']}
+            <span class="bi bi-briefcase"/> #{bundle['file.dataFilesTab.terms.editTermsBtn']}
         </p:commandLink>
     </div>
     <div class="panel-group">
        <div class="panel panel-default">
            <div data-toggle="collapse" data-target="#panelCollapseTOU" class="panel-heading text-info">
-               #{bundle['file.dataFilesTab.terms.list.termsOfUse.header']} &#160;<span class="glyphicon glyphicon-chevron-up"/>
+               #{bundle['file.dataFilesTab.terms.list.termsOfUse.header']} &#160;<span class="bi bi-chevron-up"/>
            </div>
            <div id="panelCollapseTOU" class="collapse in">
                <p:fragment id="touFragment">
@@ -256,7 +256,7 @@
                                                         or toaNotEmpty}">
            <div data-toggle="collapse" data-target="#panelCollapseTOA" class="panel-heading text-info">
                <h:outputText value="#{publicStore ? bundle['file.dataFilesTab.terms.list.termsOfAccess.termsOfsAccess'] : bundle['file.dataFilesTab.terms.list.termsOfAccess.header']}"/>
-               &#160;<span class="glyphicon glyphicon-chevron-up"/>
+               &#160;<span class="bi bi-chevron-up"/>
            </div>
            <div id="panelCollapseTOA" class="panel-collapse #{!empty editMode or (datasetPage == false and toaNotEmpty )  or (datasetPage == true and DatasetPage.hasValidTermsOfAccess) ? 'collapse in' : 'collapse'}">
                <div class="panel-body">
@@ -310,7 +310,7 @@
                             <p:fragment id="termsOfAccessHelp">
                                 <ui:fragment rendered="#{datasetPage == true and DatasetPage.hasRestrictedFiles}">
                                     <div class="alert alert-info">
-                                        <span class="glyphicon glyphicon-info-sign"></span>&#160;<strong>#{bundle['messages.info']}</strong> –
+                                        <span class="bi bi-info-circle-fill"></span>&#160;<strong>#{bundle['messages.info']}</strong> –
                                         <h:outputText value=" #{bundle['file.dataFilesTab.terms.list.termsOfAccess.description']}"/>
                                         <h:outputFormat value=" #{bundle['file.dataFilesTab.terms.list.termsOfAccess.description.line.2']}" escape="false">
                                             <f:param value="#{systemConfig.guidesBaseUrl}"/>
@@ -489,7 +489,7 @@
         <div class="panel panel-default" jsf:rendered="#{!settingsWrapper.rsyncOnly and (managePage==false or datasetPage == true)
                                                          and (!empty DatasetPage.dataset.guestbook or (dataverseSession.user.authenticated and permissionsWrapper.canIssueUpdateDatasetCommand(DatasetPage.dataset)))}">
            <div data-toggle="collapse" data-target="#panelCollapseGuestbook" class="panel-heading text-info">
-               #{bundle['file.dataFilesTab.terms.list.guestbook']} &#160;<span class="glyphicon glyphicon-chevron-down"/>
+               #{bundle['file.dataFilesTab.terms.list.guestbook']} &#160;<span class="bi bi-chevron-down"/>
            </div>
            <div id="panelCollapseGuestbook" class="collapse">
                <div class="panel-body">

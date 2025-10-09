@@ -35,7 +35,7 @@
                                 <p:remoteCommand name="submitsearch" action="#{DashboardUsersPage.runUserSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true"/>
                                 <span class="input-group-btn">
                                     <p:commandLink title="#{bundle['dataverse.search.btn.find']}" styleClass="btn btn-secondary bootstrap-button-tooltip" action="#{DashboardUsersPage.runUserSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true">
-                                        <span class="glyphicon glyphicon-search no-text"/>
+                                        <span class="bi bi-search no-text"/>
                                     </p:commandLink>
                                 </span>
                             </div>
@@ -46,7 +46,7 @@
                         <div class="col-12" style="margin-bottom: 1em;">
                             <div class="btn-group float-end">
                                 <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <span class="glyphicon glyphicon-sort"></span> #{bundle['dataverse.results.btn.sort']} <span class="caret"></span>
+                                    <span class="bi bi-sort-alpha-down"></span> #{bundle['dataverse.results.btn.sort']} <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu float-end text-left">
                                     <ui:repeat value="#{DashboardUsersPage.getSortingMap().entrySet()}" var="sortFieldEntry">
@@ -70,7 +70,7 @@
                             <h:outputText value="#{user.id}" />
                         </p:column>
                         <p:column headerText="#{bundle['dashboard.list_users.tbl_header.userIdentifier']}">
-                            <span class="glyphicon glyphicon-user text-danger" jsf:rendered="#{user.superuser}" style="margin-right:6px;"></span>
+                            <span class="bi bi-person-fill text-danger" jsf:rendered="#{user.superuser}" style="margin-right:6px;"></span>
                             <h:outputText value="#{user.userIdentifier}" class="#{user.superuser ? 'text-danger' : ''}" />
                         </p:column>
                         <p:column headerText="#{bundle['dashboard.list_users.tbl_header.name']}">
@@ -112,7 +112,7 @@
                     </p:dataTable>
                     <p:dialog styleClass="smallPopUp" id="toggleSuperuserConfirmation" header="#{bundle['dashboard.list_users.toggleSuperuser']}" widgetVar="toggleSuperuserConfirmation" modal="true" closable="false">
                         <p:focus context="toggleSuperuserConfirmation"/>
-                        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/>
+                        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/>
                             <h:outputFormat value=" #{bundle['dashboard.list_users.toggleSuperuser.confirmationText.add']} " rendered="#{DashboardUsersPage.selectedUserDetached.superuser}">
                                 <f:param value="#{DashboardUsersPage.selectedUserDetached.userIdentifier}"/>
                             </h:outputFormat>
@@ -126,7 +126,7 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="removeRolesConfirm" header="#{bundle['dashboard.list_users.tbl_header.roles.removeAll.header']}" widgetVar="removeRolesConfirm" modal="true" closable="false">
-                        <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{DashboardUsersPage.confirmRemoveRolesMessage}</p>
+                        <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{DashboardUsersPage.confirmRemoveRolesMessage}</p>
                         <div class="button-block">
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle.yes}" update="userTable,:messagePanel" oncomplete="PF('removeRolesConfirm').hide();" action="#{DashboardUsersPage.removeUserRoles()}"/>
                             <button class="btn btn-link" onclick="PF('removeRolesConfirm').hide()" type="button">
