@@ -526,8 +526,8 @@
                 <span> #{bundle['file.ingestFailed.header']}&#160;</span>
                 <span>
                     <a tabindex="0" role="button" class="bi bi-question-circle tooltip-icon"
-                       data-toggle="popover" data-placement="auto top" data-trigger="focus" data-html="true"
-                       data-content="#{DatasetPage.ingestMessage} #{fileMetadata.dataFile.ingestReportMessage}"/>
+                       data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="focus" data-bs-html="true"
+                       data-bs-content="#{DatasetPage.ingestMessage} #{fileMetadata.dataFile.ingestReportMessage}"/>
                 </span>
             </div>
             <div class="bg-info text-info text-center margin-bottom-half" jsf:rendered="#{fileMetadata.dataFile.containsActiveFileAccessRequestFromUser(dataverseSession.user)}">

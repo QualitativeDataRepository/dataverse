@@ -56,8 +56,8 @@
                                         <span> #{bundle['file.ingestFailed.header']}&#160;</span>
                                         <span>
                                             <a tabindex="0" role="button" class="bi bi-question-circle tooltip-icon"
-                                               data-toggle="popover" data-placement="auto top" data-trigger="focus" data-html="true"
-                                               data-content="#{FilePage.ingestMessage} #{FilePage.fileMetadata.dataFile.ingestReportMessage}"/>
+                                               data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="focus" data-bs-html="true"
+                                               data-bs-content="#{FilePage.ingestMessage} #{FilePage.fileMetadata.dataFile.ingestReportMessage}"/>
                                         </span>
                                     </div>
                                     <!-- END: FILE LEVEL MSGs -->
@@ -295,11 +295,11 @@
                                             #{bundle['metrics.file.title']}
                                             <ui:fragment rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
                                                 <span class="bi bi-question-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    data-trigger="hover" title="#{bundle['metrics.file.tip.default']}"></span>
+                                                    data-bs-trigger="hover" title="#{bundle['metrics.file.tip.default']}"></span>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
-                                                <a tabindex="0" role="button" class="bi bi-question-circle tooltip-icon" data-toggle="popover" data-placement="auto top"
-                                                    data-trigger="focus" data-html="true" data-content="#{bundle['metrics.file.tip.makedatacount']}"></a>
+                                                <a tabindex="0" role="button" class="bi bi-question-circle tooltip-icon" data-bs-toggle="popover" data-bs-placement="top"
+                                                    data-bs-trigger="focus" data-bs-html="true" data-bs-content="#{bundle['metrics.file.tip.makedatacount']}"></a>
                                             </ui:fragment>
                                         </div>
                                         <!-- END DATASET CITATION -->

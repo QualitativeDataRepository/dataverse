@@ -802,7 +802,7 @@ div.panel-heading.text-info[data-toggle="collapse"] {color: #31708F;}
 .btn-sm.ui-button {padding: 5px 10px;}
 
 div.popover.thumb-preview.fade.top.in, div.popover.thumb-preview.fade.bottom.in {max-width: none;}
-div.popover.thumb-preview.fade.top.in div.popover-content, div.popover.thumb-preview.fade.bottom.in div.popover-content {text-align:center; vertical-align: middle; display:table-cell; width:428px; height:418px;}
+div.popover.thumb-preview.fade.top.in div.popover-body, div.popover.thumb-preview.fade.bottom.in div.popover-body {text-align:center; vertical-align: middle; display:table-cell; width:428px; height:418px;}
 a.popoverHTML {display:inline-block;}
 
 /* TERMS */

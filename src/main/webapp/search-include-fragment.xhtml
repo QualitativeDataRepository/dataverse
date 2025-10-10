@@ -688,12 +688,12 @@
                             <h:outputText value=" - " rendered="#{!result.harvested and !SearchIncludeFragment.isTabular(result.entity) and !(empty result.fileChecksumValue)}"/>
                             <span class="checksum-block" jsf:rendered="#{!result.harvested and !SearchIncludeFragment.isTabular(result.entity) and !(empty result.fileChecksumValue)}">
                                 <span class="checksum-truncate checksum-tooltip" style="margin-right:3px;"
-                                          data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
+                                          data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
                                           data-clipboard-action="copy"
                                           data-clipboard-text="#{result.fileChecksumValue}"
                                           title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{result.fileChecksumValue}">#{result.fileChecksumType}: #{result.fileChecksumValue}</span>
                                 <span class="bi bi-clipboard btn-copy checksum-tooltip"
-                                        data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
                                         data-clipboard-action="copy"
                                         data-clipboard-text="#{result.fileChecksumValue}" title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{result.fileChecksumValue}"></span>
                             </span>
@@ -702,12 +702,12 @@
                                 <h:outputText value=" - #{SearchIncludeFragment.tabularDataDisplayInfo(result.entity)}"/>
                                 <h:outputText value=" - " rendered="#{!empty SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"/>
                                 <span class="checksum-truncate checksum-tooltip" style="margin-right:3px;" jsf:rendered="#{!empty SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"
-                                          data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
+                                          data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
                                           data-clipboard-action="copy"
                                           data-clipboard-text="#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"
                                           title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}">#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}</span>
                                 <span class="bi bi-clipboard btn-copy checksum-tooltip" jsf:rendered="#{!empty SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"
-                                        data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
                                         data-clipboard-action="copy"
                                         data-clipboard-text="#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}" title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"></span>
                             </span>

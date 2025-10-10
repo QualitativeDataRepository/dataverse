@@ -606,7 +606,7 @@
                                         <h:outputFormat  id="metrics-heading" value="#{settingsWrapper.makeDataCountDisplayEnabled ? bundle['metrics.dataset.makedatacount.title'] : bundle['metrics.dataset.title']}" escape = "false"/>
                                         <ui:fragment rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
                                             <span class="bi bi-question-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                                data-trigger="hover" title="#{bundle['metrics.dataset.tip.default']}"></span>
+                                                data-bs-trigger="hover" title="#{bundle['metrics.dataset.tip.default']}"></span>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
                                             <span class="bi bi-question-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
@@ -2141,7 +2141,7 @@
                             <h:outputText value="#{bundle['dataset.cite.cslDialog.generating']}"/>
                         </p:outputPanel>
                         <span class="bi bi-clipboard btn-copy"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
                                     data-clipboard-action="copy"
                                     data-clipboard-target=".csl-entry"
                                     title="#{bundle['dataset.cite.cslDialog.copy']}"></span>
