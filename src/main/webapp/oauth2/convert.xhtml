@@ -27,21 +27,21 @@
 
                 <p:tabView id="tabView">
                     <p:tab id="convertAccountTab" title="#{bundle['account.info']}">
-                        <h:form id="convertAccountForm" styleClass="form-horizontal">
+                        <h:form id="convertAccountForm">
                             <p:focus context="convertAccountForm"/>
-                            <p class="help-block">
+                            <p class="form-text">
                                 <h:outputFormat value="#{OAuth2FirstLoginPage.convertTip}" escape="false"/>
                             </p>
-                            <div class="form-group">
-                                <label for="position" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="position" class="col-sm-3 form-label">
                                     #{bundle['login.builtin.credential.usernameOrEmail']}
                                 </label>
                                 <div class="col-sm-9">
                                     <h:inputText value="#{OAuth2FirstLoginPage.username}" />
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="position" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="position" class="col-sm-3 form-label">
                                     #{bundle['login.builtin.credential.password']}
                                 </label>
                                 <div class="col-sm-9">
@@ -59,14 +59,14 @@
                                 </div>
                             </div>
                             
-                            <div class="form-group">
-                                <div class="col-sm-offset-3 col-sm-9">
+                            <div class="row mb-3">
+                                <div class="offset-sm-3 col-sm-9">
                                     <a href="/passwordreset.xhtml">
                                         #{bundle['login.forgot.text']}
                                     </a>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <div class="col-md-12 button-block">
                                     <p:commandButton value="#{bundle['oauth2.convertAccount.buttonTitle']}" styleClass="btn btn-secondary"
                                                      action="#{OAuth2FirstLoginPage.convertExistingAccount}"

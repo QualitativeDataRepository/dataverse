@@ -29,13 +29,13 @@
 
                 <p:tabView id="tabView">
                     <p:tab id="newAccountTab" title="#{bundle['account.info']}">
-                        <p class="help-block">
+                        <p class="form-text">
                             #{OAuth2FirstLoginPage.createFromWhereTip}
                         </p>
-                        <h:form id="newAccountForm" styleClass="form-horizontal">
+                        <h:form id="newAccountForm">
                             <p:focus context="newAccountForm"/>
-                            <div class="form-group">
-                                <label for="position" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="position" class="col-sm-3 form-label">
                                     #{bundle['user.username']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
@@ -45,14 +45,14 @@
                                     <p:inputText id="username" styleClass="form-control" value="#{OAuth2FirstLoginPage.username}" validator="#{OAuth2FirstLoginPage.validateUserName}"/>
                                     <p:message for="username" display="text"/>
                                 </div>
-                                <div class="col-sm-offset-3 col-sm-9" jsf:rendered="#{OAuth2FirstLoginPage.convertFromBuiltinIsPossible}">
-                                    <p class="help-block">
+                                <div class="offset-sm-3 col-sm-9" jsf:rendered="#{OAuth2FirstLoginPage.convertFromBuiltinIsPossible}">
+                                    <p class="form-text">
                                         <h:outputText value="#{OAuth2FirstLoginPage.suggestConvertInsteadOfCreate}" escape="false"/>
                                     </p>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="givenName" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="givenName" class="col-sm-3 form-label">
                                     #{bundle['user.firstName']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
@@ -63,8 +63,8 @@
                                     <p:message for="givenName" display="text"/>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="familyName" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="familyName" class="col-sm-3 form-label">
                                     #{bundle['user.lastName']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
@@ -75,8 +75,8 @@
                                     <p:message for="familyName" display="text"/>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="selectedEmail" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="selectedEmail" class="col-sm-3 form-label">
                                     #{bundle['email']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
@@ -96,8 +96,8 @@
                                     <p:message for="selectedEmailMoreThanOneToPickFrom" display="text"/>
                                 </div>
                             </div>
-                            <div class="form-group" jsf:rendered="#{OAuth2FirstLoginPage.newUser.displayInfo.orcid != null}">
-                                <label for="authenticatedOrcid" class="col-sm-3 control-label">
+                            <div class="row mb-3" jsf:rendered="#{OAuth2FirstLoginPage.newUser.displayInfo.orcid != null}">
+                                <label for="authenticatedOrcid" class="col-sm-3 form-label">
                                     #{bundle['user.orcid']}
                                     <span class="bi bi-question-circle tooltip-icon"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="ORCID"></span>
@@ -112,8 +112,8 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="affiliation" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="affiliation" class="col-sm-3 form-label">
                                     #{bundle['affiliation']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
@@ -123,8 +123,8 @@
                                     <p:inputText id="affiliation" styleClass="form-control" value="#{OAuth2FirstLoginPage.newUser.displayInfo.affiliation}"/>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="position" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="position" class="col-sm-3 form-label">
                                     #{bundle['user.position']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
@@ -135,7 +135,7 @@
                                 </div>
                             </div>
                             <ui:include src="../termsofuse.xhtml"/>
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <div class="col-sm-12 button-block">
                                     <p:commandButton id="createNewAccountButton"
                                                      styleClass="btn btn-secondary"

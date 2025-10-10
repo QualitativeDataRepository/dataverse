@@ -20,7 +20,7 @@
             <ui:param name="showMessagePanel" value="#{true}"/>
             <ui:define name="body">
                 <h:form id="manageTemplatesForm">
-                    <div class="form-group clearfix">
+                    <div class="row mb-3 clearfix">
                         <ui:fragment rendered="#{manageTemplatesPage.dataverse.owner ne null and manageTemplatesPage.inheritTemplatesAllowed}">
                             <label for="templateRoot" class="normal-text">
                                 <h:selectBooleanCheckbox id="templateRoot" value="#{manageTemplatesPage.inheritTemplatesValue}">
@@ -42,12 +42,12 @@
                     <div>
                         <div id="no-templates-message" class="panel panel-default" jsf:rendered="#{empty manageTemplatesPage.templates}">
                             <div class="panel-body">
-                                <span class="help-block h3">#{bundle['dataset.manageTemplates.noTemplates.why.header']}</span>
+                                <span class="form-text h3">#{bundle['dataset.manageTemplates.noTemplates.why.header']}</span>
                                 <ul>
                                     <li><h:outputText value="#{bundle['dataset.manageTemplates.noTemplates.why.reason1']}" escape="false"/></li>
                                     <li><h:outputText value="#{bundle['dataset.manageTemplates.noTemplates.why.reason2']}" escape="false"/></li>
                                 </ul>
-                                <span class="help-block h3">#{bundle['dataset.manageTemplates.noTemplates.how.header']}</span>
+                                <span class="form-text h3">#{bundle['dataset.manageTemplates.noTemplates.how.header']}</span>
                                 <ul>
                                     <li><h:outputText value="#{bundle['dataset.manageTemplates.noTemplates.how.tip1']}" escape="false"/></li>
                                     <li>
@@ -140,7 +140,7 @@
                     </div>
                     <p:dialog id="deleteTemplateConfirm" header="#{bundle['dataset.manageTemplates.tab.action.btn.delete.dialog.header']}" 
                               styleClass="largePopUp" widgetVar="deleteConfirmation" modal="true" focus="contDeleteTemplateBtn">
-                        <p class="help-block">
+                        <p class="form-text">
                             <span class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> &#160;<h:outputText value="#{bundle['dataset.manageTemplates.tab.action.btn.delete.dialog.tip']}" /></span>
                         </p>
                         <ui:fragment rendered="#{manageTemplatesPage.selectedTemplate.isDefaultForDataverse}">
@@ -163,9 +163,9 @@
                         </div>
                     </p:dialog>
                     <p:dialog id="viewTemplate" styleClass="largePopUp" header="#{bundle['dataset.manageTemplates.tab.action.btn.view.dialog.header']}" widgetVar="viewTemplate" modal="true">
-                        <div class="form-horizontal">
-                            <div class="form-group">
-                                <label for="select_DatasetTemplate" class="col-sm-3 control-label">
+                        <div>
+                            <div class="row mb-3">
+                                <label for="select_DatasetTemplate" class="col-sm-3 form-label">
                                     #{bundle['dataset.manageTemplates.tab.action.btn.view.dialog.datasetTemplate']}
                                 </label>
                                 <div class="col-sm-7">

@@ -16,7 +16,7 @@
 <ui:param name="compareVersionsCount" value="#{FilePage.compareVersionsCount}" />
 
 <ui:fragment rendered="#{isWidgetView}">
-    <p class="help-block">
+    <p class="form-text">
         <h:outputFormat value="#{bundle['file.dataFilesTab.versions.widget.viewMoreInfo']}" escape="false">
             <f:param value="#{currentDataset.globalId.asString()}"/>
             <f:param value="#{currentDataset.displayName}"/>

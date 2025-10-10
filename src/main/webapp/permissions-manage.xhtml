@@ -27,14 +27,18 @@
                         <!-- Permissions Configure Panel -->
                         <p:fragment id="configureSettings">
                             <c:if test="#{managePermissionsPage.dvObject.instanceofDataverse}">
-                                <div class="panel panel-default">
-                                    <div data-toggle="collapse" data-target="#panelCollapsePermissions" class="panel-heading text-info">
+                                <div class="card">
+                                    <div data-bs-toggle="collapse" data-bs-target="#panelCollapsePermissions" 
+                                         class="card-header text-info"
+                                         aria-expanded="true"
+                                         aria-controls="panelCollapsePermissions">
+                                        
                                         #{bundle['dataverse.permissions.title']} <span class="bi bi-chevron-up"/>
                                         
                                         <span class="text-muted small float-end">#{bundle['dataverse.permissions.description']}</span>
                                     </div>
-                                    <div id="panelCollapsePermissions" class="collapse in">
-                                        <div class="panel-body">
+                                    <div id="panelCollapsePermissions" class="collapse show" aria-labelledby="panelCollapsePermissions">
+                                        <div class="card-body">
                                             <p:fragment id="configureMessages">
                                                 <div class="messagePanel">
                                                     <iqbs:messages  collapsible="true" rendered="#{managePermissionsPage.renderConfigureMessages}"/>
@@ -46,9 +50,9 @@
                                                            oncomplete="PF('accessForm').show();">
                                                 <span class="bi bi-gear"/> #{bundle['dataverse.permissions.access.accessBtn']}
                                             </p:commandLink>
-                                            <p class="help-block clearfix">#{bundle['dataverse.permissions.tip']}</p>
+                                            <p class="form-text clearfix">#{bundle['dataverse.permissions.tip']}</p>
                                             <div>
-                                                <div class="form-group">
+                                                <div class="row mb-3">
                                                     <label for="accessRadios">
                                                         #{bundle['dataverse.permissions.Q1']}
                                                     </label>
@@ -61,7 +65,7 @@
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <div class="form-group">
+                                                <div class="row mb-3">
                                                     <label for="contributorRadios">
                                                         #{bundle['dataverse.permissions.Q2']}
                                                     </label>
@@ -87,14 +91,17 @@
                         </p:fragment>
 
                         <!-- Role Assignments Panel -->
-                        <div class="panel panel-default">
-                            <div data-toggle="collapse" data-target="#panelCollapseUsersGroups" class="panel-heading text-info">
+                        <div class="card">
+                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseUsersGroups" 
+                                     class="card-header text-info"
+                                     aria-expanded="#{!managePermissionsPage.dvObject.instanceofDataverse ? 'true' : 'false'}"
+                                     aria-controls="panelCollapseUsersGroups">
                                 #{bundle['dataverse.permissions.usersOrGroups']} <span class="bi #{!managePermissionsPage.dvObject.instanceofDataverse ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
                                 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissions.usersOrGroups.description']}</span>
                             </div>
-                            <div id="panelCollapseUsersGroups" class="collapse #{!managePermissionsPage.dvObject.instanceofDataverse ? 'in' : ''}">
-                                <div class="panel-body">
+                            <div id="panelCollapseUsersGroups" class="collapse #{!managePermissionsPage.dvObject.instanceofDataverse ? 'show' : ''}" aria-labelledby="panelCollapseUsersGroups">
+                                <div class="card-body">
                                     <p:fragment id="assignmentMessages">
                                         <div class="messagePanel">
                                             <iqbs:messages collapsible="true" rendered="#{managePermissionsPage.renderAssignmentMessages}"/>
@@ -144,14 +151,17 @@
                         </div>
 
                         <!-- Roles Panel -->
-                        <div class="panel panel-default">
-                            <div data-toggle="collapse" data-target="#panelCollapseRoles" class="panel-heading text-info">
+                        <div class="card">
+                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseRoles" 
+                                 class="card-header text-info"
+                                 aria-expanded="false"
+                                 aria-controls="panelCollapseRoles">
                                 #{bundle['dataverse.permissions.roles']} <span class="bi bi-chevron-down"/>
                                 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissions.roles.description']}</span>
                             </div>
-                            <div id="panelCollapseRoles" class="collapse">
-                                <div class="panel-body">
+                            <div id="panelCollapseRoles" class="collapse" aria-labelledby="panelCollapseRoles">
+                                <div class="card-body">
                                     <p:fragment id="roleMessages">
                                         <div class="messagePanel">
                                             <iqbs:messages  collapsible="true" rendered="#{managePermissionsPage.renderRoleMessages}"/>
@@ -170,7 +180,7 @@
                                     <p:fragment id="roleDisplay">
                                         <ui:repeat id="roleList" value="#{managePermissionsPage.availableRoles}" var="role">
                                             <f:passThroughAttribute name="class" value="list-unstyled" />
-                                            <div class="form-group col-sm-12 #{!empty role.owner ? 'bg-info' : 'bg-warning'}">
+                                            <div class="row mb-3 col-sm-12 #{!empty role.owner ? 'bg-info' : 'bg-warning'}">
                                                 <span class="fw-bold">#{role.name}</span>
                                                 <h:outputText value=" - #{role.description}" rendered="#{!empty role.description}"/>
                                                 <p:commandLink title="#{bundle['dataverse.permissions.roles.edit']}" styleClass="icon-inline-action bootstrap-button-tooltip"
@@ -190,7 +200,7 @@
                                                         <span class="badge bg-default">#{bundle['permission.'.concat(prm).concat('.label')]}</span>
                                                     </ui:repeat>
                                                 </div>
-                                            </div>
+                                            </div>ur
                                         </ui:repeat>
                                     </p:fragment>
                                 </div>
@@ -198,13 +208,16 @@
                         </div>
                         <!-- Role Assignment History Panel -->
                         <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
-                        <div class="panel panel-default" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
-                          <div data-toggle="collapse" data-target="#panelCollapseHistory" class="panel-heading text-info">
+                        <div class="card" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
+                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseHistory" 
+                                 class="card-header text-info"
+                                 aria-expanded="false"
+                                 aria-controls="panelCollapseHistory">
                             #{bundle['dataverse.permissions.history']} <span class="bi bi-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
                           </div>
-                          <div id="panelCollapseHistory" class="collapse">
+                          <div id="panelCollapseHistory" class="collapse" aria-labelledby="panelCollapseHistory"pseHistory" class="col>
                             <p:panel id="historyPanel" deferred="true" deferredMode="visible">
-                                <div class="panel-body">
+                                <div class="card-body">
                                     <div class="button-group margin-bottom text-end">
                                         <h:outputLink value="#{managePermissionsPage.signedUrlForRAHistoryCsv}" 
                                                      styleClass="btn btn-secondary" 
@@ -267,7 +280,7 @@
                     <ui:include src="roles-edit.xhtml"/>
                     
                     <p:dialog id="accessRemoveConfirm" header="#{bundle['dataverse.permissions.usersOrGroups.removeBtn']}" widgetVar="confirmation" modal="true">
-                        <p class="help-block">
+                        <p class="form-text">
                             <span class="bi bi-exclamation-triangle-fill text-danger"/> <span class="text-danger">#{bundle['dataverse.permissions.usersOrGroups.removeBtn.confirmation']}</span>
                         </p>
                         <div class="button-block">

@@ -62,14 +62,14 @@
                             <ui:include src="mydata_fragment.xhtml"></ui:include>
                         </p:tab>
                         <p:tab id="notifications" title="#{bundle['header.user.selectTab.notifications']}">
-                            <div class="panel panel-default" jsf:rendered="#{settingsWrapper.showMuteOptions}">
-                                <div data-toggle="collapse" data-target="#muteCollapse" aria-expanded="false" class="panel-heading text-info" role="button" aria-controls="muteCollapse">
+                            <div class="card" jsf:rendered="#{settingsWrapper.showMuteOptions}">
+                                <div data-bs-toggle="collapse" data-bs-target="#muteCollapse" aria-expanded="false" class="panel-heading text-info" role="button" aria-controls="muteCollapse">
                                     #{bundle['notification.muteOptions']} <span class="bi bi-chevron-down" />
                                 </div>
                                 <div id="muteCollapse" class="collapse">
-                                    <div class="panel-body">
-                                        <div class="form-group text-left">
-                                            <label for="mutedEmails" class="col-sm-4 control-label">
+                                    <div class="card-body">
+                                        <div class="row mb-3 text-left">
+                                            <label for="mutedEmails" class="col-sm-4 form-label">
                                                 #{bundle['notification.mutedEmails']}
                                             </label>
                                             <div class="col-sm-8">
@@ -81,8 +81,8 @@
                                                 </p:selectManyCheckbox>
                                             </div>
                                         </div>
-                                        <div class="form-group text-left">
-                                            <label for="mutedNotifications" class="col-sm-4 control-label">
+                                        <div class="row mb-3 text-left">
+                                            <label for="mutedNotifications" class="col-sm-4 form-label">
                                                 #{bundle['notification.mutedNotifications']}
                                             </label>
                                             <div class="col-sm-8">
@@ -109,7 +109,7 @@
                                             </ui:fragment>
                                             <ui:fragment rendered="#{item.theObject != null}">
                                                 <ui:fragment rendered="#{item.type == 'CREATEACC'}">
-                                                    <span class="icon-dataverse text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-folder text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.welcome']}" escape="false">
                                                         <o:param>
                                                           #{bundle['institution.acronym']}
@@ -125,7 +125,7 @@
                                                     <h:outputFormat value=" #{bundle['notification.welcomeConfirmEmail']}" rendered="#{DataverseUserPage.accountDetailsEditable}"/>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'CREATEDV'}">
-                                                    <span class="icon-dataverse text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-folder text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.createDataverse']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataverse/#{item.theObject.getAlias()}" title="#{item.theObject.getDisplayName()}">#{item.theObject.getDisplayName()}</a>
@@ -139,7 +139,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'CREATEDS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.createDataset']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getDataset().getGlobalId()}" title="#{item.theObject.getDataset().getDisplayName()}">#{item.theObject.getDataset().getDisplayName()}</a>
@@ -150,7 +150,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'DATASETCREATED'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.datasetCreated']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getGlobalId()}" title="#{item.theObject.getDisplayName()}">#{item.theObject.getDisplayName()}</a>
@@ -164,7 +164,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'SUBMITTEDDS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.wasSubmittedForReview']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getDataset().getGlobalId()}&amp;version=DRAFT&amp;faces-redirect=true" title="#{item.theObject.getDataset().getDisplayName()}">#{item.theObject.getDataset().getDisplayName()}</a>
@@ -181,7 +181,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'RETURNEDDS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.wasReturnedByReviewer']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getDataset().getGlobalId()}&amp;version=DRAFT&amp;faces-redirect=true" title="#{item.theObject.getDataset().getDisplayName()}">#{item.theObject.getDataset().getDisplayName()}</a>
@@ -198,7 +198,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'PUBLISHEDDS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.wasPublished']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getDataset().getGlobalId()}&amp;faces-redirect=true" title="#{item.theObject.getDataset().getDisplayName()}">#{item.theObject.getDataset().getDisplayName()}</a>
@@ -209,7 +209,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'PUBLISHFAILED_PIDREG'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.publishFailedPidReg']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getDataset().getGlobalId()}&amp;version=DRAFT&amp;faces-redirect=true" title="#{item.theObject.getDataset().getDisplayName()}">#{item.theObject.getDataset().getDisplayName()}</a>
@@ -220,7 +220,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'REQUESTFILEACCESS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.requestFileAccess']}" escape="false">
                                                         <o:param>
                                                             <a href="/permissions-manage-files.xhtml?id=#{item.theObject.id}" title="#{item.theObject.displayName}">#{item.theObject.displayName}</a>
@@ -234,7 +234,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'REQUESTEDFILEACCESS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.requestedFileAccess']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getGlobalId()}" title="#{item.theObject.displayName}">#{item.theObject.displayName}</a>
@@ -242,7 +242,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'GRANTFILEACCESS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.grantFileAccess']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getGlobalId()}" title="#{item.theObject.displayName}">#{item.theObject.displayName}</a>
@@ -250,7 +250,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'REJECTFILEACCESS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.rejectFileAccess']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getGlobalId()}" title="#{item.theObject.displayName}">#{item.theObject.displayName}</a>
@@ -259,7 +259,7 @@
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'ASSIGNROLE'}">
                                                     <ui:fragment rendered="#{item.theObject.isInstanceofDataverse()}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.access.granted.dataverse']}" escape="false">
                                                         <o:param value="#{item.roleString}"/>
                                                         <o:param>
@@ -273,7 +273,7 @@
                                                     </ui:fragment>
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{item.theObject.isInstanceofDataset()}">
-                                                        <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                        <span class="bi bi-file-earmark text-muted"></span>
                                                         <h:outputFormat value="#{bundle['notification.access.granted.dataset']}" escape="false">
                                                             <o:param value="#{item.roleString}"/>
                                                             <o:param>
@@ -289,7 +289,7 @@
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{item.theObject.isInstanceofDataFile()}">
                                                     <f:param value="#{item.roleString}"/>
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.access.granted.datafile']}" escape="false">
                                                             <o:param value="#{item.roleString}"/>
                                                             <o:param>
@@ -301,7 +301,7 @@
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'REVOKEROLE'}">
                                                     <ui:fragment rendered="#{item.theObject.isInstanceofDataverse()}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.access.revoked.dataverse']}" escape="false">
                                                             <o:param>
                                                                 <a href="/dataverse/#{item.theObject.getAlias()}" title="#{item.theObject.getDisplayName()}">#{item.theObject.getDisplayName()}</a>
@@ -310,7 +310,7 @@
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{item.theObject.isInstanceofDataset()}">
                                                     <f:param value="#{item.roleString}"/>
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.access.revoked.dataset']}" escape="false">
                                                         <o:param>
                                                                 <a href="/dataset.xhtml?persistentId=#{item.theObject.getGlobalId()}" title="#{item.theObject.getDisplayName()}">#{item.theObject.getDisplayName()}</a>
@@ -319,7 +319,7 @@
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{item.theObject.isInstanceofDataFile()}">
                                                     <f:param value="#{item.roleString}"/>
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.access.revoked.datafile']}" escape="false">
                                                         <o:param>
                                                               <a href="/dataset.xhtml?persistentId=#{item.theObject.getOwner().getGlobalId()}" title="#{item.theObject.getOwner().getDisplayName()}">#{item.theObject.getOwner().getDisplayName()}</a>
@@ -333,75 +333,75 @@
                                                     a more type-safe approach would be to use the "Type" enum in UserNotification.
                                                     Also, isInstanceofDataset() should be checked, probably.
                                                     -->
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.checksumfail']}" escape="false">
                                                         <f:param value="#{item.theObject.getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDisplayName()}"/>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'FILESYSTEMIMPORT'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.import.filesystem']}" escape="false">
                                                         <f:param value="#{item.theObject.getDataset().getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDataset().getDisplayName()}"/>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'GLOBUSUPLOADCOMPLETED'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.globus.upload.completed']}" escape="false">
                                                         <f:param value="#{item.theObject.getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDisplayName()}"/>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'GLOBUSDOWNLOADCOMPLETED'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.globus.download.completed']}" escape="false">
                                                         <f:param value="#{item.theObject.getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDisplayName()}"/>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'GLOBUSUPLOADCOMPLETEDWITHERRORS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.globus.upload.completedWithErrors']}" escape="false">
                                                         <f:param value="#{item.theObject.getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDisplayName()}"/>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'GLOBUSUPLOADREMOTEFAILURE'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.globus.upload.failedRemotely']}" escape="false">
                                                         <f:param value="#{item.theObject.getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDisplayName()}"/>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'GLOBUSUPLOADLOCALFAILURE'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.globus.upload.failedRemotely']}" escape="false">
                                                         <f:param value="#{item.theObject.getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDisplayName()}"/>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'GLOBUSDOWNLOADCOMPLETEDWITHERRORS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.globus.download.completedWithErrors']}" escape="false">
                                                         <f:param value="#{item.theObject.getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDisplayName()}"/>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'CHECKSUMIMPORT'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.import.checksum']}" escape="false">
                                                         <f:param value="#{item.theObject.getDataset().getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDataset().getDisplayName()}"/>
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'APIGENERATED'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.email.apiTokenGenerated.subject']}" escape="false">
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'INGESTCOMPLETED'}">
-                                                    <i class="icon-dataset text-icon-inline text-muted"></i>
+                                                    <i class="bi bi-file-earmark text-muted"></i>
                                                     <h:outputFormat value="#{bundle['notification.ingestCompleted']}" escape="false">
                                                         <f:param value="#{item.theObject.getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDisplayName()}"/>
@@ -410,7 +410,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'INGESTCOMPLETEDWITHERRORS'}">
-                                                    <i class="icon-dataset text-icon-inline text-muted"></i>
+                                                    <i class="bi bi-file-earmark text-muted"></i>
                                                     <h:outputFormat value="#{bundle['notification.ingestCompletedWithErrors']}" escape="false">
                                                         <f:param value="#{item.theObject.getGlobalId()}"/>
                                                         <f:param value="#{item.theObject.getDisplayName()}"/>
@@ -419,7 +419,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'WORKFLOW_FAILURE'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.workflowFailed']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getDataset().getGlobalId()}&amp;version=DRAFT&amp;faces-redirect=true" title="#{item.theObject.getDataset().getDisplayName()}">#{item.theObject.getDataset().getDisplayName()}</a>
@@ -430,7 +430,7 @@
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'WORKFLOW_SUCCESS'}">
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.workflowSucceeded']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getDataset().getGlobalId()}&amp;version=DRAFT&amp;faces-redirect=true" title="#{item.theObject.getDataset().getDisplayName()}">#{item.theObject.getDataset().getDisplayName()}</a>
@@ -442,7 +442,7 @@
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'STATUSUPDATED'}">
                                                     <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.statusUpdated']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getDataset().getGlobalId()}&amp;version=DRAFT&amp;faces-redirect=true" title="#{item.theObject.getDataset().getDisplayName()}">#{item.theObject.getDataset().getDisplayName()}</a>
@@ -452,7 +452,7 @@
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'PIDRECONCILED'}">
                                                     <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.pidreconciled']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getDataset().getGlobalId()}&amp;version=DRAFT&amp;faces-redirect=true" title="#{item.theObject.getDataset().getDisplayName()}">#{item.theObject.getDataset().getDisplayName()}</a>
@@ -462,7 +462,7 @@
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'DATASETMENTIONED'}">
                                                 <o:importFunctions type="edu.harvard.iq.dataverse.util.json.JsonUtil" />
-                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.datasetMentioned']}" escape="false">
                                                     <f:param value="#{JsonUtil:getJsonObject(item.additionalInfo).getString('@type')}"/>
                                                     <f:param value="#{JsonUtil:getJsonObject(item.additionalInfo).getString('@id')}"/>
@@ -521,7 +521,7 @@
                             </div>
                             <div class="metadata-container" jsf:rendered="#{!empty DataverseUserPage.currentUser}">
                                 <!-- Shib -->
-                                <p class="help-block" id="userShib" jsf:rendered="#{not DataverseUserPage.accountDetailsEditable}">
+                                <p class="form-text" id="userShib" jsf:rendered="#{not DataverseUserPage.accountDetailsEditable}">
                                     <h:outputText value="#{bundle['user.isShibUser']}" />
                                     <h:outputText value=" #{bundle['user.helpShibUserMigrateOffShibBeforeLink']} " />
                                     <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
@@ -533,7 +533,7 @@
                                     <h:outputText value=" #{bundle['user.helpShibUserMigrateOffShibAfterLink']}" />
                                 </p>
                                 <!-- OAuth -->
-                                <p class="help-block" id="userOAuth" jsf:rendered="#{DataverseUserPage.userAuthProvider.OAuthProvider}">
+                                <p class="form-text" id="userOAuth" jsf:rendered="#{DataverseUserPage.userAuthProvider.OAuthProvider}">
                                     <h:outputFormat value="#{bundle['user.helpOAuthBeforeLink']} ">
                                         <f:param value="#{DataverseUserPage.userAuthProvider.info.title}"/>
                                     </h:outputFormat>
@@ -653,7 +653,7 @@
                             </div>
                         </p:tab>
                         <p:tab id="apiTokenTab" title="#{bundle['apitoken.title']}">
-                            <p class="help-block">
+                            <p class="form-text">
                                 <h:outputFormat value="#{bundle['apitoken.message']}" escape="false">
                                     <f:param value="&lt;a href=&#34;#{systemConfig.guidesBaseUrl}/#{systemConfig.guidesVersion}/api&#34; target=&#34;_blank&#34;&gt;"/>
                                     <f:param value="&lt;/a&gt;"/>
@@ -724,26 +724,26 @@
                     <p:tabView id="accountInfoView" rendered="false">
                         <p:tab id="accountInfoEdit" title="#{bundle['account.info']}">
                             <ui:fragment rendered="#{DataverseUserPage.editMode == 'CREATE' and DataverseUserPage.nonLocalLoginEnabled}">
-                                <p class="help-block">
+                                <p class="form-text">
                                     <h:outputText value="#{bundle['user.signup.otherLogInOptions.tip']}" escape="false"/>
                                 </p>
                             </ui:fragment>
-                            <div class="form-horizontal">
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
+                            <div>
+                                <div class="row mb-3" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                     <!-- Username -->                                   
-                                    <h:outputLabel value="#{bundle['user.username']}" for="userName" class="col-sm-3 control-label">
+                                    <h:outputLabel value="#{bundle['user.username']}" for="userName" class="col-sm-3 form-label">
                                         <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.username.illegal.tip']}"></span>
                                     </h:outputLabel> 
                                                                        
                                     <div class="col-sm-9">
-                                        <div class="help-block">
+                                        <div class="form-text">
                                             <h:outputText value="#{bundle['user.username.valid']}" escape="false">
                                             </h:outputText>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4 col-sm-offset-3">
+                                    <div class="col-sm-4 offset-sm-3">
                                         <p:inputText id="userName" styleClass="form-control"
                                                      validator="#{DataverseUserPage.validateUserName}"
                                                      value="#{DataverseUserPage.username}"
@@ -752,9 +752,9 @@
                                         <p:message for="userName" display="text" />
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
+                                <div class="row mb-3" jsf:rendered="#{DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
                                 <!-- Current Password -->
-                                    <label for="currentPassword" class="col-sm-3 control-label">
+                                    <label for="currentPassword" class="col-sm-3 form-label">
                                         #{bundle['user.currentPasswd']} <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.currentPasswd.tip']}"></span>
@@ -764,28 +764,28 @@
                                         <p:message for="currentPassword" display="text" />
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
+                                <div class="row mb-3" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
                                 <!-- Password -->
-                                <h:outputLabel value="#{DataverseUserPage.editMode == 'CREATE' ? bundle['user.password'] : bundle['user.newPassword']}"   for="inputPassword"  class="col-sm-3 control-label" >
+                                <h:outputLabel value="#{DataverseUserPage.editMode == 'CREATE' ? bundle['user.password'] : bundle['user.newPassword']}"   for="inputPassword"  class="col-sm-3 form-label" >
                                     <span class="bi bi-asterisk text-danger"></span>
                                     <span class="bi bi-question-circle tooltip-icon"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.passwd.illegal.tip']}"></span>
                                 </h:outputLabel>      
                                     <div class="col-sm-9">
-                                        <div class="help-block">
+                                        <div class="form-text">
                                             <h:outputFormat value="#{bundle['user.updatePassword.password']}" escape="false">
                                                 <f:param value="#{DataverseUserPage.passwordRequirements}"/>
                                             </h:outputFormat>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4 col-sm-offset-3">
+                                    <div class="col-sm-4 offset-sm-3">
                                         <p:password id="inputPassword" label="#{DataverseUserPage.editMode == 'CREATE' ? bundle['user.password'] : bundle['user.newPassword']}" styleClass="form-control" match="retypePassword" value="#{DataverseUserPage.inputPassword}" validator="#{DataverseUserPage.validateNewPassword}" autocomplete="off"/><!-- browsers will in general not respect autocomplete="foo", but scanners will still flag it as a potential problem -->
                                         <p:message for="inputPassword" display="text" />
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
+                                <div class="row mb-3" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
                                     <!-- Retype Password -->
-                                    <h:outputLabel value="#{bundle['user.rePasswd']}" for="retypePassword" class="col-sm-3 control-label"> <span class="bi bi-asterisk text-danger"/>
+                                    <h:outputLabel value="#{bundle['user.rePasswd']}" for="retypePassword" class="col-sm-3 form-label"> <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.rePasswd.tip']}"></span>
                                     </h:outputLabel>
@@ -794,9 +794,9 @@
                                         <p:message for="retypePassword" display="text" />
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
+                                <div class="row mb-3" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                 <!-- First Name -->                                       
-                                <h:outputLabel value="#{bundle['user.firstName']}" for="firstName" class="col-sm-3 control-label" > <span class="bi bi-asterisk text-danger"/>
+                                <h:outputLabel value="#{bundle['user.firstName']}" for="firstName" class="col-sm-3 form-label" > <span class="bi bi-asterisk text-danger"/>
                                     <span class="bi bi-question-circle tooltip-icon"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.firstName.tip']}"></span>
                                 </h:outputLabel>
@@ -805,9 +805,9 @@
                                         <p:message for="firstName" display="text" />
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
+                                <div class="row mb-3" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                     <!-- Last Name -->
-                                    <h:outputLabel value="#{bundle['user.lastName']}" for="lastName" class="col-sm-3 control-label" >  <span class="bi bi-asterisk text-danger"/>
+                                    <h:outputLabel value="#{bundle['user.lastName']}" for="lastName" class="col-sm-3 form-label" >  <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.lastName.tip']}"></span>
                                     </h:outputLabel>
@@ -816,9 +816,9 @@
                                         <p:message for="lastName" display="text" />
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
+                                <div class="row mb-3" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                     <!-- Email -->
-                                    <h:outputLabel value="#{bundle['email']}" for="email" class="col-sm-3 control-label">   <span class="bi bi-asterisk text-danger"/>
+                                    <h:outputLabel value="#{bundle['email']}" for="email" class="col-sm-3 form-label">   <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.email.tip']}"></span>
                                     </h:outputLabel>
@@ -830,9 +830,9 @@
                                     </div>
                                 </div>
                                 <!--FIXME: refactor to remove need for EDIT? userAuthProvider is null on CREATE-->
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
+                                <div class="row mb-3" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                     <!-- Affiliation -->
-                                    <h:outputLabel value="#{bundle.affiliation}" for="affiliation" class="col-sm-3 control-label">
+                                    <h:outputLabel value="#{bundle.affiliation}" for="affiliation" class="col-sm-3 form-label">
                                         <span class="bi bi-question-circle tooltip-icon"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.affiliation.tip']}"></span>
                                     </h:outputLabel>
@@ -841,9 +841,9 @@
                                         <p:message for="affiliation" display="text" />
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
+                                <div class="row mb-3" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                 <!-- Position -->
-                                <h:outputLabel value="#{bundle.position}" for="position" class="col-sm-3 control-label">
+                                <h:outputLabel value="#{bundle.position}" for="position" class="col-sm-3 form-label">
                                     <span class="bi bi-question-circle tooltip-icon"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.position.tip']}"></span>
                                 </h:outputLabel>
@@ -856,7 +856,7 @@
                                 <!-- Terms of Use -->
                                     <ui:include src="termsofuse.xhtml"/>
                                 </ui:fragment>
-                                <div class="form-group">
+                                <div class="row mb-3">
                                     <div class="col-sm-12 button-block">
                                         <p:commandButton id="save" styleClass="btn btn-secondary"
                                                          value="#{DataverseUserPage.editMode == 'CREATE' ? bundle['user.createBtn']:bundle.saveChanges}"

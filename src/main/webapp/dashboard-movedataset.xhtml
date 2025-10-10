@@ -23,7 +23,7 @@
             <ui:param name="pageTitle" value="#{bundle['dashboard.move.dataset.header']} - #{dataverseServiceBean.findRootDataverse().name} #{bundle.dataverse}"/>
             <ui:param name="showDataverseHeader" value="false"/>
             <ui:define name="body">
-                <h:form id="movedataset-form" class="form-horizontal">
+                <h:form id="movedataset-form">
                     <p:focus for="sourceDatasetMenu"/>
                     <div class="col-md-6">
                         <div class="panel panel-default">
@@ -31,8 +31,8 @@
                             <div class="panel-body">
 
                                 <!-- dataset to move: -->
-                                <div class="col-12 form-group">
-                                    <label for="sourceDataset" class="col-3 control-label">
+                                <div class="col-12 row mb-3">
+                                    <label for="sourceDataset" class="col-3 form-label">
                                         #{bundle['dashboard.move.dataset.dataset.label']}
                                     </label>
                                     <div class="col-9">
@@ -74,8 +74,8 @@
                             <div class="panel-body">
                                 
                                 <!-- dataverse to move to: -->
-                                <div class="col-12 form-group">
-                                    <label for="destinationDataverse" class="col-3 control-label">
+                                <div class="col-12 row mb-3">
+                                    <label for="destinationDataverse" class="col-3 form-label">
                                         #{bundle['dashboard.move.dataset.dataverse.label']}
                                     </label>
                                     <div class="col-9">

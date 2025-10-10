@@ -24,18 +24,18 @@
                 </f:metadata>
             </ui:define>
             <ui:define name="body">
-                <h:form id="themeWidgetsForm" styleClass="row form-horizontal">
+                <h:form id="themeWidgetsForm" styleClass="row">
                 <p:tabView rendered="#{themeWidgetFragment.editDv!=null}" id="themeWidgetsTabView" widgetVar="content">
                     <p:tab id="thumbnailsTab" title="#{bundle['dataset.thumbnailsAndWidget.thumbnails.title']}">
 
-                            <div class="form-group" jsf:rendered="#{true or themeWidgetFragment.editDv.themeRoot}">
-                                <label class="col-sm-3 control-label" for="logoFormat">
+                            <div class="row mb-3" jsf:rendered="#{true or themeWidgetFragment.editDv.themeRoot}">
+                                <label class="col-sm-3 form-label" for="logoFormat">
                                     #{bundle['dataset.thumbnailsAndWidget.thumbnailImage']}
                                     <span class="bi bi-question-circle tooltip-icon"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.title']}"></span>
                                 </label>
                                 <div class="col-sm-9">
-                                    <p class="help-block">
+                                    <p class="form-text">
                                         <h:outputFormat value="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.tip']}" escape="false">
                                             <f:param value="#{systemConfig.uploadLogoSizeLimit/1000}"/>
                                         </h:outputFormat>
@@ -55,8 +55,8 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-8">
-                                        <div class="form-group" jsf:rendered="#{not empty DatasetWidgetsPage.datasetThumbnails}">
-                                            <label for="selectThumbnail" class="control-label">
+                                        <div class="row mb-3" jsf:rendered="#{not empty DatasetWidgetsPage.datasetThumbnails}">
+                                            <label for="selectThumbnail" class="form-label">
                                                 #{bundle['dataset.thumbnailsAndWidget.thumbnailImage.selectAvailable']}
                                                 <span class="bi bi-question-circle tooltip-icon"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.selectAvailable.title']}"></span>
@@ -67,8 +67,8 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="uploadThumbnail" class="control-label">
+                                        <div class="row mb-3">
+                                            <label for="uploadThumbnail" class="form-label">
                                                 #{bundle['dataset.thumbnailsAndWidget.thumbnailImage.uploadNew']}
                                                 <span class="bi bi-question-circle tooltip-icon"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.uploadNew.title']}"></span>
@@ -90,12 +90,12 @@
                     <p:tab id="widgetsTab" title="#{bundle['dataset.thumbnailsAndWidget.widgets.title']}">
                         <div id="no-widgets-message" class="panel panel-default" jsf:rendered="#{DatasetWidgetsPage.dataset.id.intValue() > 0 and !DatasetWidgetsPage.dataset.released}">
                             <div class="panel-body">
-                                <span class="help-block h3">#{bundle['dataset.widgets.notPublished.why.header']}</span>
+                                <span class="form-text h3">#{bundle['dataset.widgets.notPublished.why.header']}</span>
                                 <ul>
                                     <li><h:outputText value="#{bundle['dataset.widgets.notPublished.why.reason1']}" escape="false"/></li>
                                     <li><h:outputText value="#{bundle['dataset.widgets.notPublished.why.reason2']}" escape="false"/></li>
                                 </ul>
-                                <span class="help-block h3">#{bundle['dataset.widgets.notPublished.how.header']}</span>
+                                <span class="form-text h3">#{bundle['dataset.widgets.notPublished.how.header']}</span>
                                 <ul>
                                     <li><h:outputText value="#{bundle['dataset.widgets.notPublished.how.tip1']}" escape="false"/></li>
                                     <li><h:outputText value="#{bundle['dataset.widgets.notPublished.how.tip2']}" escape="false"/></li>
@@ -115,7 +115,7 @@
                             </div>
                         </div>
                         <ui:fragment rendered="#{DatasetWidgetsPage.dataset.released}">
-                            <p class="help-block">
+                            <p class="form-text">
                                 <h:outputFormat value="#{bundle['dataset.widgets.tip']}" escape="false">
                                     <f:param value="#{systemConfig.guidesBaseUrl}"/>
                                     <f:param value="#{systemConfig.guidesVersion}"/>
@@ -125,7 +125,7 @@
                                 <h5>
                                     #{bundle['dataset.widgets.citation.txt']}
                                 </h5>
-                                <p class="help-block">#{bundle['dataset.widgets.citation.tip']}</p>
+                                <p class="form-text">#{bundle['dataset.widgets.citation.tip']}</p>
                             </div>
                             <div>
                                 <textarea rows="3" cols="54" class="form-control">&lt;script id=&quot;dataverse-widget-js&quot; src=&quot;#{systemConfig.dataverseSiteUrl}/resources/js/widgets.js?persistentId=#{dataset.globalId}&amp;amp;dvUrl=#{systemConfig.dataverseSiteUrl}&amp;amp;widget=citation&amp;amp;heightPx=150&quot;&gt;&lt;/script&gt;</textarea>
@@ -134,7 +134,7 @@
                                 <h5>
                                     #{bundle['dataset.widgets.datasetFull.txt']}
                                 </h5>
-                                <p class="help-block">#{bundle['dataset.widgets.datasetFull.tip']}</p>
+                                <p class="form-text">#{bundle['dataset.widgets.datasetFull.tip']}</p>
                             </div>
                             <div>
                                 <textarea rows="3" cols="54" class="form-control">&lt;script id=&quot;dataverse-widget-js&quot; src=&quot;#{systemConfig.dataverseSiteUrl}/resources/js/widgets.js?persistentId=#{dataset.globalId}&amp;amp;dvUrl=#{systemConfig.dataverseSiteUrl}&amp;amp;widget=iframe&amp;amp;heightPx=500&quot;&gt;&lt;/script&gt;</textarea>
@@ -147,7 +147,7 @@
                     </p:tab>
                 </p:tabView>
                 <p:dialog id="confrmRemove" header="#{bundle['dataset.thumbnailsAndWidget.removeThumbnail']}" widgetVar="confrmRemove" modal="true">
-                    <p class="help-block">
+                    <p class="form-text">
                         <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['dataset.thumbnailsAndWidget.removeThumbnail.tip']}</span>
                     </p>
                     <div class="button-block">
@@ -160,9 +160,9 @@
                     </div> 
                 </p:dialog>
                 <p:dialog id="selectFileThumbnail" header="#{bundle['dataset.thumbnailsAndWidget.availableThumbnails']}" widgetVar="selectFileThumbnail" modal="true">
-                    <div class="form-horizontal col-sm-12">
-                        <div class="form-group">
-                            <p class="help-block">#{bundle['dataset.thumbnailsAndWidget.availableThumbnails.tip']}</p>
+                    <div class="col-sm-12">
+                        <div class="row mb-3">
+                            <p class="form-text">#{bundle['dataset.thumbnailsAndWidget.availableThumbnails.tip']}</p>
                             <p:outputPanel id="customPanel">
                                 <p:selectOneRadio id="selectDatasetThumbnail" value="#{DatasetWidgetsPage.datasetFileThumbnailToSwitchTo}" layout="custom" converter="dataFileConverter">
                                     <f:selectItems value="#{DatasetWidgetsPage.datasetThumbnails}" var="thumb" itemLabel="#{thumb}" itemValue="#{thumb.dataFile}"/>

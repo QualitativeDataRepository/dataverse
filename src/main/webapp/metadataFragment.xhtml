@@ -24,12 +24,15 @@
         </p>
         <ui:repeat value="#{metadataBlocks}"
                    var="metadataBlockVal" varStatus="block">
-            <div class="panel panel-default">
-                <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info #{(block.first and block.last) ? 'hidden':''}">
-                    #{metadataBlockVal.key.localeDisplayName} &#160;<span class="bi #{block.first?'bi-chevron-up':'bi-chevron-down'}"/>
+            <div class="card">
+                <div data-bs-toggle="collapse" data-bs-target="#panelCollapse#{block.index}" 
+                         class="card-header text-info #{(block.first and block.last) ? 'hidden':''}"
+                         aria-expanded="#{block.first ? 'true' : 'false'}"
+                         aria-controls="panelCollapse#{block.index}">
+                     #{metadataBlockVal.key.localeDisplayName} &#160;<span class="bi #{block.first?'bi-chevron-up':'bi-chevron-down'}"/>
                 </div>
-                <div id="panelCollapse#{block.index}" class="collapse #{block.first?'in':''}">
-                    <div class="panel-body metadata-container">
+                <div id="panelCollapse#{block.index}" class="collapse #{block.first?'show':''}">
+                    <div class="card-body metadata-container">
                         <table class="metadata">
                             <tbody>
                                 <ui:fragment rendered="#{block.index == '0' and datasetPage}">
@@ -114,7 +117,7 @@
                                             <!-- Compound datasetFields -->
                                             <ui:fragment rendered="#{dsf.datasetFieldType.compound}">
                                                 <ui:fragment rendered="#{dsf.datasetFieldType.name == 'datasetContact'}">
-                                                    <p class="help-block">
+                                                    <p class="form-text">
                                                         <h:outputText value="#{bundle['dataset.contact.tip']}"/>
                                                     </p>
                                                 </ui:fragment>
@@ -222,10 +225,10 @@
                         <f:param value="#{mdLang}" />
                     </h:outputFormat>
                 </p>
-                <div class="form-group"
+                <div class="row mb-3"
                     jsf:rendered="#{(empty mdLang and mdLangCode=='undefined')}">
                     <h:outputLabel for="dsMetadataLanguage"
-                        styleClass="col-md-3 control-label">
+                        styleClass="col-md-3 form-label">
                                             #{bundle.metadataLanguage}
                                             <span
                             class="bi bi-question-circle tooltip-icon"
@@ -233,7 +236,7 @@
                             title="#{bundle['dataset.metadatalanguage.title']}"></span>
                     </h:outputLabel>
                     <div class="col-md-7 form-col-container">
-                        <p class="help-block">
+                        <p class="form-text">
                             #{bundle['dataset.metadatalanguage.tip']}</p>
                         <p:selectOneMenu id="dsMetadataLanguage" styleClass="form-control"
                             value="#{DatasetPage.dataset.metadataLanguage}">
@@ -244,26 +247,29 @@
                         <p:message for="dsMetadataLanguage" display="text" />
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="row mb-3">
                     <span class="bi bi-asterisk text-danger"/> <h:outputText value="#{bundle['dataset.asterisk.tip']}"/>
                 </div>
                 <ui:repeat value="#{metadataBlocks}" var="metadataBlockVal" varStatus="block">
-                <div class="panel panel-default" jsf:rendered="#{(editMode == 'METADATA' or metadataBlockVal.key.displayOnCreate or !metadataBlockVal.key.isEmpty()
+                <div class="card" jsf:rendered="#{(editMode == 'METADATA' or metadataBlockVal.key.displayOnCreate or !metadataBlockVal.key.isEmpty()
                                                                  or metadataBlockVal.key.isHasRequired())
                                                                  or (!datasetPage)}">
-                    <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info #{(block.first and block.last) ? 'hidden':''}">
+                    <div data-bs-toggle="collapse" data-bs-target="#panelCollapse#{block.index}" 
+                             class="card-header text-info #{(block.first and block.last) ? 'hidden':''}"
+                             aria-expanded="#{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'true' : 'false'}"
+                             aria-controls="panelCollapse#{block.index}">
                         #{metadataBlockVal.key.localeDisplayName} <span class="bi #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
                     </div>
-                    <div id="panelCollapse#{block.index}" class="collapse #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'in' : ''}">
-                        <div class="panel-body">
+                    <div id="panelCollapse#{block.index}" class="collapse #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'show' : ''}">
+                        <div class="card-body">
                             <ui:repeat value="#{metadataBlockVal.value}" var="dsf" varStatus="curField">
-                                <div class="form-group" role="group"
+                                <div class="row mb-3" role="group"
                                      jsf:rendered="#{((editMode == 'METADATA' or dsf.datasetFieldType.shouldDisplayOnCreate() or !dsf.isEmpty() or dsf.required or dsf.hasRequiredChildren)) or (!datasetPage and dsf.include)}">
                                     <!-- Primitive fields -->
                                     <p:fragment id="editPrimitiveValueFragment" rendered="#{dsf.datasetFieldType.primitive}">
                                         <p:autoUpdate/>
                                         <div>
-                                          <h:outputLabel for="#{dsf.datasetFieldType.controlledVocabulary ? (!dsf.datasetFieldType.allowMultiples ? 'unique1_focus' : 'unique2_focus') : ('fieldvaluelist:0:'.concat(((dsf.datasetFieldType.fieldType == 'TEXTBOX') ? 'description' : cvocConf.containsKey(dsf.datasetFieldType.id)? 'cvocInputText': 'inputText')))}" styleClass="col-sm-3 control-label">
+                                          <h:outputLabel for="#{dsf.datasetFieldType.controlledVocabulary ? (!dsf.datasetFieldType.allowMultiples ? 'unique1_focus' : 'unique2_focus') : ('fieldvaluelist:0:'.concat(((dsf.datasetFieldType.fieldType == 'TEXTBOX') ? 'description' : cvocConf.containsKey(dsf.datasetFieldType.id)? 'cvocInputText': 'inputText')))}" styleClass="col-sm-3 form-label">
                                             #{dsf.datasetFieldType.localeTitle}
                                             <span class="bi bi-asterisk text-danger" jsf:rendered="#{dsf.required}"/>
                                             <span class="bi bi-question-circle tooltip-icon"
@@ -281,10 +287,10 @@
                                         </div>
                                         <div class="col-sm-3"/>
                                         <div class="col-sm-9" style="padding-left:2px">
-                                          <div class="form-group">
+                                          <div class="row mb-3">
                                             <div class="form-col-container col-sm-12">
                                                 <ui:repeat value="#{dsf.datasetFieldValues}" var="dsfv" varStatus="valCount" id="fieldvaluelist">
-                                                    <div class="form-group dataset-field-values">
+                                                    <div class="row mb-3 dataset-field-values">
                                                         <div class="form-col-container col-sm-9 edit-field">
                                                             <ui:include src="datasetFieldForEditFragment.xhtml">
                                                                 <ui:param name="dsfv" value="#{dsfv}"/>
@@ -311,7 +317,7 @@
                                                     </div>
                                                 </ui:repeat>
                                                 <ui:fragment rendered="#{dsf.datasetFieldType.controlledVocabulary}">
-                                                    <div class="form-group dataset-field-values">
+                                                    <div class="row mb-3 dataset-field-values">
                                                         <div class="form-col-container col-sm-9 edit-field">
                                                             <p:selectOneMenu value="#{dsf.singleControlledVocabularyValue}" converter="controlledVocabularyValueConverter" style="width: auto !important; max-width:100%; min-width:200px;" styleClass="form-control primitive"
                                                                              id="unique1" rendered="#{!dsf.datasetFieldType.allowMultiples}" filter="#{(dsf.datasetFieldType.controlledVocabularyValues.size() lt 10) ? 'false':'true'}" filterMatchMode="contains">
@@ -344,7 +350,7 @@
                                     <p:fragment id="editCompoundValueFragment" rendered="#{dsf.datasetFieldType.compound}">
                                         <p:autoUpdate/>
                                         <div>
-                                          <div id="metadata_#{dsf.datasetFieldType.name}" class="col-sm-3 control-label fw-bold">
+                                          <div id="metadata_#{dsf.datasetFieldType.name}" class="col-sm-3 form-label fw-bold">
                                             #{dsf.datasetFieldType.localeTitle}
                                             <span class="bi bi-asterisk text-danger" jsf:rendered="#{dsf.required}"/>
                                             <span class="bi bi-question-circle tooltip-icon"
@@ -362,23 +368,23 @@
                                           </div>
                                         </div> 
                                         <div class="col-sm-3"/>
-                                        <div class="form-group form-col-container col-sm-9 dataset-field-values">
+                                        <div class="row mb-3 form-col-container col-sm-9 dataset-field-values">
                                             <ui:fragment rendered="#{!dsf.required and dsf.hasRequiredChildren}">
-                                                <p class="help-block">
+                                                <p class="form-text">
                                                     <h:outputText value="#{bundle.conditionalRequiredMsg}"/>
                                                 </p>
                                             </ui:fragment>
                                             <ui:repeat value="#{dsf.datasetFieldCompoundValues}" var="compoundValue" varStatus="valCount">
-                                                <div class="form-group form-col-container col-sm-9 edit-compound-field"  data-cvoc-parentfield="#{cvocConf.containsKey(dsf.datasetFieldType.id)?cvocConf.get(dsf.datasetFieldType.id).getString('field-name'):''}">
+                                                <div class="row mb-3 form-col-container col-sm-9 edit-compound-field"  data-cvoc-parentfield="#{cvocConf.containsKey(dsf.datasetFieldType.id)?cvocConf.get(dsf.datasetFieldType.id).getString('field-name'):''}">
                                                     <!-- Sub Fields -->
                                                     <ui:repeat value="#{compoundValue.childDatasetFields}" var="subdsf">
                                                         <div class="form-col-container #{subdsf.datasetFieldType.fieldType == 'TEXTBOX' ? 'col-sm-12' : 'col-sm-6'}">
                                                             <ui:fragment rendered="#{subdsf.datasetFieldType.name == 'dsDescriptionValue'}">
-                                                                <p class="help-block">
+                                                                <p class="form-text">
                                                                     <h:outputText value="#{bundle.htmlAllowedMsg}" escape="false"/>
                                                                 </p>
                                                             </ui:fragment>
-                                                            <label jsf:for="#{subdsf.datasetFieldType.controlledVocabulary ? 'cvv_focus' : subdsf.datasetFieldType.fieldType == 'TEXTBOX' ? 'description' : cvocConf.containsKey(subdsf.datasetFieldType.id) ? 'cvocInputText' : cvocConf.containsKey(dsf.datasetFieldType.id) ? 'cvocInputText2' : 'inputText'}" class="control-label">
+                                                            <label jsf:for="#{subdsf.datasetFieldType.controlledVocabulary ? 'cvv_focus' : subdsf.datasetFieldType.fieldType == 'TEXTBOX' ? 'description' : cvocConf.containsKey(subdsf.datasetFieldType.id) ? 'cvocInputText' : cvocConf.containsKey(dsf.datasetFieldType.id) ? 'cvocInputText2' : 'inputText'}" class="form-label">
                                                                 #{subdsf.datasetFieldType.localeTitle}
                                                                 <span class="bi bi-asterisk text-danger" jsf:rendered="#{subdsf.required and dsf.required}"/>
                                                                 <span class="bi bi-question-circle tooltip-icon"

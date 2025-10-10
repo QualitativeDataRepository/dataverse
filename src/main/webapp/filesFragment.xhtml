@@ -28,8 +28,8 @@
 
     <!-- Toggle Files Display Components -->
     <div jsf:id="filesDisplayToggleBlock" jsf:rendered="#{DatasetPage.fileTreeViewRequired}" class="row">
-        <div class="form-group col-12">
-            <label class="col-2 control-label" style="padding:.3em 1em;">
+        <div class="row mb-3 col-12">
+            <label class="col-2 form-label" style="padding:.3em 1em;">
                 #{bundle['file.display.label']}
             </label>
             <div class="col-4 input-group">
@@ -74,9 +74,9 @@
         <f:facet name="header">
             <div class="row form-inline" jsf:id="cloudStorageBlock" jsf:rendered="#{DatasetPage.showComputeButton()}">
                 <!-- Cloud Storage Access -->
-                <div class="form-group col-12 text-left">
+                <div class="row mb-3 col-12 text-left">
                     <div class="col-12">
-                        <p class="help-block">
+                        <p class="form-text">
                             <h:outputFormat value="#{bundle['file.cloudStorageAccess.help']}" escape="false">
                                 <f:param value="#{systemConfig.guidesBaseUrl}"/>
                                 <f:param value="#{systemConfig.guidesVersion}"/>
@@ -84,7 +84,7 @@
                             </h:outputFormat>
                         </p>
                     </div>
-                    <label class="col-sm-3 control-label">
+                    <label class="col-sm-3 form-label">
                         #{bundle['file.cloudStorageAccess']}
                         <span class="bi bi-question-circle tooltip-icon"
                               data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['file.cloudStorageAccess.tip']}"></span>

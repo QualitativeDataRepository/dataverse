@@ -60,7 +60,7 @@ footer {width:100%; z-index:498; height:60px; color:#666666;position:relative;}
 #dvfooter .version {vertical-align:bottom;white-space:nowrap;}
 #dvfooter.widget-view .widgetBrandMsg {line-height:42px;}
 
-.form-group table.noBorders tr.ui-widget-content, .form-group table.noBorders td {border:0; padding-left:0;}
+.row table.noBorders tr.ui-widget-content, .row table.noBorders td {border:0; padding-left:0;}
 
 #messagePanel div.messagePanel {margin-top:1em;}
 .messagePanel .bi {font-size: 1.5em; vertical-align: bottom;}
@@ -133,7 +133,7 @@ hr {border-color: #ddd;}
 .icon-inline-action:first-of-type {margin-left:1em;}
 .btn-group .text-button {display:inline-block;padding:6px;}
 .text-icon-inline {font-size:1.3em;line-height:1.1em;margin-right:4px;}
-span.bi[data-toggle='tooltip'] {cursor: default;}
+span.bi[data-bs-toggle='tooltip'] {cursor: default;}
 span.bi-question-circle.tooltip-icon {color: #99bcdb !important;}
 span.bi-question-circle.tooltip-icon:hover {color: #0039f5 !important;}
 a.tooltip-icon {color: #99bcdb !important;}
@@ -286,7 +286,7 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
 /* -------- LOGIN -------- */
 #login-container {margin-top:1em;}
 
-div.panel.highlight {
+div.card.highlight {
     background-color: #f7f7f9;
 }
 #otherProviders a.ui-commandlink.ui-widget {margin-right:1em; margin-bottom:1em;}
@@ -367,12 +367,12 @@ div[id$='notifications'].ui-tabs-panel div.notification-item-cell {display:table
 div[id$='notifications'].ui-tabs-panel span.text-muted.small {margin-left:1em;}
 
 /* -------- DATAVERSE -------- */
-form[id$='dataverseForm'] .panelLayoutBlock .form-horizontal table.ui-panelgrid.ui-widget,
-form[id$='dataverseForm'] .panelLayoutBlock .form-horizontal table.ui-panelgrid.ui-widget tr, 
-form[id$='dataverseForm'] .panelLayoutBlock .form-horizontal table.ui-panelgrid.ui-widget td {border:0;}
-form[id$='dataverseForm'] .panelLayoutBlock .form-horizontal div.form-group {vertical-align: middle;}
-.form-horizontal .text-left .control-label {text-align:left;}
-.control-label {font-size: 16px;}
+form[id$='dataverseForm'] .panelLayoutBlock div table.ui-panelgrid.ui-widget,
+form[id$='dataverseForm'] .panelLayoutBlock div table.ui-panelgrid.ui-widget tr, 
+form[id$='dataverseForm'] .panelLayoutBlock div table.ui-panelgrid.ui-widget td {border:0;}
+form[id$='dataverseForm'] .panelLayoutBlock div div.row {vertical-align: middle;}
+div .text-left .form-label {text-align:left;}
+.form-label {font-size: 16px;}
 
 input.metadata-blocks-default[type="checkbox"], input.facets-blocks-default[type="checkbox"] {margin: 4px 6px 0 0;}
 div.checkbox input.metadata-blocks-default[type="checkbox"] {margin-left:-20px;}
@@ -397,8 +397,8 @@ div.ui-state-focus span.ui-chkbox-icon {outline: -webkit-focus-ring-color auto 5
 .button-block {margin-top:1em;}
 #datasetForm .button-block:not(.col-file-action) {margin-top:1em;z-index:500;position:relative;}
 .button-block .btn {position:relative;}
-.form-group > .button-block, 
-.panel-body > .button-block, 
+.row > .button-block, 
+.card-body > .button-block, 
 td.col-file-action > .button-block, .col-manage-action > .button-block,
 div.ui-datatable-header > .button-block, .button-block.tab-header, #actionButtonBlock > .button-block, .inline-buttons > .button-block {margin-top:0;}
 th.col-file-action.text-end {text-align: right;}
@@ -619,7 +619,7 @@ div.ui-dialog div.highlight {
     margin-bottom: 14px;
     padding: 9px 14px;
 }
-.ui-dialog.dialog-submenu, .ui-dialog.dialog-submenu .ui-dialog-content, .ui-dialog.dialog-submenu .form-inline, .ui-dialog.dialog-submenu .form-group {overflow:visible !important;}
+.ui-dialog.dialog-submenu, .ui-dialog.dialog-submenu .ui-dialog-content, .ui-dialog.dialog-submenu .form-inline, .ui-dialog.dialog-submenu .row {overflow:visible !important;}
 .ui-dialog.dialog-submenu .ui-menu-list.ui-menu-child {z-index: 9999 !important; width: auto; min-width: 12.5em;}
 
 /* -------- SUBTABS -------- */
@@ -681,21 +681,21 @@ div.citation-block div.citation-download.margin-bottom {margin-bottom:10px;}
 div.citation-block div.citation-download .btn-link {color:#0039f5}
 div.citation-block div.citation-standards.margin-bottom {margin-bottom:10px;padding-top:1px;padding-bottom:1px;}
 
-div.panel-body div.form-group:last-child, div.panel-body div.form-group:last-child label {margin-bottom:0 !important;}
+div.card-body div.row:last-child, div.card-body div.row:last-child label {margin-bottom:0 !important;}
 
 /* Buttons */
 .button-block.form-top {border-top: 1px solid #dddddd; padding:1em 0;}
 span[id$='editDataSet'] .ui-button-text {white-space: nowrap;}
 #replicationDataButton {margin-top:5px;}
 
-div.form-group .bi.bi-asterisk {font-size:.5em; vertical-align:text-top;}
-#datasetForm .form-group, #templateForm .form-group {overflow: hidden;}
+div.row .bi.bi-asterisk {font-size:.5em; vertical-align:text-top;}
+#datasetForm .row, #templateForm .row {overflow: hidden;}
 div.form-col-container div.form-col-container {padding-left:0;}
-div.form-group .ui-selectonemenu {display:block;}
+div.row .ui-selectonemenu {display:block;}
 div.form-col-container.edit-compound-field div.form-col-container {margin-bottom:.5em;}
 
-div.panel-group div.panel {margin-bottom:1em; border: none;}
-div.panel div.panel-body div.form-group {overflow: hidden;}
+div.panel-group div.card {margin-bottom:1em; border: none;}
+div.card div.card-body div.row {overflow: hidden;}
 div.edit-field div.ui-message {margin:6px 0;}
 .metadata-container table.metadata {border-collapse:separate;margin:0 4px;width:100%;}
 .metadata-container table.metadata th {width:25%;vertical-align:top;padding:6px 12px;}
@@ -715,7 +715,7 @@ div.edit-field div.ui-message {margin:6px 0;}
     #dataset-summary-metadata.metadata-container table.metadata th {padding-bottom:0;}
     #dataset-summary-metadata.metadata-container table.metadata td {padding-left:30px;}
 }
-.panel-body.metadata-container {padding:15px 0;}
+.card-body.metadata-container {padding:15px 0;}
 .metadata-logo {max-width:180px;max-height:40px;}
 .metadata-container .truncate-more-link, .metadata-container .collapse-less-link {color: #337AB7; cursor: pointer; cursor: hand;}
 
@@ -793,8 +793,8 @@ table.ui-picklist div.ui-picklist-filter-container {padding-bottom:5px;}
 #contentTabs .ui-tabs .ui-tabs-panel {padding-left:0; padding-right:0;}
 #contentTabs {position: relative;}
 
-div.panel-heading[data-toggle="collapse"] {cursor: pointer; cursor: hand;}
-div.panel-heading.text-info[data-toggle="collapse"] {color: #31708F;}
+div.card-header[data-bs-toggle="collapse"] {cursor: pointer; cursor: hand;}
+div.card-header.text-info[data-bs-toggle="collapse"] {color: #31708F;}
 
 /* overwrite Bootstrap code red style */
 .ui-widget-content code {background-color: #F0F0F0; color: #333333;}
@@ -846,7 +846,7 @@ div[id$="filesTable"] td.col-file-action .btn-group .btn-link {font-size:2em !im
 div[id$="filesTable"] div.ui-datatable-header.ui-widget-header {padding:0 10px;}
 div[id$="filesHeaderBlock"] {margin-bottom:10px;}
 div[id$="cloudStorageBlock"] {margin-bottom:12px;}
-div[id$="cloudStorageBlock"] div.form-group.col-12 {border-bottom:1px solid #ddd;margin:0;padding:0 0 12px 0;}
+div[id$="cloudStorageBlock"] div.row.col-12 {border-bottom:1px solid #ddd;margin:0;padding:0 0 12px 0;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-state-default {border:0; box-shadow:none; border-radius:0; background-image:none; border-top: 1px solid #e6e6e6; border-bottom: 1px solid #e6e6e6;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-state-default:first-of-type {border-left:1px solid #e6e6e6; border-top-left-radius:4px;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-state-default:last-of-type {border-right: 1px solid #e6e6e6; border-top-right-radius: 4px;}
@@ -962,15 +962,15 @@ div[id$="filesTable"] .ui-paginator .ui-paginator-pages .ui-state-active {
 div[id$="filesTree"] span.ui-treenode-label span[class^='icon'] {margin-left: -2px;}
 
 /* PUBLISH, REQUEST ACCESS, AND DOWNLOAD POPUPS */
-div.panel-body.read-terms{max-height:220px; overflow-y:scroll; width:100%; background-color:#eeeeee;}
+div.card-body.read-terms{max-height:220px; overflow-y:scroll; width:100%; background-color:#eeeeee;}
 .terms {
     margin-top:20px;
 }
-.terms .form-group label, .terms .form-group p {
+.terms .row label, .terms .row p {
     padding-top:3px;
     padding-bottom: 3px;
 }
-.terms .form-group span.col-sm-6, .terms .form-group span.col-sm-9 {
+.terms .row span.col-sm-6, .terms .row span.col-sm-9 {
     padding-top: 3px;
     padding-bottom: 3px;
     overflow-y: auto;
@@ -1068,7 +1068,7 @@ div.ui-widget-overlay {background:#ccc; opacity:.6;}
 .ui-button.btn-link, .ui-button.btn-link:hover, .ui-button.btn-link:focus, .ui-button.btn-link:active {border-color: transparent;}
 .ui-button.btn-link:hover, .ui-button.btn-link:focus {color: #23527c; text-decoration: underline !important; background-color: transparent;}
 .ui-button.btn-link[disabled]:hover, fieldset[disabled] .ui-button.btn-link:hover, .ui-button.btn-link[disabled]:focus, fieldset[disabled] .ui-button.btn-link:focus {color: #424242;text-decoration: none;}
-.ui-widget-header .form-group {font-weight:normal;}
+.ui-widget-header .row {font-weight:normal;}
 
 .ui-state-disabled, .ui-widget-content .ui-state-disabled, .ui-widget-header .ui-state-disabled {background: #e0e0e0; border-color: #ccc; opacity: 0.65;}
 div.ui-autocomplete {width:100%;}
@@ -1289,12 +1289,12 @@ div.container {
   margin-left: 120px;
 }
 
-.metadata-container > .form-group:last-child {
+.metadata-container > .row:last-child {
   border-bottom: solid 2px rgba(0, 0, 0, 0.1);
   margin-bottom: 60px;
 }
 
-.metadata-container > .form-group {
+.metadata-container > .row {
   margin: 10px 0px;
   padding: 5px 0px;
   border-top: solid 2px rgba(0, 0, 0, 0.1);
@@ -1324,17 +1324,17 @@ th {background: none !important;}
 
 .ui-tabs.ui-tabs-top {border-width: 0;}
 
-#rolesPermissionsForm  .panel-heading {display: block;}
+#rolesPermissionsForm  .card-header {display: block;}
 #rolesPermissionsForm th span {color:white;text-shadow:none;}
 #rolesPermissionsForm {word-break:break-word;}
 
-.panel-body > * {
+.card-body > * {
   border-top: 2px solid rgba(0, 0, 0, 0.1);
   font-family: 'AntoniaH2Heavy';
   padding-top: 10px;
 }
 
-.panel {box-shadow: none; -webkit-box-shadow: none; background: #f7f7f9;}
+.card {box-shadow: none; -webkit-box-shadow: none; background: #f7f7f9;}
 
 .btn-secondary, .btn-secondary:active, .btn-secondary:hover, .btn-secondary:focus {
   background: #0039f5 !important;
@@ -1549,7 +1549,7 @@ a {
   color: #0039f5;
 }
 
-.label-warning a, .bg-citation a, .terms .help-block a, #panelCollapseTOU .help-block a,  #dataset-summary-metadata a, .alert a {
+.label-warning a, .bg-citation a, .terms .form-text a, #panelCollapseTOU .form-text a,  #dataset-summary-metadata a, .alert a {
   text-decoration: underline;
 }
 
@@ -1565,7 +1565,7 @@ span.label-danger { background-color: #D3413C }
 
 .btn.btn-link {color: #3174AF;}
 .dropdown-header {color:#666;}
-.help-block {color:#666;}
+.form-text {color:#666;}
 .alert-success {color:#376D38}
 
 .login-container h1 { font-size:30px; }

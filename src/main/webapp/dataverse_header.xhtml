@@ -17,18 +17,15 @@
 
     <div id="dataverse-header-block" role="banner">
         <!-- Navbar Panel -->
-        <nav id="navbarFixed" class="navbar navbar-default navbar-fixed-top" jsf:rendered="#{!widgetWrapper.widgetView}">
+        <nav id="navbarFixed" class="navbar navbar-expand-lg navbar-light fixed-top" jsf:rendered="#{!widgetWrapper.widgetView}">
             <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#topNavBar" aria-pressed="false">
-                        <span class="sr-only">#{bundle.toggleNavigation}</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                   <!-- QDRCustom- Remove link-to-home logo -->
-                    
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#topNavBar" aria-controls="topNavBar" aria-expanded="false" aria-label="#{bundle.toggleNavigation}">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="topNavBar">
+                    <!-- IQSS Nav menu items go here -->
                 </div>
+                <!-- QDRCustom- Remove link-to-home logo -->
                 <!-- QDRCustom- Menu Items -->
                 <!-- Adding an element where the custom header javascript can pick up the Drupal URL -->
                 <!-- If/when we remove the custom QDR menu, we should keep this one element -->

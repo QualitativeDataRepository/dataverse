@@ -22,9 +22,9 @@
             <ui:param name="pageTitle" value="#{bundle['harvestserver.title']} - #{dataverseServiceBean.findRootDataverse().name}"/>
             <ui:param name="showDataverseHeader" value="false"/>
             <ui:define name="body">
-                <h:form id="harvestingServiceForm" class="form-horizontal">
-                    <div class="form-group">
-                        <label for="enableService" class="col-sm-2 control-label">#{bundle['harvestserver.service.label']}</label>
+                <h:form id="harvestingServiceForm">
+                    <div class="row mb-3">
+                        <label for="enableService" class="col-sm-2 form-label">#{bundle['harvestserver.service.label']}</label>
                         <div class="col-sm-2">
                             <p:selectOneMenu id="enableService" onchange="toggleServerStatus()" value="#{harvestingSetsPage.oaiServerStatusRadio}">
                                 <f:selectItem itemLabel="#{bundle['harvestserver.service.disabled']}" itemValue="0" />
@@ -41,7 +41,7 @@
                     <!-- REMOVED due to it not being needed? -->
                     <p:fragment id="serviceDisabled" rendered="#{!harvestingSetsPage.harvestingServerEnabled}">
                         <div>
-                            <p class="help-block">
+                            <p class="form-text">
                                 <h:outputText value="#{bundle['harvestserver.service.disabled.msg']}"/>
                             </p>
                         </div>
@@ -66,12 +66,12 @@
                             <div class="col-sm-12">
                                 <div id="no-clients-message" class="panel panel-default">
                                     <div class="panel-body">
-                                        <span class="help-block h3">#{bundle['harvestserver.noSets.why.header']}</span>
+                                        <span class="form-text h3">#{bundle['harvestserver.noSets.why.header']}</span>
                                         <ul>
                                             <li><h:outputText value="#{bundle['harvestserver.noSets.why.reason1']}" escape="false"/></li>
                                             <li><h:outputText value="#{bundle['harvestserver.noSets.why.reason2']}" escape="false"/></li>
                                         </ul>
-                                        <span class="help-block h3">#{bundle['harvestserver.noSets.how.header']}</span>
+                                        <span class="form-text h3">#{bundle['harvestserver.noSets.how.header']}</span>
                                         <ul>
                                             <li><h:outputText value="#{bundle['harvestserver.noSets.how.tip1']}" escape="false"/></li>
                                             <li>
@@ -177,7 +177,7 @@
 
                     <!-- confirmation dialog for deleting a set: -->
                     <p:dialog id="deleteConfirmation" header="#{bundle['harvestserver.tab.header.action.btn.delete.dialog.header']}" widgetVar="deleteConfirmation" modal="true">
-                        <p class="help-block">
+                        <p class="form-text">
                             <span class="bi bi-exclamation-triangle-fill text-warning"/> 
                             <h:outputFormat styleClass="text-warning" value=" #{bundle['harvestserver.tab.header.action.btn.delete.dialog.tip']}">
                                 <f:param value="#{harvestingSetsPage.getSelectedSet().spec}"/>
@@ -196,12 +196,12 @@
 
                         <p:fragment id="newOAISetDialogContent">
                             <p:focus context="newOAISetDialogContent"/>
-                            <p class="help-block">
+                            <p class="form-text">
                                 <h:outputText value="#{bundle['harvestserver.newSetDialog.help']}"/>
                             </p>
-                            <div class="form-horizontal">
-                                <div class="form-group">
-                                    <label for="setquery" class="col-sm-3 control-label">
+                            <div>
+                                <div class="row mb-3">
+                                    <label for="setquery" class="col-sm-3 form-label">
                                         #{bundle['harvestserver.newSetDialog.setquery']} 
                                         <span class="bi bi-asterisk text-danger" jsf:rendered="#{!harvestingSetsPage.setQueryValidated}" title="#{bundle.requiredField}"/>
                                         <span class="bi bi-question-circle tooltip-icon"
@@ -215,33 +215,33 @@
                                         <p:message for="setquery"/>
          
                                         <p class="form-control-static" jsf:rendered="#{!harvestingSetsPage.selectedSet.defaultSet and harvestingSetsPage.setQueryValidated}"><h:outputText value="#{harvestingSetsPage.newSetQuery}"/></p>
-                                        <p class="help-block" jsf:rendered="#{harvestingSetsPage.selectedSet.defaultSet}"><h:outputText value="All published datasets"/></p>
-                                        <p class="help-block" jsf:rendered="#{!harvestingSetsPage.setQueryValidated}">#{bundle['harvestserver.newSetDialog.setquery.helptext']}</p>
+                                        <p class="form-text" jsf:rendered="#{harvestingSetsPage.selectedSet.defaultSet}"><h:outputText value="All published datasets"/></p>
+                                        <p class="form-text" jsf:rendered="#{!harvestingSetsPage.setQueryValidated}">#{bundle['harvestserver.newSetDialog.setquery.helptext']}</p>
                                         
-                                        <p class="help-block" jsf:rendered="#{harvestingSetsPage.setQueryValidated and harvestingSetsPage.setQueryResult gt 0}">
+                                        <p class="form-text" jsf:rendered="#{harvestingSetsPage.setQueryValidated and harvestingSetsPage.setQueryResult gt 0}">
                                             <span class="bi bi-check-circle-fill text-success"/> 
                                             <h:outputFormat styleClass="text-success" value=" #{bundle['harvestserver.newSetDialog.setquery.results']}">
                                                 <f:param value="#{harvestingSetsPage.setQueryResult}"/>
                                             </h:outputFormat>
                                         </p>
-                                        <p class="help-block" jsf:rendered="#{!harvestingSetsPage.selectedSet.defaultSet and harvestingSetsPage.setQueryValidated and harvestingSetsPage.setQueryResult lt 1}">
+                                        <p class="form-text" jsf:rendered="#{!harvestingSetsPage.selectedSet.defaultSet and harvestingSetsPage.setQueryValidated and harvestingSetsPage.setQueryResult lt 1}">
                                             <span class="bi bi-exclamation-circle-fill text-danger"/> <h:outputText class="text-danger" value=" #{bundle['harvestserver.newSetDialog.setquery.empty']}"/>
                                         </p>
                                     </div>
                                 </div>
                                 <!-- the set spec is not editable in "edit existing set" mode; so we just show it here as a label: -->
-                                <div class="form-group" jsf:rendered="#{harvestingSetsPage.editMode}">
-                                    <label for="setspec" class="col-sm-3 control-label">
+                                <div class="row mb-3" jsf:rendered="#{harvestingSetsPage.editMode}">
+                                    <label for="setspec" class="col-sm-3 form-label">
                                         #{bundle['harvestserver.newSetDialog.setspec']}
                                     </label>
                                     <div class="col-sm-8">
                                         <p class="form-control-static" jsf:rendered="#{!harvestingSetsPage.selectedSet.defaultSet}"><h:outputText rendered="#{!harvestingSetsPage.selectedSet.defaultSet}" value="#{harvestingSetsPage.newSetSpec}"/></p>
-                                        <p class="help-block"><h:outputText value="#{harvestingSetsPage.selectedSet.defaultSet ? bundle['harvestserver.editSetDialog.setspec.helptext.default'] : bundle['harvestserver.editSetDialog.setspec.helptext']}"/></p>
+                                        <p class="form-text"><h:outputText value="#{harvestingSetsPage.selectedSet.defaultSet ? bundle['harvestserver.editSetDialog.setspec.helptext.default'] : bundle['harvestserver.editSetDialog.setspec.helptext']}"/></p>
                                     </div>
                                 </div>
                                 
-                                <div class="form-group" jsf:rendered="#{!harvestingSetsPage.setQueryValidated}">
-                                    <div class="col-sm-8 col-sm-offset-3 button-block">
+                                <div class="row mb-3" jsf:rendered="#{!harvestingSetsPage.setQueryValidated}">
+                                    <div class="col-sm-8 offset-sm-3 button-block">
                                         <p:commandLink id="validateSetQueryBtn"
                                                          styleClass="btn btn-secondary"
                                                          oncomplete="PF('newOAISetForm').show();"
@@ -260,8 +260,8 @@
                                 
                                 <fieldset id="addSetStepTwo" jsf:rendered="#{harvestingSetsPage.setQueryValidated}">
                                     <!-- the set spec is only editable in "create" mode; in the "edit existing set" mode the set spec name is shown as a label in the first step popup. -->
-                                    <div class="form-group" jsf:rendered="#{harvestingSetsPage.createMode}">
-                                        <label for="setspec" class="col-sm-3 control-label">
+                                    <div class="row mb-3" jsf:rendered="#{harvestingSetsPage.createMode}">
+                                        <label for="setspec" class="col-sm-3 form-label">
                                             #{bundle['harvestserver.newSetDialog.setspec']} 
                                             <span class="bi bi-asterisk text-danger" jsf:rendered="#{harvestingSetsPage.setQueryValidated}" title="#{bundle.requiredField}"/>
                                             <span class="bi bi-question-circle tooltip-icon"
@@ -272,12 +272,12 @@
                                                          value="#{harvestingSetsPage.newSetSpec}"
                                                          validator="#{harvestingSetsPage.validateSetSpec}"/>
                                             <p:message for="setspec"/>
-                                            <p class="help-block" jsf:rendered="#{harvestingSetsPage.createMode}">#{bundle['harvestserver.newSetDialog.setspec.helptext']}</p>
+                                            <p class="form-text" jsf:rendered="#{harvestingSetsPage.createMode}">#{bundle['harvestserver.newSetDialog.setspec.helptext']}</p>
                                         </div>
                                     </div>
                                     
-                                    <div class="form-group">
-                                        <label for="setdescription" class="col-sm-3 control-label">
+                                    <div class="row mb-3">
+                                        <label for="setdescription" class="col-sm-3 form-label">
                                             #{bundle['harvestserver.newSetDialog.setdescription']} 
                                             <span class="bi bi-asterisk text-danger" jsf:rendered="#{harvestingSetsPage.setSpecValidated}" title="#{bundle.requiredField}"/>
                                             <span class="bi bi-question-circle tooltip-icon"
@@ -290,8 +290,8 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="form-group">
-                                        <div class="col-sm-6 col-sm-offset-3 button-block">
+                                    <div class="row mb-3">
+                                        <div class="col-sm-6 offset-sm-3 button-block">
                                             <!-- note that there are 2 different buttons rendered for "create" and "save"! -->
                                             <p:commandLink id="backToQuery"
                                                         styleClass="btn btn-secondary"

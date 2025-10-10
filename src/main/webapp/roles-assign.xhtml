@@ -13,10 +13,10 @@
             </div>
         </p:fragment>
         <p:fragment id="assignRoleContent">
-            <div class="form-horizontal">
-                <p class="help-block">#{bundle['dataverse.permissions.usersOrGroups.assignDialog.description']}</p>
-                <div class="form-group">
-                    <label for="userGroupAccessInput" class="col-md-2 control-label">
+            <div>
+                <p class="form-text">#{bundle['dataverse.permissions.usersOrGroups.assignDialog.description']}</p>
+                <div class="row mb-3">
+                    <label for="userGroupAccessInput" class="col-md-2 form-label">
                         #{bundle['dataverse.permissions.usersOrGroups.assignDialog.userOrGroup']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                     </label>
                     <div class="col-md-9">
@@ -43,8 +43,8 @@
                         <p:message for="userGroupNameAssign" display="text"/>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="assignRoleRadios" class="col-md-2 control-label">
+                <div class="row mb-3">
+                    <label for="assignRoleRadios" class="col-md-2 form-label">
                         #{bundle['dataverse.permissions.usersOrGroups.tabHeader.role']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                     </label>
                     <div class="col-md-9">
@@ -63,7 +63,7 @@
                         <div class="col-6 bg-muted">
                             <p:fragment id="roleDetails">
                                 <div id="assignRolePermissionLabels">
-                                    <p class="help-block">#{bundle['dataverse.permissions.usersOrGroups.assignDialog.role.description']}</p>
+                                    <p class="form-text">#{bundle['dataverse.permissions.usersOrGroups.assignDialog.role.description']}</p>
                                     <div jsf:rendered="#{!empty managePermissionsPage.assignedRole.name}">
                                         <span class="fw-bold">#{managePermissionsPage.assignedRole.name}</span>
                                         <div class="small" jsf:rendered="#{!empty managePermissionsPage.assignedRole.description}">#{managePermissionsPage.assignedRole.description}</div>
@@ -72,7 +72,7 @@
                                                 <span class="badge bg-default">#{bundle['permission.'.concat(prm).concat('.label')]}</span>
                                             </ui:repeat>
                                         </div>
-                                        <p class="help-block" jsf:rendered="#{!empty managePermissionsPage.assignedRoleObjectTypes}">
+                                        <p class="form-text" jsf:rendered="#{!empty managePermissionsPage.assignedRoleObjectTypes}">
                                             <span class="bi bi-exclamation-triangle-fill text-warning"/>
                                             <h:outputFormat styleClass="text-warning" value=" #{bundle['dataverse.permissions.usersOrGroups.assignDialog.role.warning']}">
                                                 <f:param value="#{managePermissionsPage.assignedRole.name}"/>

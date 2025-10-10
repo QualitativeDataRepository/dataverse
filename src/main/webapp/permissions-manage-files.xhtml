@@ -26,14 +26,17 @@
                 <h:form id="rolesPermissionsForm" styleClass="margin-top">
                     <div class="panel-group">
                         <!-- Users/Groups Access Panel -->
-                        <div class="panel panel-default">
-                            <div data-toggle="collapse" data-target="#panelCollapseUsersGroups" class="panel-heading text-info">
+                        <div class="card">
+                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseFiles" 
+                                 class="card-header text-info"
+                                 aria-expanded="false"
+                                 aria-controls="panelCollapseFiles">
                                 #{bundle['dataverse.permissionsFiles.usersOrGroups']} <span class="bi bi-chevron-up"/>
 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.usersOrGroups.description']}</span>
                             </div>
-                            <div id="panelCollapseUsersGroups" class="collapse in">
-                                <div class="panel-body">
+                            <div id="panelCollapseUsersGroups" class="collapse show">
+                                <div class="card-body">
                                     <p:fragment id="userGroupMessages">
                                         <div class="messagePanel">
                                             <iqbs:messages collapsible="true" rendered="#{manageFilePermissionsPage.renderUserGroupMessages}"/>
@@ -149,14 +152,17 @@
                             </div>
                         </div>
                         <!-- Files (Restricted) Panel -->
-                        <div class="panel panel-default">
-                            <div data-toggle="collapse" data-target="#panelCollapseFiles" class="panel-heading text-info">
-                                #{bundle['dataverse.permissionsFiles.files']} <span class="bi bi-chevron-down"/>
+                        <div class="card">
+                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseFiles" 
+                                 class="card-header text-info"
+                                 aria-expanded="false" 
+                                 aria-controls="panelCollapseFiles">
+                                 #{bundle['dataverse.permissionsFiles.files']} <span class="bi bi-chevron-down"/>
 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.files.description']}</span>
                             </div>
                             <div id="panelCollapseFiles" class="collapse">
-                                <div class="panel-body">
+                                <div class="card-body">
                                     <p:fragment id="filesMessages">
                                         <div class="messagePanel">
                                             <iqbs:messages  collapsible="true" rendered="#{manageFilePermissionsPage.renderFileMessages}"/>
@@ -221,12 +227,15 @@
                     </div>
                     <!-- Role Assignment History Panel -->
                     <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
-                    <div class="panel panel-default" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
-                      <div data-toggle="collapse" data-target="#panelCollapseHistory" class="panel-heading text-info">
-                        #{bundle['dataverse.permissions.history']} <span class="bi bi-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
+                    <div class="card" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
+                        <div data-bs-toggle="collapse" data-bs-target="#panelCollapseHistory" 
+                            class="card-header text-info"
+                            aria-expanded="false"
+                            aria-controls="panelCollapseHistory">
+                            #{bundle['dataverse.permissions.history']} <span class="bi bi-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
                       </div>
                       <div id="panelCollapseHistory" class="collapse">
-                        <div class="panel-body">
+                        <div class="card-body">
                             <!-- Download button for file permissions history -->
                             <div class="button-group margin-bottom text-end">
                                 <h:outputLink value="#{manageFilePermissionsPage.signedUrlForRAHistoryCsv}" 
@@ -323,10 +332,10 @@
                             </div>
                         </p:fragment>
                         <p:fragment id="assignRoleContent">
-                            <div class="form-horizontal">
-                                <p class="help-block">#{bundle['dataverse.permissionsFiles.assignDialog.description']}</p>
-                                <div class="form-group" jsf:rendered="#{empty manageFilePermissionsPage.fileRequester}">
-                                    <label for="userGroupAccessInput" class="col-sm-3 control-label">
+                            <div>
+                                <p class="form-text">#{bundle['dataverse.permissionsFiles.assignDialog.description']}</p>
+                                <div class="row mb-3" jsf:rendered="#{empty manageFilePermissionsPage.fileRequester}">
+                                    <label for="userGroupAccessInput" class="col-sm-3 form-label">
                                         #{bundle['dataverse.permissionsFiles.assignDialog.userOrGroup']}
                                     </label>
                                     <div class="col-sm-5">
@@ -417,7 +426,7 @@
                         </p:fragment>
                     </p:dialog>
                     <p:dialog id="accessFileRemoveConfirm" header="#{bundle['dataverse.permissionsFiles.viewRemoveDialog.removeBtn']}" widgetVar="confirmation" modal="true">
-                        <p class="help-block">
+                        <p class="form-text">
                             <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['dataverse.permissionsFiles.viewRemoveDialog.removeBtn.confirmation']}</span>
                         </p>
                         <div class="button-block">

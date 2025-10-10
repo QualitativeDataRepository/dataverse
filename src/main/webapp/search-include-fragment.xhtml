@@ -289,7 +289,15 @@
 
             <!--toggle sidebar button-->
             <p class="visible-xs-block">
-              <button type="button" class="btn btn-secondary btn-xs" data-toggle="offcanvas"><span class="bi bi-chevron-left"></span> #{bundle['dataverse.results.btn.filterResults']}</button>
+                <button type="button" 
+                    class="btn btn-secondary btn-xs" 
+                    data-bs-toggle="offcanvas" 
+                    data-bs-target="#dv-sidebar" 
+                    aria-controls="dv-sidebar" 
+                    aria-expanded="false" 
+                    aria-label="#{bundle['dataverse.results.btn.filterResults']}">
+                    <span class="bi bi-chevron-left " aria-hidden="true"></span> #{bundle['dataverse.results.btn.filterResults']}
+                </button>
             </p>
 
             <!-- Message for zero results -->
@@ -312,7 +320,7 @@
                     </ui:fragment>
                     <ui:fragment rendered="#{SearchIncludeFragment.errorFromSolr != null}">
                         <p>
-                            <a rel="nofollow" data-toggle="collapse" data-parent="#emptyResults" href="#technicalDetails" aria-expanded="true" aria-controls="technicalDetails">[+] #{bundle['dataverse.results.empty.link.technicalDetails']}</a>
+                            <a rel="nofollow" data-bs-toggle="collapse" data-bs-parent="#emptyResults" href="#technicalDetails" aria-expanded="true" aria-controls="technicalDetails">[+] #{bundle['dataverse.results.empty.link.technicalDetails']}</a>
                         </p>
                         <div id="technicalDetails" class="collapse">
                             <pre><h:outputText value="#{SearchIncludeFragment.errorFromSolr}"/></pre>

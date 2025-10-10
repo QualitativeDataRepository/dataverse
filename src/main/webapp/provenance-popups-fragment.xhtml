@@ -17,10 +17,10 @@
                 <iqbs:messages collapsible="true" />
             </div>
         </p:fragment>
-        <div class="form-horizontal">
-            <p:outputPanel id="provPopupOutput" class="form-group text-left">
+        <div>
+            <p:outputPanel id="provPopupOutput" class="row mb-3 text-left">
                 <div class="col-sm-12">
-                    <p class="help-block">
+                    <p class="form-text">
                         <h:outputFormat value=" #{bundle['file.editProvenanceDialog.tip']}" escape="false">
                             <f:param value="#{systemConfig.guidesBaseUrl}"/>
                             <f:param value="#{systemConfig.guidesVersion}"/>
@@ -28,7 +28,7 @@
                         
                     </p>
                 </div>
-                <label jsf:for="provUpload_input" class="col-sm-3 control-label">
+                <label jsf:for="provUpload_input" class="col-sm-3 form-label">
                     #{bundle['file.editProvenanceDialog.bundleFile']}
                 </label>
                 <div class="col-sm-9">
@@ -37,12 +37,12 @@
                     </div>
                     
                     <ui:fragment rendered="#{provPopupFragmentBean.provJsonAlreadyPublishedRendering()}">
-                        <p class="help-block"><span class="text-danger">#{bundle['file.editProvenanceDialog.bundleFile.alreadyPublished']}</span></p>
+                        <p class="form-text"><span class="text-danger">#{bundle['file.editProvenanceDialog.bundleFile.alreadyPublished']}</span></p>
                     </ui:fragment>
 
                     <ui:fragment id="provUploadFragment" >
                         <ui:fragment rendered="#{!provPopupFragmentBean.jsonUploadedState and !provPopupFragmentBean.provJsonAlreadyPublishedRendering()}">
-                            <p class="help-block"><h:outputText value="#{bundle['file.editProvenanceDialog.bundleFile.instructions']}" escape="false"/></p>
+                            <p class="form-text"><h:outputText value="#{bundle['file.editProvenanceDialog.bundleFile.instructions']}" escape="false"/></p>
                             <p:fileUpload id="provUpload" 
                                           styleClass="margin-bottom"
                                           dragDropSupport="true"
@@ -75,11 +75,11 @@
                     
                     <!-- dropdown for selecting the provenance entity connected to the DataFile. -->
                     <div class="col-sm-12" jsf:rendered="#{provPopupFragmentBean.jsonUploadedState or provPopupFragmentBean.provJsonAlreadyPublishedRendering()}">
-                        <label for="provenanceBundle" class="control-label">
+                        <label for="provenanceBundle" class="form-label">
                             #{bundle['file.editProvenanceDialog.bundleEntity']}
                             <span class="bi bi-asterisk text-danger" />
                         </label>
-                        <p class="help-block" jsf:rendered="#{!provPopupFragmentBean.provJsonAlreadyPublishedRendering()}" >
+                        <p class="form-text" jsf:rendered="#{!provPopupFragmentBean.provJsonAlreadyPublishedRendering()}" >
                             #{bundle['file.editProvenanceDialog.bundleEntity.tip']}
                         </p>
                         <p:autoComplete id="provJsonNameDropdown" 
@@ -112,13 +112,13 @@
                 </div>
             </p:outputPanel>
             
-            <div class="form-group text-left">
+            <div class="row mb-3 text-left">
                 <div class="col-sm-12">
-                    <p class="help-block">#{bundle['file.editProvenanceDialog.description.tip']}</p>
+                    <p class="form-text">#{bundle['file.editProvenanceDialog.description.tip']}</p>
                 </div>
             </div>
-            <div class="form-group text-left">
-                <label jsf:for="provenanceFreeform" class="col-sm-3 control-label">
+            <div class="row mb-3 text-left">
+                <label jsf:for="provenanceFreeform" class="col-sm-3 form-label">
                     #{bundle['file.editProvenanceDialog.description']}
                 </label>
                 <div class="col-sm-9">
@@ -139,8 +139,8 @@
     </p:dialog>
 
     <p:dialog id="confirmProvenancePopup" header="#{bundle['file.confirmProvenanceDialog']}" modal="true" visible="false" styleClass="smallPopUp" widgetVar="confirmProvenancePopup">
-        <div class="form-horizontal">
-            <div class="form-group text-left">
+        <div>
+            <div class="row mb-3 text-left">
                 <div id="ifJsonUp" jsf:rendered="#{provPopupFragmentBean.jsonUpdated}" class="col-sm-12 text-warning">
                     <span class="bi bi-exclamation-triangle-fill"></span> 
                     <h:outputText rendered="#{!provPopupFragmentBean.isDataFilePublishedRendering()}" value=" #{bundle['file.provConfirm.unpublished.json']}"/>
@@ -155,8 +155,8 @@
                     <h:outputText value=" #{bundle['file.provConfirm.empty']}" />
                 </div>
             </div>
-            <div jsf:rendered="#{provPopupFragmentBean.jsonUpdated}" class="form-group text-left">
-                <label class="col-sm-3 control-label">
+            <div jsf:rendered="#{provPopupFragmentBean.jsonUpdated}" class="row mb-3 text-left">
+                <label class="col-sm-3 form-label">
                     #{bundle['file.editProvenanceDialog.bundleFile']}
                 </label>
                 <div class="col-sm-9">

@@ -51,9 +51,9 @@
 
                 <p:tabView id="accountInfoShib">
                     <p:tab id="accountInfo" title="#{bundle['header.user.selectTab.accountInfo']}">
-                        <h:form styleClass="form-horizontal" rendered="#{Shib.offerToCreateNewAccount}">
-                            <div class="form-group">
-                                <label for="dataverseUsername" class="col-sm-3 control-label">
+                        <h:form rendered="#{Shib.offerToCreateNewAccount}">
+                            <div class="row mb-3">
+                                <label for="dataverseUsername" class="col-sm-3 form-label">
                                     #{bundle.name}
                                 </label>
                                 <div class="col-sm-9">
@@ -62,8 +62,8 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="dataverseUsername" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="dataverseUsername" class="col-sm-3 form-label">
                                     #{bundle.email}
                                 </label>
                                 <div class="col-sm-9">
@@ -72,8 +72,8 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="form-group" jsf:rendered="#{!empty Shib.affiliationToDisplayAtConfirmation}">
-                                <label for="dataverseUsername" class="col-sm-3 control-label">
+                            <div class="row mb-3" jsf:rendered="#{!empty Shib.affiliationToDisplayAtConfirmation}">
+                                <label for="dataverseUsername" class="col-sm-3 form-label">
                                     #{bundle.affiliation}
                                 </label>
                                 <div class="col-sm-9">
@@ -86,7 +86,7 @@
                             <!-- QDRCustom -->
                             <!-- <ui:include src="termsofuse.xhtml"/> -->
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <div class="col-sm-12 button-block">
                                     <h:commandButton styleClass="btn btn-secondary" value="#{bundle['shib.btn.createAccount']}" action="#{Shib.confirmAndCreateAccount()}"/>
                                     <a href="/" class="btn btn-secondary">Cancel</a>
@@ -94,9 +94,9 @@
                             </div>
                         </h:form>
 
-                        <h:form styleClass="form-horizontal" rendered="#{Shib.offerToConvertExistingAccount}">
-                            <div class="form-group">
-                                <label for="dataverseUsername" class="col-sm-3 control-label">
+                        <h:form rendered="#{Shib.offerToConvertExistingAccount}">
+                            <div class="row mb-3">
+                                <label for="dataverseUsername" class="col-sm-3 form-label">
                                     #{bundle['shib.dataverseUsername']}
                                 </label>
                                 <div class="col-sm-9">
@@ -105,19 +105,19 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="dataverseUsername" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="dataverseUsername" class="col-sm-3 form-label">
                                     #{bundle['shib.currentDataversePassword']}
                                 </label>
                                 <div class="col-sm-3">
 					<p:password id="builtinPassword" styleClass="form-control" value="#{Shib.builtinPassword}" autocomplete="off"/><!-- browsers will in general not respect autocomplete="foo", but scanners will still flag it as a potential problem -->
-                                    <p class="help-block">
+                                    <p class="form-text">
                                         <a href="passwordreset.xhtml">#{bundle['login.forgot.text']}</a>
                                     </p>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="dataverseUsername" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="dataverseUsername" class="col-sm-3 form-label">
                                     #{bundle.email}
                                 </label>
                                 <div class="col-sm-9">
@@ -130,7 +130,7 @@
                             <!-- QDRCustom -->
                             <!-- <ui:include src="termsofuse.xhtml"/> -->
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <div class="col-sm-12 button-block">
                                     <h:commandButton styleClass="btn btn-secondary" value="#{bundle['shib.btn.convertAccount']}" action="#{Shib.confirmAndConvertAccount()}"/>
                                 </div>

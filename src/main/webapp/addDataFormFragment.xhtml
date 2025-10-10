@@ -6,7 +6,7 @@
     xmlns:jsf="http://xmlns.jcp.org/jsf">
     <!-- Add Data Form - not logged in... -->
     <p:dialog id="addDataGuest" header="#{bundle['dataverse.results.dialog.addDataGuest.header']}" widgetVar="addData_popup" modal="true">
-        <p class="help-block">
+        <p class="form-text">
             <h:outputText value="#{dataverseHeaderFragment.signupAllowed ? bundle['dataverse.results.dialog.addDataGuest.msg.signup'] : bundle['dataverse.results.dialog.addDataGuest.msg']}" escape="false"></h:outputText>
         </p>
         <div class="button-block">

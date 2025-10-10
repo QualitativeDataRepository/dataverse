@@ -7,10 +7,10 @@
         <p:panel id="editRolePanel" styleClass="panelLayoutBlock" widgetVar="editRole">
             <p:panel id="editRolePropertiesPanel" styleClass="panelLayoutBlock" widgetVar="roleProperties">
                 <p:focus context="rolesPermissionsDialog"/>
-                <div class="row form-horizontal">
+                <div class="row">
                 <p:fragment id="roleInputTextFragment">    
-                    <div class="col-sm-6 form-group">
-                        <label class="control-label" for="roleName">
+                    <div class="col-sm-6 row mb-3">
+                        <label class="form-label" for="roleName">
                             #{bundle['dataverse.permissions.roles.name']}
                             <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/> 
                             <span class="bi bi-question-circle tooltip-icon"
@@ -23,8 +23,8 @@
                         </p:panelGrid>
                         <p:message for="roleName" display="text"/>
                     </div>
-                    <div class="col-sm-6 form-group">
-                        <label class="control-label" for="roleName">
+                    <div class="col-sm-6 row mb-3">
+                        <label class="form-label" for="roleName">
                             #{bundle['dataverse.permissions.roles.id']}
                             <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/> 
                             <span class="bi bi-question-circle tooltip-icon"
@@ -40,9 +40,9 @@
                     </div>
                 </p:fragment>    
                 </div>
-                <div class="row form-horizontal">
-                    <div class="col-sm-6 form-group">
-                        <label class="control-label" for="roleName">
+                <div class="row">
+                    <div class="col-sm-6 row mb-3">
+                        <label class="form-label" for="roleName">
                            #{bundle.description}
                             <span class="bi bi-question-circle tooltip-icon"
                                   data-bs-toggle="tooltip" data-bs-placement="right" data-bs-container="body" title="#{bundle['dataverse.permissions.roles.description.title']}"></span>
@@ -56,8 +56,8 @@
                     </div>
                 </div>
             </p:panel>
-            <p:panel id="editRolePermissionPanel" styleClass="panelLayoutBlock form-group" header="#{bundle['dataverse.permissions.roles.roleList.header']}">
-                <p class="help-block">
+            <p:panel id="editRolePermissionPanel" styleClass="panelLayoutBlock row mb-3" header="#{bundle['dataverse.permissions.roles.roleList.header']}">
+                <p class="form-text">
                     <span class="bi bi-asterisk text-info"></span> <span class="text-info">#{bundle['dataverse.permissions.roles.roleList.authorizedUserOnly']}</span>
                 </p>
                 <c:set var="authOnlyRemark">

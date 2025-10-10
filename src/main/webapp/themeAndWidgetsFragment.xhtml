@@ -12,9 +12,9 @@
                     <p:autoUpdate/>
                     <p:focus for="themeRoot"/>
                     <!-- Dataverse Theme Panel -->
-                    <div class="row form-horizontal">
-                        <div class="form-group" jsf:rendered="#{themeWidgetFragment.editDv.owner!=null}">
-                            <label class="col-sm-3 control-label" for="inheritCustomization">
+                    <div class="row">
+                        <div class="row mb-3" jsf:rendered="#{themeWidgetFragment.editDv.owner!=null}">
+                            <label class="col-sm-3 form-label" for="inheritCustomization">
                                 #{bundle['dataverse.theme.inheritCustomization.label']}
                                 <span class="bi bi-question-circle tooltip-icon"
                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.inheritCustomization.title']}"></span>
@@ -34,14 +34,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" jsf:rendered="#{themeWidgetFragment.editDv.themeRoot}">
-                            <label class="col-sm-3 control-label" for="logoFormat">
+                        <div class="row mb-3" jsf:rendered="#{themeWidgetFragment.editDv.themeRoot}">
+                            <label class="col-sm-3 form-label" for="logoFormat">
                                 #{bundle['dataverse.theme.logo.image']}
                                 <span class="bi bi-question-circle tooltip-icon"
                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.image.title']}"></span>
                             </label>
                             <div class="col-sm-9">
-                                <p class="help-block">#{bundle['dataverse.theme.logo.tip']}</p>
+                                <p class="form-text">#{bundle['dataverse.theme.logo.tip']}</p>
                                 <p:panelGrid rendered="#{not empty themeWidgetFragment.editDv.dataverseTheme.logo}" columns="2" styleClass="noBorders" columnClasses="text-center,uploadNewLogo">
                                     <p:column>
                                         <p>
@@ -59,7 +59,7 @@
                                 </p:panelGrid>
                                 <ui:fragment rendered="#{not empty themeWidgetFragment.editDv.dataverseTheme.logo}">
                                     <div class="form-col-container col-sm-4">
-                                        <label for="logoFormat" class="control-label">
+                                        <label for="logoFormat" class="form-label">
                                             #{bundle['dataverse.theme.logo.format']}
                                             <span class="bi bi-question-circle tooltip-icon"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.format.title']}"></span>
@@ -75,7 +75,7 @@
                                     </div>
                                     <ui:fragment rendered="#{themeWidgetFragment.editDv.dataverseTheme.logoFormat=='RECTANGLE'}">
                                         <div class="form-col-container col-sm-3">
-                                            <label for="logoAlignment" class="control-label">
+                                            <label for="logoAlignment" class="form-label">
                                                 #{bundle['dataverse.theme.logo.alignment']}
                                                 <span class="bi bi-question-circle tooltip-icon"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.alignment.title']}"></span>
@@ -90,7 +90,7 @@
                                             </div>
                                         </div>
                                         <div class="form-col-container col-sm-4">
-                                            <label for="logoBackgroundColor" class="control-label">
+                                            <label for="logoBackgroundColor" class="form-label">
                                                 #{bundle['dataverse.theme.logo.backColor']}
                                                 <span class="bi bi-question-circle tooltip-icon"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.backColor.title']}"></span>
@@ -104,14 +104,14 @@
                                 </ui:fragment>
                             </div>
                         </div>
-                        <div class="form-group" jsf:rendered="#{themeWidgetFragment.editDv.themeRoot}">
-                            <label class="col-sm-3 control-label" for="thumbnailFormat">
+                        <div class="row mb-3" jsf:rendered="#{themeWidgetFragment.editDv.themeRoot}">
+                            <label class="col-sm-3 form-label" for="thumbnailFormat">
                                 #{bundle['dataverse.theme.logo.imageThumbnail']}
                                 <span class="bi bi-question-circle tooltip-icon"
                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.image.thumbnail']}"></span>
                             </label>
                             <div class="col-sm-9">
-                                <p class="help-block">#{bundle['dataverse.theme.logo.tip']}</p>
+                                <p class="form-text">#{bundle['dataverse.theme.logo.tip']}</p>
                                 <p:panelGrid rendered="#{not empty themeWidgetFragment.editDv.dataverseTheme.logoThumbnail}" columns="2" styleClass="noBorders" columnClasses="text-center,uploadNewLogo">
                                     <p:column>
                                         <p>
@@ -131,16 +131,17 @@
                         </div>
                     </div>
                     <ui:fragment rendered="#{themeWidgetFragment.editDv.themeRoot}">
-                        <div class="row form-horizontal">
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">
+                        <div class="row">
+                          <div class="col-12">
+                            <div class="row mb-3">
+                                <label class="col-sm-3 form-label">
                                     #{bundle['dataverse.theme.headerColor']}
                                     <span class="bi bi-question-circle tooltip-icon"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.headerColor.tip']}"></span>
                                 </label>
-                                <div class="form-group col-sm-9">
+                                <div class="row mb-3 col-sm-9">
                                     <div class="form-col-container col-sm-4">
-                                        <label for="backgroundColor" class="control-label">
+                                        <label for="backgroundColor" class="form-label">
                                             #{bundle['dataverse.theme.backColor']}
                                             <span class="bi bi-question-circle tooltip-icon"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.backColor.title']}"></span>
@@ -151,7 +152,7 @@
                                         </div>
                                     </div>
                                     <div class="form-col-container col-sm-4">
-                                        <label for="linkColor" class="control-label">
+                                        <label for="linkColor" class="form-label">
                                             #{bundle['dataverse.theme.linkColor']}
                                             <span class="bi bi-question-circle tooltip-icon"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.linkColor.title']}"></span>
@@ -162,7 +163,7 @@
                                         </div>
                                     </div>
                                     <div class="form-col-container col-sm-4">
-                                        <label for="textColor" class="control-label">
+                                        <label for="textColor" class="form-label">
                                             #{bundle['dataverse.theme.txtColor']}
                                             <span class="bi bi-question-circle tooltip-icon"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.txtColor.title']}"></span>
@@ -174,8 +175,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label" for="tagline">
+                            <div class="row mb-3">
+                                <label class="col-sm-3 form-label" for="tagline">
                                     #{bundle['dataverse.theme.tagline']}
                                     <span class="bi bi-question-circle tooltip-icon"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.tagline.title']}"></span>
@@ -186,19 +187,19 @@
                                     <f:attribute name="taglineInput" value="#{themeWidgetFragment.taglineInput}"/>
                                 </h:inputHidden>
                                 <div class="col-sm-8">
-                                    <p class="help-block">#{bundle['dataverse.theme.tagline.tip']}</p>
+                                    <p class="form-text">#{bundle['dataverse.theme.tagline.tip']}</p>
                                     <p:inputText id="tagline" styleClass="form-control" binding="#{themeWidgetFragment.taglineInput}" validator="#{themeWidgetFragment.validateTagline}" value="#{themeWidgetFragment.editDv.dataverseTheme.tagline}"/>
                                     <p:message for="tagline" display="text"/>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label" for="website">
+                            <div class="row mb-3">
+                                <label class="col-sm-3 form-label" for="website">
                                     #{bundle['dataverse.theme.website']}
                                     <span class="bi bi-question-circle tooltip-icon"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.website.title']}"></span>
                                 </label>
                                 <div class="col-sm-6">
-                                    <p class="help-block">#{bundle['dataverse.theme.website.tip']}</p>
+                                    <p class="form-text">#{bundle['dataverse.theme.website.tip']}</p>
                                     <p:inputText id="website"
                                             styleClass="form-control"
                                             binding="#{themeWidgetFragment.linkUrlInput}"
@@ -210,14 +211,14 @@
                                 </div>
                             </div>
                             <!-- Dataverse footer logo -->
-                            <div class="form-group" jsf:rendered="#{themeWidgetFragment.editDv.themeRoot}">
-                                <label class="col-sm-3 control-label">
+                            <div class="row mb-3" jsf:rendered="#{themeWidgetFragment.editDv.themeRoot}">
+                                <label class="col-sm-3 form-label">
                                     #{bundle['dataverse.theme.logo.imageFooter']}
                                     <span class="bi bi-question-circle tooltip-icon"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.image.footer']}"></span>
                                 </label>
                                 <div class="col-sm-9">
-                                    <p class="help-block">#{bundle['dataverse.theme.logo.tip']}</p>
+                                    <p class="form-text">#{bundle['dataverse.theme.logo.tip']}</p>
                                     <p:panelGrid rendered="#{not empty themeWidgetFragment.editDv.dataverseTheme.logoFooter}" columns="2" styleClass="noBorders" columnClasses="text-center,uploadNewLogo">
                                         <p:column>
                                             <p>
@@ -235,7 +236,7 @@
                                     </p:panelGrid>
                                     <ui:fragment rendered="#{not empty themeWidgetFragment.editDv.dataverseTheme.logoFooter}">
                                         <div class="form-col-container col-sm-3">
-                                            <label for="logoAlignment" class="control-label">
+                                            <label for="logoAlignment" class="form-label">
                                                 #{bundle['dataverse.theme.logo.alignment']}
                                                 <span class="bi bi-question-circle tooltip-icon"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.alignment.title']}"></span>
@@ -250,7 +251,7 @@
                                             </div>
                                         </div>
                                         <div class="form-col-container col-sm-4">
-                                            <label for="logoBackgroundColor" class="control-label">
+                                            <label for="logoBackgroundColor" class="form-label">
                                                 #{bundle['dataverse.theme.logo.backColor']}
                                                 <span class="bi bi-question-circle tooltip-icon"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.backColor.title']}"></span>
@@ -263,6 +264,7 @@
                                     </ui:fragment>
                                 </div>
                             </div>
+                          </div>
                         </div>
                     </ui:fragment>
                 </p:fragment>
@@ -280,12 +282,12 @@
             <p:tab id="widgetsTab" title="#{bundle['dataverse.widgets.title']}">
                 <div id="no-widgets-message" class="panel panel-default" jsf:rendered="#{!themeWidgetFragment.editDv.released}">
                     <div class="panel-body">
-                        <span class="help-block h3">#{bundle['dataverse.widgets.notPublished.why.header']}</span>
+                        <span class="form-text h3">#{bundle['dataverse.widgets.notPublished.why.header']}</span>
                         <ul>
                             <li><h:outputText value="#{bundle['dataverse.widgets.notPublished.why.reason1']}" escape="false"/></li>
                             <li><h:outputText value="#{bundle['dataverse.widgets.notPublished.why.reason2']}" escape="false"/></li>
                         </ul>
-                        <span class="help-block h3">#{bundle['dataverse.widgets.notPublished.how.header']}</span>
+                        <span class="form-text h3">#{bundle['dataverse.widgets.notPublished.how.header']}</span>
                         <ul>
                             <li><h:outputText value="#{bundle['dataverse.widgets.notPublished.how.tip1']}" escape="false"/></li>
                             <li><h:outputText value="#{bundle['dataverse.widgets.notPublished.how.tip2']}" escape="false"/></li>
@@ -306,7 +308,7 @@
                 </div>
                 
                 <ui:fragment rendered="#{themeWidgetFragment.editDv.released}">
-                    <p class="help-block"><span class="bi bi-info-circle-fill"/> 
+                    <p class="form-text"><span class="bi bi-info-circle-fill"/> 
                         <h:outputFormat value=" #{bundle['dataverse.widgets.tip']}" escape="false">
                             <f:param value="#{systemConfig.guidesBaseUrl}"/>
                             <f:param value="#{systemConfig.guidesVersion}"/>
@@ -316,7 +318,7 @@
                         <h5>
                             #{bundle['dataverse.widgets.searchBox.txt']}
                         </h5>
-                        <p class="help-block">#{bundle['dataverse.widgets.searchBox.tip']}</p>
+                        <p class="form-text">#{bundle['dataverse.widgets.searchBox.tip']}</p>
                     </div>
                     <div>
                         <textarea rows="3" cols="54" class="form-control">&lt;script id=&quot;dataverse-widget-js&quot; src=&quot;#{systemConfig.dataverseSiteUrl}/resources/js/widgets.js?alias=#{themeWidgetFragment.editDv.alias}&amp;amp;dvUrl=#{systemConfig.dataverseSiteUrl}&amp;amp;widget=search&amp;amp;text=Search&#43;my&#43;dataverse&quot;&gt;&lt;/script&gt;</textarea>
@@ -325,7 +327,7 @@
                         <h5>
                             #{bundle['dataverse.widgets.dataverseListing.txt']}
                         </h5>
-                        <p class="help-block">#{bundle['dataverse.widgets.dataverseListing.tip']}</p>
+                        <p class="form-text">#{bundle['dataverse.widgets.dataverseListing.tip']}</p>
                     </div>
                     <div>
                         <textarea rows="3" cols="54" class="form-control">&lt;script id=&quot;dataverse-widget-js&quot; src=&quot;#{systemConfig.dataverseSiteUrl}/resources/js/widgets.js?alias=#{themeWidgetFragment.editDv.alias}&amp;amp;dvUrl=#{systemConfig.dataverseSiteUrl}&amp;amp;widgetScope=#{themeWidgetFragment.editDv.alias}&amp;amp;widget=iframe&amp;amp;heightPx=500&quot;&gt;&lt;/script&gt;</textarea>

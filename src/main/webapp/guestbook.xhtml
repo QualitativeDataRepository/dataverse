@@ -31,9 +31,9 @@
                     <!-- Header / Button Panel -->
                     <ui:fragment rendered="#{empty GuestbookPage.editMode}">
                         <!-- View mode -->
-                        <div class="row form-horizontal">
-                            <div class="col-6 form-group">
-                                <label class="col-sm-3 control-label" for="guestbookNameStatic">
+                        <div class="row">
+                            <div class="col-6 row mb-3">
+                                <label class="col-sm-3 form-label" for="guestbookNameStatic">
                                     #{bundle['dataset.manageGuestbooks.guestbook.name']}
                                 </label>
                                 <div class="col-sm-9">
@@ -54,9 +54,9 @@
                     </div>
 
                     <!-- Tabs -->
-                    <div class="form-horizontal" jsf:rendered="#{!empty GuestbookPage.editMode}">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="guestbookName">
+                    <div jsf:rendered="#{!empty GuestbookPage.editMode}">
+                        <div class="row mb-3">
+                            <label class="col-sm-3 form-label" for="guestbookName">
                                 #{bundle['dataset.manageGuestbooks.guestbook.name']} 
                                 <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"></span>
                                 <span class="bi bi-question-circle tooltip-icon"
@@ -67,12 +67,12 @@
                                 <p:message for="guestbookName"/>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="dataCollected">
+                        <div class="row mb-3">
+                            <label class="col-sm-3 form-label" for="dataCollected">
                                 #{bundle['dataset.manageGuestbooks.guestbook.dataCollected']}
                             </label>
                             <div class="col-sm-9">
-                                <p class="help-block">#{bundle['dataset.manageGuestbooks.guestbook.dataCollected.description']}</p>
+                                <p class="form-text">#{bundle['dataset.manageGuestbooks.guestbook.dataCollected.description']}</p>
                                 <div class="checkbox">
                                     <label jsf:for="nameRequiredCb">
                                       <input type="checkbox" jsf:id="nameRequiredCb" jsf:value="#{GuestbookPage.guestbook.nameRequired}"/> #{bundle.name}
@@ -96,21 +96,21 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="alias" style="white-space:nowrap;">
+                        <div class="row mb-3">
+                            <label class="col-sm-3 form-label" for="alias" style="white-space:nowrap;">
                                 #{bundle['dataset.manageGuestbooks.guestbook.customQuestions']}
                             </label>
 
                             <!-- Compound fields -->
                             <div class="col-sm-9">
-                                <p class="help-block">#{bundle['dataset.manageGuestbooks.guestbook.customQuestions.description']}</p>
+                                <p class="form-text">#{bundle['dataset.manageGuestbooks.guestbook.customQuestions.description']}</p>
                                 <p:fragment id="customQuestions" rendered="#{showMessagePanel}">
                                     <ui:repeat value="#{GuestbookPage.guestbook.customQuestions}" var="cq" varStatus="valCount">
-                                        <div class="form-group">
+                                        <div class="row mb-3">
                                             <!-- Sub Fields -->
                                             <div class="col-sm-9">
                                                 <div class="col-sm-3">
-                                                    <label class="control-label" jsf:for="questionOptions">
+                                                    <label class="form-label" jsf:for="questionOptions">
                                                         #{bundle['dataset.manageGuestbooks.guestbook.customQuestions.questionType']}
                                                     </label>
                                                     <div>
@@ -127,7 +127,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-9">
-                                                    <label class="control-label" jsf:for="questionText">
+                                                    <label class="form-label" jsf:for="questionText">
                                                         #{bundle['dataset.manageGuestbooks.guestbook.customQuestions.questionText']}
                                                     </label>
                                                     <div>
@@ -139,12 +139,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-offset-3 col-sm-9" jsf:rendered="#{cq.questionType eq 'options'}">
-                                                    <label class="control-label" jsf:for="questionResponseOptions">
+                                                <div class="offset-sm-3 col-sm-9" jsf:rendered="#{cq.questionType eq 'options'}">
+                                                    <label class="form-label" jsf:for="questionResponseOptions">
                                                         #{bundle['dataset.manageGuestbooks.guestbook.customQuestions.responseOptions']}
                                                     </label>
                                                     <ui:repeat value="#{cq.customQuestionValues}" varStatus="resCount" var="value">
-                                                        <div class="form-group">
+                                                        <div class="row mb-3">
                                                             <div class="col-sm-8">
                                                                 <p:inputText id="responseText" styleClass="form-control" value="#{value.valueString}">
                                                                     <f:validateBean disabled="#{param['SKIP_VALIDATION']}"/>

@@ -43,12 +43,12 @@
                             <h1><span class="bi bi-box-arrow-in-right" /> #{bundle.login}</h1>
 
                             <div id="builtinProvider" jsf:rendered="#{LoginPage.authProvider.id == 'builtin'}">
-                                <h:form id="loginForm" styleClass="form-horizontal">
+                                <h:form id="loginForm">
                                     <p:focus context="loginForm"/>
                                     <ui:remove>
                                         <ui:fragment rendered="#{LoginPage.multipleProvidersAvailable}">
-                                            <div class="form-group text-left">
-                                                <label class="col-sm-4 control-label" for="loginSystemSelect">
+                                            <div class="row mb-3 text-left">
+                                                <label class="col-sm-4 form-label" for="loginSystemSelect">
                                                     #{bundle['login.System']}
                                                 </label>
                                                 <div class="col-sm-8">
@@ -62,8 +62,8 @@
                                         </ui:fragment>
                                     </ui:remove>
                                     <ui:repeat id="credentialsContainer" value="#{LoginPage.filledCredentials}" var="fc" varStatus="fcCount">
-                                        <div class="form-group text-left">
-                                            <label class="col-sm-4 control-label" for="loginForm:credentialsContainer:#{fcCount.index}:#{fc.credential.secret ? 'sC':'c'}redValue">
+                                        <div class="row mb-3 text-left">
+                                            <label class="col-sm-4 form-label" for="loginForm:credentialsContainer:#{fcCount.index}:#{fc.credential.secret ? 'sC':'c'}redValue">
                                                 #{bundle[fc.credential.key]}
                                             </label>
                                             <div class="col-sm-8">
@@ -76,7 +76,7 @@
                                     </ui:repeat>
                                     
                                     <!-- validation -->
-                                    <div class="form-group" jsf:rendered="#{LoginPage.requireExtraValidation}">
+                                    <div class="row mb-3" jsf:rendered="#{LoginPage.requireExtraValidation}">
                                         <div class="col-sm-offset-4 col-sm-8">
                                             <p>
                                                 <h:outputText styleClass="fw-bold" value="#{bundle['contact.question']}"/> <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
@@ -91,12 +91,12 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="form-group">
+                                    <div class="row mb-3">
                                         <div class="col-sm-offset-4 col-sm-9 button-block">
                                             <p:commandButton id="login" styleClass="btn btn-secondary" value="#{bundle.login}" update="@form,:messagePanel" action="#{LoginPage.login}"/>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="row mb-3">
                                         <div class="col-sm-offset-4 col-sm-9">
                                             <a href="passwordreset.xhtml">
                                                 #{bundle['login.forgot.text']}
@@ -108,7 +108,7 @@
                             
                             <div id="remoteProvider" jsf:rendered="#{LoginPage.authProvider.id == 'shib'}">
                                 <h:form>
-                                    <p class="help-block">
+                                    <p class="form-text">
                                         <h:outputFormat value="#{bundle['login.institution.blurb']} " escape="false">
                                             <f:param value="#{settingsWrapper.guidesBaseUrl}"/>
                                             <f:param value="#{systemConfig.guidesVersion}"/>
@@ -120,15 +120,15 @@
                                             </o:param>
                                         </h:outputFormat>
                                     </p>
-                                    <p class="help-block">
+                                    <p class="form-text">
                                         <h:outputFormat value="#{bundle['login.institution.wayfinder.blurb']}" rendered="#{LoginPage.isShibbolethUseWayFinder()}" escape="false">
                                         </h:outputFormat>
                                     </p>
                                 </h:form>
 
-                                <div class="form-horizontal">
-                                    <div class="form-group text-left">
-                                        <label class="col-sm-4 control-label" jsf:rendered="#{!LoginPage.isShibbolethUseWayFinder()}">
+                                <div>
+                                    <div class="row mb-3 text-left">
+                                        <label class="col-sm-4 form-label" jsf:rendered="#{!LoginPage.isShibbolethUseWayFinder()}">
                                             #{bundle['auth.providers.title.shib']}
                                         </label>
                                         
@@ -176,9 +176,9 @@
 
                             </div>
                             <!--ONLY RENDER BUTTON FOR OAUTH PROVIDERS (ORCID, Google, GitHub)-->
-                            <div class="form-horizontal" jsf:rendered="#{LoginPage.authProvider.OAuthProvider}">
+                            <div jsf:rendered="#{LoginPage.authProvider.OAuthProvider}">
                                 <o:form useRequestURI="true">
-                                    <p class="help-block">
+                                    <p class="form-text">
                                         <h:outputFormat value="#{bundle['auth.providers.blurb']}" escape="false">
                                             <o:param value="#{LoginPage.authProvider.info.title}"/>
                                             <o:param value="#{settingsWrapper.guidesBaseUrl}"/>
@@ -194,7 +194,7 @@
                                         </h:outputFormat>
                                     </p>
                                 </o:form>
-                                <div class="form-group text-left">
+                                <div class="row mb-3 text-left">
                                     <div class="col-sm-12">
                                         <h:outputLink styleClass="btn btn-secondary" value="#{OAuth2Page.linkFor(LoginPage.authProvider.id, LoginPage.redirectPage)}">
                                             <o:importFunctions type="edu.harvard.iq.dataverse.authorization.providers.oauth2.impl.OrcidOAuth2AP" />
@@ -203,10 +203,10 @@
                                             <h:outputText rendered="#{fn:contains(LoginPage.authProvider.id, 'orcid')}" value=" #{bundle['login.button.orcid']}"/>
                                         </h:outputLink>
                                         <ui:fragment rendered="#{fn:contains(LoginPage.authProvider.id, 'orcid')}">
-                                            <p class="help-block small" style="margin-top:1em;">
+                                            <p class="form-text small" style="margin-top:1em;">
                                                 <h:outputText value="#{bundle['auth.providers.orcid.helpmessage1']}"  escape="false"/>
                                             </p>
-                                            <p class="help-block small" style="margin-top:1em;">
+                                            <p class="form-text small" style="margin-top:1em;">
                                                 <h:outputText value="#{bundle['auth.providers.orcid.helpmessage2']}"  escape="false"/>
                                             </p>
                                         </ui:fragment>
@@ -224,7 +224,7 @@
                                     </ui:repeat>
                                 </h:form>
                                 <div jsf:rendered="#{LoginPage.authProvider.id == 'builtin'}">
-                                    <p class="help-block">
+                                    <p class="form-text">
                                         <h:outputFormat value="#{bundle['auth.providers.tip']}" escape="false">
                                             <o:param value="#{settingsWrapper.guidesBaseUrl}"/>
                                             <o:param value="#{systemConfig.guidesVersion}"/>
@@ -234,7 +234,7 @@
                             </div>
                             
                             <div id="signUpLink" jsf:rendered="#{dataverseHeaderFragment.signupAllowed}">
-                                <p class="help-block margin-top">
+                                <p class="form-text margin-top">
                                     <h:outputFormat value="#{bundle['login.signup.blurb']}" escape="false">
                                         <f:param value="#{dataverseHeaderFragment.getSignupUrl(navigationWrapper.redirectPage)}"/>
                                     </h:outputFormat>

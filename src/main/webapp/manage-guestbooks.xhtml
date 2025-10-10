@@ -52,12 +52,12 @@
                         <div class="col-12">
                         <div id="no-guestbooks-message" class="panel panel-default" jsf:rendered="#{empty manageGuestbooksPage.guestbooks}">
                             <div class="panel-body">
-                                <span class="help-block h3">#{bundle['dataset.manageGuestbooks.noGuestbooks.why.header']}</span>
+                                <span class="form-text h3">#{bundle['dataset.manageGuestbooks.noGuestbooks.why.header']}</span>
                                 <ul>
                                     <li><h:outputText value="#{bundle['dataset.manageGuestbooks.noGuestbooks.why.reason1']}" escape="false"/></li>
                                     <li><h:outputText value="#{bundle['dataset.manageGuestbooks.noGuestbooks.why.reason2']}" escape="false"/></li>
                                 </ul>
-                                <span class="help-block h3">#{bundle['dataset.manageGuestbooks.noGuestbooks.how.header']}</span>
+                                <span class="form-text h3">#{bundle['dataset.manageGuestbooks.noGuestbooks.how.header']}</span>
                                 <ul>
                                     <li><h:outputText value="#{bundle['dataset.manageGuestbooks.noGuestbooks.how.tip1']}" escape="false"/></li>
                                     <li>
@@ -149,7 +149,7 @@
                         </div>
                     </div>
                     <p:dialog id="deleteGuestbookConfirm" header="#{bundle['dataset.manageGuestbooks.tab.action.btn.delete.dialog.header']}" widgetVar="deleteConfirmation" modal="true">
-                        <p class="help-block">
+                        <p class="form-text">
                             <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['dataset.manageGuestbooks.tab.action.btn.delete.dialog.tip']}</span>
                         </p>
                         <div class="button-block">

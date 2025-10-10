@@ -20,7 +20,7 @@
             <ui:param name="showMessagePanel" value="#{true}"/>
             <ui:define name="body">
                 <h:form id="manageGroupsForm">
-                    <div class="form-group clearfix">
+                    <div class="row mb-3 clearfix">
                         <div class="float-end">
                             <p:commandLink id="createGroup" styleClass="btn btn-secondary"
                                            actionListener="#{manageGroupsPage.initExplicitGroupDialog}"
@@ -32,12 +32,12 @@
                     <div>
                         <div id="no-groups-message" class="panel panel-default" jsf:rendered="#{empty manageGroupsPage.explicitGroups}">
                             <div class="panel-body">
-                                <span class="help-block h3">#{bundle['dataverse.manageGroups.noGroups.why.header']}</span>
+                                <span class="form-text h3">#{bundle['dataverse.manageGroups.noGroups.why.header']}</span>
                                 <ul>
                                     <li><h:outputText value="#{bundle['dataverse.manageGroups.noGroups.why.reason1']}" escape="false"/></li>
                                     <li><h:outputText value="#{bundle['dataverse.manageGroups.noGroups.why.reason2']}" escape="false"/></li>
                                 </ul>
-                                <span class="help-block h3">#{bundle['dataverse.manageGroups.noGroups.how.header']}</span>
+                                <span class="form-text h3">#{bundle['dataverse.manageGroups.noGroups.how.header']}</span>
                                 <ul>
                                     <li><h:outputText value="#{bundle['dataverse.manageGroups.noGroups.how.tip1']}" escape="false"/></li>
                                     <li>
@@ -88,7 +88,7 @@
                         </p:dataTable>
                     </div>
                     <p:dialog id="deleteGroupConfirm" header="#{bundle['dataverse.manageGroups.tab.action.btn.delete.dialog.header']}" widgetVar="deleteConfirmation" modal="true">
-                        <p class="help-block">
+                        <p class="form-text">
                             <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['dataverse.manageGroups.tab.action.btn.delete.dialog.tip']}</span>
                         </p>
                         <div class="button-block">
@@ -98,9 +98,9 @@
                     </p:dialog>
                     <p:dialog id="viewGroup" styleClass="largePopUp" header="#{bundle['dataverse.manageGroups.tab.action.btn.view.dialog.header']}" widgetVar="viewGroup" modal="true">
                         <p:focus context="viewGroup"/>
-                        <div class="form-horizontal">
-                            <div class="form-group">
-                                <label for="select_GroupName" class="col-sm-3 control-label">
+                        <div>
+                            <div class="row mb-3">
+                                <label for="select_GroupName" class="col-sm-3 form-label">
                                     #{bundle['dataverse.manageGroups.tab.action.btn.view.dialog.group']}
                                 </label>
                                 <div class="col-sm-7">
@@ -109,8 +109,8 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="select_GroupMembers" class="col-sm-3 control-label">
+                            <div class="row mb-3">
+                                <label for="select_GroupMembers" class="col-sm-3 form-label">
                                     #{bundle['dataverse.manageGroups.tab.action.btn.view.dialog.groupMembers']}
                                 </label>
                                 <div class="col-sm-7">

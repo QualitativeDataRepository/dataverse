@@ -52,7 +52,7 @@
             <div aria-hidden="false" role="tabpanel" class="ui-tabs-panel ui-widget-content ui-corner-bottom" id="datasetForm:tabView:dataFilesTab">
                 <!-- Create dataset workflow info msg + user guide link -->
                 <ui:fragment>
-                    <p class="help-block">
+                    <p class="form-text">
                         <h:outputFormat value="#{bundle['dataset.message.uploadFilesSingle.message']}" escape="false"
                                         rendered="#{settingsWrapper.uploadMethodsCount == 1}">
                             <f:param value="#{settingsWrapper.get(':QDRDrupalSiteURL')}"/>
@@ -65,13 +65,13 @@
                 <div class="panel-group" role="tablist" aria-multiselectable="true"
                       id="fileUploadFragment" jsf:rendered="#{showFileUploadFragment}">
                     
-                    <div jsf:id="httpPanel" jsf:rendered="#{settingsWrapper.HTTPUpload}" class="panel panel-default">
-                        <div role="tab" id="headingHTTP" data-toggle="collapse" data-target="#panelCollapseHTTP" class="panel-heading text-info" aria-expanded="true" aria-controls="panelCollapseHTTP">
+                    <div jsf:id="httpPanel" jsf:rendered="#{settingsWrapper.HTTPUpload}" class="card">
+                        <div role="tab" id="headingHTTP" data-bs-toggle="collapse" data-bs-target="#panelCollapseHTTP" class="card-header text-info" aria-expanded="true" aria-controls="panelCollapseHTTP">
                             #{bundle['file.fromHTTP']} &#160;<span class="bi bi-chevron-up"/>
                         </div>
-                        <div id="panelCollapseHTTP" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingHTTP">
-                            <div class="panel-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackage" jsf:rendered="#{hasPackageFile and !isDatasetReleased}">
-                                <p class="help-block">
+                        <div id="panelCollapseHTTP" class="panel-collapse collapse show" role="tabpanel" aria-labelledby="headingHTTP">
+                            <div class="card-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackage" jsf:rendered="#{hasPackageFile and !isDatasetReleased}">
+                                <p class="form-text">
                                     <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                     <h:outputFormat class="text-warning" value=" #{bundle['file.rsyncUpload.httpUploadDisabledDueToRsyncFileExisting']}" escape="false">
                                         <o:param>
@@ -85,14 +85,14 @@
                                     </h:outputFormat>
                                 </p>
                             </div>
-                            <div class="panel-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackagePublished" jsf:rendered="#{hasPackageFile and isDatasetReleased}">
-                                <p class="help-block">
+                            <div class="card-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackagePublished" jsf:rendered="#{hasPackageFile and isDatasetReleased}">
+                                <p class="form-text">
                                     <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                     <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.httpUploadDisabledDueToRsyncFileExistingAndPublished']}"/>
                                 </p>
                             </div>
-                            <div class="panel-body" jsf:id="contentOfHttpPanel" jsf:rendered="#{!hasPackageFile}">
-                    <p class="help-block">
+                            <div class="card-body" jsf:id="contentOfHttpPanel" jsf:rendered="#{!hasPackageFile}">
+                    <p class="form-text">
                         <h:outputFormat value=" #{bundle['file.selectToAdd.tipMoreInformation']}" escape="false">
                             <f:param value="#{settingsWrapper.get(':QDRDrupalSiteURL')}"/>
                         </h:outputFormat>
@@ -196,13 +196,13 @@
                     </p:fileUpload>
                               <ui:fragment rendered="#{!lockedFromEdits}">
                                 <div jsf:id="webloaderBlock" jsf:rendered="#{webloaderUploadSupported}"  class="ui-fileupload-buttonbar ui-widget-header ui-corner-top">
-                                    <p class="help-block" jsf:rendered="#{!createDataset}">#{bundle['file.fromWebloader.tip']}</p>
-                                    <p class="help-block" jsf:rendered="#{createDataset}">#{bundle['file.fromWebloaderAfterCreate.tip']}</p>
+                                    <p class="form-text" jsf:rendered="#{!createDataset}">#{bundle['file.fromWebloader.tip']}</p>
+                                    <p class="form-text" jsf:rendered="#{createDataset}">#{bundle['file.fromWebloaderAfterCreate.tip']}</p>
                                     <p:button target="_blank" rendered="#{!createDataset}" onclick="cancelDatasetEdit();window.open('#{(datasetPage==true) ? DatasetPage.getWebloaderUrlForDataset(dataset):EditDatafilesPage.getWebloaderUrlForDataset(dataset)}');return false;" value="#{bundle['file.fromWebloader']}"  icon="ui-icon-plusthick" />
                                 </div>
                                 <div jsf:id="dropboxBlock" jsf:rendered="#{settingsWrapper.isHasDropBoxKey()}"  class="margin-top">
                                     <!-- Dropbox upload widget -->
-                                    <p class="help-block">#{bundle['file.fromDropbox.tip']}</p>
+                                    <p class="form-text">#{bundle['file.fromDropbox.tip']}</p>
                                     <h:inputText id="dropBoxSelectionInput" style="display:none" value="#{EditDatafilesPage.dropBoxSelection}"/>
                                     <p:commandButton id="dropBoxButton" actionListener="#{EditDatafilesPage.handleDropBoxUpload}" oncomplete="javascript:dropBoxUploadFinished();" update="@none" style="display:none;" />
                                     <p:commandButton id="dropBoxUserButton" disabled="#{!(showFileUploadComponent)}" value="#{bundle['file.fromDropbox']}" onclick="openDropboxChooser();" icon="dropin-btn-status" />
@@ -211,9 +211,9 @@
                                 </div>
                                 <div jsf:id="hypothesisBlock" jsf:rendered="#{settingsWrapper.isHasHypothesisKey() and !lockedFromEdits }"  class="margin-top">
                                     <!-- Hypothesis upload widget -->
-                                    <p class="help-block"><span class="bi bi-info-circle-fill"/> #{bundle['file.fromHypothesis.tip']}</p>
+                                    <p class="form-text"><span class="bi bi-info-circle-fill"/> #{bundle['file.fromHypothesis.tip']}</p>
                                     <div>
-                                      <label for="datasetForm:hypothesisUrlInput" class="col-sm-1 control-label">
+                                      <label for="datasetForm:hypothesisUrlInput" class="col-sm-1 form-label">
                                         <span data-bs-toggle="tooltip" data-bs-placement="right" class="tooltiplabel text-info" title="#{bundle['dataset.hypothesis.url.tip']}">
                                           #{bundle['dataset.hypothesis.url']}
                                         </span>
@@ -221,7 +221,7 @@
                                       <h:inputText id="hypothesisUrlInput"  value="#{EditDatafilesPage.hypothesisUrlSelection}"/>
                                     </div>
                                     <div>
-                                      <label for="datasetForm:hypothesisGroupInput" class="col-sm-1 control-label">
+                                      <label for="datasetForm:hypothesisGroupInput" class="col-sm-1 form-label">
                                         <span data-bs-toggle="tooltip" data-bs-placement="right" class="tooltiplabel text-info" title="#{bundle['dataset.hypothesis.group.tip']}">
                                           #{bundle['dataset.hypothesis.group']}
                                         </span>
@@ -232,8 +232,8 @@
                                     <p:message for="hypothesisButton" id="hypothesisUploadMessage" display="text" redisplay="false" />
                                 </div>
                                 <div jsf:id="globusBlock" jsf:rendered="#{globusUploadSupported}"  class="margin-top">
-                                    <p class="help-block" jsf:rendered="#{!createDataset}">#{bundle['file.fromGlobus.tip']}</p>
-                                    <p class="help-block" jsf:rendered="#{createDataset}">#{bundle['file.fromGlobusAfterCreate.tip']}</p>
+                                    <p class="form-text" jsf:rendered="#{!createDataset}">#{bundle['file.fromGlobus.tip']}</p>
+                                    <p class="form-text" jsf:rendered="#{createDataset}">#{bundle['file.fromGlobusAfterCreate.tip']}</p>
                                     <p:button target="_blank" rendered="#{!createDataset}" onclick="cancelDatasetEdit();window.open('#{GlobusServiceBean.getGlobusAppUrlForDataset(dataset)}');return false;" value="#{bundle['file.fromGlobus']}"  icon="globus-btn" />
                                 </div>
                               </ui:fragment>
@@ -244,20 +244,20 @@
                     
                     <div jsf:id="rsyncPanel" jsf:rendered="#{rsyncSupported and !EditDatafilesPage.fileReplaceOperation}" class="panel panel-default">
                         <!-- NOTE: conditional logic for 'bi-chevron-up' icon in rsync header if HTTP is off, but isn't scalable when a third upload mode is added -->
-                        <div role="tab" id="headingRsync" data-toggle="collapse" data-target="#panelCollapseRsync" class="panel-heading text-info" aria-expanded="true" aria-controls="panelCollapseRsync">
+                        <div role="tab" id="headingRsync" data-bs-toggle="collapse" data-bs-target="#panelCollapseRsync" class="card-header text-info" aria-expanded="true" aria-controls="panelCollapseRsync">
                             #{bundle['file.fromRsync']} &#160;<span class="bi #{!settingsWrapper.HTTPUpload ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
                         </div>
                         <!-- NOTE: conditional logic for 'in' style class opens the rsync panel if HTTP is off, but isn't scalable when a third upload mode is added -->
-                        <div id="panelCollapseRsync" class="panel-collapse collapse #{!settingsWrapper.HTTPUpload ? 'in' : ''}" role="tabpanel" aria-labelledby="headingRsync">
-                            <div class="panel-body">
+                        <div id="panelCollapseRsync" class="panel-collapse collapse #{!settingsWrapper.HTTPUpload ? 'show' : ''}" role="tabpanel" aria-labelledby="headingRsync">
+                            <div class="card-body">
                                 <ui:fragment rendered="#{createDataset}">
                                     <ui:fragment rendered="#{!hasFileMetadatas}">
-                                        <p class="help-block">
+                                        <p class="form-text">
                                             #{bundle['file.createUploadDisabled']}
                                         </p>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{hasFileMetadatas}">
-                                        <p class="help-block">
+                                        <p class="form-text">
                                             <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}</span>
                                         </p>
                                     </ui:fragment>
@@ -265,7 +265,7 @@
                                 <ui:fragment rendered="#{!createDataset}"> 
                                     <!-- NO RSYNC/PACKAGE FILE YET. PROVIDE INSTRUCTIONS: DOWNLOAD TO UPLOAD. -->
                                     <ui:fragment rendered="#{!hasFileMetadatas and hasRsyncScript}">
-                                        <p class="help-block">
+                                        <p class="form-text">
                                             <h:outputFormat value="#{bundle['file.rsyncUpload.info']}" escape="false">
                                                 <f:param value="#{systemConfig.guidesBaseUrl}"/>
                                                 <f:param value="#{systemConfig.guidesVersion}"/>
@@ -293,7 +293,7 @@
                                     </ui:fragment>
                                     <!-- RSYNC/PACKAGE FILE ALREADY EXISTS. THERE CAN BE ONLY ONE. -->
                                     <ui:fragment rendered="#{hasPackageFile}">
-                                        <p class="help-block">
+                                        <p class="form-text">
                                             <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                             <h:outputFormat class="text-warning" value=" #{bundle['file.rsyncUpload.filesExist']}" escape="false">
                                                 <o:param>
@@ -308,26 +308,26 @@
                                         </p>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{hasNonPackageFile and !EditDatafilesPage.workingVersion.dataset.released}">
-                                        <p class="help-block">
+                                        <p class="form-text">
                                             <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                             <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}"/>
                                         </p>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{hasNonPackageFile and EditDatafilesPage.workingVersion.dataset.released}">
-                                        <p class="help-block">
+                                        <p class="form-text">
                                             <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                             <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttpAndPublished']}"/>
                                         </p>
                                     </ui:fragment>
                                     <!-- HTTP FILE ALREADY EXISTS. THERE CAN BE ONLY ONE. -->
                                     <ui:fragment rendered="#{hasFileMetadatas}">
-                                        <p class="help-block">
+                                        <p class="form-text">
                                             <span class="bi bi-exclamation-triangle-fill text-warning"/> <span class="text-warning">#{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}</span>
                                         </p>
                                     </ui:fragment>
                                     <!-- CAN'T DOWNLOAD RSYNC SCRIPT DUE to DCM BACKEND BROKEN. -->
                                     <ui:fragment rendered="#{empty EditDatafilesPage.workingVersion.fileMetadatas and !hasRsyncScript}">
-                                        <p class="help-block">
+                                        <p class="form-text">
                                             <span class="bi bi-exclamation-circle-fill text-danger"></span>
                                             <h:outputFormat class="text-danger" value=" #{bundle['file.rsyncUpload.noScriptBroken']}" escape="false">
                                                 <o:param>
@@ -344,7 +344,7 @@
                                     <!-- CAN'T DOWNLOAD RSYNC SCRIPT DUE to DCM BACKEND BUSY. -->
                                     <!-- TODO: Figure out if we can detect the difference between the DCM being down and the DCM being busy. -->
                                     <ui:fragment rendered="#{false}">
-                                        <p class="help-block">
+                                        <p class="form-text">
                                             <span class="bi bi-exclamation-triangle-fill text-warning"></span>
                                             <h:outputFormat class="text-warning" value=" #{bundle['file.rsyncUpload.noScriptBusy']}" escape="false">
                                                 <o:param>
@@ -445,14 +445,14 @@
                                         </div>
                                     </div>
                                     <div class="col-md-10 file-metadata-block">
-                                        <label class="control-label" jsf:for="fileName" style="margin-right:1em;margin-bottom:.5em;">
+                                        <label class="form-label" jsf:for="fileName" style="margin-right:1em;margin-bottom:.5em;">
                                             #{bundle['file.fileName']}
                                         </label>
                                         <p:inputText id="fileName" value="#{fileMetadata.labelNoExtension}" style="width:60%; margin-bottom:.5em;" disabled="#{fileMetadata.dataFile.filePackage}"/>
                                         <h:outputText value="#{fileMetadata.originalExtension}"/>
                                         <p:message for="datasetForm:filesTable:#{rowNum}:fileName"/>
 
-                                        <label class="control-label" jsf:for="fileDirectoryName" style="margin-right:1em;margin-bottom:.5em;">
+                                        <label class="form-label" jsf:for="fileDirectoryName" style="margin-right:1em;margin-bottom:.5em;">
                                             #{bundle['file.metadataTab.fileMetadata.hierarchy.label']}    
                                             <span class="bi bi-question-circle tooltip-icon"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.metadataTab.fileMetadata.hierarchy.tip']}"></span>
@@ -477,7 +477,7 @@
                                             </div>
                                         </div>
                                         <div class="file-description-block">
-                                            <label class="control-label" for="fileDescription" style="margin-right:1em; margin-top:.5em; vertical-align:top;">
+                                            <label class="form-label" for="fileDescription" style="margin-right:1em; margin-top:.5em; vertical-align:top;">
                                                 #{bundle.description}
                                             </label>
                                             <p:inputTextarea id="fileDescription" rows="2" cols="40" value="#{fileMetadata.description}" style="width:60%; margin-top:.5em;"
@@ -657,7 +657,7 @@
     
     <p:dialog id="fileAlreadyExistsPopup" styleClass="smallPopUp" header="#{EditDatafilesPage.headerForAlreadyExistsPopUp}" widgetVar="fileAlreadyExistsPopup" modal="true">
         <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{EditDatafilesPage.warningMessageForAlreadyExistsPopUp}</p>
-            <p class="help-block no-margin-top">                                           
+            <p class="form-text no-margin-top">                                           
                 <h:outputFormat value="#{bundle['dataset.file.upload.popup.explanation.tip']}" escape="false">
                     <f:param value="#{systemConfig.guidesBaseUrl}"/>
                     <f:param value="#{systemConfig.guidesVersion}"/>
@@ -675,14 +675,14 @@
     
     <p:dialog id="fileAdvancedOptions" styleClass="dialog-submenu smallPopUp" header="#{bundle['file.advancedIngestOptions']}" widgetVar="fileAdvancedOptions" modal="true">
         <p:focus context="fileAdvancedOptions"/>
-        <div class="form-horizontal">
+        <div>
             <!-- select text encoding, for SPSS-SAV (and, and possibly, other) (this option is only available during ingest) data files; not implemented yet -->
-            <div class="form-group" jsf:rendered="#{!(empty EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup) and (empty EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup.id) and dataFileServiceBean.isSpssSavFile(EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup.dataFile)}">
-                <label for="spssSavEncodingLanguage" class="col-sm-4 control-label">
+            <div class="row mb-3" jsf:rendered="#{!(empty EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup) and (empty EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup.id) and dataFileServiceBean.isSpssSavFile(EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup.dataFile)}">
+                <label for="spssSavEncodingLanguage" class="col-sm-4 form-label">
                     #{bundle['file.spss-savEncoding']}
                 </label>
                 <div class="col-sm-8">
-                    <p class="help-block">#{bundle['file.spss-savEncoding.title']}</p>
+                    <p class="form-text">#{bundle['file.spss-savEncoding.title']}</p>
                     <p class="form-control-static"><h:outputText id="selectedEncoding" value="#{bundle['file.spss-savEncoding.current']} #{EditDatafilesPage.ingestLanguageEncoding}"/></p>
                     <p:tieredMenu id="spssSavEncodingLanguage" styleClass="form-control">
                         <p:submenu label="#{bundle['editfilesfragment.mainlabel']}">
@@ -839,12 +839,12 @@
                 </div>
             </div>
             <!-- ODUM-style extra variable labels for SPSS-POR files (this option is only available during ingest) -->
-            <div class="form-group" jsf:rendered="#{!(empty EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup) and (empty EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup.id) and dataFileServiceBean.isSpssPorFile(EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup.dataFile)}">
-                <label for="labelsFileUpload" class="col-sm-4 control-label">
+            <div class="row mb-3" jsf:rendered="#{!(empty EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup) and (empty EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup.id) and dataFileServiceBean.isSpssPorFile(EditDatafilesPage.fileMetadataSelectedForIngestOptionsPopup.dataFile)}">
+                <label for="labelsFileUpload" class="col-sm-4 form-label">
                     #{bundle['file.spss-porExtraLabels']}
                 </label>
                 <div class="col-sm-8">
-                    <p class="help-block">#{bundle['file.spss-porExtraLabels.title']}</p>
+                    <p class="form-text">#{bundle['file.spss-porExtraLabels.title']}</p>
                     <p:growl id="messageForLabelsFileUpload" showDetail="true" />
                     <p:fileUpload id="labelsFileUpload" label="#{bundle['file.spss-porExtraLabels.selectToAddBtn']}" update="messageForLabelsFileUpload" mode="advanced" auto="true" listener="#{EditDatafilesPage.handleLabelsFileUpload}"/>
                 </div>
@@ -858,13 +858,13 @@
     <!-- end of "advanced options" dialogue -->
     <p:dialog id="fileSetThumbnail" styleClass="smallPopUp" header="#{bundle['file.setThumbnail.header']}" widgetVar="fileSetThumbnail" modal="true">
         <p:focus context="fileSetThumbnail"/>
-        <div class="form-horizontal">
-            <div class="form-group">
-                <label jsf:for="datasetThumbnailImage_input" class="col-sm-4 control-label">
+        <div>
+            <div class="row mb-3">
+                <label jsf:for="datasetThumbnailImage_input" class="col-sm-4 form-label">
                     #{bundle['file.datasetThumbnail']}
                 </label>
                 <div class="col-sm-8">
-                    <p class="help-block">#{bundle['file.datasetThumbnail.tip']}</p>
+                    <p class="form-text">#{bundle['file.datasetThumbnail.tip']}</p>
                     <p:selectBooleanCheckbox id="datasetThumbnailImage"
                                              itemLabel="#{bundle['file.useThisIamge']}" value="#{EditDatafilesPage.useAsDatasetThumbnail}"/>
                     <p:message for="datasetThumbnailImage" display="text" />
@@ -878,7 +878,7 @@
     </p:dialog>
     <p:dialog id="fileThumbnailConfirm" styleClass="smallPopUp" header="#{bundle['file.setThumbnail.header']}" widgetVar="fileThumbnailConfirm" modal="true">
         <div>
-            <p class="help-block">
+            <p class="form-text">
                 <span class="bi bi-exclamation-circle-fill text-danger"/> <span class="text-danger">#{bundle['file.setThumbnail.confirmation']}</span>
             </p>
         </div>
@@ -892,10 +892,10 @@
     <ui:include rendered="#{systemConfig.provCollectionEnabled}" src="provenance-popups-fragment.xhtml"/>
     <p:dialog id="editFileTagsPopup" styleClass="smallPopUp" header="#{bundle['file.editTags']}" widgetVar="editFileTagsPopup" modal="true">
         <p:focus context="editFileTagsPopup"/>
-        <p class="help-block">#{bundle['file.editTagsDialog.tip']}</p>
-        <div class="form-horizontal" jsf:rendered="#{!(empty EditDatafilesPage.fileMetadataSelectedForTagsPopup)}">
-            <div class="form-group text-left">
-                <label for="selectedTagsListEFF" class="col-sm-4 control-label">
+        <p class="form-text">#{bundle['file.editTagsDialog.tip']}</p>
+        <div jsf:rendered="#{!(empty EditDatafilesPage.fileMetadataSelectedForTagsPopup)}">
+            <div class="row mb-3 text-left">
+                <label for="selectedTagsListEFF" class="col-sm-4 form-label">
                     #{bundle['file.editTagsDialog.selectedTags']}
                 </label>
                 <div class="col-sm-8">
@@ -911,8 +911,8 @@
                     </p:outputPanel>
                 </div>
             </div>
-            <div class="form-group text-left">
-                <label for="fileTagsMenu" class="col-sm-4 control-label">
+            <div class="row mb-3 text-left">
+                <label for="fileTagsMenu" class="col-sm-4 form-label">
                     #{bundle['file.editTagsDialog.select']}
                 </label>
                 <div class="col-sm-8">
@@ -925,14 +925,14 @@
                     <p:message for="fileTagsMenu" display="text" />
                 </div>
             </div>
-            <div class="form-group text-left">
-                <label for="fileTagAddNew" class="col-sm-4 control-label">
+            <div class="row mb-3 text-left">
+                <label for="fileTagAddNew" class="col-sm-4 form-label">
                     #{bundle['file.editTagsDialog.add']}
                 </label>
                 <div class="col-sm-8">
                     <div class="row form-inline">
                         <div class="col-sm-12">
-                            <p class="help-block">#{bundle['file.editTagsDialog.add.tip']}</p>
+                            <p class="form-text">#{bundle['file.editTagsDialog.add.tip']}</p>
                             <p:inputText id="fileTagAddNew" styleClass="form-control"
                                          type="text" value="#{EditDatafilesPage.newCategoryName}"
                                          placeholder="#{bundle['file.editTagsDialog.newName']}"
@@ -943,12 +943,12 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group text-left" jsf:rendered="#{EditDatafilesPage.fileMetadataSelectedForTagsPopup.dataFile.tabularData}">
-                <label for="tabularDataTags" class="col-sm-4 control-label">
+            <div class="row mb-3 text-left" jsf:rendered="#{EditDatafilesPage.fileMetadataSelectedForTagsPopup.dataFile.tabularData}">
+                <label for="tabularDataTags" class="col-sm-4 form-label">
                     #{bundle['file.tabularDataTags']}
                 </label>
                 <div class="col-sm-8">
-                    <p class="help-block">#{bundle['file.tabularDataTags.tip']}</p>
+                    <p class="form-text">#{bundle['file.tabularDataTags.tip']}</p>
                     <p:selectCheckboxMenu id="tabularDataTags" styleClass="form-control"
                                           value="#{EditDatafilesPage.selectedTabFileTags}" label="#{bundle.select}"
                                           filter="false">
@@ -959,12 +959,12 @@
                     <p:message for="tabularDataTags" display="text" />
                 </div>
             </div>
-            <!-- <div class="form-group text-left"> REMOVED DELETE CHECKBOX FOR NOW
-                <label class="col-sm-4 control-label">
+            <!-- <div class="row mb-3 text-left"> REMOVED DELETE CHECKBOX FOR NOW
+                <label class="col-sm-4 form-label">
                     # {bundle['dataset.removeUnusedFileTags.label']}
                 </label>
                 <div class="col-sm-8">
-                    <p class="help-block"># {bundle['dataset.removeUnusedFileTags.tip']}</p>
+                    <p class="form-text"># {bundle['dataset.removeUnusedFileTags.tip']}</p>
                     <p:selectBooleanCheckbox id="removeUnused" itemLabel="# {bundle['dataset.removeUnusedFileTags.check']}" value="# {EditDatafilesPage.removeUnusedTags}" widgetVar="removeUnused"/>
                 </div>
             </div> -->

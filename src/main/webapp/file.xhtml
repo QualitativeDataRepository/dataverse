@@ -62,7 +62,7 @@
                                     </div>
                                     <!-- END: FILE LEVEL MSGs -->
 
-                                    <p class="help-block">
+                                    <p class="form-text">
                                         <h:outputFormat value="#{bundle['file.citation.notice']}" escape="false">
                                             <o:param value="#{FilePage.fileMetadata.datasetVersion.dataset.displayName}"/>
                                         </h:outputFormat>
@@ -482,8 +482,8 @@
                                     </div>
                                 </div>
                                 <!-- FRAME EXTERNAL TOOL EMBED -->
-                                <div id="previewPresentation" class="embed-responsive embed-responsive-16by9" jsf:rendered="#{(FilePage.toolsWithPreviews.size() > 0  or FilePage.queryTools.size() > 0) and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata)}">
-                                    <iframe role="presentation" allowfullscreen="true" title="#{bundle['file.previewTab.presentation']}" src="#{FilePage.preview(FilePage.selectedTool)}"></iframe>
+                                <div id="previewPresentation" jsf:rendered="#{(FilePage.toolsWithPreviews.size() > 0  or FilePage.queryTools.size() > 0) and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata)}">
+                                    <iframe class="ratio ratio-16x9" role="presentation" allowfullscreen="true" title="#{bundle['file.previewTab.presentation']}" src="#{FilePage.preview(FilePage.selectedTool)}"></iframe>
                                 </div>
                                 </ui:fragment>
                             </p:tab>
@@ -525,12 +525,12 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="panel">
-                                    <div data-toggle="collapse" data-target="#panelCollapseFMD" class="panel-heading text-info">
+                                <div class="card">
+                                    <div data-bs-toggle="collapse" data-bs-target="#panelCollapseFMD" class="card-header text-info">
                                         #{bundle['file.metadataTab.fileMetadata.header']} &#160;<span class="bi bi-chevron-up"/>
                                     </div>
-                                    <div id="panelCollapseFMD" class="collapse in">
-                                        <div class="panel-body metadata-container">
+                                    <div id="panelCollapseFMD" class="collapse show">
+                                        <div class="card-body metadata-container">
                                             <table class="metadata">
                                                 <tbody>
                                                     <tr id="filePreviewBlock">
@@ -577,7 +577,7 @@
                                                             #{bundle['file.metadataTab.fileMetadata.downloadUrl.label']}
                                                         </th>
                                                         <td>
-                                                            <p class="help-block">
+                                                            <p class="form-text">
                                                                 <h:outputFormat value="#{bundle['file.metadataTab.fileMetadata.downloadUrl.info']}" escape="false">
                                                                     <f:param value="#{systemConfig.guidesBaseUrl}"/>
                                                                     <f:param value="#{systemConfig.guidesVersion}"/>
@@ -702,7 +702,7 @@
 
                     </ui:include>
                     <p:dialog id="shareDialog" header="#{bundle['file.share.title']}" widgetVar="shareDialog" modal="true" rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}">
-                        <p class="help-block">#{bundle['file.share.tip']}</p>
+                        <p class="form-text">#{bundle['file.share.tip']}</p>
                         <div id="sharrre-widget" data-text="#{bundle['file.share.text']}" data-url="#{systemConfig.dataverseSiteUrl}/file.xhtml?#{empty FilePage.fileMetadata.dataFile.globalId ? 'fileId' : 'persistentId'}=#{empty FilePage.fileMetadata.dataFile.globalId ? FilePage.fileMetadata.dataFile.id : FilePage.fileMetadata.dataFile.globalId.asString()}&amp;version=#{FilePage.fileMetadata.datasetVersion.friendlyVersionNumber}"></div>
                         <div class="button-block">
                             <button class="btn btn-secondary" onclick="PF('shareDialog').hide()" type="button">
@@ -741,7 +741,7 @@
                     </ui:include>
                     <!-- Request Access Sign Up/Log In Button -->
                     <p:dialog id="accessGuest" header="#{bundle['file.requestAccess']}" widgetVar="accessSignUpLogIn_popup" modal="true">
-                        <p class="help-block">
+                        <p class="form-text">
                             <span class="bi bi-exclamation-circle-fill text-danger"/>&#160;
                             <h:outputFormat styleClass="text-danger" value="#{dataverseHeaderFragment.signupAllowed ? bundle['file.requestAccess.dialog.msg.signup'] : bundle['file.requestAccess.dialog.msg']}" escape="false">
                                 <f:param value="#{dataverseHeaderFragment.getSignupUrl(navigationWrapper.getSSOLoginPath())}"/>

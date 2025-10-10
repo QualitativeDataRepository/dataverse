@@ -24,7 +24,7 @@
             <ui:define name="body">
 
                 <!--This is just the button. The error message is added via addErrorMessage in the backing bean.-->
-                <h:form styleClass="form-horizontal" rendered="#{ConfirmEmailPage.invalidToken}">
+                <h:form rendered="#{ConfirmEmailPage.invalidToken}">
                     <h:commandButton styleClass="btn btn-secondary" value="#{bundle['confirmEmail.details.goToAccountPageButton']}" action="/dataverseuser.xhtml?selectTab=accountInfo&amp;faces-redirect=true"/>
                 </h:form>
 

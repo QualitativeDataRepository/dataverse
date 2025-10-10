@@ -20,7 +20,7 @@
     <div jsf:rendered="#{not datasetVersion.draft}">
         <div class="row">
             <div class="col-12">
-                <p class="help-block">
+                <p class="form-text">
                     <h:outputFormat value=" #{bundle['file.dataFilesTab.dataAccess.info']}" escape="false">
                         <f:param value="#{systemConfig.guidesBaseUrl}"/>
                         <f:param value="#{systemConfig.guidesVersion}"/>
@@ -28,8 +28,8 @@
                 </p>
             </div>
         </div>
-        <div class="form-group row">
-            <label class="col-12 col-lg-3 control-label">
+        <div class="row mb-3 row">
+            <label class="col-12 col-lg-3 form-label">
                 #{bundle['file.dataFilesTab.dataAccess.local.label']}
                 <span class="bi bi-question-circle tooltip-icon"
                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.dataAccess.local.tooltip']}"></span>
@@ -40,8 +40,8 @@
                 </code>
             </div>
         </div>
-        <div class="form-group row">
-            <label class="col-12 col-lg-3 control-label">
+        <div class="row mb-3 row">
+            <label class="col-12 col-lg-3 form-label">
                 #{bundle['file.dataFilesTab.dataAccess.download.label']}
                 <span class="bi bi-question-circle tooltip-icon"
                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.dataAccess.download.tooltip']}"></span>
@@ -55,8 +55,8 @@
                 </ui:repeat>
             </div>
         </div>
-        <div class="form-group row">
-            <label class="col-12 col-lg-3 control-label">
+        <div class="row mb-3 row">
+            <label class="col-12 col-lg-3 form-label">
                 #{bundle['file.dataFilesTab.dataAccess.verify.label']}
                 <span class="bi bi-question-circle tooltip-icon"
                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.dataAccess.verify.tooltip']}"></span>

@@ -7,25 +7,25 @@
     <!-- Dialog Contact Form -->
     <p:dialog id="contactDialog" header="#{sendFeedbackDialog.getFormHeader()}" widgetVar="contactForm" modal="true">
         <p:fragment>
-            <h:form id="emailForm" class="form-horizontal">
+            <h:form id="emailForm">
                 <p:focus context="contactDialog"/>
                 <!-- to: Support -->
-                <div class="form-group">
-                    <span class="col-sm-3 control-label">#{bundle['contact.to']}</span>
+                <div class="row mb-3">
+                    <span class="col-sm-3 form-label">#{bundle['contact.to']}</span>
                     <div class="col-sm-9">
                         <p id="messageTo" class="form-control-static">#{sendFeedbackDialog.getMessageTo()}</p>
                     </div>
                 </div>
-                <div class="form-group" jsf:rendered="#{sendFeedbackDialog.ccSupport()}">
-                    <span class="col-sm-3 control-label">#{bundle['contact.cc']}</span>
+                <div class="row mb-3" jsf:rendered="#{sendFeedbackDialog.ccSupport()}">
+                    <span class="col-sm-3 form-label">#{bundle['contact.cc']}</span>
                     <div class="col-sm-9">
                         <p id="messageCC" class="form-control-static">#{sendFeedbackDialog.getMessageCC()}</p>
                     </div>
                 </div>
                 <ui:fragment rendered="#{sendFeedbackDialog.isLoggedIn()}">
                 <!-- from email (logged in + auto-filled) -->
-                    <div class="form-group">
-                        <span class="col-sm-3 control-label">#{bundle['contact.from']}</span>
+                    <div class="row mb-3">
+                        <span class="col-sm-3 form-label">#{bundle['contact.from']}</span>
                         <div class="col-sm-9">
                             <p id="userEmailStatic" class="form-control-static">#{sendFeedbackDialog.loggedInUserEmail()}</p>
                         </div>
@@ -33,8 +33,8 @@
                 </ui:fragment>
                 <ui:fragment rendered="#{!sendFeedbackDialog.isLoggedIn()}">
                 <!-- from email (not logged in) -->
-                    <div class="form-group">
-                        <label jsf:for="userEmail" class="col-sm-3 control-label">#{bundle['contact.from']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/></label>
+                    <div class="row mb-3">
+                        <label jsf:for="userEmail" class="col-sm-3 form-label">#{bundle['contact.from']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/></label>
                         <div class="col-sm-9">
                             <p:inputText id="userEmail" styleClass="form-control" size="30" value="#{sendFeedbackDialog.userEmail}"
                                          validator="#{sendFeedbackDialog.validateUserEmail}" validatorMessage="#{bundle['contact.from.invalid']}" requiredMessage="#{bundle['contact.from.required']}" required="#{param['DO_VALIDATION']}" placeholder="#{bundle['contact.from.emailPlaceholder']}"/>
@@ -43,8 +43,8 @@
                     </div>
                 </ui:fragment>
                 <!-- subject -->
-                <div class="form-group">
-                    <label jsf:for="messageSubject" class="col-sm-3 control-label">#{bundle['contact.subject']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/></label>
+                <div class="row mb-3">
+                    <label jsf:for="messageSubject" class="col-sm-3 form-label">#{bundle['contact.subject']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/></label>
                     <div class="col-sm-9">
                         <p:inputText id="messageSubject" styleClass="form-control" value="#{sendFeedbackDialog.messageSubject}"
                                      requiredMessage="#{bundle['contact.subject.required']}" required="#{param['DO_VALIDATION']}"/>                        
@@ -52,8 +52,8 @@
                     </div>
                 </div>   
                 <!-- message -->
-                <div class="form-group">
-                    <label jsf:for="userMessage" class="col-sm-3 control-label">#{bundle['contact.msg']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/></label>
+                <div class="row mb-3">
+                    <label jsf:for="userMessage" class="col-sm-3 form-label">#{bundle['contact.msg']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/></label>
                     <div class="col-sm-9">
                         <p:inputTextarea id="userMessage" styleClass="form-control" value="#{sendFeedbackDialog.userMessage}" title="#{bundle['contact.msg']}"
                             required="#{param['DO_VALIDATION']}" requiredMessage="#{bundle['contact.msg.required']}" autoResize="false" rows="10"/>
@@ -61,8 +61,8 @@
                     </div>
                 </div>
                 <!-- validation -->
-                <div class="form-group">
-                    <div class="col-sm-offset-3 col-sm-9">
+                <div class="row mb-3">
+                    <div class="offset-sm-3 col-sm-9">
                         <p>
                             <h:outputText styleClass="fw-bold" value="#{bundle['contact.question']}"/> <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                         </p>

@@ -31,7 +31,7 @@
               header="#{bean.hasValidTermsOfAccess ? bundle['dataset.access.accessHeader'] : bundle['dataset.access.accessHeader.invalid.state'] }" 
               widgetVar="accessPopup" modal="true">
         <p:focus context="accessPopup"/>
-        <p class="help-block">
+        <p class="form-text">
             <h:outputText styleClass="text-muted" value="#{bundle['dataset.access.description']}"/>
             <h:outputText  style="font-weight:bold" value="#{bundle['dataset.access.description.disable']}"/>
             <p></p>
@@ -45,9 +45,9 @@
             <o:inputHidden id="termsofAccessHidden" value="#{bean.termsOfAccess}" />
             <o:inputHidden id="fileAccessRequestHidden" value="#{bean.fileAccessRequest}" />
         </p:fragment>
-        <div class="form-horizontal">
-            <div class="form-group">
-                <label for="datasetForm:requestAccess2" class="col-sm-3 control-label">
+        <div>
+            <div class="row mb-3">
+                <label for="datasetForm:requestAccess2" class="col-sm-3 form-label">
                     #{bundle['file.dataFilesTab.terms.list.termsOfAccess.requestAccess']}
                     <span class="bi bi-question-circle tooltip-icon"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfAccess.requestAccess.title']}"></span>
@@ -66,8 +66,8 @@
                            <span class="ui-message-error-detail">#{bundle['file.dataFilesTab.terms.list.termsOfAccess.requestAccess.warning.outofcompliance']}</span>          
             </div>
             </p:fragment>
-            <div class="form-group">
-                <label for="termsAccessInput" class="col-sm-3 control-label">
+            <div class="row mb-3">
+                <label for="termsAccessInput" class="col-sm-3 form-label">
                     #{bundle['file.dataFilesTab.terms.list.termsOfAccess.termsOfsAccess']}
                     <span class="bi bi-question-circle tooltip-icon"
                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfAccess.termsOfsAccess.title']}"></span>
@@ -96,14 +96,14 @@
     <!-- Embargo Dialog-->
     <p:dialog id="fileEmbargoPopup" styleClass="smallPopUp" resizable="false" header="#{bundle['file.editEmbargo']}" widgetVar="fileEmbargoPopup" modal="true" rendered="#{bean != EditDatafilesPage}">
         <p:focus for="fileEmbargoDate"/>
-        <p class="help-block" jsf:rendered="#{bean.validEmbargoSelection}">#{bundle['file.editEmbargoDialog.tip']}</p>
+        <p class="form-text" jsf:rendered="#{bean.validEmbargoSelection}">#{bundle['file.editEmbargoDialog.tip']}</p>
         <p class="text-warning embargo" jsf:rendered="#{bean.validEmbargoSelection and !bean.embargoForWholeSelection}"><span class="bi bi-exclamation-triangle-fill"/>#{bundle['file.editEmbargoDialog.some.tip']} #{bundle['file.editEmbargoDialog.partial.tip']}</p>
         <p class="text-danger embargo" jsf:rendered="#{!bean.validEmbargoSelection}"><span class="bi bi-exclamation-circle-fill"/>#{bundle['file.editEmbargoDialog.none.tip']}</p>
 
         <h:panelGroup id="embargoInputs">
             <div class="embargo">
 
-                <div class="form-horizontal"
+                <div
                     jsf:rendered="#{bean.validEmbargoSelection}">
                     <div class="col-lg-3">
                         <h:outputText class="embargolabel"
@@ -111,7 +111,7 @@
                     </div>
                     <div class="col-lg-9">
                         <div>
-                            <label class="help-block" for="datasetForm:fileEmbargoDate_input">
+                            <label class="form-text" for="datasetForm:fileEmbargoDate_input">
                                 #{bundle['file.editEmbargoDialog.newDate']} <span
                                     class="bi bi-asterisk text-danger"
                                     jsf:rendered="#{!bean.removeEmbargo}" />
@@ -133,7 +133,7 @@
                             </div>
                         </div>
                         <div class="p-field p-col-12 p-md-4">
-                            <p class="help-block">#{bundle['file.editEmbargoDialog.reason.tip']}</p>
+                            <p class="form-text">#{bundle['file.editEmbargoDialog.reason.tip']}</p>
                             <p:inputText id="fileEmbargoAddReason" styleClass="form-control"
                                 disabled="#{bean.removeEmbargo}" type="text"
                                 value="#{bean.selectionEmbargo.reason}"
@@ -172,14 +172,14 @@
     <!-- Retention Period Dialog-->
     <p:dialog id="fileRetentionPopup" styleClass="smallPopUp" resizable="false" header="#{bundle['file.editRetention']}" widgetVar="fileRetentionPopup" modal="true" rendered="#{bean != EditDatafilesPage}">
         <p:focus for="fileRetentionDate"/>
-        <p class="help-block" jsf:rendered="#{bean.validRetentionSelection}">#{bundle['file.editRetentionDialog.tip']}</p>
+        <p class="form-text" jsf:rendered="#{bean.validRetentionSelection}">#{bundle['file.editRetentionDialog.tip']}</p>
         <p class="text-warning retention" jsf:rendered="#{bean.validRetentionSelection and !bean.retentionForWholeSelection}"><span class="bi bi-exclamation-triangle-fill"/>#{bundle['file.editRetentionDialog.some.tip']} #{bundle['file.editRetentionDialog.partial.tip']}</p>
         <p class="text-danger retention" jsf:rendered="#{!bean.validRetentionSelection}"><span class="bi bi-exclamation-circle-fill"/>#{bundle['file.editRetentionDialog.none.tip']}</p>
 
         <h:panelGroup id="retentionInputs">
             <div class="retention">
 
-                <div class="form-horizontal"
+                <div
                      jsf:rendered="#{bean.validRetentionSelection}">
                     <div class="col-lg-3">
                         <h:outputText class="retentionlabel"
@@ -187,7 +187,7 @@
                     </div>
                     <div class="col-lg-9">
                         <div>
-                            <label class="help-block" for="datasetForm:fileRetentionDate_input">
+                            <label class="form-text" for="datasetForm:fileRetentionDate_input">
                                 #{bundle['file.editRetentionDialog.newDate']} <span
                                     class="bi bi-asterisk text-danger"
                                     jsf:rendered="#{!bean.removeRetention}" />
@@ -209,7 +209,7 @@
                             </div>
                         </div>
                         <div class="p-field p-col-12 p-md-4">
-                            <p class="help-block">#{bundle['file.editRetentionDialog.reason.tip']}</p>
+                            <p class="form-text">#{bundle['file.editRetentionDialog.reason.tip']}</p>
                             <p:inputText id="fileRetentionAddReason" styleClass="form-control"
                                          disabled="#{bean.removeRetention}" type="text"
                                          value="#{bean.selectionRetention.reason}"
