@@ -114,7 +114,7 @@
                                             <div class="pull-left row col-sm-9 p-0" jsf:rendered="#{!FilePage.anonymizedAccess}">
                                                 <div class="col-sm-3 col-md-4 col-lg-3 btn-group margin-bottom citation-download" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}">
                                                     <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                         #{bundle['file.cite.file.downloadBtn']} <span class="caret"></span>
+                                                         #{bundle['file.cite.file.downloadBtn']} <i class="bi bi-caret-down"></i>
                                                     </button>
                                                     <ul class="dropdown-menu">
                                                         <li>
@@ -163,7 +163,7 @@
                                             <div class="pull-left row col-sm-9 p-0"  jsf:rendered="#{!FilePage.anonymizedAccess}">
                                                 <div class="col-sm-3 col-md-4 col-lg-3 btn-group margin-bottom citation-download" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}">
                                                     <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        #{bundle['dataset.cite.downloadBtn']} <span class="caret"></span>
+                                                        #{bundle['dataset.cite.downloadBtn']} <i class="bi bi-caret-down"></i>
                                                     </button>
                                                     <ul class="dropdown-menu">
                                                         <li>
@@ -204,7 +204,7 @@
                                                  jsf:rendered="#{showAccessFileButtonGroup}">
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-secondary btn-access-file dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        #{((not empty FilePage.exploreTools) or FilePage.showComputeButton()) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']} <span class="caret"></span>
+                                                        #{((not empty FilePage.exploreTools) or FilePage.showComputeButton()) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']} <i class="bi bi-caret-down"></i>
                                                     </button>
                                                     <ul class="dropdown-menu float-end text-left">
                                                         <!-- Explore/Download/Request Button Block -->
@@ -248,7 +248,7 @@
                                                                          and !FilePage.deletedFile}">
                                                     <button type="button" id="editFile" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{FilePage.lockedFromEdits ? 'disabled' : ''}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                             disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
-                                                        #{bundle['file.editBtn']} <span class="caret"></span>
+                                                        #{bundle['file.editBtn']} <i class="bi bi-caret-down"></i>
                                                     </button>
                                                     <ul class="dropdown-menu float-end text-left">
                                                         <ui:include src="file-edit-button-fragment.xhtml">
@@ -433,7 +433,7 @@
                                     <!-- Preview Button Group -->
                                     <div class="btn-group" jsf:rendered="#{FilePage.allAvailableTools.size() > 1 and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata)}">
                                         <button type="button" id="selectTool" class="btn btn-secondary btn-access dropdown-toggle" data-toggle="dropdown">
-                                            <span class="bi bi-eye"/> #{bundle['file.toolsTab.button.label']} <span class="caret"></span>
+                                            <span class="bi bi-eye"/> #{bundle['file.toolsTab.button.label']} <i class="bi bi-caret-down"></i>
                                         </button>
 
                                         <ui:fragment rendered="#{FilePage.allAvailableTools.size() > 1}">
@@ -512,7 +512,7 @@
                                     <!-- Export Button -->
                                     <div class="btn-group" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released}">
                                         <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-toggle="dropdown">
-                                            <span class="bi bi-box-arrow-up-right"/> #{bundle['dataset.exportBtn']} <span class="caret"/>
+                                            <span class="bi bi-box-arrow-up-right"/> #{bundle['dataset.exportBtn']} <i class="bi bi-caret-down"></i>
                                         </button>
                                         <ul class="dropdown-menu float-end text-left">
                                             <ui:repeat var="exporter" value="#{FilePage.getExporters()}">

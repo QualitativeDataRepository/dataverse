@@ -147,7 +147,7 @@
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileTypeFacetLabels)}">
                         <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             #{bundle['file.results.filter.type']} <h:outputText value="#{(empty DatasetPage.fileTypeFacet) ? bundle['file.results.filter.all'] : DatasetPage.fileTypeFacet}"
-                                          styleClass="#{!empty DatasetPage.fileTypeFacet ? 'fw-bold' : ''}"/> <span class="caret"></span>
+                                          styleClass="#{!empty DatasetPage.fileTypeFacet ? 'fw-bold' : ''}"/> <i class="bi bi-caret-down"></i>
                         </button>
                         <ul class="dropdown-menu">
                             <!-- link for "All" - all file types: -->
@@ -188,7 +188,7 @@
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileAccessFacetLabels)}">
                         <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             #{bundle['file.results.filter.access']} <h:outputText value="#{(empty DatasetPage.fileAccessFacet) ? bundle['file.results.filter.all'] : DatasetPage.fileAccessFacet}"
-                                          styleClass="#{!empty DatasetPage.fileAccessFacet ? 'fw-bold' : ''}"/> <span class="caret"></span>
+                                          styleClass="#{!empty DatasetPage.fileAccessFacet ? 'fw-bold' : ''}"/> <i class="bi bi-caret-down"></i>
                         </button>
                         <ul class="dropdown-menu">
                             <!-- link for "All" - i.e., all (both) types of access: -->
@@ -229,7 +229,7 @@
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileTagsFacetLabels)}">
                         <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             #{bundle['file.results.filter.tag']} <h:outputText value="#{(empty DatasetPage.fileTagsFacet) ? bundle['file.results.filter.all'] : DatasetPage.fileTagsFacet}"
-                                          styleClass="#{!empty DatasetPage.fileTagsFacet ? 'fw-bold' : ''}"/> <span class="caret"></span>
+                                          styleClass="#{!empty DatasetPage.fileTagsFacet ? 'fw-bold' : ''}"/> <i class="bi bi-caret-down"></i>
                         </button>
                         <ul class="dropdown-menu">
                             <!-- link for "All" - i.e., all file tags: -->
@@ -282,7 +282,7 @@
                     <!-- FILES SORT -->
                     <div class="btn-group">
                         <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="bi bi-sort-alpha-down"></span> #{bundle['file.results.btn.sort']} <span class="caret"></span>
+                            <span class="bi bi-sort-alpha-down"></span> #{bundle['file.results.btn.sort']} <i class="bi bi-caret-down"></i>
                         </button>
                         <ul class="dropdown-menu float-end text-left">
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
@@ -419,7 +419,7 @@
                                                                                   and DatasetPage.canUpdateDataset() and !widgetWrapper.widgetView and (DatasetPage.fileMetadatasSearch.size() gt 0)}">
                     <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-toggle="dropdown"
                             disabled="#{uploadButtonDisabled}">
-                        <span class="bi bi-pencil"/> #{bundle['file.editFiles']} <span class="caret"></span>
+                        <span class="bi bi-pencil"/> #{bundle['file.editFiles']} <i class="bi bi-caret-down"></i>
                     </button>
                     <ul class="dropdown-menu multi-level float-end text-left">
                         <ui:include src="file-edit-button-fragment.xhtml">
@@ -459,7 +459,7 @@
                                      and fileMetadataCount > 1) and DatasetPage.downloadButtonAvailable
                                      and (DatasetPage.isVersionHasTabular()||DatasetPage.isVersionHasGlobus())}">
                     <button type="button" class="btn btn-secondary btn-download dropdown-toggle" data-toggle="dropdown">  
-                        <span class="bi bi-download"/> #{bundle.download} <span class="caret"></span>
+                        <span class="bi bi-download"/> #{bundle.download} <i class="bi bi-caret-down"></i>
                     </button>
                     <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level float-end text-left">
                         <li jsf:rendered="#{DatasetPage.canDownloadFiles()}">
@@ -566,7 +566,7 @@
                     <a type="button" style="padding:6px 8px;" class="btn-access-file btn btn-link bootstrap-button-tooltip dropdown-toggle" 
                        title="#{((not empty DatasetPage.getExploreToolsForDataFile(fileMetadata.dataFile)) or (DatasetPage.showComputeButton(fileMetadata))) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']}"
                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tabindex="0">
-                       <span class="bi bi-download"/><span class="sr-only">#{bundle['file.accessBtn']}</span><span class="caret"></span>
+                       <span class="bi bi-download"/><span class="sr-only">#{bundle['file.accessBtn']}</span><i class="bi bi-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu float-end text-left">
                         <!-- Explore/Download/Request Button Block -->
@@ -623,7 +623,7 @@
                        disabled="#{lockedFromEdits ? 'disabled' : ''}"
                        title="#{bundle['file.optionsBtn']}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                        tabindex="0">
-                        <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span><span class="caret"></span>
+                        <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span><i class="bi bi-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu multi-level float-end text-left">
                         <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="bi bi-pencil"/></li>                           

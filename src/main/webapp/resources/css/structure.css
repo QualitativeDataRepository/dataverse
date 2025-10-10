@@ -125,7 +125,7 @@ hr {border-color: #ddd;}
 
 .btn span.bi {margin-right:.3em;}
 .btn.btn-link.bootstrap-button-tooltip span.bi {margin:0;} /* OR JUST USE NO-TEXT... */
-.btn.btn-link.bootstrap-button-tooltip span.caret {margin-left:6px;}
+.btn.btn-link.bootstrap-button-tooltip span.bi-caret-down {margin-left:6px;}
 .btn span.bi.no-text {margin:0;}
 .btn-group .btn span.bi.no-text {margin-left:10px;margin-right:10px;}
 .col-manage-action .btn-group .btn span.bi.no-text {margin:0;}
@@ -421,7 +421,7 @@ form.btn-form {display:inline-block;}
 div.btn-group[aria-label='File Actions'] div.btn-group:nth-child(2) {
     margin-left: -8px;
 }
-div.btn-group[aria-label='File Actions'] div.btn-group:nth-child(2) a.btn.btn-link.bootstrap-button-tooltip span.caret{
+div.btn-group[aria-label='File Actions'] div.btn-group:nth-child(2) a.btn.btn-link.bootstrap-button-tooltip span.bi-caret-down{
     margin-left: 0px;
 }
 
