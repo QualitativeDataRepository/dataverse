@@ -487,12 +487,12 @@
                                         <div class="file-tags-block margin-top-half">
                                             <ui:fragment rendered="#{!(empty fileMetadata.categories)}">
                                                 <ui:repeat value="#{fileMetadata.categories}" var="cat">
-                                                    <h:outputText value="#{cat.name}" styleClass="label label-default"/>
+                                                    <h:outputText value="#{cat.name}" styleClass="badge bg-default"/>
                                                 </ui:repeat>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{!(empty fileMetadata.dataFile.tags)}">
                                                 <ui:repeat value="#{fileMetadata.dataFile.tags}" var="tag">
-                                                    <h:outputText value="#{tag.typeLabel}" styleClass="label label-info"/>
+                                                    <h:outputText value="#{tag.typeLabel}" styleClass="badge bg-info"/>
                                                 </ui:repeat>
                                             </ui:fragment>
                                         </div>
@@ -903,10 +903,10 @@
                         <h:outputText value="#{bundle['file.editTagsDialog.selectedTags.none']}" rendered="#{(empty EditDatafilesPage.selectedTags) and (empty EditDatafilesPage.selectedTabFileTags)}" />
 
                         <ui:repeat value="#{EditDatafilesPage.selectedTags}" var="tags" rendered="#{!empty EditDatafilesPage.selectedTags}">
-                            <h:outputText value="#{tags}" styleClass="label label-default" style="margin-right:.5em;display:inline-block;"/>
+                            <h:outputText value="#{tags}" styleClass="badge bg-default" style="margin-right:.5em;display:inline-block;"/>
                         </ui:repeat>
                         <ui:repeat value="#{EditDatafilesPage.selectedTabFileTags}" var="tags" rendered="#{!empty EditDatafilesPage.selectedTabFileTags}">
-                            <h:outputText value="#{tags}" styleClass="label label-info" style="margin-right:.5em;display:inline-block;"/>
+                            <h:outputText value="#{tags}" styleClass="badge bg-info" style="margin-right:.5em;display:inline-block;"/>
                         </ui:repeat>
                     </p:outputPanel>
                 </div>

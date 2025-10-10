@@ -535,7 +535,7 @@
                 <span class="bi bi-info-circle-fill"/>
                 <span> #{bundle['file.accessRequested']}&#160;</span>
             </div>
-            <div class="label label-info remote-info" jsf:rendered="#{not empty fileMetadata.dataFile.storageIO.remoteStoreName}" 
+            <div class="badge bg-info remote-info" jsf:rendered="#{not empty fileMetadata.dataFile.storageIO.remoteStoreName}" 
               title="#{bundle['file.remotelyStored']}">
               <div jsf:rendered="#{not empty fileMetadata.dataFile.storageIO.remoteStoreUrl}">
                   <a href="#{fileMetadata.dataFile.storageIO.remoteStoreUrl.toString()}" target="_blank" rel="noopener">#{fileMetadata.dataFile.storageIO.remoteStoreName}</a>

@@ -165,19 +165,19 @@
                                         <h1 id="title">#{DatasetPage.displayTitle}</h1>
                                         <div id="title-label-block" class="margin-top-half">
                                             <!-- DATASET Publication Status -->
-                                            <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="label label-primary" rendered="#{version.draft}"/>
-                                            <h:outputText value="#{bundle['embargoed']}" styleClass="label label-primary" rendered="#{DatasetPage.isActivelyEmbargoed(version.fileMetadatas)}"/>
-                                            <h:outputText value="#{bundle['retentionExpired']}" styleClass="label label-warning" rendered="#{DatasetPage.isRetentionExpired(version.fileMetadatas)}"/>
-                                            <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="label label-success" rendered="#{version.inReview}"/>
-                                            <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{!DatasetPage.dataset.released}"/>
-                                            <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="label label-danger" rendered="#{deaccessioned}"/>
-                                            <h:outputText value="#{bundle['incomplete']}" styleClass="label label-danger" rendered="#{!valid}"/>
+                                            <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="badge bg-primary" rendered="#{version.draft}"/>
+                                            <h:outputText value="#{bundle['embargoed']}" styleClass="badge bg-primary" rendered="#{DatasetPage.isActivelyEmbargoed(version.fileMetadatas)}"/>
+                                            <h:outputText value="#{bundle['retentionExpired']}" styleClass="badge bg-warning" rendered="#{DatasetPage.isRetentionExpired(version.fileMetadatas)}"/>
+                                            <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="badge bg-success" rendered="#{version.inReview}"/>
+                                            <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="badge bg-warning" rendered="#{!DatasetPage.dataset.released}"/>
+                                            <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="badge bg-danger" rendered="#{deaccessioned}"/>
+                                            <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!valid}"/>
                                             <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
                                             <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabel(version.currentCurationStatus)}" styleClass="label curation-status" rendered="#{canSeeCurationStatus}"/>
                                             <!-- DATASET VERSION NUMBER -->
-                                            <h:outputText styleClass="label label-default" rendered="#{version.released and !(version.draft or version.inReview or deaccessioned)}"
+                                            <h:outputText styleClass="badge bg-default" rendered="#{version.released and !(version.draft or version.inReview or deaccessioned)}"
                                                           value="#{bundle['file.DatasetVersion']} #{version.versionNumber}.#{version.minorVersionNumber}"/>
-                                            <h:outputText styleClass="label label-default" rendered="#{!version.released and !(version.draft or version.inReview or deaccessioned)}"
+                                            <h:outputText styleClass="badge bg-default" rendered="#{!version.released and !(version.draft or version.inReview or deaccessioned)}"
                                                           value="#{bundle['file.DatasetVersion']} #{version.versionState}"/>
                                         </div>
                                     </div>
@@ -1585,10 +1585,10 @@
                                         <h:outputText value="#{bundle['file.editTagsDialog.selectedTags.none']}" rendered="#{(empty DatasetPage.selectedTags) and (empty DatasetPage.selectedTabFileTags)}" />
 
                                         <ui:repeat value="#{DatasetPage.selectedTags}" var="tags" rendered="#{!empty DatasetPage.selectedTags}">
-                                            <h:outputText value="#{tags}" styleClass="label label-default" style="margin-right:.5em;display:inline-block;"/>
+                                            <h:outputText value="#{tags}" styleClass="badge bg-default" style="margin-right:.5em;display:inline-block;"/>
                                         </ui:repeat>
                                         <ui:repeat value="#{DatasetPage.selectedTabFileTags}" var="tags" rendered="#{!empty DatasetPage.selectedTabFileTags}">
-                                            <h:outputText value="#{tags}" styleClass="label label-info" style="margin-right:.5em;display:inline-block;"/>
+                                            <h:outputText value="#{tags}" styleClass="badge bg-info" style="margin-right:.5em;display:inline-block;"/>
                                         </ui:repeat>
                                     </p:outputPanel>
                                 </div>

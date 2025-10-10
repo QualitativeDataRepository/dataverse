@@ -516,9 +516,9 @@
                             </h:outputLink>
                             <h:outputText value="(#{result.dataverseAffiliation})" styleClass="text-muted" style="margin-left: .5em;" rendered="#{!empty result.dataverseAffiliation and result.dataverseAffiliationHighlightSnippet == null}"/>
                             <h:outputText value="(#{result.dataverseAffiliationHighlightSnippet})" styleClass="text-muted" style="margin-left: .5em;" rendered="#{result.dataverseAffiliationHighlightSnippet != null}" escape="false"/>
-                            <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="label label-primary" rendered="#{result.draftState}"/>
-                            <h:outputText value="#{result.userRole}" styleClass="label label-primary" rendered="#{!empty result.userRole}"/>
-                            <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{result.unpublishedState}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="badge bg-primary" rendered="#{result.draftState}"/>
+                            <h:outputText value="#{result.userRole}" styleClass="badge bg-primary" rendered="#{!empty result.userRole}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="badge bg-warning" rendered="#{result.unpublishedState}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <h:outputLink rel="nofollow" value="#{!SearchIncludeFragment.rootDv and !result.isInTree ? dvUrl : widgetWrapper.wrapURL(dvUrl)}" target="#{!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView ? '_blank' : ''}">
@@ -577,15 +577,15 @@
                                 <h:outputText value="#{result.titleHighlightSnippet}" style="padding:4px 0;" rendered="#{result.titleHighlightSnippet != null}" escape="false"/>
                                 <h:outputText value=" (#{result.entityId})" style="padding:4px 0;" rendered="#{dataverseSession.debug}"/></a>
 
-                            <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="label label-primary" rendered="#{result.draftState}"/>
-                            <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="label label-success" rendered="#{result.inReviewState}"/>
-                            <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{result.unpublishedState}"/>
-                            <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="label label-danger" rendered="#{result.deaccessionedState}"/>
-                            <h:outputText value="#{bundle['embargoed']}" styleClass="label label-primary" rendered="#{SearchIncludeFragment.isActivelyEmbargoed(result)}"/>
-                            <h:outputText value="#{bundle['retentionExpired']}" styleClass="label label-warning" rendered="#{SearchIncludeFragment.isRetentionExpired(result)}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="badge bg-primary" rendered="#{result.draftState}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="badge bg-success" rendered="#{result.inReviewState}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="badge bg-warning" rendered="#{result.unpublishedState}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="badge bg-danger" rendered="#{result.deaccessionedState}"/>
+                            <h:outputText value="#{bundle['embargoed']}" styleClass="badge bg-primary" rendered="#{SearchIncludeFragment.isActivelyEmbargoed(result)}"/>
+                            <h:outputText value="#{bundle['retentionExpired']}" styleClass="badge bg-warning" rendered="#{SearchIncludeFragment.isRetentionExpired(result)}"/>
                             <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabelFromString(result.curationStatus)}" styleClass="label curation-status" rendered="#{result.draftState and SearchIncludeFragment.canSeeCurationStatus(result.entityId)}"/>
-                            <h:outputText value="#{result.userRole}" styleClass="label label-primary" rendered="#{!empty result.userRole}"/>
-                            <h:outputText value="#{bundle['incomplete']}" styleClass="label label-danger" rendered="#{!result.harvested and !SearchIncludeFragment.isValid(result)}"/>
+                            <h:outputText value="#{result.userRole}" styleClass="badge bg-primary" rendered="#{!empty result.userRole}"/>
+                            <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!result.harvested and !SearchIncludeFragment.isValid(result)}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <a rel="nofollow" href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? result.datasetUrl : widgetWrapper.wrapURL(result.datasetUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}" aria-label="#{result.title}">
@@ -658,12 +658,12 @@
                                 <h:outputText value="#{result.name}" style="padding:4px 0;" rendered="#{result.nameHighlightSnippet == null}"/>
                                 <h:outputText value="#{result.nameHighlightSnippet}" style="padding:4px 0;" rendered="#{result.nameHighlightSnippet != null}" escape="false"/>
                                 <h:outputText value=" (#{result.entityId})" style="padding:4px 0;" rendered="#{dataverseSession.debug}"/></a>
-                            <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="label label-primary" rendered="#{result.draftState}"/>
-                            <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="label label-success" rendered="#{result.inReviewState}"/>
-                            <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{result.unpublishedState}"/>
-                            <h:outputText value="#{bundle['embargoed']}" styleClass="label label-primary" rendered="#{SearchIncludeFragment.isActivelyEmbargoed(result)}"/>
-                            <h:outputText value="#{bundle['retentionExpired']}" styleClass="label label-danger" rendered="#{SearchIncludeFragment.isRetentionExpired(result)}"/>
-                            <h:outputText value="#{result.userRole}" styleClass="label label-primary" rendered="#{!empty result.userRole}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="badge bg-primary" rendered="#{result.draftState}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="badge bg-success" rendered="#{result.inReviewState}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="badge bg-warning" rendered="#{result.unpublishedState}"/>
+                            <h:outputText value="#{bundle['embargoed']}" styleClass="badge bg-primary" rendered="#{SearchIncludeFragment.isActivelyEmbargoed(result)}"/>
+                            <h:outputText value="#{bundle['retentionExpired']}" styleClass="badge bg-danger" rendered="#{SearchIncludeFragment.isRetentionExpired(result)}"/>
+                            <h:outputText value="#{result.userRole}" styleClass="badge bg-primary" rendered="#{!empty result.userRole}"/>
                         </div>
 
                         <div class="card-preview-icon-block text-center">
@@ -715,10 +715,10 @@
 
                         <div class="file-tags-block" jsf:rendered="#{(!empty result.fileCategories) or (!empty result.tabularDataTags)}">
                             <ui:repeat value="#{result.fileCategories}" var="cat">
-                                <h:outputText value="#{cat}" styleClass="label label-default"/>
+                                <h:outputText value="#{cat}" styleClass="badge bg-default"/>
                             </ui:repeat>
                             <ui:repeat value="#{result.tabularDataTags}" var="tag">
-                                <h:outputText value="#{tag}" styleClass="label label-info"/>
+                                <h:outputText value="#{tag}" styleClass="badge bg-info"/>
                             </ui:repeat>
                         </div>
 

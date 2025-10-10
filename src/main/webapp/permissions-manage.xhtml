@@ -187,7 +187,7 @@
                                                                update=":#{p:resolveClientId('rolesPermissionsForm:editRolePanel', view)}"><span class="bi bi-files"></span></p:commandLink>
                                                 <div>
                                                     <ui:repeat value="#{role.permissions().toArray()}" var="prm">
-                                                        <span class="label label-default">#{bundle['permission.'.concat(prm).concat('.label')]}</span>
+                                                        <span class="badge bg-default">#{bundle['permission.'.concat(prm).concat('.label')]}</span>
                                                     </ui:repeat>
                                                 </div>
                                             </div>

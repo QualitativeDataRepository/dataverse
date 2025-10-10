@@ -76,18 +76,18 @@
                                         <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
                                         
                                         <!-- DATASET Publication Status -->
-                                        <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="label label-primary" rendered="#{FilePage.fileMetadata.datasetVersion.draft}"/>
-                                        <h:outputText value="#{bundle['embargoed']}" styleClass="label label-primary" rendered="#{dataFileServiceBean.isActivelyEmbargoed(FilePage.fileMetadata)}"/>
-                                        <h:outputText value="#{bundle['retentionExpired']}" styleClass="label label-danger" rendered="#{dataFileServiceBean.isRetentionExpired(FilePage.fileMetadata)}"/>
-                                        <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="label label-success" rendered="#{FilePage.fileMetadata.datasetVersion.inReview}"/>
-                                        <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"/>
-                                        <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="label label-danger" rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"/>
+                                        <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="badge bg-primary" rendered="#{FilePage.fileMetadata.datasetVersion.draft}"/>
+                                        <h:outputText value="#{bundle['embargoed']}" styleClass="badge bg-primary" rendered="#{dataFileServiceBean.isActivelyEmbargoed(FilePage.fileMetadata)}"/>
+                                        <h:outputText value="#{bundle['retentionExpired']}" styleClass="badge bg-danger" rendered="#{dataFileServiceBean.isRetentionExpired(FilePage.fileMetadata)}"/>
+                                        <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="badge bg-success" rendered="#{FilePage.fileMetadata.datasetVersion.inReview}"/>
+                                        <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="badge bg-warning" rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"/>
+                                        <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="badge bg-danger" rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"/>
                                         <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabel(FilePage.fileMetadata.datasetVersion.currentCurationStatus)}" styleClass="label curation-status" rendered="#{FilePage.canSeeCurationStatus()}"/>
-                                        <h:outputText value="#{bundle['incomplete']}" styleClass="label label-danger" rendered="#{!FilePage.valid}"/>
+                                        <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!FilePage.valid}"/>
                                         <!-- DATASET VERSION NUMBER -->
-                                        <h:outputText styleClass="label label-default" rendered="#{FilePage.fileMetadata.datasetVersion.released and !(FilePage.fileMetadata.datasetVersion.draft or FilePage.fileMetadata.datasetVersion.inReview)}"
+                                        <h:outputText styleClass="badge bg-default" rendered="#{FilePage.fileMetadata.datasetVersion.released and !(FilePage.fileMetadata.datasetVersion.draft or FilePage.fileMetadata.datasetVersion.inReview)}"
                                                       value="#{bundle['file.DatasetVersion']} #{FilePage.fileMetadata.datasetVersion.versionNumber}.#{FilePage.fileMetadata.datasetVersion.minorVersionNumber}"/>
-                                        <h:outputText styleClass="label label-default" rendered="#{!FilePage.fileMetadata.datasetVersion.released and !(FilePage.fileMetadata.datasetVersion.draft or FilePage.fileMetadata.datasetVersion.inReview)}"
+                                        <h:outputText styleClass="badge bg-default" rendered="#{!FilePage.fileMetadata.datasetVersion.released and !(FilePage.fileMetadata.datasetVersion.draft or FilePage.fileMetadata.datasetVersion.inReview)}"
                                                       value="#{bundle['file.DatasetVersion']} #{FilePage.fileMetadata.datasetVersion.versionState}"/>
                                     </div>
                                   </div>
@@ -556,11 +556,11 @@
                                                         <td id="fileCategoriesList"   >
                                                             <div id="file-tags" >
                                                                 <ui:repeat value="#{FilePage.fileMetadata.categoriesByName}" var="tag">
-                                                                    <h:outputText value="#{tag}" styleClass="label label-default" />
+                                                                    <h:outputText value="#{tag}" styleClass="badge bg-default" />
                                                                 </ui:repeat>
                                                                 <ui:repeat value="#{FilePage.fileMetadata.dataFile.tagLabels}" var="tag" varStatus="loop" >
                                                                     <h:outputText value="#{loop.first ? '&lt;br/&gt;': '' }" escape="false"/>
-                                                                    <h:outputText value="#{tag}" styleClass="label label-info"/>
+                                                                    <h:outputText value="#{tag}" styleClass="badge bg-info"/>
                                                                 </ui:repeat>
                                                             </div>
                                                         </td>

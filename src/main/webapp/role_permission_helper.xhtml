@@ -38,7 +38,7 @@
     <ui:repeat value="#{singleRow}" var="dvValue">
         <td>        
          <ui:fragment rendered="#{dvValue == 'YES'}">
-             <span class="label label-success">Yes</span>
+             <span class="badge bg-success">Yes</span>
          </ui:fragment>
          <ui:fragment rendered="#{dvValue != 'YES'}">
               <h:outputText value="#{dvValue}" escape="false" />
