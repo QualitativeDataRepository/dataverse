@@ -37,7 +37,7 @@
                                         <th scope="row">
                                             #{bundle['dataset.metadata.persistentId']}
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.metadata.persistentId.tip']}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.persistentId.tip']}"></span>
                                         </th>
                                         <td>#{globalId}</td>
                                     </tr>
@@ -45,7 +45,7 @@
                                         <th scope="row">
                                             #{bundle['dataset.metadata.alternativePersistentId']}
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.metadata.alternativePersistentId.tip']}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.alternativePersistentId.tip']}"></span>
                                         </th>
                                         <td>#{altPID}</td>
                                     </tr>
@@ -53,7 +53,7 @@
                                         <th scope="row">
                                             #{bundle['dataset.metadata.publicationDate']}
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.metadata.publicationDate.tip']}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.publicationDate.tip']}"></span>
                                         </th>
                                         <td>#{publicationDate}</td>
                                     </tr>
@@ -61,7 +61,7 @@
                                         <th scope="row">
                                             #{bundle['dataset.metadata.citationDate']}
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.metadata.citationDate.tip']}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.citationDate.tip']}"></span>
                                         </th>
                                         <td>#{citationDate}</td>
                                     </tr>
@@ -71,7 +71,7 @@
                                         <th scope="row">
                                             #{dsf.datasetFieldType.localeTitle}
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{dsf.datasetFieldType.localeDescription}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{dsf.datasetFieldType.localeDescription}"></span>
                                         </th>
                                         <c:set var="cvocOnDsf" value="#{cvocConf.containsKey(dsf.datasetFieldType.id)}"/>
                                         <td jsf:rendered="#{!anonymized or !settingsWrapper.shouldBeAnonymized(dsf)}">
@@ -229,8 +229,8 @@
                                             #{bundle.metadataLanguage}
                                             <span
                             class="bi bi-question-circle tooltip-icon"
-                            data-toggle="tooltip" data-placement="auto right"
-                            data-original-title="#{bundle['dataset.metadatalanguage.title']}"></span>
+                            data-bs-toggle="tooltip" data-bs-placement="right"
+                            title="#{bundle['dataset.metadatalanguage.title']}"></span>
                     </h:outputLabel>
                     <div class="col-md-7 form-col-container">
                         <p class="help-block">
@@ -267,7 +267,7 @@
                                             #{dsf.datasetFieldType.localeTitle}
                                             <span class="bi bi-asterisk text-danger" jsf:rendered="#{dsf.required}"/>
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{dsf.datasetFieldType.localeDescription}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{dsf.datasetFieldType.localeDescription}"></span>
                                           </h:outputLabel>
                                           <ui:fragment rendered="#{templatePage}">
                                             <div class="col-sm-7">
@@ -344,11 +344,11 @@
                                     <p:fragment id="editCompoundValueFragment" rendered="#{dsf.datasetFieldType.compound}">
                                         <p:autoUpdate/>
                                         <div>
-                                          <div id="metadata_#{dsf.datasetFieldType.name}" class="col-sm-3 control-label highlightBold">
+                                          <div id="metadata_#{dsf.datasetFieldType.name}" class="col-sm-3 control-label fw-bold">
                                             #{dsf.datasetFieldType.localeTitle}
                                             <span class="bi bi-asterisk text-danger" jsf:rendered="#{dsf.required}"/>
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{dsf.datasetFieldType.localeDescription}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{dsf.datasetFieldType.localeDescription}"></span>
                                           </div>
                                           
                                           <div class="col-sm-7">
@@ -382,8 +382,8 @@
                                                                 #{subdsf.datasetFieldType.localeTitle}
                                                                 <span class="bi bi-asterisk text-danger" jsf:rendered="#{subdsf.required and dsf.required}"/>
                                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                                      data-toggle="tooltip" data-placement="auto right" 
-                                                                      data-original-title="#{subdsf.datasetFieldType.localeDescription}#{subdsf.required and !dsf.required?' – '.concat(bundle['conditionalRequiredMsg.tooltip']) : ''}"></span>
+                                                                      data-bs-toggle="tooltip" data-bs-placement="right" 
+                                                                      title="#{subdsf.datasetFieldType.localeDescription}#{subdsf.required and !dsf.required?' – '.concat(bundle['conditionalRequiredMsg.tooltip']) : ''}"></span>
                                                             </label>
                                                             <ui:fragment rendered="#{!subdsf.datasetFieldType.controlledVocabulary}">
                                                                 <ui:include src="datasetFieldForEditFragment.xhtml">

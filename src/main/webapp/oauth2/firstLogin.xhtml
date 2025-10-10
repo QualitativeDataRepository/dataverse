@@ -39,7 +39,7 @@
                                     #{bundle['user.username']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.username.illegal.tip']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.username.illegal.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">
                                     <p:inputText id="username" styleClass="form-control" value="#{OAuth2FirstLoginPage.username}" validator="#{OAuth2FirstLoginPage.validateUserName}"/>
@@ -56,7 +56,7 @@
                                     #{bundle['user.firstName']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.firstName.tip']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.firstName.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">
                                     <p:inputText id="givenName" styleClass="form-control" value="#{OAuth2FirstLoginPage.newUser.displayInfo.firstName}"/>
@@ -68,7 +68,7 @@
                                     #{bundle['user.lastName']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.lastName.tip']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.lastName.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">
                                     <p:inputText id="familyName" styleClass="form-control" value="#{OAuth2FirstLoginPage.newUser.displayInfo.lastName}"/>
@@ -80,7 +80,7 @@
                                     #{bundle['email']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.email.tip']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.email.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4" jsf:rendered="#{OAuth2FirstLoginPage.getEmailsToPickFrom().size() lt 2}">
                                     <p:inputText id="selectedEmailZeroOrOneToPickFrom" styleClass="form-control" value="#{OAuth2FirstLoginPage.selectedEmail}" validator="#{OAuth2FirstLoginPage.validateUserEmail}"/>
@@ -100,7 +100,7 @@
                                 <label for="authenticatedOrcid" class="col-sm-3 control-label">
                                     #{bundle['user.orcid']}
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="ORCID"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="ORCID"></span>
                                 </label>
                                 <div class="col-sm-4" id="authenticatedOrcid">
                                     <p class="form-control-static">
@@ -117,7 +117,7 @@
                                     #{bundle['affiliation']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.affiliation.tip']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.affiliation.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">
                                     <p:inputText id="affiliation" styleClass="form-control" value="#{OAuth2FirstLoginPage.newUser.displayInfo.affiliation}"/>
@@ -128,7 +128,7 @@
                                     #{bundle['user.position']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.position.tip']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.position.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">
                                     <p:inputText id="position" styleClass="form-control" value="#{OAuth2FirstLoginPage.newUser.displayInfo.position}"/>

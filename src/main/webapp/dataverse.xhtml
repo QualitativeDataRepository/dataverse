@@ -66,7 +66,7 @@
                                 <p:outputLabel for="#{DataversePage.editMode == 'CREATE' ? 'selectHostDataverse' : 'hostDataverseStatic'}" styleClass="control-label">
                                     #{bundle.hostDataverse}
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.host.title']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.host.title']}"></span>
                                 </p:outputLabel>
                                 <div class="form-col-container">
                                     <ui:fragment rendered="#{DataversePage.editMode == 'INFO'}">
@@ -109,7 +109,7 @@
                                 <h:outputLabel for="name" styleClass="control-label">
                                     #{bundle['dataverse.name']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.name.title']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.name.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
                                     <p:inputText id="name" styleClass="form-control" 
@@ -122,7 +122,7 @@
                                 <h:outputLabel for="affiliation" styleClass="control-label">
                                     #{bundle.affiliation}
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.affiliation.title']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.affiliation.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
                                     <p:inputText id="affiliation" styleClass="form-control" value="#{DataversePage.dataverse.affiliation}"/>
@@ -135,7 +135,7 @@
                                 <h:outputLabel for="identifier" styleClass="control-label">
                                     #{bundle.identifier} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.identifier.title']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.identifier.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
                                     <div class="input-group">
@@ -152,7 +152,7 @@
                                 <h:outputLabel for="dataverseStorage" styleClass="control-label">
                                     #{bundle.storage} 
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.storage.title']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.storage.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
                                             <h:selectOneMenu id="dataverseStorage" styleClass="form-control" value="#{DataversePage.dataverse.storageDriverId}">
@@ -165,7 +165,7 @@
                                 <h:outputLabel for="dataverseCurationLabels" styleClass="control-label">
                                     #{bundle.curationLabels} 
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.curationLabels.title']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.curationLabels.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
                                             <h:selectOneMenu id="dataverseCurationLabels" styleClass="form-control" value="#{DataversePage.dataverse.curationLabelSetName}">
@@ -182,7 +182,7 @@
                                         <h:outputLabel for="dataverseCategory" styleClass="control-label">
                                             #{bundle['dataverse.category']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.category.title']}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.category.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
                                             <h:selectOneMenu id="dataverseCategory" styleClass="form-control" value="#{DataversePage.dataverse.dataverseType}" required="true"
@@ -207,7 +207,7 @@
                                             <p:outputLabel id="contactEmailLabel" styleClass="control-label">
                                                 #{bundle['dataverse.email']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                      data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.email.title']}"></span>
+                                                      data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.email.title']}"></span>
                                             </p:outputLabel>
                                             <div class="form-col-container edit-compound-field">
                                                 <ui:repeat value="#{DataversePage.dataverse.dataverseContacts}" var="contacts" varStatus="valCount">
@@ -242,7 +242,7 @@
                                         <h:outputLabel for="dsMetadataLanguage" styleClass="control-label">
                                             #{bundle.metadataLanguage} 
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.metadatalanguage.title']}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.metadatalanguage.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
                                             <h:selectOneMenu id="dsMetadataLanguage" styleClass="form-control" value="#{DataversePage.dataverse.metadataLanguage}">
@@ -259,7 +259,7 @@
                                 <h:outputLabel for="description" styleClass="control-label">
                                     #{bundle.description}
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.description.title']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.description.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
                                     <p class="help-block">
@@ -276,7 +276,7 @@
                                         <h:outputLabel for="dsGuestbookEntryOption" styleClass="control-label">
                                             #{bundle.guestbookEntryOption} 
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.guestbookentryatrequest.title']}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.guestbookentryatrequest.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
                                             <h:selectOneMenu id="dsGuestbookEntryOption" styleClass="form-control" value="#{DataversePage.dataverse.guestbookEntryAtRequest}">
@@ -289,7 +289,7 @@
                                         <h:outputLabel for="dsPidProviderOption" styleClass="control-label">
                                             #{bundle.pidProviderOption} 
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.pidProvider.title']}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.pidProvider.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
                                             <h:selectOneMenu id="dsPidProviderOption" styleClass="form-control" value="#{DataversePage.dataverse.pidGeneratorId}">
@@ -309,7 +309,7 @@
                                              update="@widgetVar(optionBlock)"/>
                             <div class="row">
                                 <div class="col-sm-12 form-group p-0">
-                                    <div class="col-md-3 control-label highlightBold">#{bundle['dataverse.metadataElements']}</div>
+                                    <div class="col-md-3 control-label fw-bold">#{bundle['dataverse.metadataElements']}</div>
                                     <div class="col-md-9">
                                         <p class="help-block">#{bundle['dataverse.metadataElements.tip']}</p>
                                         <h:outputLabel styleClass="metadata-blocks-default" for="metadataRoot" rendered="#{DataversePage.dataverse.owner != null}">
@@ -414,7 +414,7 @@
                         <p:panel id="editFacets" styleClass="panelLayoutBlock p-0" widgetVar="editFacets">
                             <div class="row">
                                 <div class="col-sm-12 form-group p-0">
-                                    <div class="col-md-3 control-label highlightBold">#{bundle['dataverse.facetPickList.text']}</div>
+                                    <div class="col-md-3 control-label fw-bold">#{bundle['dataverse.facetPickList.text']}</div>
                                     <div class="col-md-9">
                                         <p class="help-block">#{bundle['dataverse.facetPickList.tip']}</p>
                                         <h:outputLabel styleClass="metadata-blocks-default" for="facetsRoot" rendered="#{DataversePage.dataverse.owner != null}">
@@ -551,7 +551,7 @@
                                                                 <span class="icon-dataverse text-brand"></span>
                                                             </div>
                                                             <div class="dataverse-info-general">
-                                                                <div><h:outputText value="#{DataversePage.dataverse.name}" styleClass="highlightBold"/> <h:outputText value=" (#{DataversePage.dataverse.affiliation})" styleClass="text-muted" rendered="#{!empty DataversePage.dataverse.affiliation}"/></div>
+                                                                <div><h:outputText value="#{DataversePage.dataverse.name}" styleClass="fw-bold"/> <h:outputText value=" (#{DataversePage.dataverse.affiliation})" styleClass="text-muted" rendered="#{!empty DataversePage.dataverse.affiliation}"/></div>
                                                                 <div class="text-muted">#{DataversePage.dataverse.alias}</div>
                                                             </div>
                                                         </div>

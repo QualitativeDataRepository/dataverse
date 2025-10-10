@@ -79,7 +79,7 @@
                                     <div class="form-group" jsf:rendered="#{LoginPage.requireExtraValidation}">
                                         <div class="col-sm-offset-4 col-sm-8">
                                             <p>
-                                                <h:outputText styleClass="highlightBold" value="#{bundle['contact.question']}"/> <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                                <h:outputText styleClass="fw-bold" value="#{bundle['contact.question']}"/> <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
                                             </p>
                                             <h:outputFormat value="#{LoginPage.op1} + #{LoginPage.op2} = "/>
                                             <p:inputText id="messageSum" label="Sum" size="4" value="#{LoginPage.userSum}" converterMessage="#{bundle['contact.sum.converterMessage']}"

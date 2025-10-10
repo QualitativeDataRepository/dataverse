@@ -110,7 +110,7 @@
                                     </div>
                                     <div>
                                         <p>
-                                            <h:outputFormat styleClass="highlightBold" value="#{managePermissionsPage.roleAssignments.size()} #{bundle['dataverse.permissionsFiles.files.roleAssignees.label']}">
+                                            <h:outputFormat styleClass="fw-bold" value="#{managePermissionsPage.roleAssignments.size()} #{bundle['dataverse.permissionsFiles.files.roleAssignees.label']}">
                                                 <f:param value="#{managePermissionsPage.roleAssignments.size()}"/>
                                             </h:outputFormat>
                                         </p>
@@ -171,7 +171,7 @@
                                         <ui:repeat id="roleList" value="#{managePermissionsPage.availableRoles}" var="role">
                                             <f:passThroughAttribute name="class" value="list-unstyled" />
                                             <div class="form-group col-sm-12 #{!empty role.owner ? 'bg-info' : 'bg-warning'}">
-                                                <span class="highlightBold">#{role.name}</span>
+                                                <span class="fw-bold">#{role.name}</span>
                                                 <h:outputText value=" - #{role.description}" rendered="#{!empty role.description}"/>
                                                 <p:commandLink title="#{bundle['dataverse.permissions.roles.edit']}" styleClass="icon-inline-action bootstrap-button-tooltip"
                                                                rendered="#{!empty role.owner and managePermissionsPage.dvObject.instanceofDataverse and permissionsWrapper.canManagePermissions(role.owner)

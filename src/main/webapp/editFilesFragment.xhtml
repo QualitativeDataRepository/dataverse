@@ -214,7 +214,7 @@
                                     <p class="help-block"><span class="bi bi-info-circle-fill"/> #{bundle['file.fromHypothesis.tip']}</p>
                                     <div>
                                       <label for="datasetForm:hypothesisUrlInput" class="col-sm-1 control-label">
-                                        <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['dataset.hypothesis.url.tip']}">
+                                        <span data-bs-toggle="tooltip" data-bs-placement="right" class="tooltiplabel text-info" title="#{bundle['dataset.hypothesis.url.tip']}">
                                           #{bundle['dataset.hypothesis.url']}
                                         </span>
                                       </label>
@@ -222,7 +222,7 @@
                                     </div>
                                     <div>
                                       <label for="datasetForm:hypothesisGroupInput" class="col-sm-1 control-label">
-                                        <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['dataset.hypothesis.group.tip']}">
+                                        <span data-bs-toggle="tooltip" data-bs-placement="right" class="tooltiplabel text-info" title="#{bundle['dataset.hypothesis.group.tip']}">
                                           #{bundle['dataset.hypothesis.group']}
                                         </span>
                                       </label>
@@ -406,7 +406,7 @@
                                 <div jsf:id="filesHeaderBlock" class="row">
                                     <div id="filesHeaderCount" class="col-6 text-left">
                                         <!-- Files Count -->
-                                        <h:outputFormat value="#{datasetPage ? bundle['file.count.shown'] : bundle['file.count.shown']}" styleClass="highlightBold" rendered="#{!empty hasFileMetadatas}">
+                                        <h:outputFormat value="#{datasetPage ? bundle['file.count.shown'] : bundle['file.count.shown']}" styleClass="fw-bold" rendered="#{!empty hasFileMetadatas}">
                                             <f:param value="#{fileMetadatas.size()}"/>
                                         </h:outputFormat>
                                     </div>
@@ -439,7 +439,7 @@
                                             <!-- Dataset Thumbnail -->
                                             <span id="datasetThumbnail" class="bg-info text-info text-center small show"
                                                   jsf:rendered="#{EditDatafilesPage.isDesignatedDatasetThumbnail(fileMetadata)}"
-                                                  data-toggle="tooltip" data-placement="bottom" title="#{bundle['file.selectedThumbnail.tip']}">
+                                                  data-bs-toggle="tooltip" data-bs-placement="bottom" title="#{bundle['file.selectedThumbnail.tip']}">
                                                 #{bundle['file.selectedThumbnail']}
                                             </span>
                                         </div>
@@ -455,7 +455,7 @@
                                         <label class="control-label" jsf:for="fileDirectoryName" style="margin-right:1em;margin-bottom:.5em;">
                                             #{bundle['file.metadataTab.fileMetadata.hierarchy.label']}    
                                             <span class="bi bi-question-circle tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['file.metadataTab.fileMetadata.hierarchy.tip']}"></span>
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.metadataTab.fileMetadata.hierarchy.tip']}"></span>
                                         </label>
                                         <p:inputText id="fileDirectoryName" value="#{fileMetadata.directoryLabel}"                                            
                                                      style="width:60%; margin-bottom:.5em;" disabled="#{fileMetadata.dataFile.filePackage}" widgetVar="fileDirectoryName"/>                        

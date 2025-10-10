@@ -87,7 +87,7 @@
                     <label class="col-sm-3 control-label">
                         #{bundle['file.cloudStorageAccess']}
                         <span class="bi bi-question-circle tooltip-icon"
-                              data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['file.cloudStorageAccess.tip']}"></span>
+                              data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['file.cloudStorageAccess.tip']}"></span>
                     </label>
                     <div class="col-md-4 col-sm-5 col-6 input-group">
                         <div id="copy-input" class="form-control">#{DatasetPage.swiftContainerName}</div>
@@ -147,12 +147,12 @@
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileTypeFacetLabels)}">
                         <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             #{bundle['file.results.filter.type']} <h:outputText value="#{(empty DatasetPage.fileTypeFacet) ? bundle['file.results.filter.all'] : DatasetPage.fileTypeFacet}"
-                                          styleClass="#{!empty DatasetPage.fileTypeFacet ? 'highlightBold' : ''}"/> <span class="caret"></span>
+                                          styleClass="#{!empty DatasetPage.fileTypeFacet ? 'fw-bold' : ''}"/> <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <!-- link for "All" - all file types: -->
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                    <h:outputText styleClass="#{empty DatasetPage.fileTypeFacet ? 'highlightBold' : ''}" value="#{bundle['file.results.filter.all']}"/>
+                                    <h:outputText styleClass="#{empty DatasetPage.fileTypeFacet ? 'fw-bold' : ''}" value="#{bundle['file.results.filter.all']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
                                     <f:param name="q" value="#{DatasetPage.fileLabelSearchTerm}"/>
@@ -166,7 +166,7 @@
                             <li role="separator" class="divider"></li>
                             <ui:repeat value="#{DatasetPage.fileTypeFacetLabels}" var="facetLabel">
                                 <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                        <h:outputFormat styleClass="#{facetLabel.name == DatasetPage.fileTypeFacet ? 'highlightBold' : ''}" value="#{facetLabel.name} &#40;{0}&#41;">
+                                        <h:outputFormat styleClass="#{facetLabel.name == DatasetPage.fileTypeFacet ? 'fw-bold' : ''}" value="#{facetLabel.name} &#40;{0}&#41;">
                                             <f:param value="#{facetLabel.count}"/>
                                         </h:outputFormat>
                                         <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
@@ -188,12 +188,12 @@
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileAccessFacetLabels)}">
                         <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             #{bundle['file.results.filter.access']} <h:outputText value="#{(empty DatasetPage.fileAccessFacet) ? bundle['file.results.filter.all'] : DatasetPage.fileAccessFacet}"
-                                          styleClass="#{!empty DatasetPage.fileAccessFacet ? 'highlightBold' : ''}"/> <span class="caret"></span>
+                                          styleClass="#{!empty DatasetPage.fileAccessFacet ? 'fw-bold' : ''}"/> <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <!-- link for "All" - i.e., all (both) types of access: -->
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                    <h:outputText styleClass="#{empty DatasetPage.fileAccessFacet ? 'highlightBold' : ''}" value="#{bundle['file.results.filter.all']}"/>
+                                    <h:outputText styleClass="#{empty DatasetPage.fileAccessFacet ? 'fw-bold' : ''}" value="#{bundle['file.results.filter.all']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
                                     <f:param name="q" value="#{DatasetPage.fileLabelSearchTerm}"/>
@@ -207,7 +207,7 @@
                             <li role="separator" class="divider"></li>
                             <ui:repeat value="#{DatasetPage.fileAccessFacetLabels}" var="facetLabel">
                                 <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                        <h:outputFormat styleClass="#{facetLabel.name == DatasetPage.fileAccessFacet ? 'highlightBold' : ''}" value="#{facetLabel.name} &#40;{0}&#41;">
+                                        <h:outputFormat styleClass="#{facetLabel.name == DatasetPage.fileAccessFacet ? 'fw-bold' : ''}" value="#{facetLabel.name} &#40;{0}&#41;">
                                             <f:param value="#{facetLabel.count}"/>
                                         </h:outputFormat>
                                         <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
@@ -229,12 +229,12 @@
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileTagsFacetLabels)}">
                         <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             #{bundle['file.results.filter.tag']} <h:outputText value="#{(empty DatasetPage.fileTagsFacet) ? bundle['file.results.filter.all'] : DatasetPage.fileTagsFacet}"
-                                          styleClass="#{!empty DatasetPage.fileTagsFacet ? 'highlightBold' : ''}"/> <span class="caret"></span>
+                                          styleClass="#{!empty DatasetPage.fileTagsFacet ? 'fw-bold' : ''}"/> <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <!-- link for "All" - i.e., all file tags: -->
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                    <h:outputText styleClass="#{empty DatasetPage.fileTagsFacet ? 'highlightBold' : ''}" value="#{bundle['file.results.filter.all']}"/>
+                                    <h:outputText styleClass="#{empty DatasetPage.fileTagsFacet ? 'fw-bold' : ''}" value="#{bundle['file.results.filter.all']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
                                     <f:param name="q" value="#{DatasetPage.fileLabelSearchTerm}"/>
@@ -248,7 +248,7 @@
                             <li role="separator" class="divider"></li>
                             <ui:repeat value="#{DatasetPage.fileTagsFacetLabels}" var="facetLabel">
                                 <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                        <h:outputFormat styleClass="#{facetLabel.name == DatasetPage.fileTagsFacet ? 'highlightBold' : ''}" value="#{facetLabel.name} &#40;{0}&#41;">
+                                        <h:outputFormat styleClass="#{facetLabel.name == DatasetPage.fileTagsFacet ? 'fw-bold' : ''}" value="#{facetLabel.name} &#40;{0}&#41;">
                                             <f:param value="#{facetLabel.count}"/>
                                         </h:outputFormat>
                                         <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
@@ -286,7 +286,7 @@
                         </button>
                         <ul class="dropdown-menu float-end text-left">
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                    <h:outputText styleClass="#{((empty DatasetPage.fileSortField) or DatasetPage.fileSortField == 'name') and (empty DatasetPage.fileSortOrder) ? 'highlightBold' : ''}" value="#{bundle['file.results.btn.sort.option.nameAZ']}"/>
+                                    <h:outputText styleClass="#{((empty DatasetPage.fileSortField) or DatasetPage.fileSortField == 'name') and (empty DatasetPage.fileSortOrder) ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.nameAZ']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
                                     <f:param name="q" value="#{DatasetPage.fileLabelSearchTerm}"/>
@@ -296,7 +296,7 @@
                                     <f:param name="folderPresort" value="#{DatasetPage.folderPresort}"/>
                                 </h:outputLink></li>
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                    <h:outputText styleClass="#{(DatasetPage.fileSortField == 'name' and DatasetPage.fileSortOrder == 'desc') ? 'highlightBold' : ''}" value="#{bundle['file.results.btn.sort.option.nameZA']}"/>
+                                    <h:outputText styleClass="#{(DatasetPage.fileSortField == 'name' and DatasetPage.fileSortOrder == 'desc') ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.nameZA']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
                                     <f:param name="q" value="#{DatasetPage.fileLabelSearchTerm}"/>
@@ -308,7 +308,7 @@
                                     <f:param name="folderPresort" value="#{DatasetPage.folderPresort}"/>
                                 </h:outputLink></li>
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                    <h:outputText styleClass="#{(DatasetPage.fileSortField == 'date' and DatasetPage.fileSortOrder == 'desc') ? 'highlightBold' : ''}" value="#{bundle['file.results.btn.sort.option.newest']}"/>
+                                    <h:outputText styleClass="#{(DatasetPage.fileSortField == 'date' and DatasetPage.fileSortOrder == 'desc') ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.newest']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
                                     <f:param name="q" value="#{DatasetPage.fileLabelSearchTerm}"/>
@@ -319,7 +319,7 @@
                                     <f:param name="tagPresort" value="#{DatasetPage.tagPresort}"/>
                                 </h:outputLink></li>
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                    <h:outputText styleClass="#{(DatasetPage.fileSortField == 'date' and (empty DatasetPage.fileSortOrder)) ? 'highlightBold' : ''}" value="#{bundle['file.results.btn.sort.option.oldest']}"/>
+                                    <h:outputText styleClass="#{(DatasetPage.fileSortField == 'date' and (empty DatasetPage.fileSortOrder)) ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.oldest']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
                                     <f:param name="q" value="#{DatasetPage.fileLabelSearchTerm}"/>
@@ -329,7 +329,7 @@
                                     <f:param name="tagPresort" value="#{DatasetPage.tagPresort}"/>
                                 </h:outputLink></li>
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                    <h:outputText styleClass="#{DatasetPage.fileSortField == 'size' ? 'highlightBold' : ''}" value="#{bundle['file.results.btn.sort.option.size']}"/>
+                                    <h:outputText styleClass="#{DatasetPage.fileSortField == 'size' ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.size']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
                                     <f:param name="q" value="#{DatasetPage.fileLabelSearchTerm}"/>
@@ -339,7 +339,7 @@
                                     <f:param name="tagPresort" value="#{DatasetPage.tagPresort}"/>
                                 </h:outputLink></li>
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
-                                    <h:outputText styleClass="#{DatasetPage.fileSortField == 'type' ? 'highlightBold' : ''}" value="#{bundle['file.results.btn.sort.option.type']}"/>
+                                    <h:outputText styleClass="#{DatasetPage.fileSortField == 'type' ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.type']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
                                     <f:param name="q" value="#{DatasetPage.fileLabelSearchTerm}"/>
@@ -389,7 +389,7 @@
             <f:facet name="header">
                 <div jsf:id="filesHeaderCount">
                     <!-- Files Count -->
-                    <h:outputFormat value="#{DatasetPage.fileMetadatasSearch.size() == 1 ? bundle['file.count.one'] : bundle['file.count']}" styleClass="highlightBold" rendered="#{DatasetPage.fileMetadatasSearch.size() gt 0}">
+                    <h:outputFormat value="#{DatasetPage.fileMetadatasSearch.size() == 1 ? bundle['file.count.one'] : bundle['file.count']}" styleClass="fw-bold" rendered="#{DatasetPage.fileMetadatasSearch.size() gt 0}">
                         <f:param value="#{(DatasetPage.filePaginatorPage * DatasetPage.rowsPerPage) + 1}"/>
                         <f:param value="#{Math:min((DatasetPage.filePaginatorPage + 1) * DatasetPage.rowsPerPage,DatasetPage.fileMetadatasSearch.size()) }"/>
                         <f:param value="#{DatasetPage.fileMetadatasSearch.size()}"/>

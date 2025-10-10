@@ -35,7 +35,7 @@
                                 </o:param>
                             </h:outputFormat>
                             <ui:fragment rendered="#{!dataverseSession.user.authenticated}">
-                                <h:outputLink styleClass="margin-sides highlightBold" value="/Shibboleth.sso/Login" target="_blank" rel="noopener" title="#{bundle['footer.widget.login']} #{settingsWrapper.rootDataverse.displayName}">
+                                <h:outputLink styleClass="margin-sides fw-bold" value="/Shibboleth.sso/Login" target="_blank" rel="noopener" title="#{bundle['footer.widget.login']} #{settingsWrapper.rootDataverse.displayName}">
                                         <f:param name="target" value="#{request.contextPath.concat('/shib.xhtml').concat(navigationWrapper.redirectPage)}" />
                                     #{bundle.login}
                                 </h:outputLink>

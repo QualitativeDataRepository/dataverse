@@ -140,12 +140,12 @@
         <ui:fragment rendered="#{fileMetadata.dataFile.tabularData}">
             <ui:remove>
             <li>
-                <p:commandLink styleClass="highlightBold btn-download" rendered="#{!(guestbookAndTermsPopupRequired)}"
+                <p:commandLink styleClass="fw-bold btn-download" rendered="#{!(guestbookAndTermsPopupRequired)}"
                                process="@this"
                                actionListener="#{fileDownloadService.writeGuestbookAndStartFileDownload(guestbookResponse, fileMetadata, 'bundle')}">
                     #{bundle['file.downloadBtn.format.all']}
                 </p:commandLink>
-                <p:commandLink styleClass="highlightBold btn-download" rendered="#{guestbookAndTermsPopupRequired}"
+                <p:commandLink styleClass="fw-bold btn-download" rendered="#{guestbookAndTermsPopupRequired}"
                                process="@this"
                                actionListener="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'bundle' )}"
                                update="@widgetVar(guestbookAndTermsPopup)"

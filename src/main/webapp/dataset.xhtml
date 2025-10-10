@@ -605,12 +605,12 @@
                                     <div id="metrics-block">
                                         <h:outputFormat  id="metrics-heading" value="#{settingsWrapper.makeDataCountDisplayEnabled ? bundle['metrics.dataset.makedatacount.title'] : bundle['metrics.dataset.title']}" escape = "false"/>
                                         <ui:fragment rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
-                                            <span class="bi bi-question-circle tooltip-icon" data-toggle="tooltip" data-placement="auto top" 
-                                                data-trigger="hover" data-original-title="#{bundle['metrics.dataset.tip.default']}"></span>
+                                            <span class="bi bi-question-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                                data-trigger="hover" title="#{bundle['metrics.dataset.tip.default']}"></span>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
-                                            <span class="bi bi-question-circle tooltip-icon" data-toggle="tooltip" data-placement="auto top" 
-                                                data-original-title="#{bundle['metrics.dataset.tip.makedatacount']}"></span>
+                                            <span class="bi bi-question-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                                title="#{bundle['metrics.dataset.tip.makedatacount']}"></span>
                                                 <div id="metrics-heading-subtitle">#{bundle['metrics.dataset.makedatacount.since']} #{settingsWrapper.getMDCStartDate().toString()}</div>
                                         </ui:fragment>
                                         <div id="metrics-body">
@@ -620,7 +620,7 @@
                                                     <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id)}"/>
                                                 </h:outputFormat>
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                        data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.downloads.default.tip']}"></span>
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.default.tip']}"></span>
                                             </div>
                                             <!-- Make Data Count views -->
                                             <div class="metrics-count-block" jsf:rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
@@ -628,7 +628,7 @@
                                                     <f:param value="#{datasetMetricsServiceBean.getMetrics(DatasetPage.dataset).getViewsTotal()}"/>
                                                 </h:outputFormat>
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                        data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.views.tip']}"></span>
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.views.tip']}"></span>
                                             </div>
                                             <!-- Make Data Count downloads -->
                                             <div class="metrics-count-block" jsf:rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
@@ -636,13 +636,13 @@
                                                     <f:param value="#{datasetMetricsServiceBean.getMetrics(DatasetPage.dataset).getDownloadsTotal()}"/>
                                                 </h:outputFormat>
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                        data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.downloads.makedatacount.tip']}"></span>
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.makedatacount.tip']}"></span>
                                                 <span jsf:rendered="#{(settingsWrapper.getMDCStartDate()!=null) and (guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id, settingsWrapper.getMDCStartDate()) > 0)}">        
                                                     <h:outputFormat value="#{bundle['metrics.downloads.nonMDC']}">
                                                         <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id, settingsWrapper.getMDCStartDate())}"/>
                                                     </h:outputFormat>
                                                     <span class="bi bi-question-circle tooltip-icon"
-                                                        data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.downloads.premakedatacount.tip']}"></span>)
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.premakedatacount.tip']}"></span>)
                                                 </span>
                                             </div>
                                             <!-- Make Data Count citations (DOIs only, not Handles) -->
@@ -653,7 +653,7 @@
                                                     </h:outputFormat>
                                                 </p:commandLink>
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                        data-toggle="tooltip" data-placement="auto top" data-original-title="#{bundle['metrics.dataset.citations.tip']}"></span>
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.citations.tip']}"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -684,7 +684,7 @@
                                                     <th scope="row">
                                                         #{bundle['dataset.keywordDisplay.title']}
                                                         <span class="bi bi-question-circle tooltip-icon"
-                                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{DatasetPage.datasetVersionUI.keyword.datasetFieldType.localeDescription}"></span>
+                                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{DatasetPage.datasetVersionUI.keyword.datasetFieldType.localeDescription}"></span>
                                                     </th>
                                                     <td>#{DatasetPage.datasetVersionUI.keywordDisplay}</td>
                                                 </tr>
@@ -692,7 +692,7 @@
                                                     <th scope="row">
                                                         #{DatasetPage.datasetVersionUI.datasetRelPublications.get(0).title}
                                                         <span class="bi bi-question-circle tooltip-icon"
-                                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{DatasetPage.datasetVersionUI.datasetRelPublications.get(0).description}"></span>
+                                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{DatasetPage.datasetVersionUI.datasetRelPublications.get(0).description}"></span>
                                                     </th>
                                                     <td jsf:rendered="#{!anonymizedAccess or !settingsWrapper.shouldBeAnonymized(dsf)}">
                                                         <h:outputText value="#{DatasetPage.datasetVersionUI.relPublicationRelationType}#{MarkupChecker:sanitizeBasicHTML(DatasetPage.datasetVersionUI.relPublicationCitation)}" escape="false"/>
@@ -708,7 +708,7 @@
                                                     <th scope="row">
                                                         #{dsf.datasetFieldType.localeTitle}
                                                         <span class="bi bi-question-circle tooltip-icon"
-                                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{dsf.datasetFieldType.localeDescription}"></span>
+                                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{dsf.datasetFieldType.localeDescription}"></span>
                                                     </th>
                                                     <td jsf:rendered="#{!anonymizedAccess or !settingsWrapper.shouldBeAnonymized(dsf)}">
                                                         <!-- Primitive datasetFields -->
@@ -774,7 +774,7 @@
                             <label jsf:for="#{DatasetPage.editMode == 'CREATE' ? 'selectHostDataverse_input' : 'select_HostDataverse_Static'}" class="col-md-3 control-label">
                                 #{bundle.hostDataverse}
                                 <span class="bi bi-question-circle tooltip-icon"
-                                      data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.host.title']}"></span>
+                                      data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.host.title']}"></span>
                             </label>
                             <div class="col-md-7">
                                 <ui:fragment rendered="#{DatasetPage.editMode == 'METADATA'}">
@@ -823,7 +823,7 @@
                             <label jsf:for="select_DatasetTemplate" class="col-md-3 control-label">
                                 #{bundle['dataset.manageTemplates.tab.action.btn.view.dialog.datasetTemplate']}
                                 <span class="bi bi-question-circle tooltip-icon"
-                                      data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.manageTemplates.tab.action.btn.view.dialog.datasetTemplate.title']}"></span>
+                                      data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.manageTemplates.tab.action.btn.view.dialog.datasetTemplate.title']}"></span>
                             </label>
                             <div class="col-md-7">
                                 <p class="help-block">
@@ -1189,7 +1189,7 @@
                             
                             <p>
                             <p>
-                            <h:outputText   styleClass="highlightBold" value="#{bundle['dataset.privateurl.general.title']}"></h:outputText></p>   
+                            <h:outputText   styleClass="fw-bold" value="#{bundle['dataset.privateurl.general.title']}"></h:outputText></p>   
                             <p>#{bundle['dataset.privateurl.general.description']}</p>     
                             <p:commandButton styleClass="btn btn-secondary" 
                                              value="#{bundle['dataset.privateurl.general.button.label']}" 
@@ -1221,9 +1221,9 @@
                             <p:fragment rendered="#{anonymizedAccessEnabled}">
                             <p>
                              <p>
-                                 <h:outputText  styleClass="highlightBold" value="#{bundle['dataset.privateurl.anonymous.title']}"></h:outputText>
+                                 <h:outputText  styleClass="fw-bold" value="#{bundle['dataset.privateurl.anonymous.title']}"></h:outputText>
                                  <span class="bi bi-question-circle tooltip-icon"
-                                       data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.privateurl.anonymous.tooltip.preface']} #{DatasetPage.getAnonymizedFieldTypeNames()} "></span>
+                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.privateurl.anonymous.tooltip.preface']} #{DatasetPage.getAnonymizedFieldTypeNames()} "></span>
                              </p>   
                             <p>#{bundle['dataset.privateurl.anonymous.description']}</p>  
                             <p>#{bundle['dataset.privateurl.anonymous.description.paragraph.two']}</p>
@@ -2141,7 +2141,7 @@
                             <h:outputText value="#{bundle['dataset.cite.cslDialog.generating']}"/>
                         </p:outputPanel>
                         <span class="bi bi-clipboard btn-copy"
-                                    data-toggle="tooltip" data-placement="top" data-html="true"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                                     data-clipboard-action="copy"
                                     data-clipboard-target=".csl-entry"
                                     title="#{bundle['dataset.cite.cslDialog.copy']}"></span>

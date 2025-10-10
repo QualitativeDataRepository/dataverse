@@ -75,7 +75,7 @@
         <p:column headerText="#{bundle['file.dataFilesTab.versions.headers.summary']}">
             <ui:fragment rendered="#{versionTab.defaultVersionDifference != null}">
                 <ui:fragment rendered="#{!empty(versionTab.defaultVersionDifference.summaryDataForNote)}">
-                    <h:outputText styleClass="highlightBold" value="#{bundle['file.dataFilesTab.versions.citationMetadata']} " />
+                    <h:outputText styleClass="fw-bold" value="#{bundle['file.dataFilesTab.versions.citationMetadata']} " />
                     <ui:repeat value="#{versionTab.defaultVersionDifference.summaryDataForNote}" var="summaryNote">
                         <h:outputText value=" #{summaryNote.datasetField.datasetFieldType.displayName} (" />
                         <h:outputText rendered="#{(summaryNote.added) > 0 and summaryNote.datasetField.datasetFieldType.allowMultiples}" value="#{summaryNote.added} #{bundle['file.dataFilesTab.versions.added']}" />
@@ -91,8 +91,8 @@
                 </ui:fragment>
                 <ui:fragment rendered="#{!empty(versionTab.defaultVersionDifference.blockDataForNote)}">
                     <ui:repeat value="#{versionTab.defaultVersionDifference.blockDataForNote}" var="blockNote">
-                        <h:outputText styleClass="highlightBold" rendered="#{blockNote.datasetField.datasetFieldType.metadataBlock.displayName == 'Citation Metadata'}" value="#{bundle['file.dataFilesTab.versions.additionalCitationMetadata']} " />
-                        <h:outputText styleClass="highlightBold" rendered="#{!(blockNote.datasetField.datasetFieldType.metadataBlock.displayName == 'Citation Metadata')}" value=" #{blockNote.datasetField.datasetFieldType.metadataBlock.localeDisplayName}: " />
+                        <h:outputText styleClass="fw-bold" rendered="#{blockNote.datasetField.datasetFieldType.metadataBlock.displayName == 'Citation Metadata'}" value="#{bundle['file.dataFilesTab.versions.additionalCitationMetadata']} " />
+                        <h:outputText styleClass="fw-bold" rendered="#{!(blockNote.datasetField.datasetFieldType.metadataBlock.displayName == 'Citation Metadata')}" value=" #{blockNote.datasetField.datasetFieldType.metadataBlock.localeDisplayName}: " />
                         <h:outputText value=" (" />
                         <h:outputText rendered="#{blockNote.added > 0}" value="#{blockNote.added} #{bundle['file.dataFilesTab.versions.added']}" />
                         <h:outputText rendered="#{(blockNote.added) > 0 and (blockNote.changed + blockNote.deleted) > 0}" value=", " />
@@ -103,10 +103,10 @@
                     </ui:repeat>
                 </ui:fragment>
                 <ui:fragment rendered="#{!empty(versionTab.defaultVersionDifference.fileNote)}">
-                    <h:outputText styleClass="highlightBold" value="#{versionTab.defaultVersionDifference.fileNote}; " />
+                    <h:outputText styleClass="fw-bold" value="#{versionTab.defaultVersionDifference.fileNote}; " />
                 </ui:fragment>
                 <ui:fragment rendered="#{!empty(versionTab.defaultVersionDifference.changedTermsAccess)}">
-                    <h:outputText styleClass="highlightBold" value="#{bundle['dataset.versionDifferences.termsOfUseAccessChanged']} " />
+                    <h:outputText styleClass="fw-bold" value="#{bundle['dataset.versionDifferences.termsOfUseAccessChanged']} " />
                 </ui:fragment>
             </ui:fragment>
             <ui:fragment rendered="#{versionTab.defaultVersionDifference == null}">

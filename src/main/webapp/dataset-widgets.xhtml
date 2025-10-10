@@ -32,7 +32,7 @@
                                 <label class="col-sm-3 control-label" for="logoFormat">
                                     #{bundle['dataset.thumbnailsAndWidget.thumbnailImage']}
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.title']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.title']}"></span>
                                 </label>
                                 <div class="col-sm-9">
                                     <p class="help-block">
@@ -59,7 +59,7 @@
                                             <label for="selectThumbnail" class="control-label">
                                                 #{bundle['dataset.thumbnailsAndWidget.thumbnailImage.selectAvailable']}
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                      data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.selectAvailable.title']}"></span>
+                                                      data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.selectAvailable.title']}"></span>
                                             </label>
                                             <div>
                                                 <button class="btn btn-secondary" onclick="PF('selectFileThumbnail').show()" type="button">
@@ -71,7 +71,7 @@
                                             <label for="uploadThumbnail" class="control-label">
                                                 #{bundle['dataset.thumbnailsAndWidget.thumbnailImage.uploadNew']}
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                      data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.uploadNew.title']}"></span>
+                                                      data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.uploadNew.title']}"></span>
                                             </label>
                                             <p:fileUpload invalidFileMessage="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.upload.invalidMsg']}" id="changelogo" allowTypes="/(\.|\/)(jpg|jpeg|tff|png|gif)$/" update="@form" 
                                                           sizeLimit="#{systemConfig.uploadLogoSizeLimit}"

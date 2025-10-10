@@ -81,7 +81,7 @@
         <div class="col-sm-12">
             <div class="bg-danger padding-12 margin-bottom">
                 <span class="bi bi-exclamation-triangle-fill text-danger"/>&#160;
-                <h:outputText value="#{SearchIncludeFragment.searchException.message}" styleClass="text-danger highlightBold"/>
+                <h:outputText value="#{SearchIncludeFragment.searchException.message}" styleClass="text-danger fw-bold"/>
             </div>
             <pre><h:outputText value="#{SearchIncludeFragment.searchException.cause.message}"/></pre>
         </div>
@@ -92,7 +92,7 @@
     <div class="row" jsf:rendered="#{SearchIncludeFragment.solrTemporarilyUnavailable}">
         <div class="col-sm-12">
             <div class="bg-danger padding-12 margin-bottom">
-                <h:outputText value="#{bundle['dataverse.results.solrIsTemporarilyUnavailable']}" styleClass="highlightBold"/>
+                <h:outputText value="#{bundle['dataverse.results.solrIsTemporarilyUnavailable']}" styleClass="fw-bold"/>
             </div>
             <pre><h:outputText value="#{bundle['dataverse.results.solrIsTemporarilyUnavailable.extraText']}"/></pre>
         </div>
@@ -423,7 +423,7 @@
                         <ul class="dropdown-menu dropdown-menu-end text-start">
                             <li>
                                 <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
-                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.nameAZ']}" styleClass="#{SearchIncludeFragment.sortedByNameAsc ? 'highlightBold' : ''}"/>
+                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.nameAZ']}" styleClass="#{SearchIncludeFragment.sortedByNameAsc ? 'fw-bold' : ''}"/>
                                     <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                     <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                         <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
@@ -436,7 +436,7 @@
                             </li>
                             <li>
                                 <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
-                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.nameZA']}" styleClass="#{SearchIncludeFragment.sortedByNameDesc ? 'highlightBold' : ''}"/>
+                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.nameZA']}" styleClass="#{SearchIncludeFragment.sortedByNameDesc ? 'fw-bold' : ''}"/>
                                     <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                     <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                         <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
@@ -449,7 +449,7 @@
                             </li>
                             <li>
                                 <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
-                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.newest']}" styleClass="#{SearchIncludeFragment.sortedByReleaseDateDesc? 'highlightBold' : ''}"/>
+                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.newest']}" styleClass="#{SearchIncludeFragment.sortedByReleaseDateDesc? 'fw-bold' : ''}"/>
                                     <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                     <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                         <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
@@ -462,7 +462,7 @@
                             </li>
                             <li>
                                 <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
-                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.oldest']}" styleClass="#{SearchIncludeFragment.sortedByReleaseDateAsc? 'highlightBold' : ''}"/>
+                                    <h:outputText value="#{bundle['dataverse.results.btn.sort.option.oldest']}" styleClass="#{SearchIncludeFragment.sortedByReleaseDateAsc? 'fw-bold' : ''}"/>
                                     <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                     <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                         <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
@@ -476,7 +476,7 @@
                             <ui:fragment rendered="#{SearchIncludeFragment.mode == SearchIncludeFragment.searchModeString}">
                                 <li>
                                     <h:outputLink rel="nofollow" value="#{widgetWrapper.wrapURL(page)}" styleClass="dropdown-item">
-                                        <h:outputText value="#{bundle['dataverse.results.btn.sort.option.relevance']}" styleClass="#{SearchIncludeFragment.sortedByRelevance ? 'highlightBold' : ''}"/>
+                                        <h:outputText value="#{bundle['dataverse.results.btn.sort.option.relevance']}" styleClass="#{SearchIncludeFragment.sortedByRelevance ? 'fw-bold' : ''}"/>
                                         <f:param name="q" value="#{SearchIncludeFragment.query}"/>
                                         <c:forEach items="#{SearchIncludeFragment.filterQueries}" var="clickedFilterQuery" varStatus="status">
                                             <f:param name="fq#{status.index}" value='#{clickedFilterQuery}'/>
@@ -652,8 +652,8 @@
                             <span class="bi bi-box-arrow-up-right text-muted float-end" title="#{bundle.harvested}" jsf:rendered="#{result.harvested}"/>
                             <span class="icon-file text-muted float-end" title="#{bundle.file}"/>
 
-                            <span class="text-danger bi bi-lock-fill" data-toggle="tooltip" title="#{bundle.restricted}" jsf:rendered="#{result.entity.restricted and !permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
-                            <span class="text-success icon-unlock" data-toggle="tooltip" title="#{bundle.restrictedaccess}" jsf:rendered="#{result.entity.restricted and permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
+                            <span class="text-danger bi bi-lock-fill" data-bs-toggle="tooltip" title="#{bundle.restricted}" jsf:rendered="#{result.entity.restricted and !permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
+                            <span class="text-success icon-unlock" data-bs-toggle="tooltip" title="#{bundle.restrictedaccess}" jsf:rendered="#{result.entity.restricted and permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
                             <a rel="nofollow" href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? (result.harvested ? result.fileDatasetUrl : result.fileUrl) : widgetWrapper.wrapURL(result.harvested ? result.fileDatasetUrl : result.fileUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}">
                                 <h:outputText value="#{result.name}" style="padding:4px 0;" rendered="#{result.nameHighlightSnippet == null}"/>
                                 <h:outputText value="#{result.nameHighlightSnippet}" style="padding:4px 0;" rendered="#{result.nameHighlightSnippet != null}" escape="false"/>
@@ -688,12 +688,12 @@
                             <h:outputText value=" - " rendered="#{!result.harvested and !SearchIncludeFragment.isTabular(result.entity) and !(empty result.fileChecksumValue)}"/>
                             <span class="checksum-block" jsf:rendered="#{!result.harvested and !SearchIncludeFragment.isTabular(result.entity) and !(empty result.fileChecksumValue)}">
                                 <span class="checksum-truncate checksum-tooltip" style="margin-right:3px;"
-                                          data-toggle="tooltip" data-placement="top" data-html="true"
+                                          data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                                           data-clipboard-action="copy"
                                           data-clipboard-text="#{result.fileChecksumValue}"
                                           title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{result.fileChecksumValue}">#{result.fileChecksumType}: #{result.fileChecksumValue}</span>
                                 <span class="bi bi-clipboard btn-copy checksum-tooltip"
-                                        data-toggle="tooltip" data-placement="top" data-html="true"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                                         data-clipboard-action="copy"
                                         data-clipboard-text="#{result.fileChecksumValue}" title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{result.fileChecksumValue}"></span>
                             </span>
@@ -702,12 +702,12 @@
                                 <h:outputText value=" - #{SearchIncludeFragment.tabularDataDisplayInfo(result.entity)}"/>
                                 <h:outputText value=" - " rendered="#{!empty SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"/>
                                 <span class="checksum-truncate checksum-tooltip" style="margin-right:3px;" jsf:rendered="#{!empty SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"
-                                          data-toggle="tooltip" data-placement="top" data-html="true"
+                                          data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                                           data-clipboard-action="copy"
                                           data-clipboard-text="#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"
                                           title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}">#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}</span>
                                 <span class="bi bi-clipboard btn-copy checksum-tooltip" jsf:rendered="#{!empty SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"
-                                        data-toggle="tooltip" data-placement="top" data-html="true"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                                         data-clipboard-action="copy"
                                         data-clipboard-text="#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}" title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{SearchIncludeFragment.tabularDataUnfDisplay(result.entity)}"></span>
                             </span>

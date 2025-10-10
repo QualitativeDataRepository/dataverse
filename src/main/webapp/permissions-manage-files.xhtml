@@ -56,7 +56,7 @@
                                         <div>
                                             <p:fragment id="userGroupsRequests" rendered="#{!empty manageFilePermissionsPage.fileAccessRequestMap.entrySet().toArray()}">
                                                 <p>
-                                                    <span class="highlightBold">#{manageFilePermissionsPage.fileAccessRequestMap.size()} #{bundle['dataverse.permissions.requests']} </span>
+                                                    <span class="fw-bold">#{manageFilePermissionsPage.fileAccessRequestMap.size()} #{bundle['dataverse.permissions.requests']} </span>
                                                 </p>
                                                 <p:dataTable id="fileAccessRequests" styleClass="margin-bottom" var="access" value="#{manageFilePermissionsPage.fileAccessRequestMap.entrySet().toArray()}">
                                                     <p:column width="20%" headerText="#{bundle['dataverse.permissionsFiles.usersOrGroups.tabHeader.userOrGroup']}" >
@@ -113,7 +113,7 @@
                                             </p:fragment>
                                             <p:fragment id="userGroups">
                                                 <p>
-                                                    <span class="highlightBold">#{manageFilePermissionsPage.roleAssigneeMap.size()} #{bundle['dataverse.permissions.usersOrGroups']}</span>
+                                                    <span class="fw-bold">#{manageFilePermissionsPage.roleAssigneeMap.size()} #{bundle['dataverse.permissions.usersOrGroups']}</span>
                                                 </p>
                                                 <p:dataTable id="userGroupsAccess" var="ra" value="#{manageFilePermissionsPage.roleAssigneeMap.entrySet().toArray()}"
                                                              emptyMessage="#{bundle['dataverse.permissionsFiles.usersOrGroups.invalidMsg']}">
@@ -169,7 +169,7 @@
                                             </p:selectBooleanCheckbox>
                                         </div>
                                         <p>
-                                            <h:outputFormat styleClass="highlightBold" value="#{manageFilePermissionsPage.fileMap.size()} #{bundle['dataverse.permissionsFiles.files.label']}">
+                                            <h:outputFormat styleClass="fw-bold" value="#{manageFilePermissionsPage.fileMap.size()} #{bundle['dataverse.permissionsFiles.files.label']}">
                                                 <f:param value="#{manageFilePermissionsPage.fileMap.size()}"/>
                                             </h:outputFormat>
                                         </p>
@@ -275,7 +275,7 @@
                         <div>
                             <p:outputPanel id="selectionRemoveCounter">
                                 <p>
-                                    <h:outputFormat styleClass="highlightBold" value="#{bundle['dataverse.permissionsFiles.files.selected']}">
+                                    <h:outputFormat styleClass="fw-bold" value="#{bundle['dataverse.permissionsFiles.files.selected']}">
                                         <f:param value="#{manageFilePermissionsPage.selectedRoleAssignmentRows.size()}"/>
                                         <f:param value="#{manageFilePermissionsPage.roleAssignments.size()} "/>
                                         <f:param value="#{!empty manageFilePermissionsPage.selectedFile ? bundle['dataverse.permissionsFiles.files.roleAssignees'] : bundle['dataverse.permissionsFiles.files']}"/>
@@ -357,7 +357,7 @@
                             <div>
                                 <p:outputPanel id="selectionCounter">
                                     <p>
-                                        <h:outputFormat styleClass="highlightBold" value="#{bundle['dataverse.permissionsFiles.files.selected']}">
+                                        <h:outputFormat styleClass="fw-bold" value="#{bundle['dataverse.permissionsFiles.files.selected']}">
                                             <f:param value="#{manageFilePermissionsPage.selectedFiles.size()}"/>
                                             <f:param value="#{!empty manageFilePermissionsPage.fileRequester ?
                                                         manageFilePermissionsPage.fileAccessRequestMap.get(manageFilePermissionsPage.fileRequester).size()

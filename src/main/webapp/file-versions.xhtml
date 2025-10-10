@@ -83,9 +83,9 @@
                               value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.minorVersionNumber}" />
             </ui:fragment>
             <ui:fragment rendered="#{versionTab.datasetVersion == currentDatasetVersion }">
-                <h:outputText rendered="#{!versionTab.datasetVersion.draft}" styleClass="highlightBold"
+                <h:outputText rendered="#{!versionTab.datasetVersion.draft}" styleClass="fw-bold"
                               value="#{versionTab.datasetVersion.versionNumber}.#{versionTab.datasetVersion.minorVersionNumber}" /> 
-                <h:outputText rendered="#{versionTab.datasetVersion.draft}" styleClass="highlightBold"
+                <h:outputText rendered="#{versionTab.datasetVersion.draft}" styleClass="fw-bold"
                               value="#{versionTab.datasetVersion.versionState}"/> 
             </ui:fragment>    
         </p:column>
@@ -99,7 +99,7 @@
                     value="#{bundle['file.versionDifferences.noChanges']}" styleClass="italic text-muted"/>
                 <ui:repeat value="#{versionTab.fileVersionDifference.differenceSummaryGroups}" var="groupSummary" varStatus="grp_status">
                     <ui:fragment rendered="#{!empty groupSummary.name }">
-                    <h:outputText value="#{groupSummary.name}:" styleClass="highlightBold" escape="false"/>
+                    <h:outputText value="#{groupSummary.name}:" styleClass="fw-bold" escape="false"/>
                     <ui:repeat value="#{groupSummary.fileDifferenceSummaryItems}" var="item" varStatus="itm_status">                       
                         <h:outputText value=" #{item.name}" escape="false"/>
                         <h:outputText value=" #{item.added}" rendered="#{item.added > 0 and item.multiple}" escape="false"/>
@@ -119,7 +119,7 @@
                         <h:outputText value="[#{item.name} #{item.added > 0 ? 
                                 bundle['file.versionDifferences.actionAdded']: item.deleted > 0 ? bundle['file.versionDifferences.actionRemoved']
                                 : item.replaced > 0 ? bundle['file.versionDifferences.actionReplaced']: '' }]"  
-                                escape="false" styleClass="highlightBold"/>
+                                escape="false" styleClass="fw-bold"/>
                     </ui:repeat>
                     <h:outputText rendered="#{! grp_status.last}" value="; "/>
                     </ui:fragment>

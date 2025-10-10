@@ -50,11 +50,11 @@
                             <!-- number of results -->
                             <div class="results-count margin-top">
                                 <h:outputFormat rendered="#{guestbookResponsesPage.guestbook.responseCount lt systemConfig.guestbookResponsesPageDisplayLimit}"
-                                                styleClass="highlightBold" value="#{bundle['dataset.guestbooksResponses.count.responses']}">
+                                                styleClass="fw-bold" value="#{bundle['dataset.guestbooksResponses.count.responses']}">
                                     <f:param value="#{guestbookResponsesPage.guestbook.responseCount}"/>
                                 </h:outputFormat>
                                 <h:outputFormat rendered="#{guestbookResponsesPage.guestbook.responseCount gt systemConfig.guestbookResponsesPageDisplayLimit}"
-                                                styleClass="highlightBold" value="#{bundle['dataset.guestbooksResponses.count.toofresults']}">
+                                                styleClass="fw-bold" value="#{bundle['dataset.guestbooksResponses.count.toofresults']}">
                                     <f:param value="#{guestbookResponsesPage.guestbook.responseCount - 5000}"/>
                                     <f:param value="#{guestbookResponsesPage.guestbook.responseCount}"/>
                                     <f:param value="#{guestbookResponsesPage.guestbook.responseCount}"/>

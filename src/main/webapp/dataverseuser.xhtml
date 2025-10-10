@@ -734,7 +734,7 @@
                                     <h:outputLabel value="#{bundle['user.username']}" for="userName" class="col-sm-3 control-label">
                                         <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
-                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.username.illegal.tip']}"></span>
+                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.username.illegal.tip']}"></span>
                                     </h:outputLabel> 
                                                                        
                                     <div class="col-sm-9">
@@ -757,7 +757,7 @@
                                     <label for="currentPassword" class="col-sm-3 control-label">
                                         #{bundle['user.currentPasswd']} <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
-                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.currentPasswd.tip']}"></span>
+                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.currentPasswd.tip']}"></span>
                                     </label>
                                     <div class="col-sm-4">
                                         <p:password id="currentPassword" label="#{bundle['user.currentPasswd']}" styleClass="form-control" value="#{DataverseUserPage.currentPassword}" autocomplete="off"/><!-- browsers will in general not respect autocomplete="foo", but scanners will still flag it as a potential problem -->
@@ -769,7 +769,7 @@
                                 <h:outputLabel value="#{DataverseUserPage.editMode == 'CREATE' ? bundle['user.password'] : bundle['user.newPassword']}"   for="inputPassword"  class="col-sm-3 control-label" >
                                     <span class="bi bi-asterisk text-danger"></span>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.passwd.illegal.tip']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.passwd.illegal.tip']}"></span>
                                 </h:outputLabel>      
                                     <div class="col-sm-9">
                                         <div class="help-block">
@@ -787,7 +787,7 @@
                                     <!-- Retype Password -->
                                     <h:outputLabel value="#{bundle['user.rePasswd']}" for="retypePassword" class="col-sm-3 control-label"> <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
-                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.rePasswd.tip']}"></span>
+                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.rePasswd.tip']}"></span>
                                     </h:outputLabel>
                                     <div class="col-sm-4">
                                         <p:password id="retypePassword" label="#{bundle['user.rePasswd']}" styleClass="form-control" value="#{DataverseUserPage.inputPassword}" autocomplete="off"/><!-- browsers will in general not respect autocomplete="foo", but scanners will still flag it as a potential problem -->
@@ -798,7 +798,7 @@
                                 <!-- First Name -->                                       
                                 <h:outputLabel value="#{bundle['user.firstName']}" for="firstName" class="col-sm-3 control-label" > <span class="bi bi-asterisk text-danger"/>
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.firstName.tip']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.firstName.tip']}"></span>
                                 </h:outputLabel>
                                     <div class="col-sm-4">
                                         <p:inputText id="firstName" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.firstName}" />
@@ -809,7 +809,7 @@
                                     <!-- Last Name -->
                                     <h:outputLabel value="#{bundle['user.lastName']}" for="lastName" class="col-sm-3 control-label" >  <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
-                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.lastName.tip']}"></span>
+                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.lastName.tip']}"></span>
                                     </h:outputLabel>
                                     <div class="col-sm-4">
                                         <p:inputText id="lastName" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.lastName}" />
@@ -820,7 +820,7 @@
                                     <!-- Email -->
                                     <h:outputLabel value="#{bundle['email']}" for="email" class="col-sm-3 control-label">   <span class="bi bi-asterisk text-danger"/>
                                         <span class="bi bi-question-circle tooltip-icon"
-                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.email.tip']}"></span>
+                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.email.tip']}"></span>
                                     </h:outputLabel>
                                     <div class="col-sm-4">
                                         <p:inputText id="email" styleClass="form-control"
@@ -834,7 +834,7 @@
                                     <!-- Affiliation -->
                                     <h:outputLabel value="#{bundle.affiliation}" for="affiliation" class="col-sm-3 control-label">
                                         <span class="bi bi-question-circle tooltip-icon"
-                                              data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.affiliation.tip']}"></span>
+                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.affiliation.tip']}"></span>
                                     </h:outputLabel>
                                     <div class="col-sm-4">
                                         <p:inputText id="affiliation" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.affiliation}" />
@@ -845,7 +845,7 @@
                                 <!-- Position -->
                                 <h:outputLabel value="#{bundle.position}" for="position" class="col-sm-3 control-label">
                                     <span class="bi bi-question-circle tooltip-icon"
-                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['user.position.tip']}"></span>
+                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.position.tip']}"></span>
                                 </h:outputLabel>
                                     <div class="col-sm-4">
                                         <p:inputText id="position" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.position}" />

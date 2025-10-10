@@ -54,10 +54,10 @@
                     <p:graphicImage value="/api/access/datafile/#{dataFile.id}?imageThumb=true" alt="#{fileMetadata.label}"/>
                 </span>
                 <!-- Restricted File Icon -->
-                <div class="file-icon-restricted-block" title="#{bundle['file.metaData.fileAccess']}#{bundle['restricted']}" data-toggle="tooltip" jsf:rendered="#{fileMetadata.restricted and !canDownloadFile}">
+                <div class="file-icon-restricted-block" title="#{bundle['file.metaData.fileAccess']}#{bundle['restricted']}" data-bs-toggle="tooltip" jsf:rendered="#{fileMetadata.restricted and !canDownloadFile}">
                     <span class="bi bi-lock-fill text-danger"/>
                 </div>
-                <div class="file-icon-restricted-block" title="#{bundle['file.metaData.fileAccess']}#{bundle['restrictedaccess']}" data-toggle="tooltip" jsf:rendered="#{fileMetadata.restricted and canDownloadFile}">
+                <div class="file-icon-restricted-block" title="#{bundle['file.metaData.fileAccess']}#{bundle['restrictedaccess']}" data-bs-toggle="tooltip" jsf:rendered="#{fileMetadata.restricted and canDownloadFile}">
                     <span class="icon-unlock text-success"/>
                 </div>
             </div>
@@ -93,12 +93,12 @@
                 <!-- CHECKSUM -->
                 <div class="checksum-block" jsf:rendered="#{!(empty checksumValue)}">
                     <span class="#{!editDatafilesPage ? 'checksum-truncate checksum-tooltip' : ''}" style="margin-right:3px;"
-                                  data-toggle="tooltip" data-placement="top" data-html="true"
+                                  data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                                   data-clipboard-action="copy"
                                   data-clipboard-text="#{checksumValue}"
                                   title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{checksumValue}">#{dataFile.checksumType}: #{checksumValue}</span>
                     <span class="bi bi-clipboard btn-copy checksum-tooltip" 
-                                  data-toggle="tooltip" data-placement="top" data-html="true"
+                                  data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                                   data-clipboard-action="copy"
                                   data-clipboard-text="#{checksumValue}" 
                                   title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{checksumValue}"></span>
@@ -110,12 +110,12 @@
                     <h:outputText id="fileNumObs" value="#{dataFile.dataTable.caseQuantity} #{bundle['file.metaData.dataFile.dataTab.observations']} "/>
                     <span jsf:id="fileUNF" class="#{!editDatafilesPage ? 'checksum-truncate checksum-tooltip' : ''}" style="margin-right:3px;"
                                   jsf:rendered="#{!(empty unfValue)}"
-                                  data-toggle="tooltip" data-placement="top" data-html="true"
+                                  data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                                   data-clipboard-action="copy"
                                   data-clipboard-text="#{unfValue}"
                                   title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{unfValue}">#{unfValue}</span>
                     <span class="bi bi-clipboard btn-copy checksum-tooltip" jsf:rendered="#{!(empty unfValue)}" 
-                                  data-toggle="tooltip" data-placement="top" data-html="true"
+                                  data-bs-toggle="tooltip" data-bs-placement="top" data-html="true"
                                   data-clipboard-action="copy"
                                   data-clipboard-text="#{unfValue}" 
                                   title="#{bundle['file.metaData.checksum.copy']}&lt;br/&gt;#{unfValue}"></span>
