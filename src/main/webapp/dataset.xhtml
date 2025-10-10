@@ -203,18 +203,18 @@
                                             <div class="btn-group btn-group-justified" 
                                                  jsf:rendered="#{showAccessDatasetButtonGroup}">
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-secondary btn-access-dataset dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <button type="button" class="btn btn-secondary btn-access-dataset dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         #{(((datasetExploreToolsSize >= 1) or (sessionUserAuthenticated
                                                             and showComputeButton)) ? bundle['dataset.accessBtn'] : bundle['dataset.downloadBtn'])} <i class="bi bi-caret-down"></i>
                                                     </button>
-                                                    <ul class="dropdown-menu float-end text-left" style="padding-left:1em; padding-right:1em;" >
+                                                    <ul class="dropdown-menu dropdown-menu-end text-start" style="padding-left:1em; padding-right:1em;" >
                                                         <!-- DOWNLOAD -->
                                                         <ui:fragment rendered="#{canDownloadFiles}">
                                                             <ui:fragment rendered="#{!tooLargeToDownload}">
                                                                 <li class="dropdown-header">#{bundle['dataset.accessBtn.header.download']} <span class="bi bi-download"/></li>
                                                                 <!-- NORMAL DOWNLOAD BUTTON (NO TABULAR FILES) -->
                                                                 <li jsf:rendered="#{!  versionHasTabular}">
-                                                                    <p:commandLink update="@form" actionListener="#{DatasetPage.startDownloadAllOriginal()}" styleClass="btn-download" 
+                                                                    <p:commandLink update="@form" actionListener="#{DatasetPage.startDownloadAllOriginal()}" styleClass="dropdown-item btn-download" 
                                                                                    oncomplete="showPopup(false);">
                                                                     #{bundle.download}
                                                                         <h:outputFormat value="#{bundle['dataset.accessBtn.download.size']}">
@@ -230,7 +230,7 @@
                                                                     <li jsf:rendered="#{ sizeOfDatasetOrig != '0 B'  and !(tooLargeToDownloadOriginal) }">
                                                                         <p:commandLink update="@form" actionListener="#{DatasetPage.startDownloadAllOriginal()}" 
                                                                                        oncomplete="showPopup(false);"
-                                                                                       styleClass="btn-download">
+                                                                                       styleClass="dropdown-item btn-download">
                                                                             #{bundle.downloadOriginal}
                                                                             <h:outputFormat value="#{bundle['dataset.accessBtn.download.size']}">
                                                                                 <f:param value="#{sizeOfDatasetOrig}" />
@@ -246,7 +246,7 @@
                                                                     <!-- DOWNLOAD ARCHIVAL FILES (TABULAR FILES PRESENT) -->
                                                                     <li jsf:rendered="#{!tooLargeToDownloadArchival}">
                                                                         <p:commandLink update="@form" oncomplete="showPopup(false);" 
-                                                                                       actionListener="#{DatasetPage.startDownloadAllArchival()}" styleClass="btn-download">
+                                                                                       actionListener="#{DatasetPage.startDownloadAllArchival()}" styleClass="dropdown-item btn-download">
                                                                                 #{bundle.downloadArchival}
                                                                             <h:outputFormat value="#{bundle['dataset.accessBtn.download.size']}">
                                                                                 <f:param value="#{sizeOfDataset}" />
@@ -269,7 +269,7 @@
                                                         <ui:fragment rendered="#{versionHasGlobus}">
                                                             <li>
                                                                 <p:commandLink update="@form" oncomplete="showPopup(true);" 
-                                                                                   actionListener="#{DatasetPage.startGlobusTransfer(true, false)}" styleClass="btn-download">
+                                                                                   actionListener="#{DatasetPage.startGlobusTransfer(true, false)}" styleClass="dropdown-item btn-download">
                                                                             #{bundle.transfer}
                                                                     <h:outputFormat value="#{bundle['dataset.accessBtn.transfer.size']}">
                                                                         <f:param value="#{sizeOfDataset}" />
@@ -366,7 +366,7 @@
                                                     </c:if>
                                                     <c:if test="#{(showSubmitForReviewLink or showReturnToAuthorLink) and showPublishLink}">
                                                             <f:passThroughAttribute name="class" value="btn btn-secondary btn-access btn-publish dropdown-toggle #{DatasetPage.lockedFromPublishing or !DatasetPage.hasValidTermsOfAccess  or !valid ? 'disabled' : ''}"/>
-                                                        <f:passThroughAttribute name="data-toggle" value="dropdown"/>
+                                                        <f:passThroughAttribute name="data-bs-toggle" value="dropdown"/>
                                                         <f:passThroughAttribute name="aria-haspopup" value="true"/>
                                                         <f:passThroughAttribute name="aria-expanded" value="false"/>
                                                     </c:if>
@@ -407,41 +407,41 @@
                                         <div class="btn-group btn-group-justified" jsf:rendered="#{sessionUserAuthenticated
                                                                                                     and canUpdateDataset}">
                                             <div class="btn-group">
-                                                <button type="button" id="editDataSet" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{DatasetPage.lockedFromEdits ? 'disabled' : ''}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                <button type="button" id="editDataSet" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{DatasetPage.lockedFromEdits ? 'disabled' : ''}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                         disabled="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
                                                     #{bundle['dataset.editBtn']} <i class="bi bi-caret-down"></i>
                                                 </button>
-                                                <ul class="dropdown-menu float-end text-left">
+                                                <ul class="dropdown-menu dropdown-menu-end text-start">
                                                     <li>
-                                                            <h:outputLink value="/editdatafiles.xhtml?datasetId=#{DatasetPage.dataset.id}&#38;mode=UPLOAD" rendered="#{DatasetPage.hasValidTermsOfAccess}">
+                                                            <h:outputLink styleClass="dropdown-item" value="/editdatafiles.xhtml?datasetId=#{DatasetPage.dataset.id}&#38;mode=UPLOAD" rendered="#{DatasetPage.hasValidTermsOfAccess}">
                                                             <h:outputText value="#{bundle['dataset.editBtn.itemLabel.upload']}"/>
                                                         </h:outputLink>
                                                     </li>
                                                         <li style="margin-left:20px;margin-bottom:2px;">
-                                                            <p:commandLink rendered="#{!DatasetPage.hasValidTermsOfAccess}" disabled="#{!DatasetPage.hasValidTermsOfAccess}" >
+                                                            <p:commandLink styleClass="dropdown-item" rendered="#{!DatasetPage.hasValidTermsOfAccess}" disabled="#{!DatasetPage.hasValidTermsOfAccess}" >
                                                                 <h:outputText  value="#{bundle['dataset.editBtn.itemLabel.upload']}" />
                                                             </p:commandLink>
                                                         </li>                                                    
                                                         <li style="margin-left:20px;">
-                                                            <p:commandLink id="editMetadataDisabled" onclick="editMetadata()" rendered="#{!DatasetPage.hasValidTermsOfAccess}" disabled="#{!DatasetPage.hasValidTermsOfAccess}" >
+                                                            <p:commandLink styleClass="dropdown-item" id="editMetadataDisabled" onclick="editMetadata()" rendered="#{!DatasetPage.hasValidTermsOfAccess}" disabled="#{!DatasetPage.hasValidTermsOfAccess}" >
                                                                 <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="0" />
                                                                 <h:outputText value="#{bundle['dataset.editBtn.itemLabel.metadata']}"  />
                                                             </p:commandLink>
                                                         </li> 
                                                     <li>
-                                                            <p:commandLink id="editMetadata" onclick="editMetadata()" rendered="#{DatasetPage.hasValidTermsOfAccess}">
+                                                            <p:commandLink styleClass="dropdown-item" id="editMetadata" onclick="editMetadata()" rendered="#{DatasetPage.hasValidTermsOfAccess}">
                                                             <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="0" />
                                                             <h:outputText value="#{bundle['dataset.editBtn.itemLabel.metadata']}" />
                                                         </p:commandLink>
                                                     </li>
                                                     <li>
-                                                            <p:commandLink id="editTerms" actionListener="#{DatasetPage.edit('LICENSE')}" update="@form,:datasetForm,:messagePanel">
+                                                            <p:commandLink styleClass="dropdown-item" id="editTerms" actionListener="#{DatasetPage.edit('LICENSE')}" update="@form,:datasetForm,:messagePanel">
                                                             <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="0" />
                                                             <h:outputText value="#{bundle['dataset.editBtn.itemLabel.terms']}" />
                                                         </p:commandLink>
                                                     </li>
                                                     <ui:fragment rendered="#{permissionsWrapper.canManagePermissions(DatasetPage.dataset) || permissionsWrapper.canManageFilesOnDataset(DatasetPage.dataset)}">
-                                                            <li class="#{DatasetPage.hasPublicStore ? '' : 'dropdown-submenu pull-left'}">
+                                                            <li class="#{DatasetPage.hasPublicStore ? '' : 'dropdown-item dropdown-submenu'}">
                                                                 <ui:fragment rendered="#{!DatasetPage.hasPublicStore}">
                                                                 <a tabindex="0">#{bundle['dataset.editBtn.itemLabel.permissions']}</a>
                                                                 <ul class="dropdown-menu">
@@ -460,19 +460,19 @@
                                                                 </ul>
                                                             </ui:fragment>
                                                                 <h:link id="managePermissions" rendered="#{DatasetPage.hasPublicStore}"
-                                                                    styleClass="ui-commandlink ui-widget" outcome="permissions-manage">
+                                                                    styleClass="dropdown-item ui-commandlink ui-widget" outcome="permissions-manage">
                                                                 <h:outputText value="#{bundle['dataset.editBtn.itemLabel.permissions']}" />
                                                                 <f:param name="id" value="#{DatasetPage.dataset.id}" />
                                                             </h:link>
                                                         </li>
                                                         <li>
-                                                            <p:commandLink id="privateUrl" oncomplete="PF('privateUrlConfirmation').show()" action="#{DatasetPage.initPrivateUrlPopUp()}" update="privateUrlPanel">
+                                                            <p:commandLink styleClass="dropdown-item" id="privateUrl" oncomplete="PF('privateUrlConfirmation').show()" action="#{DatasetPage.initPrivateUrlPopUp()}" update="privateUrlPanel">
                                                                 <h:outputText value="#{bundle['dataset.editBtn.itemLabel.privateUrl']}" />
                                                             </p:commandLink>
                                                         </li>
                                                     </ui:fragment>
                                                     <li>
-                                                        <h:outputLink value="/dataset-widgets.xhtml?datasetId=#{DatasetPage.dataset.id}">
+                                                        <h:outputLink styleClass="dropdown-item" value="/dataset-widgets.xhtml?datasetId=#{DatasetPage.dataset.id}">
                                                             <h:outputText value="#{bundle['dataset.editBtn.itemLabel.thumbnailsAndWidgets']}"/>
                                                         </h:outputLink>
                                                     </li>
@@ -481,32 +481,32 @@
                                                             <!-- Configure tool links -->
                                                             <ui:repeat var="tool" value="#{DatasetPage.datasetConfigureTools}">
                                                                 <li>
-                                                                    <p:commandLink styleClass="btn-explore" actionListener="#{DatasetPage.setDatasetConfigureTool(tool)}" process="@this" update="datasetForm:configureToolDialog" oncomplete="PF('configureToolDialog').show();">
+                                                                    <p:commandLink styleClass="dropdown-item btn-explore" actionListener="#{DatasetPage.setDatasetConfigureTool(tool)}" process="@this" update="datasetForm:configureToolDialog" oncomplete="PF('configureToolDialog').show();">
                                                                         <h:outputText value="#{tool.getDisplayNameLang()}"/>
                                                                     </p:commandLink>
                                                                 </li>
                                                             </ui:repeat>
                                                         </ui:fragment>
                                                     <ui:fragment rendered="#{!DatasetPage.dataset.released and DatasetPage.dataset.latestVersion.versionState=='DRAFT' and permissionsWrapper.canIssueDeleteDatasetCommand(DatasetPage.dataset)}">
-                                                        <li role="separator" class="divider"></li>
+                                                        <li><hr class="dropdown-divider"/></li>
                                                         <li>
-                                                            <p:commandLink id="deleteDataset" onclick="PF('deleteConfirmation').show()">
+                                                            <p:commandLink styleClass="dropdown-item" id="deleteDataset" onclick="PF('deleteConfirmation').show()">
                                                                 <h:outputText value="#{bundle['dataset.editBtn.itemLabel.deleteDataset']}" />
                                                             </p:commandLink>
                                                         </li>
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{DatasetPage.dataset.released and DatasetPage.dataset.latestVersion.versionState=='DRAFT' and permissionsWrapper.canIssueDeleteDatasetCommand(DatasetPage.dataset)}">
-                                                        <li role="separator" class="divider"></li>
+                                                        <li><hr class="dropdown-divider"/></li>
                                                         <li>
-                                                            <p:commandLink id="deleteVersion" onclick="PF('deleteVersionConfirmation').show()">
+                                                            <p:commandLink styleClass="dropdown-item" id="deleteVersion" onclick="PF('deleteVersionConfirmation').show()">
                                                                 <h:outputText value="#{bundle['dataset.editBtn.itemLabel.deleteDraft']}" />
                                                             </p:commandLink>
                                                         </li>
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{DatasetPage.dataset.released and DatasetPage.existReleasedVersion and canIssuePublishDatasetCommand}">
-                                                        <li role="separator" class="divider"></li>
+                                                        <li><hr class="dropdown-divider"/></li>
                                                         <li>
-                                                            <p:commandLink id="deaccessionDatasetLink" 
+                                                            <p:commandLink styleClass="dropdown-item" id="deaccessionDatasetLink" 
                                                                            action="#{DatasetPage.clickDeaccessionDataset}"
                                                                                oncomplete="PF('deaccessionBlock').show();"
                                                                            update="deaccessionBlock">
@@ -521,25 +521,25 @@
                                             <!-- Curation Status -->
                                             <div class="btn-group btn-group-justified" jsf:rendered="#{canSeeCurationStatus and not empty DatasetPage.allowedCurationStatuses}">
                                               <div class="btn-group">
-                                                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                                                <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
                                                     #{bundle['dataset.curationStatusMenu']} <i class="bi bi-caret-down"></i>
                                                 </button>
-                                                <ul class="dropdown-menu multi-level float-end text-left">
+                                                <ul class="dropdown-menu multi-level dropdown-menu-end text-start">
                                                     <ui:fragment rendered="#{(not empty DatasetPage.allowedCurationStatuses) and DatasetPage.canPublishDataset() and version.draft}">
-                                                    <li class="dropdown-submenu pull-left">
-                                                        <a tabindex="0">#{bundle['dataset.changestatus']}</a>
-                                                        <ul class="dropdown-menu">
+                                                    <li class="dropdown-item dropdown-submenu">
+                                                        <a class="dropdown-item tabindex="0" href="#" data-bs-toggle="dropdown">#{bundle['dataset.changestatus']}</a>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
                                                             <ui:repeat value="#{DatasetPage.allowedCurationStatuses}" var="status">
                                                                 <li>
                                                                     <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
-                                                                    <p:commandLink action="#{DatasetPage.setCurationStatus(status)}" update=":datasetForm:topDatasetBlockFragment,:messagePanel">
+                                                                    <p:commandLink  styleClass="dropdown-item" action="#{DatasetPage.setCurationStatus(status)}" update=":datasetForm:topDatasetBlockFragment,:messagePanel">
                                                                         #{DatasetUtil:getLocaleCurationStatusLabelFromString(status)}
                                                                     </p:commandLink>
                                                                 </li>
                                                             </ui:repeat>
-                                                            <p:separator/>
+                                                            <li><hr class="dropdown-divider"/></li>
                                                             <li>
-                                                                <p:commandLink action="#{DatasetPage.setCurationStatus(null)}" update=":datasetForm:topDatasetBlockFragment,:messagePanel">
+                                                                <p:commandLink  styleClass="dropdown-item" action="#{DatasetPage.setCurationStatus(null)}" update=":datasetForm:topDatasetBlockFragment,:messagePanel">
                                                                     #{bundle['dataset.removestatus']}
                                                                 </p:commandLink>
                                                             </li>
@@ -547,7 +547,7 @@
                                                     </li>
                                                     </ui:fragment>
                                                     <li>
-                                                        <p:commandLink oncomplete="PF('curationStatusHistoryDialog').show()"
+                                                        <p:commandLink  styleClass="dropdown-item" oncomplete="PF('curationStatusHistoryDialog').show()"
                                                             update=":datasetForm:curationStatusHistoryDialog"
                                                             rendered="#{canSeeCurationStatus}">
                                                             #{bundle['dataset.viewCurationStatusHistory']}
@@ -936,13 +936,13 @@
                                                                            and (!DatasetPage.dataset.deaccessioned
                                                                            or (deaccessioned and canUpdateDataset))
                                                                            and !anonymizedAccess}">
-                                        <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                             <span class="bi bi-box-arrow-up-right"/> #{bundle['dataset.exportBtn']} <i class="bi bi-caret-down"></i>
                                         </button>
-                                        <ul class="dropdown-menu float-end text-left">
+                                        <ul class="dropdown-menu dropdown-menu-end text-start">
                                             <ui:repeat var="exporter" value="#{DatasetPage.exporters}">
                                                 <li>
-                                                    <h:outputLink value="#{exporter[1]}" target="_blank">
+                                                    <h:outputLink  styleClass="dropdown-item" value="#{exporter[1]}" target="_blank">
                                                         <h:outputText value="#{exporter[0]}"/>
                                                     </h:outputLink>
                                                 </li>
