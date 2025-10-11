@@ -493,7 +493,7 @@
                                 <!-- Metadata -->
                                 <div class="button-block tab-header margin-bottom text-end">
                                     <!-- Add + Edit Metadata Button -->
-                                    <h:outputLink styleClass="btn btn-secondary btn-access #{FilePage.lockedFromEditsutton" styleClass="text-button btn-contact bootstrap-button-tooltip" title="#{bundle['dataverse.contact']}" ? 'disabled' : ''}"
+                                    <h:outputLink styleClass="btn btn-secondary btn-access #{FilePage.lockedFromEdits ? 'disabled' : ''} text-button btn-contact bootstrap-button-tooltip" title="#{bundle['dataverse.contact']}"
                                                   value="/editdatafiles.xhtml?selectedFileIds=#{FilePage.fileMetadata.dataFile.id}&#38;datasetId=#{FilePage.fileMetadata.datasetVersion.dataset.id}&#38;referrer=FILE"
                                                   rendered="#{!widgetWrapper.widgetView and (dataverseSession.user.authenticated
                                                      and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)

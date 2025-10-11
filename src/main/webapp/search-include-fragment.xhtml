@@ -100,8 +100,8 @@
 
     <!-- Search Results / SOLR IS UP -->
     <div id="search-row-panel-backdrop"></div>
-      <div id="search-row-panel" class="row row-offcanvas row-offcanvas-left" jsf:rendered="#{!(SearchIncludeFragment.solrIsDown or SearchIncludeFragment.solrTemporarilyUnavailable)}">
-        <div id="dv-sidebar" class="col-sm-4 col-md-3 sidebar-offcanvas">
+      <div id="search-row-panel" class="row" jsf:rendered="#{!(SearchIncludeFragment.solrIsDown or SearchIncludeFragment.solrTemporarilyUnavailable)}">
+        <div id="dv-sidebar" class="col-sm-4 col-md-3 offcanvas offcanvas-start" tabindex="-1" aria-labelledby="filter-title">
             <span id="filter-title">Filters</span>
             <!--TYPE FACET (DATAVERSES, DATASETS, FILES)-->
             <h:form id="facetType" rendered="#{!SearchIncludeFragment.facetsDisabled}">
@@ -288,9 +288,9 @@
             <!--DEBUG END-->
 
             <!--toggle sidebar button-->
-            <p class="visible-xs-block">
+            <p class="d-block d-md-none">
                 <button type="button" 
-                    class="btn btn-secondary btn-xs" 
+                    class="btn btn-secondary btn-sm" 
                     data-bs-toggle="offcanvas" 
                     data-bs-target="#dv-sidebar" 
                     aria-controls="dv-sidebar" 
@@ -426,7 +426,7 @@
                     <!-- SORT BY -->
                     <div class="btn-group float-end">
                         <button type="button" class="btn dropdown-toggle color-btn" data-bs-toggle="dropdown"  aria-expanded="false">
-                            #{bundle['dataverse.results.btn.sort']} <i class="bi bi-caret-down"></i>
+                            #{bundle['dataverse.results.btn.sort']}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end text-start">
                             <li>

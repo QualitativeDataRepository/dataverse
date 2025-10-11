@@ -527,7 +527,7 @@
                                                 <ul class="dropdown-menu multi-level dropdown-menu-end text-start">
                                                     <ui:fragment rendered="#{(not empty DatasetPage.allowedCurationStatuses) and DatasetPage.canPublishDataset() and version.draft}">
                                                     <li class="dropdown-item dropdown-submenu">
-                                                        <a class="dropdown-item tabindex="0" href="#" data-bs-toggle="dropdown">#{bundle['dataset.changestatus']}</a>
+                                                        <a class="dropdown-item" tabindex="0" href="#" data-bs-toggle="dropdown">#{bundle['dataset.changestatus']}</a>
                                                         <ul class="dropdown-menu dropdown-menu-end">
                                                             <ui:repeat value="#{DatasetPage.allowedCurationStatuses}" var="status">
                                                                 <li>
