@@ -100,7 +100,8 @@
             </div>
         </div>
         <p:fragment id="breadCrumbPanel" rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1 and showDataverseHeader}">
-        <div id="breadcrumbNavBlock" class="container" jsf:rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1}">
+        <div id="breadcrumbNavBlock" class="container row" jsf:rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1}">
+          <div class="col-12 p-0">
             <ui:repeat value="#{dataverseHeaderFragment.breadcrumbs}" var="breadcrumb" varStatus="status">
                 <h:outputText value=" > " styleClass="breadcrumbCarrot" rendered="#{!status.first}"/>
                 <div class="breadcrumbBlock">
@@ -137,6 +138,7 @@
                     </ui:fragment>
                 </div>
             </ui:repeat>
+          </div>
         </div>
 	</p:fragment>
         <ui:remove>
