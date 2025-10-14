@@ -526,7 +526,7 @@
                                    <p class="form-text">#{bundle['file.dataFilesTab.terms.list.guestbook.inUse.tip']}</p>
                                    <div class="panel panel-default">
                                        <div class="panel-body">
-                                           <p class="form-control-static pull-left">#{DatasetPage.dataset.guestbook.name}</p>
+                                           <p class="form-control-static float-start">#{DatasetPage.dataset.guestbook.name}</p>
                                            <p:commandButton styleClass="btn btn-secondary float-end"
                                                           value="#{bundle['file.dataFilesTab.terms.list.guestbook.viewBtn']}"
                                                           action="#{DatasetPage.viewSelectedGuestbook(DatasetPage.dataset.guestbook)}"
@@ -563,7 +563,7 @@
                                                 rowIndexVar="rowNum" selection="#{DatasetPage.dataset.guestbook}" rowKey="#{guestbook}">
                                        <p:column selectionMode="single" class="col-select-width text-center"/>
                                        <p:column>
-                                           <p class="form-control-static pull-left">
+                                           <p class="form-control-static float-start">
                                                <h:outputText value="#{guestbook.name}"/>
                                            </p>
                                            <p:commandButton styleClass="btn btn-secondary float-end"

@@ -1424,15 +1424,15 @@
                     <p:dialog id="detailsBlocks" styleClass="largePopUp" header="#{bundle['file.viewDiffDialog.header']}" widgetVar="detailsBlocks" modal="true">
                         <div id="version-title" class="margin-bottom-half">#{DatasetPage.datasetVersionDifference.newVersion.title}</div>
                         <div id="version-details-block" class=" clearfix margin-bottom-half">
-                            <div class="pull-left">
+                            <div class="float-start">
                                 &#160;
                             </div>
-                            <div class="pull-left">
+                            <div class="float-start">
                                 #{bundle['file.viewDiffDialog.version']}: #{DatasetPage.datasetVersionDifference.originalVersion.semanticVersion}<br/>
                                 #{bundle['file.viewDiffDialog.lastUpdated']}: #{DatasetPage.datasetVersionDifference.originalVersion.localeLastUpdateTime}<br/>
                                 <p:fragment rendered="#{versionNoteEnabled}">#{bundle['file.viewDiffDialog.versionNote']}: #{DatasetPage.datasetVersionDifference.originalVersion.versionNote}</p:fragment>
                             </div>
-                            <div class="pull-left">
+                            <div class="float-start">
                                 #{bundle['file.viewDiffDialog.version']}: #{DatasetPage.datasetVersionDifference.newVersion.semanticVersion}<br/>
                                 #{bundle['file.viewDiffDialog.lastUpdated']}: #{DatasetPage.datasetVersionDifference.newVersion.localeLastUpdateTime}<br/>
                                 <p:fragment rendered="#{versionNoteEnabled}">#{bundle['file.viewDiffDialog.versionNote']}: #{DatasetPage.datasetVersionDifference.newVersion.versionNote}</p:fragment>

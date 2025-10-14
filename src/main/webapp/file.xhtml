@@ -111,7 +111,7 @@
                                                 <span class="bi bi-question-circle text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}"
                                                       data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['dataset.cite.title.draft']}"/>
                                             </div>
-                                            <div class="pull-left row col-sm-9 p-0" jsf:rendered="#{!FilePage.anonymizedAccess}">
+                                            <div class="float-start row col-sm-9 p-0" jsf:rendered="#{!FilePage.anonymizedAccess}">
                                                 <div class="col-sm-3 col-md-4 col-lg-3 btn-group margin-bottom citation-download" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}">
                                                     <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                          #{bundle['file.cite.file.downloadBtn']} <i class="bi bi-caret-down"></i>
@@ -160,7 +160,7 @@
                                                 <span class="bi bi-question-circle text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"
                                                       data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['dataset.cite.title.deassessioned']}"/>
                                             </div>
-                                            <div class="pull-left row col-sm-9 p-0"  jsf:rendered="#{!FilePage.anonymizedAccess}">
+                                            <div class="float-start row col-sm-9 p-0"  jsf:rendered="#{!FilePage.anonymizedAccess}">
                                                 <div class="col-sm-3 col-md-4 col-lg-3 btn-group margin-bottom citation-download" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}">
                                                     <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         #{bundle['dataset.cite.downloadBtn']} <i class="bi bi-caret-down"></i>
@@ -542,7 +542,7 @@
                                                                 <div id="border-block" style="border:0;">
                                                                     <div id="preview-square">
                                                                         <span class="icon-#{dataFileServiceBean.getFileThumbnailClass(FilePage.fileMetadata.dataFile)} text-muted" jsf:rendered="#{!FilePage.isThumbnailAvailable(FilePage.fileMetadata)}"/>
-                                                                        <p:graphicImage styleClass="img-responsive" value="/api/access/datafile/#{FilePage.fileId}?imageThumb=400"
+                                                                        <p:graphicImage styleClass="img-fluid" value="/api/access/datafile/#{FilePage.fileId}?imageThumb=400"
                                                                                         alt="#{FilePage.fileMetadata.label}" rendered="#{FilePage.isThumbnailAvailable(FilePage.fileMetadata)}"/>
                                                                     </div>
                                                                 </div>

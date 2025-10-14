@@ -244,7 +244,7 @@
     </ui:fragment>
     
     <!-- CITATION FILES DOWNLOAD OPTIONS -->
-    <li class="dropdown-submenu pull-left" jsf:rendered="#{!anonymized}">
+    <li class="dropdown-submenu float-start" jsf:rendered="#{!anonymized}">
             <a tabindex="0">#{bundle['file.downloadBtn.format.citation']}</a>
         <ul class="dropdown-menu">
             <li>
@@ -275,7 +275,7 @@
         <li class="dropdown-header">#{bundle['file.auxfiles.download.header']} <span class="bi bi-download"/></li>
         <!-- Aux Files in Bundle (DP, etc.)-->
         <ui:repeat var="auxFileType" value="#{auxiliaryFileServiceBean.findAuxiliaryFileTypes(fileMetadata.dataFile, true)}">
-            <li class="dropdown-submenu pull-left">
+            <li class="dropdown-submenu float-start">
                 <a tabindex="0">#{auxiliaryFileServiceBean.getFriendlyNameForType(auxFileType)}</a>
                 <ul class="dropdown-menu">
                     <ui:repeat var="auxFile" value="#{auxiliaryFileServiceBean.findAuxiliaryFilesByType(fileMetadata.dataFile, auxFileType)}">
@@ -289,7 +289,7 @@
             </li>
         </ui:repeat>
         <!--Other Aux Files (not in bundle)-->
-        <li class="dropdown-submenu pull-left" jsf:rendered="#{not empty auxiliaryFileServiceBean.findOtherAuxiliaryFiles(fileMetadata.dataFile)}">
+        <li class="dropdown-submenu float-start" jsf:rendered="#{not empty auxiliaryFileServiceBean.findOtherAuxiliaryFiles(fileMetadata.dataFile)}">
             <a tabindex="0">#{bundle['file.auxfiles.unspecifiedTypes']}</a>
             <ul class="dropdown-menu">
                 <ui:repeat var="auxFile" value="#{auxiliaryFileServiceBean.findOtherAuxiliaryFiles(fileMetadata.dataFile)}">
