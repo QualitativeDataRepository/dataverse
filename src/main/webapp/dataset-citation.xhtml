@@ -9,9 +9,9 @@
     <div class="citation-block">
         <div class="clearfix #{DatasetPage.workingVersion.deaccessioned ? 'alert alert-danger bg-danger' : 'alert alert-info bg-citation'}">
             <div class="citation #{DatasetPage.workingVersion.deaccessioned ? '' : 'margin-bottom'}">
-                <div class="pull-left preview-icon-block">
+                <div class="float-start preview-icon-block">
                     <img src="#{DatasetPage.thumbnailString}" 
-                        class="img-responsive" 
+                        class="img-fluid" 
                         jsf:rendered="#{!empty DatasetPage.thumbnailString and !DatasetPage.workingVersion.deaccessioned}" 
                         alt="#{DatasetPage.datasetVersionUI.title.value}"/>
                     <span class="icon-dataset" jsf:rendered="#{empty DatasetPage.thumbnailString or DatasetPage.workingVersion.deaccessioned}"/>
@@ -26,29 +26,29 @@
                 <span class="bi bi-question-circle text-primary" jsf:rendered="#{DatasetPage.workingVersion.deaccessioned}" 
                       data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['dataset.cite.title.deassessioned']}"/>
             </div>
-            <div class="pull-left row col-sm-9 p-0" jsf:rendered="#{!DatasetPage.anonymizedAccess}">
-                <div class="col-sm-3 col-md-4 col-lg-3 btn-group margin-bottom citation-download" jsf:rendered="#{!DatasetPage.workingVersion.deaccessioned}">
-                    <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-toggle="dropdown">
-                        #{bundle['dataset.cite.downloadBtn']} <i class="bi bi-caret-down"></i>
+            <div class="float-start row col-sm-9 p-0" jsf:rendered="#{!DatasetPage.anonymizedAccess}">
+                <div class="col-sm-3 col-md-4 col-lg-4 dropdown margin-bottom citation-download" jsf:rendered="#{!DatasetPage.workingVersion.deaccessioned}">
+                    <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-bs-toggle="dropdown" aria-expanded="false">
+                        #{bundle['dataset.cite.downloadBtn']}
                     </button>
                     <ul class="dropdown-menu">
                         <li>
-                            <h:commandLink id="endNoteLink" value="#{bundle['dataset.cite.downloadBtn.xml']}" action="#{DatasetPage.fileDownloadService.downloadDatasetCitationXML(DatasetPage.workingVersion)}"/>
+                            <h:commandLink id="endNoteLink" styleClass="dropdown-item" value="#{bundle['dataset.cite.downloadBtn.xml']}" action="#{DatasetPage.fileDownloadService.downloadDatasetCitationXML(DatasetPage.workingVersion)}"/>
                         </li>
                         <li>
-                            <h:commandLink id="risLink" value="#{bundle['dataset.cite.downloadBtn.ris']}" action="#{DatasetPage.fileDownloadService.downloadDatasetCitationRIS(DatasetPage.workingVersion)}"/>
+                            <h:commandLink id="risLink" styleClass="dropdown-item" value="#{bundle['dataset.cite.downloadBtn.ris']}" action="#{DatasetPage.fileDownloadService.downloadDatasetCitationRIS(DatasetPage.workingVersion)}"/>
                         </li>
                         <li>
-                            <h:commandLink id="bibLink" value="#{bundle['dataset.cite.downloadBtn.bib']}" action="#{DatasetPage.fileDownloadService.downloadDatasetCitationBibtex(DatasetPage.workingVersion)}" target="_blank"/>
+                            <h:commandLink id="bibLink" styleClass="dropdown-item" value="#{bundle['dataset.cite.downloadBtn.bib']}" action="#{DatasetPage.fileDownloadService.downloadDatasetCitationBibtex(DatasetPage.workingVersion)}" target="_blank"/>
                         </li>
                         <li>
-                        <button class="btn btn-link" onclick="PF('cslCitationDialog').show();" type="button">
+                        <button class="btn btn-link dropdown-item" onclick="PF('cslCitationDialog').show();" type="button">
                                 #{bundle['dataset.cite.viewCitation']}
                             </button>
                         </li>
                     </ul>
                 </div>
-                <div class="col-sm-9 col-md-8 col-lg-9 margin-bottom citation-standards" jsf:rendered="#{!DatasetPage.workingVersion.deaccessioned}">
+                <div class="col-sm-9 col-md-8 col-lg-8 margin-bottom citation-standards" jsf:rendered="#{!DatasetPage.workingVersion.deaccessioned}">
                     <h:outputText value="#{bundle['dataset.cite.standards.tip']}" escape="false"/>
                 </div>
             </div>

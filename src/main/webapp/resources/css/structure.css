@@ -690,6 +690,7 @@ span[id$='editDataSet'] .ui-button-text {white-space: nowrap;}
 
 div.row .bi.bi-asterisk {font-size:.5em; vertical-align:text-top;}
 #datasetForm .row, #templateForm .row {overflow: hidden;}
+#datasetCitationActionSummaryBlock .citation-block .row {overflow:visible;}
 div.form-col-container div.form-col-container {padding-left:0;}
 div.row .ui-selectonemenu {display:block;}
 div.form-col-container.edit-compound-field div.form-col-container {margin-bottom:.5em;}
