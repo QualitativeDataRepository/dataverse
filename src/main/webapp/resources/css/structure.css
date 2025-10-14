@@ -1048,7 +1048,29 @@ thead.ui-datatable-scrollable-theadclone {display:none}
 
 /* BLOCK UI */
 .ui-blockui.ui-widget-overlay {background:#fff; opacity:.6;}
-div.ui-dialog.ui-widget-content {z-index:100001 !important;}
+div.ui-dialog.ui-widget-content {
+    z-index:100001 !important;
+    background-color: #ffffff;
+    border: 1px solid #999;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding-box;
+    background-clip: padding-box;
+}
+
+.ui-dialog.ui-widget-content .ui-dialog-title {
+    font-size: 24px;
+}
+.ui-dialog .ui-dialog-title {
+    float: left;
+    margin: .3em 16px .1em 0;
+}
 
 /* POPUP DROPDOWN MENUS + TOOLTIPS + BLOCK UI */
 .ui-selectcheckboxmenu-panel, .ui-selectonemenu-panel, .ui-autocomplete-panel,
@@ -1392,21 +1414,28 @@ span.badge-primary { background-color: #0039f5; }
 .pagination > li.active > a:focus,
 .pagination > li.active > a:hover{
   background-color: #0039f5;
+  color: white;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pagination > li > a {
   color: #0039f5;
-  border-color: #b8b8b8 !important;
-  padding: 9px 12px 3px 12px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pagination > li > a.skip {
-  height: 44px;
-  width: 44px;
-  background-size: contain;
+  background-size: 44px; /* Fixed size for icons */
   background-position: center;
   background-repeat: no-repeat;
-  border: none;
+  border: 1px solid #b8b8b8 !important; /* Match other pagination items */
 }
 
 .pagination > li > a.skip.top {background-image: url(/resources/images/skip_icon.svg);}
