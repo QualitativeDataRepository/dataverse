@@ -113,7 +113,7 @@
                                             </div>
                                             <div class="float-start row col-sm-9 p-0" jsf:rendered="#{!FilePage.anonymizedAccess}">
                                                 <div class="col-sm-3 col-md-4 col-lg-3 btn-group margin-bottom citation-download" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}">
-                                                    <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                          #{bundle['file.cite.file.downloadBtn']} <i class="bi bi-caret-down"></i>
                                                     </button>
                                                     <ul class="dropdown-menu">
@@ -162,7 +162,7 @@
                                             </div>
                                             <div class="float-start row col-sm-9 p-0"  jsf:rendered="#{!FilePage.anonymizedAccess}">
                                                 <div class="col-sm-3 col-md-4 col-lg-3 btn-group margin-bottom citation-download" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}">
-                                                    <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <button type="button" class="btn btn-link dropdown-toggle p-0 downloadCitation" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         #{bundle['dataset.cite.downloadBtn']} <i class="bi bi-caret-down"></i>
                                                     </button>
                                                     <ul class="dropdown-menu">
@@ -200,10 +200,10 @@
                                     <!-- ActionButtonBlock -->
                                     <div id="actionButtonBlock">
                                             <!-- DOWNLOAD/ACCESS DATASET -->
-                                            <div class="btn-group btn-group-justified"
+                                            <div class="btn-group w-100"
                                                  jsf:rendered="#{showAccessFileButtonGroup}">
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-secondary btn-access-file dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <button type="button" class="btn btn-secondary btn-access-file dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         #{((not empty FilePage.exploreTools) or FilePage.showComputeButton()) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']} <i class="bi bi-caret-down"></i>
                                                     </button>
                                                     <ul class="dropdown-menu float-end text-left">
@@ -231,7 +231,7 @@
                                             </div>
 
                                             <!-- Edit/Map Button Block -->
-                                            <div class="btn-group btn-group-justified" jsf:rendered="#{!widgetWrapper.widgetView}">
+                                            <div class="btn-group w-100" jsf:rendered="#{!widgetWrapper.widgetView}">
 
                                                 <!-- Edit Button Group -->
                                                 <div class="btn-group" jsf:rendered="#{dataverseSession.user.authenticated
@@ -246,7 +246,7 @@
                                                                          and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                                          and FilePage.hasValidTermsOfAccess
                                                                          and !FilePage.deletedFile}">
-                                                    <button type="button" id="editFile" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{FilePage.lockedFromEdits ? 'disabled' : ''}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                    <button type="button" id="editFile" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{FilePage.lockedFromEdits ? 'disabled' : ''}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                             disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
                                                         #{bundle['file.editBtn']} <i class="bi bi-caret-down"></i>
                                                     </button>
@@ -267,8 +267,8 @@
                                             <!-- END: Map/Edit Button Block -->
 
                                             <!-- Contact/Share Button Group -->
-                                            <div class="btn-group btn-group-justified" jsf:rendered="#{!widgetWrapper.widgetView}">
-                                                <p:commandLink class="btn btn-secondary btn-xs btn-contact" title="#{bundle['dataset.email.datasetContactTitle']}"
+                                            <div class="btn-group w-100" jsf:rendered="#{!widgetWrapper.widgetView}">
+                                                <p:commandLink class="btn btn-secondary btn-sm btn-contact" title="#{bundle['dataset.email.datasetContactTitle']}"
                                                                update=":contactDialog" oncomplete="PF('contactForm').show()" actionListener="#{sendFeedbackDialog.initUserInput}">
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.userEmail}" value=""/>
@@ -276,7 +276,7 @@
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{FilePage.fileMetadata.dataFile}"/>
                                                     #{bundle['file.contactBtn']}
                                                 </p:commandLink>
-                                                <p:commandLink styleClass="btn btn-secondary btn-xs btn-share" rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}"
+                                                <p:commandLink styleClass="btn btn-secondary btn-sm btn-share" rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}"
                                                                title="#{bundle['file.share.fileShare']}"
                                                                oncomplete="PF('shareDialog').show();sharrre();">
                                                     #{bundle['file.shareBtn']}
@@ -432,7 +432,7 @@
                                 <div class="btn-toolbar margin-bottom" role="toolbar" aria-label="#{bundle['file.previewTab.button.label']}">
                                     <!-- Preview Button Group -->
                                     <div class="btn-group" jsf:rendered="#{FilePage.allAvailableTools.size() > 1 and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata)}">
-                                        <button type="button" id="selectTool" class="btn btn-secondary btn-access dropdown-toggle" data-toggle="dropdown">
+                                        <button type="button" id="selectTool" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown">
                                             <span class="bi bi-eye"/> #{bundle['file.toolsTab.button.label']} <i class="bi bi-caret-down"></i>
                                         </button>
 
@@ -511,7 +511,7 @@
                                     </div>
                                     <!-- Export Button -->
                                     <div class="btn-group" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released}">
-                                        <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                             <span class="bi bi-box-arrow-up-right"/> #{bundle['dataset.exportBtn']} <i class="bi bi-caret-down"></i>
                                         </button>
                                         <ul class="dropdown-menu float-end text-left">

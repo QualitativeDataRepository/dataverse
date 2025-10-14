@@ -145,7 +145,7 @@
                     <div class="text-muted small" style="font-weight:normal;" jsf:rendered="#{(DatasetPage.fileMetadatasSearch.size() gt 0)}">#{bundle['file.results.filter']}</div>
                     <!-- FACET: TYPE -->
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileTypeFacetLabels)}">
-                        <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             #{bundle['file.results.filter.type']} <h:outputText value="#{(empty DatasetPage.fileTypeFacet) ? bundle['file.results.filter.all'] : DatasetPage.fileTypeFacet}"
                                           styleClass="#{!empty DatasetPage.fileTypeFacet ? 'fw-bold' : ''}"/> <i class="bi bi-caret-down"></i>
                         </button>
@@ -186,7 +186,7 @@
 
                     <!-- FACET: ACCESS -->
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileAccessFacetLabels)}">
-                        <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             #{bundle['file.results.filter.access']} <h:outputText value="#{(empty DatasetPage.fileAccessFacet) ? bundle['file.results.filter.all'] : DatasetPage.fileAccessFacet}"
                                           styleClass="#{!empty DatasetPage.fileAccessFacet ? 'fw-bold' : ''}"/> <i class="bi bi-caret-down"></i>
                         </button>
@@ -227,7 +227,7 @@
 
                     <!-- FACET: TAG -->
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileTagsFacetLabels)}">
-                        <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="btn btn-link dropdown-toggle" style="padding:0;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             #{bundle['file.results.filter.tag']} <h:outputText value="#{(empty DatasetPage.fileTagsFacet) ? bundle['file.results.filter.all'] : DatasetPage.fileTagsFacet}"
                                           styleClass="#{!empty DatasetPage.fileTagsFacet ? 'fw-bold' : ''}"/> <i class="bi bi-caret-down"></i>
                         </button>
@@ -281,7 +281,7 @@
                 </div>                
                     <!-- FILES SORT -->
                     <div class="btn-group">
-                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="bi bi-sort-alpha-down"></span> #{bundle['file.results.btn.sort']} <i class="bi bi-caret-down"></i>
                         </button>
                         <ul class="dropdown-menu float-end text-left">
@@ -417,7 +417,7 @@
                 <!-- EDIT -->
                 <div style="margin-right:14px;" class="btn-group" jsf:rendered="#{DatasetPage.sessionUserAuthenticated
                                                                                   and DatasetPage.canUpdateDataset() and !widgetWrapper.widgetView and (DatasetPage.fileMetadatasSearch.size() gt 0)}">
-                    <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-toggle="dropdown"
+                    <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown"
                             disabled="#{uploadButtonDisabled}">
                         <span class="bi bi-pencil"/> #{bundle['file.editFiles']} <i class="bi bi-caret-down"></i>
                     </button>
@@ -458,7 +458,7 @@
                      jsf:rendered="#{(!(empty DatasetPage.workingVersion.fileMetadatas) 
                                      and fileMetadataCount > 1) and DatasetPage.downloadButtonAvailable
                                      and (DatasetPage.isVersionHasTabular()||DatasetPage.isVersionHasGlobus())}">
-                    <button type="button" class="btn btn-secondary btn-download dropdown-toggle" data-toggle="dropdown">  
+                    <button type="button" class="btn btn-secondary btn-download dropdown-toggle" data-bs-toggle="dropdown">  
                         <span class="bi bi-download"/> #{bundle.download} <i class="bi bi-caret-down"></i>
                     </button>
                     <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level float-end text-left">
@@ -565,7 +565,7 @@
                     </ui:fragment>
                     <a type="button" style="padding:6px 8px;" class="btn-access-file btn btn-link bootstrap-button-tooltip dropdown-toggle" 
                        title="#{((not empty DatasetPage.getExploreToolsForDataFile(fileMetadata.dataFile)) or (DatasetPage.showComputeButton(fileMetadata))) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']}"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tabindex="0">
+                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tabindex="0">
                        <span class="bi bi-download"/><span class="sr-only">#{bundle['file.accessBtn']}</span><i class="bi bi-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu float-end text-left">
@@ -621,7 +621,7 @@
                     <!-- Kebab / Edit / File Options Dropdown -->
                     <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}" 
                        disabled="#{lockedFromEdits ? 'disabled' : ''}"
-                       title="#{bundle['file.optionsBtn']}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                       title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                        tabindex="0">
                         <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span><i class="bi bi-caret-down"></i>
                     </a>

@@ -491,7 +491,7 @@
                         <p:tab id="accountInfo" title="#{bundle['header.user.selectTab.accountInfo']}">
                             <div class="button-block tab-header margin-bottom text-end" jsf:rendered="#{empty DataverseUserPage.editMode and (DataverseUserPage.passwordEditable or DataverseUserPage.accountDetailsEditable)}">
                                 <div class="btn-group">
-                                    <button type="button" id="editAccount" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                                    <button type="button" id="editAccount" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
                                         <ui:fragment rendered="#{DataverseUserPage.accountDetailsEditable}">
                                             <span class="bi bi-pencil"/> #{bundle['account.edit']}
                                         </ui:fragment>

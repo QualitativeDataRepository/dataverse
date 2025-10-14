@@ -195,14 +195,14 @@
                                         </ui:fragment>
                                         <!-- END: CITATION BLOCK -->
                                     </div>
-                                    <div class="col-12 col-lg-4">
+                                    <div class="col-12 col-lg-3">
                                       <div class="mb-3">
                                         <!-- ActionButtonBlock -->
                                         <div id="actionButtonBlock" jsf:rendered="#{!widgetWrapper.widgetView}">
                                             <!-- DOWNLOAD/ACCESS DATASET -->
-                                            <div class="btn-group btn-group-justified" 
+                                            <div class="btn-group w-100" 
                                                  jsf:rendered="#{showAccessDatasetButtonGroup}">
-                                                <div class="btn-group">
+                                                <div class="btn-group w-100">
                                                     <button type="button" class="btn btn-secondary btn-access-dataset dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         #{(((datasetExploreToolsSize >= 1) or (sessionUserAuthenticated
                                                             and showComputeButton)) ? bundle['dataset.accessBtn'] : bundle['dataset.downloadBtn'])}
@@ -356,8 +356,8 @@
                                         <!-- END: DOWNLOAD/ACCESS DATASET -->
 
                                         <!-- PUBLISH DATASET -->
-                                        <div class="btn-group btn-group-justified" jsf:rendered="#{showPublishLink or showSubmitForReviewLink}">
-                                            <div class="btn-group">
+                                        <div class="btn-group w-100" jsf:rendered="#{showPublishLink or showSubmitForReviewLink}">
+                                            <div class="btn-group w-100">
                                                 <!-- Publish BTN -->
                                                 <h:outputLink value="#" disabled="#{DatasetPage.lockedFromPublishing or !DatasetPage.hasValidTermsOfAccess or !valid}">
                                                     <c:if test="#{!((showSubmitForReviewLink or showReturnToAuthorLink) and showPublishLink )}">
@@ -404,9 +404,9 @@
                                         <!-- END: Publish -->
 
                                         <!-- Edit Dataset -->
-                                        <div class="btn-group btn-group-justified" jsf:rendered="#{sessionUserAuthenticated
+                                        <div class="btn-group w-100" jsf:rendered="#{sessionUserAuthenticated
                                                                                                     and canUpdateDataset}">
-                                            <div class="btn-group">
+                                            <div class="btn-group w-100">
                                                 <button type="button" id="editDataSet" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{DatasetPage.lockedFromEdits ? 'disabled' : ''}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                         disabled="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
                                                     #{bundle['dataset.editBtn']} <i class="bi bi-caret-down"></i>
@@ -519,8 +519,8 @@
                                         </div>
                                         <!-- END: Edit Dataset -->
                                             <!-- Curation Status -->
-                                            <div class="btn-group btn-group-justified" jsf:rendered="#{canSeeCurationStatus and not empty DatasetPage.allowedCurationStatuses}">
-                                              <div class="btn-group">
+                                            <div class="btn-group w-100" jsf:rendered="#{canSeeCurationStatus and not empty DatasetPage.allowedCurationStatuses}">
+                                              <div class="btn-group w-100">
                                                 <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
                                                     #{bundle['dataset.curationStatusMenu']} <i class="bi bi-caret-down"></i>
                                                 </button>
@@ -558,8 +558,8 @@
                                             </div>
                                             <!-- END: Curation Status -->
                                         <!-- LINK -->
-                                        <div class="btn-group btn-group-justified" jsf:rendered="#{dataverseSession.user.authenticated and !deaccessioned}">
-                                            <p:commandLink styleClass="btn btn-secondary btn-access btn-xs btn-block btn-link-dataset"
+                                        <div class="btn-group w-100" jsf:rendered="#{dataverseSession.user.authenticated and !deaccessioned}">
+                                            <p:commandLink styleClass="btn btn-secondary btn-access btn-sm btn-block btn-link-dataset"
                                                            action="#{DatasetPage.setShowLinkingPopup(true)}"
                                                                oncomplete="PF('linkDatasetForm').show();"
                                                            update="@form">
@@ -568,8 +568,8 @@
                                         </div>
                                         <!-- END: LINK -->
                                         <!-- UNLINK -->
-                                        <div class="btn-group btn-group-justified" jsf:rendered="#{dataverseSession.user.authenticated and !deaccessioned and !empty DatasetPage.dataset.datasetLinkingDataverses}">
-                                            <p:commandLink styleClass="btn btn-secondary btn-access btn-xs btn-block btn-link-dataset"
+                                        <div class="btn-group w-100" jsf:rendered="#{dataverseSession.user.authenticated and !deaccessioned and !empty DatasetPage.dataset.datasetLinkingDataverses}">
+                                            <p:commandLink styleClass="btn btn-secondary btn-access btn-sm btn-block btn-link-dataset"
                                                            action="#{DatasetPage.setShowUnLinkingPopup(true)}"
                                                            oncomplete="PF('unlinkDatasetForm').show();"
                                                            update="@form">
@@ -579,8 +579,8 @@
                                         <!-- END: UNLINK -->
 
                                         <!-- Contact/Share Button Group -->
-                                        <div class="btn-group btn-group-justified">
-                                            <p:commandLink styleClass="btn btn-secondary btn-xs btn-contact" title="#{bundle['dataset.email.datasetContactTitle']}"
+                                        <div class="btn-group w-100">
+                                            <p:commandLink styleClass="btn btn-secondary btn-sm btn-contact" title="#{bundle['dataset.email.datasetContactTitle']}"
                                                            update=":contactDialog" oncomplete="PF('contactForm').show()" actionListener="#{sendFeedbackDialog.initUserInput}">
                                                 <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
                                                 <f:setPropertyActionListener target="#{sendFeedbackDialog.userEmail}" value=""/>
@@ -588,7 +588,7 @@
                                                 <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{DatasetPage.dataset}"/>
                                                 #{bundle['dataset.contactBtn']}
                                             </p:commandLink>
-                                            <p:commandLink styleClass="btn btn-secondary btn-xs btn-share" rendered="#{!deaccessioned}"
+                                            <p:commandLink styleClass="btn btn-secondary btn-sm btn-share" rendered="#{!deaccessioned}"
                                                            title="#{bundle['dataset.share.datasetShare']}"
                                                            oncomplete="PF('shareDialog').show();sharrre();">
                                                 #{bundle['dataset.shareBtn']}
