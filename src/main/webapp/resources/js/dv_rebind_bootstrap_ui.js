@@ -205,7 +205,7 @@ function contentTruncate(truncSelector, truncMoreBtn, truncMoreTip, truncLessBtn
     $('#' + truncSelector).each(function () {
         
         // add responsive img class to limit width to that of container
-        $(this).find('img').attr('class', 'img-responsive');
+        $(this).find('img').attr('class', 'img-fluid');
         
         // find container height
         var containerHeight = $(this).outerHeight();
