@@ -7,6 +7,7 @@ html {
 body {
   /* Sticky footer Margin bottom by footer height */
   font-family: 'AntoniaH2', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size:14px;
 }
 body.widget-view {margin-bottom:44px;}
 body .ui-widget {font-size: inherit;}
@@ -1670,10 +1671,9 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
     display:inline;
 }
 
-#datasetForm\:cslCitation .bi-copy{
+#datasetForm\:cslCitation .bi-clipboard-plus{
     font-size: x-large;
     display: inline;
-    vertical-align: bottom;
     margin-left: 5px;
 }
     

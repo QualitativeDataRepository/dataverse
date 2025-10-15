@@ -370,7 +370,7 @@
                                                         <f:passThroughAttribute name="aria-haspopup" value="true"/>
                                                         <f:passThroughAttribute name="aria-expanded" value="false"/>
                                                     </c:if>
-                                                    #{showPublishLink ? bundle['dataset.publishBtn'] : (latestVersionInReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitBtn'])} <i jsf:rendered="#{(showSubmitForReviewLink or showReturnToAuthorLink) and showPublishLink}" class="bi bi-caret-down"></i>
+                                                    #{showPublishLink ? bundle['dataset.publishBtn'] : (latestVersionInReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitBtn'])}
                                                 </h:outputLink>
                                                 <!-- Publish BTN DROPDOWN-MENU OPTIONS -->
                                                 <ul class="dropdown-menu float-end text-left">
@@ -409,7 +409,7 @@
                                             <div class="btn-group w-100">
                                                 <button type="button" id="editDataSet" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{DatasetPage.lockedFromEdits ? 'disabled' : ''}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                         disabled="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
-                                                    #{bundle['dataset.editBtn']} <i class="bi bi-caret-down"></i>
+                                                    #{bundle['dataset.editBtn']}
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end text-start">
                                                     <li>
@@ -522,7 +522,7 @@
                                             <div class="btn-group w-100" jsf:rendered="#{canSeeCurationStatus and not empty DatasetPage.allowedCurationStatuses}">
                                               <div class="btn-group w-100">
                                                 <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                                    #{bundle['dataset.curationStatusMenu']} <i class="bi bi-caret-down"></i>
+                                                    #{bundle['dataset.curationStatusMenu']}
                                                 </button>
                                                 <ul class="dropdown-menu multi-level dropdown-menu-end text-start">
                                                     <ui:fragment rendered="#{(not empty DatasetPage.allowedCurationStatuses) and DatasetPage.canPublishDataset() and version.draft}">
@@ -937,7 +937,7 @@
                                                                            or (deaccessioned and canUpdateDataset))
                                                                            and !anonymizedAccess}">
                                         <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                            <span class="bi bi-box-arrow-up-right"/> #{bundle['dataset.exportBtn']} <i class="bi bi-caret-down"></i>
+                                            <span class="bi bi-box-arrow-up-right"/> #{bundle['dataset.exportBtn']}
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end text-start">
                                             <ui:repeat var="exporter" value="#{DatasetPage.exporters}">
@@ -2140,7 +2140,7 @@
                             </script>
                             <h:outputText value="#{bundle['dataset.cite.cslDialog.generating']}"/>
                         </p:outputPanel>
-                        <span class="bi bi-clipboard btn-copy"
+                        <span class="bi bi-clipboard-plus btn-copy"
                                     data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
                                     data-clipboard-action="copy"
                                     data-clipboard-target=".csl-entry"

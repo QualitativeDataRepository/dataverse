@@ -517,7 +517,7 @@
                                             <ui:fragment rendered="#{DataversePage.showLinkingPopup()}">
                                             <div class="btn-group" >
                                                 <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <span class="bi bi-link"/> #{bundle['link']} <i class="bi bi-caret-down"></i>
+                                                    <span class="bi bi-link"/> #{bundle['link']}
                                                 </button>
                                                 <ul class="dropdown-menu float-end text-left">
                                                     <li class="#{DataversePage.dataverse.owner != null ? '' : 'disabled'}">
@@ -542,7 +542,7 @@
                                             <!-- Edit Button -->
                                             <div class="btn-group" jsf:rendered="#{permissionsWrapper.canIssueUpdateDataverseCommand(DataversePage.dataverse)}">
                                                 <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown">
-                                                    <span class="bi bi-pencil"/> #{bundle['dataverse.edit']} <i class="bi bi-caret-down"></i>
+                                                    <span class="bi bi-pencil"/> #{bundle['dataverse.edit']}
                                                 </button>
                                                 <ul class="dropdown-menu float-end text-left">
                                                     <li>

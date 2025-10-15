@@ -308,17 +308,17 @@ function clickCopyClipboard(){
         // check which selector was clicked
         // swap icon for success ok
         if ($(e.trigger).hasClass('bi')) {
-            $(e.trigger).removeClass('bi-clipboard').addClass('bi-check text-success');
+            $(e.trigger).removeClass('bi-clipboard-plus').addClass('bi-check text-success');
             // then swap icon back to clipboard
             // https://stackoverflow.com/a/54270499
             setTimeout(()=> { // use arrow function
-                $(e.trigger).removeClass('bi-check text-success').addClass('bi-clipboard')
+                $(e.trigger).removeClass('bi-check text-success').addClass('bi-clipboard-plus')
             }, 2000);
         }
         else {
-            $(e.trigger).next('.btn-copy.bi').removeClass('bi-clipboard').addClass('bi-check text-success');
+            $(e.trigger).next('.btn-copy.bi').removeClass('bi-clipboard-plus').addClass('bi-check text-success');
             setTimeout(()=> {
-                $(e.trigger).next('.btn-copy.bi').removeClass('bi-check text-success').addClass('bi-clipboard')
+                $(e.trigger).next('.btn-copy.bi').removeClass('bi-check text-success').addClass('bi-clipboard-plus')
             }, 2000);
         }
     });

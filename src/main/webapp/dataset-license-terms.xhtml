@@ -251,7 +251,7 @@
                     </div>
                 </p:fragment>
             </div>
-        </div>alidTermsOfAccess) ? 'true' : 'false'}" aria-controls="panelCollapseTOA">
+        </div>
        <div class="card" jsf:rendered="#{managePage==true or !empty editMode or (datasetPage == true and DatasetPage.restrictedFileCount > 0) 
                                                         or toaNotEmpty}">
            <div class="card-header text-info" data-bs-toggle="collapse" data-bs-target="#panelCollapseTOA" role="button" aria-expanded="#{!empty editMode or (datasetPage == false and toaNotEmpty) or (datasetPage == true and DatasetPage.hasValidTermsOfAccess) ? 'true' : 'false'}" aria-controls="panelCollapseTOA">
