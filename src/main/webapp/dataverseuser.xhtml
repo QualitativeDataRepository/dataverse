@@ -102,7 +102,7 @@
                             <hr/>
                             <div class="table-container">
                                 <ui:repeat value="#{DataverseUserPage.notificationsList}" var="item">
-                                    <div class="notification-item #{item.displayAsRead ? '' : 'bg-warning'}">
+                                    <div class="notification-item #{item.displayAsRead ? '' : 'unread'}">
                                         <div class="notification-item-cell">
                                             <ui:fragment rendered="#{item.theObject == null}">
                                                  <h:outputText value="#{bundle['notification.generic.objectDeleted']}" />
@@ -496,19 +496,19 @@
                                             <span class="bi bi-pencil"/> #{bundle['account.edit']}
                                         </ui:fragment>
                                     </button>
-                                    <ul class="dropdown-menu float-end text-left">
+                                    <ul class="dropdown-menu dropdown-menu-end show">
                                         <ui:fragment rendered="#{DataverseUserPage.passwordEditable or DataverseUserPage.accountDetailsEditable}">
-                                            <li>
+                                            <li class="p-1">
                                                 <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/user">
                                                     <h:outputText value="#{bundle['account.info']}" />
                                                 </h:outputLink>
                                             </li>
-                                            <li>
+                                            <li class="p-1">
                                                     <h:outputLink value="#{settingsWrapper.get(':QDRDrupalSiteURL')}/me/edit">
                                                     <h:outputText value="#{bundle.passwd}" />
                                                     </h:outputLink>
                                             </li>
-                                            <li>
+                                            <li class="p-1">
                                                 <p:commandLink id="removeOrcid" rendered="#{!(of:isInstance('edu.harvard.iq.dataverse.authorization.providers.oauth2.impl.OrcidOAuth2AP', DataverseUserPage.userAuthProvider)) and !empty DataverseUserPage.currentUser.authenticatedOrcid}" 
                                                                actionListener="#{DataverseUserPage.removeOrcid}" update="@form">
                                                     <h:outputText value="#{bundle['user.orcid.remove']}" />

@@ -285,7 +285,7 @@
                             <span class="bi bi-sort-alpha-down"></span> #{bundle['file.results.btn.sort']}
                         </button>
                         <ul class="dropdown-menu float-end text-left">
-                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
+                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml" styleClass="dropdown-item">
                                     <h:outputText styleClass="#{((empty DatasetPage.fileSortField) or DatasetPage.fileSortField == 'name') and (empty DatasetPage.fileSortOrder) ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.nameAZ']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
@@ -295,7 +295,7 @@
                                     <f:param name="tagPresort" value="#{DatasetPage.tagPresort}"/>
                                     <f:param name="folderPresort" value="#{DatasetPage.folderPresort}"/>
                                 </h:outputLink></li>
-                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
+                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml" styleClass="dropdown-item">
                                     <h:outputText styleClass="#{(DatasetPage.fileSortField == 'name' and DatasetPage.fileSortOrder == 'desc') ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.nameZA']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
@@ -307,7 +307,7 @@
                                     <f:param name="tagPresort" value="#{DatasetPage.tagPresort}"/>
                                     <f:param name="folderPresort" value="#{DatasetPage.folderPresort}"/>
                                 </h:outputLink></li>
-                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
+                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml" styleClass="dropdown-item">
                                     <h:outputText styleClass="#{(DatasetPage.fileSortField == 'date' and DatasetPage.fileSortOrder == 'desc') ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.newest']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
@@ -318,7 +318,7 @@
                                     <f:param name="fileSortOrder" value="desc"/>
                                     <f:param name="tagPresort" value="#{DatasetPage.tagPresort}"/>
                                 </h:outputLink></li>
-                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
+                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml" styleClass="dropdown-item">
                                     <h:outputText styleClass="#{(DatasetPage.fileSortField == 'date' and (empty DatasetPage.fileSortOrder)) ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.oldest']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
@@ -328,7 +328,7 @@
                                     <f:param name="fileSortField" value="date"/>
                                     <f:param name="tagPresort" value="#{DatasetPage.tagPresort}"/>
                                 </h:outputLink></li>
-                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
+                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml" styleClass="dropdown-item">
                                     <h:outputText styleClass="#{DatasetPage.fileSortField == 'size' ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.size']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
@@ -338,7 +338,7 @@
                                     <f:param name="fileSortField" value="size"/>
                                     <f:param name="tagPresort" value="#{DatasetPage.tagPresort}"/>
                                 </h:outputLink></li>
-                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml">
+                            <li><h:outputLink rel="nofollow" value="/dataset.xhtml" styleClass="dropdown-item">
                                     <h:outputText styleClass="#{DatasetPage.fileSortField == 'type' ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.type']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
                                     <f:param name="version" value="#{DatasetPage.version}"/>
@@ -464,6 +464,7 @@
                     <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level float-end text-left">
                         <li jsf:rendered="#{DatasetPage.canDownloadFiles()}">
                             <p:commandLink
+                                           styleClass="dropdown-item"
                                            disabled="#{false and DatasetPage.lockedFromDownload}"
                                            update="@form" oncomplete="showPopup(false);"
                                            onclick="if (!testFilesSelected()) return false;" 
@@ -475,6 +476,7 @@
                         </li>
                         <li jsf:rendered="#{DatasetPage.isVersionHasTabular() and DatasetPage.canDownloadFiles()}">
                             <p:commandLink
+                                           styleClass="dropdown-item"
                                            disabled="#{false and DatasetPage.lockedFromDownload}"
                                            update="@form" oncomplete="showPopup(false);"
                                            onclick="if (!testFilesSelected()) return false;" 
@@ -486,6 +488,7 @@
                         </li>
                         <li  jsf:rendered="#{DatasetPage.isVersionHasGlobus()}"> 
                             <p:commandLink
+                                           styleClass="dropdown-item"
                                            disabled="#{false and DatasetPage.lockedFromDownload}"
                                            update="@form" oncomplete="showPopup(true);"
                                            onclick="if (!testFilesSelected()) return false;" 
@@ -607,7 +610,7 @@
                                                         and hasValidTermsOfAccess
                                                         and DatasetPage.isFileDeleted(fileMetadata.dataFile)}">
                     <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}" 
-                       disabled="#{lockedFromEdits ? 'disabled' : ''}"
+                       disabled="#{lockedFromEdits}"
                        title="#{bundle['file.optionsBtn']}" onclick="PF('fileAlreadyDeletedPrevious').show()"
                        tabindex="0">
                         <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span>
@@ -620,10 +623,10 @@
                                                         and !DatasetPage.isFileDeleted(fileMetadata.dataFile)}">
                     <!-- Kebab / Edit / File Options Dropdown -->
                     <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}" 
-                       disabled="#{lockedFromEdits ? 'disabled' : ''}"
+                       disabled="#{lockedFromEdits}"
                        title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                        tabindex="0">
-                        <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}
+                        <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span>
                     </a>
                     <ul class="dropdown-menu multi-level float-end text-left">
                         <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="bi bi-pencil"/></li>

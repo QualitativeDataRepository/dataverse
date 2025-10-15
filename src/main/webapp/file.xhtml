@@ -72,7 +72,7 @@
 
                                         <!-- Restricted File Icon -->
                                         <span class="bi bi-lock-fill text-danger" title="#{bundle['restricted']}" data-bs-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted and !(fileDownloadHelper.canDownloadFile(FilePage.fileMetadata))}" />
-                                        <span class="icon-unlock text-success" title="#{bundle['restrictedaccess']}" data-bs-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted  and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata) }" />
+                                        <span class="bi bi-unlock text-success" title="#{bundle['restrictedaccess']}" data-bs-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted  and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata) }" />
                                         <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
                                         
                                         <!-- DATASET Publication Status -->
@@ -82,7 +82,7 @@
                                         <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="badge bg-success" rendered="#{FilePage.fileMetadata.datasetVersion.inReview}"/>
                                         <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="badge bg-warning" rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"/>
                                         <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="badge bg-danger" rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"/>
-                                        <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabel(FilePage.fileMetadata.datasetVersion.currentCurationStatus)}" styleClass="label curation-status" rendered="#{FilePage.canSeeCurationStatus()}"/>
+                                        <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabel(FilePage.fileMetadata.datasetVersion.currentCurationStatus)}" styleClass="badge curation-status" rendered="#{FilePage.canSeeCurationStatus()}"/>
                                         <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!FilePage.valid}"/>
                                         <!-- DATASET VERSION NUMBER -->
                                         <h:outputText styleClass="badge bg-default" rendered="#{FilePage.fileMetadata.datasetVersion.released and !(FilePage.fileMetadata.datasetVersion.draft or FilePage.fileMetadata.datasetVersion.inReview)}"
@@ -247,7 +247,7 @@
                                                                          and FilePage.hasValidTermsOfAccess
                                                                          and !FilePage.deletedFile}">
                                                     <button type="button" id="editFile" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{FilePage.lockedFromEdits ? 'disabled' : ''}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                                            disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
+                                                            disabled="#{FilePage.lockedFromEdits}">
                                                         #{bundle['file.editBtn']}
                                                     </button>
                                                     <ul class="dropdown-menu float-end text-left">
@@ -456,7 +456,7 @@
                                         <h:commandLink rendered="#{(!FilePage.guestbookAndTermsPopupRequired) or FilePage.termsMet}"
                                                          type="submit"
                                                          styleClass="btn btn-secondary #{(FilePage.fileMetadata.dataFile.ingestInProgress) ? 'disabled' : ''}"
-                                                         disabled="#{(FilePage.fileMetadata.dataFile.ingestInProgress or lockedFromDownload) ? 'disabled' : ''}"
+                                                         disabled="#{(FilePage.fileMetadata.dataFile.ingestInProgress or lockedFromDownload)}"
                                                          action="#{FilePage.fileDownloadService.explore(FilePage.guestbookResponse, FilePage.fileMetadata, FilePage.selectedTool)}">
                                             <span class="bi bi-#{FilePage.selectedTool.exploreTool ? 'bar-chart-fill' : 'box-arrow-up-right'}"></span>
                                             <h:outputFormat value="#{FilePage.selectedTool.exploreTool ? bundle['file.previewTab.exploreBtn'] : bundle['file.previewTab.openBtn']}">
@@ -467,7 +467,7 @@
                                         <p:commandLink rendered="#{FilePage.guestbookAndTermsPopupRequired and !FilePage.termsMet}"
                                                          action="#{FilePage.guestbookResponseService.modifyDatafileAndFormat(FilePage.guestbookResponse, FilePage.fileMetadata, 'externalTool', FilePage.selectedTool)}"
                                                          styleClass="btn btn-secondary"
-                                                         disabled="#{(FilePage.fileMetadata.dataFile.ingestInProgress or lockedFromDownload) ? 'disabled' : ''}"
+                                                         disabled="#{(FilePage.fileMetadata.dataFile.ingestInProgress or lockedFromDownload)}"
                                                          type="submit"
                                                          process="@this"
                                                          update="@widgetVar(guestbookAndTermsPopup)"
@@ -498,14 +498,14 @@
                                                   rendered="#{!widgetWrapper.widgetView and (dataverseSession.user.authenticated
                                                      and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                      and !FilePage.deletedFile)}"
-                                                  disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
+                                                  disabled="#{FilePage.lockedFromEdits}">
                                         <span class="bi bi-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
                                     </h:outputLink>
                                     <div class="btn-group" jsf:rendered="#{!widgetWrapper.widgetView and (dataverseSession.user.authenticated
                                                          and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                          and (FilePage.deletedFile))}">
                                         <button class="btn btn-secondary btn-access #{FilePage.lockedFromEdits ? 'disabled' : ''}" onclick="PF('fileAlreadyDeletedPrevious').show()" type="button"
-                                                disabled="#{FilePage.lockedFromEdits ? 'disabled' : ''}">
+                                                disabled="#{FilePage.lockedFromEdits}">
                                             <span class="bi bi-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
                                         </button>
                                     </div>

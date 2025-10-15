@@ -173,7 +173,7 @@
                                             <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="badge bg-danger" rendered="#{deaccessioned}"/>
                                             <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!valid}"/>
                                             <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
-                                            <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabel(version.currentCurationStatus)}" styleClass="label curation-status" rendered="#{canSeeCurationStatus}"/>
+                                            <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabel(version.currentCurationStatus)}" styleClass="badge curation-status" rendered="#{canSeeCurationStatus}"/>
                                             <!-- DATASET VERSION NUMBER -->
                                             <h:outputText styleClass="badge bg-default" rendered="#{version.released and !(version.draft or version.inReview or deaccessioned)}"
                                                           value="#{bundle['file.DatasetVersion']} #{version.versionNumber}.#{version.minorVersionNumber}"/>
@@ -408,7 +408,7 @@
                                                                                                     and canUpdateDataset}">
                                             <div class="btn-group w-100">
                                                 <button type="button" id="editDataSet" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{DatasetPage.lockedFromEdits ? 'disabled' : ''}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                                        disabled="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
+                                                        disabled="#{DatasetPage.lockedFromEdits}">
                                                     #{bundle['dataset.editBtn']}
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end text-start">
@@ -441,18 +441,18 @@
                                                         </p:commandLink>
                                                     </li>
                                                     <ui:fragment rendered="#{permissionsWrapper.canManagePermissions(DatasetPage.dataset) || permissionsWrapper.canManageFilesOnDataset(DatasetPage.dataset)}">
-                                                            <li class="#{DatasetPage.hasPublicStore ? '' : 'dropdown-item dropdown-submenu'}">
+                                                            <li class="#{DatasetPage.hasPublicStore ? '' : 'dropdown-item dropdown-submenu float-start'}">
                                                                 <ui:fragment rendered="#{!DatasetPage.hasPublicStore}">
                                                                 <a tabindex="0">#{bundle['dataset.editBtn.itemLabel.permissions']}</a>
                                                                 <ul class="dropdown-menu">
                                                                     <li jsf:rendered="#{permissionsWrapper.canManagePermissions(DatasetPage.dataset)}">
-                                                                        <h:link id="manageDatasetPermissions" styleClass="ui-commandlink ui-widget" outcome="permissions-manage">
+                                                                        <h:link id="manageDatasetPermissions" styleClass="ui-commandlink ui-widget dropdown-item" outcome="permissions-manage">
                                                                             <h:outputText value="#{bundle['dataset']}" />
                                                                             <f:param name="id" value="#{DatasetPage.dataset.id}" />
                                                                         </h:link>
                                                                     </li>
                                                                     <li jsf:rendered="#{permissionsWrapper.canManageFilesOnDataset(DatasetPage.dataset)}">
-                                                                        <h:link id="manageFilePermissions" styleClass="ui-commandlink ui-widget" outcome="permissions-manage-files">
+                                                                        <h:link id="manageFilePermissions" styleClass="ui-commandlink ui-widget dropdown-item" outcome="permissions-manage-files">
                                                                             <h:outputText value="#{bundle['file']}" />
                                                                             <f:param name="id" value="#{DatasetPage.dataset.id}" />
                                                                         </h:link>
@@ -488,7 +488,7 @@
                                                             </ui:repeat>
                                                         </ui:fragment>
                                                     <ui:fragment rendered="#{!DatasetPage.dataset.released and DatasetPage.dataset.latestVersion.versionState=='DRAFT' and permissionsWrapper.canIssueDeleteDatasetCommand(DatasetPage.dataset)}">
-                                                        <li><hr class="dropdown-divider"/></li>
+                                                        <li role="separator" class="divider"></li>
                                                         <li>
                                                             <p:commandLink styleClass="dropdown-item" id="deleteDataset" onclick="PF('deleteConfirmation').show()">
                                                                 <h:outputText value="#{bundle['dataset.editBtn.itemLabel.deleteDataset']}" />
@@ -496,7 +496,7 @@
                                                         </li>
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{DatasetPage.dataset.released and DatasetPage.dataset.latestVersion.versionState=='DRAFT' and permissionsWrapper.canIssueDeleteDatasetCommand(DatasetPage.dataset)}">
-                                                        <li><hr class="dropdown-divider"/></li>
+                                                        <li role="separator" class="divider"></li>
                                                         <li>
                                                             <p:commandLink styleClass="dropdown-item" id="deleteVersion" onclick="PF('deleteVersionConfirmation').show()">
                                                                 <h:outputText value="#{bundle['dataset.editBtn.itemLabel.deleteDraft']}" />
@@ -504,7 +504,7 @@
                                                         </li>
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{DatasetPage.dataset.released and DatasetPage.existReleasedVersion and canIssuePublishDatasetCommand}">
-                                                        <li><hr class="dropdown-divider"/></li>
+                                                        <li role="separator" class="divider"></li>
                                                         <li>
                                                             <p:commandLink styleClass="dropdown-item" id="deaccessionDatasetLink" 
                                                                            action="#{DatasetPage.clickDeaccessionDataset}"
@@ -526,7 +526,7 @@
                                                 </button>
                                                 <ul class="dropdown-menu multi-level dropdown-menu-end text-start">
                                                     <ui:fragment rendered="#{(not empty DatasetPage.allowedCurationStatuses) and DatasetPage.canPublishDataset() and version.draft}">
-                                                    <li class="dropdown-item dropdown-submenu">
+                                                    <li class="dropdown-item dropdown-submenu  float-start">
                                                         <a class="dropdown-item" tabindex="0" href="#" data-bs-toggle="dropdown">#{bundle['dataset.changestatus']}</a>
                                                         <ul class="dropdown-menu dropdown-menu-end">
                                                             <ui:repeat value="#{DatasetPage.allowedCurationStatuses}" var="status">
@@ -537,7 +537,7 @@
                                                                     </p:commandLink>
                                                                 </li>
                                                             </ui:repeat>
-                                                            <li><hr class="dropdown-divider"/></li>
+                                                            <li role="separator" class="divider"></li>
                                                             <li>
                                                                 <p:commandLink  styleClass="dropdown-item" action="#{DatasetPage.setCurationStatus(null)}" update=":datasetForm:topDatasetBlockFragment,:messagePanel">
                                                                     #{bundle['dataset.removestatus']}

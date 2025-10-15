@@ -419,50 +419,87 @@ function handle_dropdown_popup_scroll(){
     });
 }
 
+
 function enableSubMenus() {
-    $('.dropdown-submenu>a').off('keydown').keydown(toggleSubMenu);
-    $('.dropdown-submenu>.dropdown-menu>li:last-of-type>a').off('keydown').keydown(closeOnTab);
-    $('.dropdown-submenu>.dropdown-menu>li:first-of-type>a').off('keydown').keydown(closeOnShiftTab);
+    // Remove previous event handlers
+    $('.dropdown-submenu>a').off('keydown click');
+    $('.dropdown-submenu>.dropdown-menu>li:last-of-type>a').off('keydown');
+    $('.dropdown-submenu>.dropdown-menu>li:first-of-type>a').off('keydown');
+    
+    // Add keyboard navigation
+    $('.dropdown-submenu>a').on('keydown', toggleSubMenu);
+    $('.dropdown-submenu>.dropdown-menu>li:last-of-type>a').on('keydown', closeOnTab);
+    $('.dropdown-submenu>.dropdown-menu>li:first-of-type>a').on('keydown', closeOnShiftTab);
+    
+    // Prevent default action for dropdown submenu links to allow them to act as toggles
+    $('.dropdown-submenu>a').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Close all other open submenus at the same level
+        $(this).parent().siblings('.dropdown-submenu').removeClass('show').find('.dropdown-menu').removeClass('show');
+        
+        // Toggle this submenu
+        $(this).parent().toggleClass('show');
+        $(this).next('.dropdown-menu').toggleClass('show');
+        
+        return false;
+    });
+    
     addMenuDelays();
 }
 
 function toggleSubMenu(event) {
-if ( event.key == ' ' || event.key == 'Enter' ) {
-      event.target.parentElement.classList.toggle('open');
+    if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        
+        // Close all other open submenus at the same level
+        $(this).parent().siblings('.dropdown-submenu').removeClass('show').find('.dropdown-menu').removeClass('show');
+        
+        // Toggle this submenu
+        $(this).parent().toggleClass('show');
+        $(this).next('.dropdown-menu').toggleClass('show');
     }
 }
 
 function closeOnTab(event) {
-        console.log(event.key);
-        if ( event.key == 'Tab') {
-        $(this).parent().parent().parent().removeClass('open');
-        }
+    if (event.key === 'Tab' && !event.shiftKey) {
+        $(this).closest('.dropdown-submenu').removeClass('show')
+            .find('.dropdown-menu').removeClass('show');
+    }
 }
 
 function closeOnShiftTab(event) {
-        console.log(event.key);
-        if ( event.key == 'Tab' && event.shiftKey) {
-        $(this).parent().parent().parent().removeClass('open');
-        }
+    if (event.key === 'Tab' && event.shiftKey) {
+        $(this).closest('.dropdown-submenu').removeClass('show')
+            .find('.dropdown-menu').removeClass('show');
+    }
 }
 
 function addMenuDelays() {
-    $('.dropdown-submenu>a').each(function() {
-        var obj =$( this ).parent();
-        //First time - add open class upon mouseover
-        $(this).off('mouseover').mouseover(function() {
-            obj.addClass('open');
-        });
+    $('.dropdown-submenu').each(function() {
+        var $submenu = $(this);
         var closeMenuTimer;
-        //And add a mouseout function that will 
-        // a) remove that class after a delay, and 
-        // b) update the mouseover to remove the timer if it hasn't run yet (and re-add the open class if it has)
-        $(this).off('mouseout').mouseout(function() {
-            closeMenuTimer = setTimeout(function() {obj.removeClass('open');}, 1000);
-            $(this).off('mouseover').mouseover(function() {
-                obj.addClass('open');
-                clearTimeout(closeMenuTimer);
-            });
+        
+        // Add hover behavior
+        $submenu.on('mouseenter', function() {
+            clearTimeout(closeMenuTimer);
+            
+            // Close other submenus at the same level
+            $(this).siblings('.dropdown-submenu').removeClass('show')
+                .find('.dropdown-menu').removeClass('show');
+                
+            // Open this submenu
+            $(this).addClass('show');
+            $(this).find('> .dropdown-menu').addClass('show');
+        });
+        
+        $submenu.on('mouseleave', function() {
+            var $this = $(this);
+            closeMenuTimer = setTimeout(function() {
+                $this.removeClass('show');
+                $this.find('.dropdown-menu').removeClass('show');
+            }, 1000);
         });
     });
 }

@@ -34,8 +34,8 @@
 
     <!-- Edit Options -->
     <li>
-        <p:commandLink onclick="if (!(#{fileMetadata!=null} || testFilesSelected()))
-                    return false;"                        
+        <p:commandLink styleClass="dropdown-item"
+                       onclick="if (!(#{fileMetadata!=null} || testFilesSelected())) return false;"
                        oncomplete="if(#{fileMetadata!=null}) window.location.assign('/editdatafiles.xhtml?selectedFileIds=#{fileMetadata.dataFile.id}&#38;datasetId=#{fileMetadata.datasetVersion.dataset.id}#{isFilePg?'&#38;referrer=FILE':''}&#38;version=#{fileMetadata.datasetVersion.version}')"
                        action="#{bean.editFileMetadata()}">
             <h:outputText value="#{bundle['file.metadata']}"/>
@@ -45,8 +45,9 @@
     <ui:fragment rendered="#{!bean.hasPublicStore}">
         <ui:fragment rendered="#{fileMetadata == null or !fileMetadata.restricted}">
             <li>
-                <p:commandLink  onclick="if (!(#{fileMetadata!=null} || testFilesSelected()))
-                                            return false;" 
+                <p:commandLink  styleClass="dropdown-item"
+                                onclick="if (!(#{fileMetadata!=null} || testFilesSelected()))
+                                            return false;"
                                 update="@([id$=accessPopup])"            
                                 oncomplete="PF('accessPopup').show();">
                     <f:setPropertyActionListener target="#{fileMetadataForAction}" value="#{fileMetadata}" />
@@ -58,7 +59,8 @@
         </ui:fragment>
         <ui:fragment rendered="#{fileMetadata == null or fileMetadata.restricted}">
             <li>
-                <p:commandLink  
+                <p:commandLink 
+                    styleClass="dropdown-item"
                     onclick="if (!(#{fileMetadata!=null} || testFilesSelected()))
                                 return false;" 
                     action="#{bean[unrestrictFileAction](false)}">
@@ -72,7 +74,7 @@
     <!-- Replace is only available for single file actions-->
     <ui:fragment rendered="#{fileMetadata!=null}">                                   
         <li>
-            <h:outputLink value="/editdatafiles.xhtml?mode=REPLACE#{isFilePg?'&#38;referrer=FILE':''}&#38;datasetId=#{fileMetadata.datasetVersion.dataset.id}&#38;fid=#{fileMetadata.dataFile.id}&#38;version=#{fileMetadata.datasetVersion.version}">
+            <h:outputLink styleClass="dropdown-item" value="/editdatafiles.xhtml?mode=REPLACE#{isFilePg?'&#38;referrer=FILE':''}&#38;datasetId=#{fileMetadata.datasetVersion.dataset.id}&#38;fid=#{fileMetadata.dataFile.id}&#38;version=#{fileMetadata.datasetVersion.version}">
                 <h:outputText value="#{bundle['file.replace']}"/>
             </h:outputLink>
         </li>
@@ -81,14 +83,14 @@
     <!-- Single file uningest/reingest -->
     <ui:fragment rendered="#{isFilePg and (dataverseSession.user.superuser and FilePage.fileMetadata.dataFile.isTabularData()) or (FilePage.fileMetadata.dataFile.isIngestProblem() and FilePage.canPublishDataset())}">
         <li>
-            <p:commandLink update="@form,:messagePanel,:fileForm:fileTitleFragment, :fileForm:topDatasetBlockFragment" action="#{FilePage.uningestFile()}">
+            <p:commandLink styleClass="dropdown-item" update="@form,:messagePanel,:fileForm:fileTitleFragment, :fileForm:topDatasetBlockFragment" action="#{FilePage.uningestFile()}">
                 <h:outputText value="#{bundle['file.uningest']}"/>
             </p:commandLink>
         </li>
     </ui:fragment>
     <ui:fragment rendered="#{isFilePg and dataverseSession.user.superuser and FilePage.isIngestable()}">
         <li>
-            <p:commandLink update="@form,:messagePanel" actionListener="#{FilePage.ingestFile()}">
+            <p:commandLink styleClass="dropdown-item" update="@form,:messagePanel" actionListener="#{FilePage.ingestFile()}">
                 <h:outputText value="#{bundle['file.ingest']}"/>
             </p:commandLink>
         </li>
@@ -97,10 +99,11 @@
     <!-- TO-DO #3488 - ADD FILE TAGS FOR FILE PG AND SINGLE FILE-->    
     <ui:fragment rendered="#{fileMetadata==null}">    
         <li>
-            <p:commandLink      update="@([id$=fileTagsPopup])" 
-                                onclick="if (!testTermsOfAccess() || !(#{fileMetadata!=null} || testFilesSelected()))
-                                            return false;"                                 
-                                action="#{bean[refreshTagsPopoupAction]()}">            
+            <p:commandLink styleClass="dropdown-item"
+                           update="@([id$=fileTagsPopup])" 
+                           onclick="if (!testTermsOfAccess() || !(#{fileMetadata!=null} || testFilesSelected()))
+                                            return false;"
+                                action="#{bean[refreshTagsPopoupAction]()}">
                 <h:outputText value="#{bundle['file.tags']}"/>
             </p:commandLink>    
         </li>  
@@ -108,10 +111,11 @@
     
     <ui:fragment rendered="#{settingsWrapper.embargoAllowed}">
         <li>
-            <p:commandLink      update="@([id$=fileEmbargoPopup])" 
-                                onclick="if (!(#{fileMetadata!=null} || testFilesSelected()))
+            <p:commandLink styleClass="dropdown-item"
+                           update="@([id$=fileEmbargoPopup])" 
+                           onclick="if (!(#{fileMetadata!=null} || testFilesSelected()))
                                             return false;" 
-                                oncomplete="PF('fileEmbargoPopup').show();">
+                           oncomplete="PF('fileEmbargoPopup').show();">
                                 <f:setPropertyActionListener target="#{fileMetadataForAction}" value="#{fileMetadata}" />
                 <h:outputText value="#{bundle['file.embargo']}"/>
             </p:commandLink> 
@@ -120,10 +124,11 @@
 
     <ui:fragment rendered="#{settingsWrapper.retentionAllowed}">
         <li>
-            <p:commandLink      update="@([id$=fileRetentionPopup])"
-                                onclick="if (!(#{fileMetadata!=null} || testFilesSelected()))
+            <p:commandLink styleClass="dropdown-item"
+                           update="@([id$=fileRetentionPopup])"
+                           onclick="if (!(#{fileMetadata!=null} || testFilesSelected()))
                                             return false;"
-                                oncomplete="PF('fileRetentionPopup').show();">
+                           oncomplete="PF('fileRetentionPopup').show();">
                 <f:setPropertyActionListener target="#{fileMetadataForAction}" value="#{fileMetadata}" />
                 <h:outputText value="#{bundle['file.retention']}"/>
             </p:commandLink>
@@ -134,6 +139,7 @@
     <ui:fragment rendered="#{isFilePg and systemConfig.provCollectionEnabled}">
         <li>
             <p:commandLink
+                styleClass="dropdown-item"
                 update="@([id$=editProvenancePopup])"
                 oncomplete="PF('editProvenancePopup').show();">
                 <f:actionListener binding="#{provPopupFragmentBean.updatePopupState(fileMetadata, true)}" /> <!--clearProvenanceUpdates() -->
@@ -143,7 +149,9 @@
     </ui:fragment>     
 
     <li>
-        <p:commandLink title="#{bundle['file.delete']}" update="@([id$=deleteFileConfirm])" 
+        <p:commandLink styleClass="dropdown-item" 
+                       title="#{bundle['file.delete']}" 
+                       update="@([id$=deleteFileConfirm])" 
                        onclick="if (!(#{fileMetadata!=null} || testFilesSelected()))
                                    return false;" 
                        oncomplete="PF('deleteFileConfirmation').show();">

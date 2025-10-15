@@ -591,7 +591,7 @@
                             <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="badge bg-danger" rendered="#{result.deaccessionedState}"/>
                             <h:outputText value="#{bundle['embargoed']}" styleClass="badge bg-primary" rendered="#{SearchIncludeFragment.isActivelyEmbargoed(result)}"/>
                             <h:outputText value="#{bundle['retentionExpired']}" styleClass="badge bg-warning" rendered="#{SearchIncludeFragment.isRetentionExpired(result)}"/>
-                            <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabelFromString(result.curationStatus)}" styleClass="label curation-status" rendered="#{result.draftState and SearchIncludeFragment.canSeeCurationStatus(result.entityId)}"/>
+                            <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabelFromString(result.curationStatus)}" styleClass="badge curation-status" rendered="#{result.draftState and SearchIncludeFragment.canSeeCurationStatus(result.entityId)}"/>
                             <h:outputText value="#{result.userRole}" styleClass="badge bg-primary" rendered="#{!empty result.userRole}"/>
                             <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!result.harvested and !SearchIncludeFragment.isValid(result)}"/>
                         </div>
@@ -661,7 +661,7 @@
                             <span class="icon-file text-muted float-end" title="#{bundle.file}"/>
 
                             <span class="text-danger bi bi-lock-fill" data-bs-toggle="tooltip" title="#{bundle.restricted}" jsf:rendered="#{result.entity.restricted and !permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
-                            <span class="text-success icon-unlock" data-bs-toggle="tooltip" title="#{bundle.restrictedaccess}" jsf:rendered="#{result.entity.restricted and permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
+                            <span class="text-success bi bi-unlock" data-bs-toggle="tooltip" title="#{bundle.restrictedaccess}" jsf:rendered="#{result.entity.restricted and permissionsWrapper.hasDownloadFilePermission(result.entity)}"/>
                             <a rel="nofollow" href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? (result.harvested ? result.fileDatasetUrl : result.fileUrl) : widgetWrapper.wrapURL(result.harvested ? result.fileDatasetUrl : result.fileUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}">
                                 <h:outputText value="#{result.name}" style="padding:4px 0;" rendered="#{result.nameHighlightSnippet == null}"/>
                                 <h:outputText value="#{result.nameHighlightSnippet}" style="padding:4px 0;" rendered="#{result.nameHighlightSnippet != null}" escape="false"/>

@@ -11,7 +11,7 @@ body {
 }
 body.widget-view {margin-bottom:44px;}
 body .ui-widget {font-size: inherit;}
-body .ui-widget .ui-widget-content:not(.ui-picklist-list, .ui-dialog, .ui-panel-content, .ui-selectcheckboxmenu-items, .ui-dialog-content, .ui-fileupload-content, .ui-progressbar, .ui-tabs, .ui-tabs-panel, .ui-datatable-data, .ui-datatable-even, .ui-datatable-odd, .ui-tree, .ui-selectonemenu-items) :not(.ui-dialog-titlebar, .ui-dialog-content, .dropdown-menu, .badge-default, .ui-selectonemenu-item){background: none;}
+body .ui-widget .ui-widget-content:not(.ui-picklist-list, .ui-dialog, .ui-panel-content, .ui-selectcheckboxmenu-items, .ui-dialog-content, .ui-fileupload-content, .ui-progressbar, .ui-tabs, .ui-tabs-panel, .ui-datatable-data, .ui-datatable-even, .ui-datatable-odd, .ui-tree, .ui-selectonemenu-items) :not(.ui-dialog-titlebar, .ui-dialog-content, .dropdown-menu, .bg-default, .ui-selectonemenu-item){background: none;}
 .ui-widget-content a {color: #0039f5;}
 .ui-datalist-item .ui-widget-content td > a { font-size: 18px !important;}
 .ui-widget-content a:hover, .ui-widget-content a:focus {color: #337ab7;}
@@ -45,7 +45,7 @@ body .ui-widget .ui-widget-content:not(.ui-picklist-list, .ui-dialog, .ui-panel-
 #navbarFixed .dropdown-menu.navbar-language .disabled a.language-menu-link:focus {text-decoration: none; cursor: not-allowed; background-color: transparent; background-image: none; filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);}
 #navbarFixed #navbar-search-toggle, #navbarFixed #dataverseSupportLink, #navbarFixed #lnk_header_account_dropdown {cursor: pointer; cursor: hand;}
 #navbarFixed .dropdown.accountName #lnk_header_account_dropdown span.bi {margin-right:8px;}
-#navbarFixed .dropdown.accountName .badge.badge-danger {margin-left:.5em; line-height:normal; vertical-align:text-top;}
+#navbarFixed .dropdown.accountName .badge.bg-danger {margin-left:.5em; line-height:normal; vertical-align:text-top;}
 #navbarFixed .dropdown.accountName .logout form {margin:0; padding:0; width:100%;}
 #navbarFixed .dropdown.accountName .logout a {clear: both; color: #333333; display: block; font-weight: normal; line-height: 1.42857; padding: 3px 20px; white-space: nowrap; text-decoration: none;}
 #navbarFixed li.dropdown.open > span.dropdown-toggle {background-color: #e7e7e7;}
@@ -252,7 +252,7 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
 }
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:hover,
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:focus {text-decoration: none;} 
-#dataverseHeader .dataverseHeaderName span.badge.badge-unpublished {vertical-align:text-top; line-height: normal; margin-left:1em;}
+#dataverseHeader .dataverseHeaderName span.badge.bg-unpublished {vertical-align:text-top; line-height: normal; margin-left:1em;}
 #dataverseHeader .dataverseHeaderTagline {padding-left:2em; font-size:1.3em;}
 #dataverseHeader .dataverseHeaderLink {padding-left:2em;}
 /*QDR*/
@@ -364,6 +364,7 @@ ul.IdPSelectDropDown > li.disabled:hover, ul.IdPSelectDropDown > li.disabled:foc
 .well.terms-agreement-block h4, .well.terms-agreement-block h5, .well.terms-agreement-block h6 {margin-top:0;}
 div[id$='notifications'].ui-tabs-panel div.table-container {display:table;}
 div[id$='notifications'].ui-tabs-panel div.notification-item {display:table-row;}
+div[id$='notifications'].ui-tabs-panel div.notification-item.unread {background-color: #fcf8e3;}
 div[id$='notifications'].ui-tabs-panel div.notification-item-cell {display:table-cell; border-bottom:1px solid #DDDDDD; padding:5px;}
 div[id$='notifications'].ui-tabs-panel span.text-muted.small {margin-left:1em;}
 
@@ -1040,8 +1041,8 @@ thead.ui-datatable-scrollable-theadclone {display:none}
 }
 #file-title-block span.file-title-label {font-size:36px !important;line-height:1.1;font-weight:bold;margin-right:.5em;}
 #file-title-block span.badge {vertical-align: text-top;}
-#file-title-block span.badge, #file-title-block span.bi-lock-fill, #file-title-block span.icon-unlock {margin-right:.5em;}
-#file-title-block span.bi-lock-fill, #file-title-block span.icon-unlock {top:1px;}
+#file-title-block span.badge, #file-title-block span.bi-lock-fill, #file-title-block span.bi-unlock {margin-right:.5em;}
+#file-title-block span.bi-lock-fill, #file-title-block span.bi-unlock {top:1px;}
 #file-title-block span.ingest-warning {vertical-align:text-bottom;font-size:30px;}
 #fileCategoriesBlock span.badge {margin-right: 0.5em;}
 #file-tags .badge {
@@ -1404,7 +1405,7 @@ body .ui-widget button {
   font-family: inherit;
 }
 
-span.badge-primary { background-color: #0039f5; }
+span.bg-primary { background-color: #0039f5; }
 
 /* Pagination Icon URLs and Styles*/
 
@@ -1580,7 +1581,7 @@ a {
   color: #0039f5;
 }
 
-.badge-warning a, .bg-citation a, .terms .form-text a, #panelCollapseTOU .form-text a,  #dataset-summary-metadata a, .alert a {
+.bg-warning a, .bg-citation a, .terms .form-text a, #panelCollapseTOU .form-text a,  #dataset-summary-metadata a, .alert a {
   text-decoration: underline;
 }
 
@@ -1588,11 +1589,11 @@ a {
     color:#767676;
 }
 
-span.badge-success { background-color: #388038 }
-span.badge-warning { background-color: #A4660E }
-span.badge-info { background-color: #20809D }
-span.badge-default { background-color: #757575 }
-span.badge-danger { background-color: #D3413C }
+span.bg-success { background-color: #388038 }
+span.bg-warning { background-color: #A4660E }
+span.bg-info { background-color: #20809D }
+span.bg-default { background-color: #757575 }
+span.bg-danger { background-color: #D3413C }
 
 .btn.btn-link {color: #3174AF;}
 .dropdown-header {color:#666;}
@@ -1685,4 +1686,28 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
 /*Align menu items*/
 .citation-download .btn {
     margin-left: 8px;
+}
+
+ /* Ensure dropdown menus have sufficient width */
+.dropdown-menu {
+    min-width: max-content;
+    width: auto;
+}
+.dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
+    background-image: -webkit-linear-gradient(top, #f5f5f5 0, #e8e8e8 100%);
+    background-image: -o-linear-gradient(top,#f5f5f5 0,#e8e8e8 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#f5f5f5), to(#e8e8e8));
+    background-image: linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5', endColorstr='#ffe8e8e8', GradientType=0);
+    background-repeat: repeat-x;
+    background-color: #e8e8e8;
+}
+.dropdown-menu>li>a {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
 }

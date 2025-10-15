@@ -434,7 +434,7 @@
                                             </ui:fragment>
                                             <!-- Restricted File Icon -->
                                             <div class="file-icon-restricted-block" jsf:rendered="#{fileMetadata.restricted}">
-                                                <span class="icon-unlock text-success"/>
+                                                <span class="bi bi-unlock text-success"/>
                                             </div>
                                             <!-- Dataset Thumbnail -->
                                             <span id="datasetThumbnail" class="bg-info text-info text-center small show"
@@ -553,7 +553,7 @@
                                 
                                 <div style="margin-right:14px;" class="btn-group">
                                     <button class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle" title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                            disabled="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
+                                            disabled="#{DatasetPage.lockedFromEdits}">
                                         <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span>
                                     </button>
                                     <ul class="dropdown-menu multi-level float-end text-left">

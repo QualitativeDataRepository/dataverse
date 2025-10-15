@@ -336,9 +336,9 @@
                                             <div class="checkbox">
                                                 <label for="#{mdb.idString}">
                                                     <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}" jsf:value="#{mdb.selected}"
-                                                           name="mdbSelectRequired" disabled="disabled" checked="checked" jsf:rendered="#{mdb.required and !DataversePage.inheritMetadataBlockFromParent}" />
+                                                           name="mdbSelectRequired" disabled="true" checked="checked" jsf:rendered="#{mdb.required and !DataversePage.inheritMetadataBlockFromParent}" />
                                                     <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}" jsf:value="#{mdb.selected}"
-                                                           name="mdbSelectRequiredInherited" disabled="disabled" jsf:rendered="#{DataversePage.inheritMetadataBlockFromParent}">
+                                                           name="mdbSelectRequiredInherited" disabled="true" jsf:rendered="#{DataversePage.inheritMetadataBlockFromParent}">
                                                         <p:ajax update="@widgetVar(optionBlock)" />
                                                     </input>
                                                     <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}" jsf:value="#{mdb.selected}"
