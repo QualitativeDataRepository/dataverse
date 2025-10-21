@@ -1060,6 +1060,22 @@ public class DatasetServiceBean implements java.io.Serializable {
         return total;
     }
 
+    
+    public boolean isFilepathLengthExceeded(DatasetVersion version, int length) {
+        if (version == null || version.getId() == null) {
+            return false;
+        }
+        // Using a native query because building the path with CASE and concatenation
+        // is complex in JPQL and less portable across databases than this.
+        // The query checks if any file path (directoryLabel + / + label) exceeds <length> characters.
+        String qstr = "SELECT EXISTS (SELECT 1 FROM filemetadata WHERE datasetversion_id = ?1 AND " +
+                "LENGTH(CASE WHEN directorylabel IS NOT NULL AND directorylabel != '' THEN directorylabel || '/' || label ELSE label END) > ?2)";
+        Query query = em.createNativeQuery(qstr);
+        query.setParameter(1, version.getId());
+        query.setParameter(2, length);
+        return (Boolean) query.getSingleResult();
+    }
+    
     /**
      * An optimized method for deleting a harvested dataset.
      *
