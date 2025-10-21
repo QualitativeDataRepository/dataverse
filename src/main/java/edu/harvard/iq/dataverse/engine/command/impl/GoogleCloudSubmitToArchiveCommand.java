@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -17,6 +18,7 @@ import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.workflow.step.Failure;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult;
 import org.apache.commons.codec.binary.Hex;
+import org.threeten.bp.Duration;
 
 import jakarta.json.Json;
 import jakarta.json.JsonObjectBuilder;
@@ -38,6 +40,9 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
     private static final String GOOGLECLOUD_BUCKET = ":GoogleCloudBucket";
     private static final String GOOGLECLOUD_PROJECT = ":GoogleCloudProject";
 
+ // Set timeouts in milliseconds. For example, 5 minutes.
+    private static final int timeout = 300_000;
+    
     public GoogleCloudSubmitToArchiveCommand(DataverseRequest aRequest, DatasetVersion version) {
         super(aRequest, version);
     }
@@ -56,11 +61,14 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
             statusObject.add(DatasetVersion.ARCHIVAL_STATUS_MESSAGE, "Bag not transferred");
             
             String cloudKeyFile = JvmSettings.FILES_DIRECTORY.lookup() + File.separator + "googlecloudkey.json";
-            
+            RetrySettings retrySettings = RetrySettings.newBuilder()
+                    .setTotalTimeout(Duration.ofMillis(timeout))
+                    .build();
             try (FileInputStream cloudKeyStream = new FileInputStream(cloudKeyFile)) {
                 storage = StorageOptions.newBuilder()
                         .setCredentials(ServiceAccountCredentials.fromStream(cloudKeyStream))
                         .setProjectId(projectName)
+                        .setRetrySettings(retrySettings)
                         .build()
                         .getService();
                 Bucket bucket = storage.get(bucketName);
