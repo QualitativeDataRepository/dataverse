@@ -2206,6 +2206,7 @@ public class DatasetPage implements java.io.Serializable {
 
         displayLockInfo(dataset);
         displayPublishMessage();
+        checkFilepathLength();
         // TODO: replace this loop, and the loop in the method that calculates 
         // the total "originals" size of the dataset with direct custom queries; 
         // then we'll be able to drop the lookup hint for DataTable from the 
@@ -2260,6 +2261,21 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
+    private void checkFilepathLength() {
+        if (datasetService.isFilepathLengthExceeded(workingVersion, 250)) {
+            switch (workingVersion.getVersionState()) {
+                case DRAFT:
+                    JsfHelper.addWarningMessage(BundleUtil.getStringFromBundle("dataset.message.zipWarningDueToFilePathsDraft"));
+                    break;
+                case RELEASED:
+                    JsfHelper.addWarningMessage(BundleUtil.getStringFromBundle("dataset.message.zipWarningDueToFilePathsPublished"));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    
     private void displayWorkflowComments() {
         List<WorkflowComment> comments = workingVersion.getWorkflowComments();
         for (WorkflowComment wfc : comments) {
