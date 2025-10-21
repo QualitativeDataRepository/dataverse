@@ -18,6 +18,8 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.bagit.BagGenerator;
 import edu.harvard.iq.dataverse.util.bagit.OREMap;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
@@ -43,6 +45,7 @@ public abstract class AbstractSubmitToArchiveCommand extends AbstractCommand<Dat
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public DatasetVersion execute(CommandContext ctxt) throws CommandException {
 
         String settings = ctxt.settings().getValueForKey(SettingsServiceBean.Key.ArchiverSettings);
