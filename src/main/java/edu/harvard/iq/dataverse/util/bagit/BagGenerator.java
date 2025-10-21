@@ -121,7 +121,7 @@ public class BagGenerator {
 
     private boolean usetemp = false;
 
-    private int numConnections = 8;
+    private static int numConnections = 2;
     public static final String BAG_GENERATOR_THREADS = ":BagGeneratorThreads";
 
     private OREMap oremap;
@@ -1067,29 +1067,23 @@ public class BagGenerator {
 
                                 logger.warning("Attempt: " + tries + " - Unexpected Status when retrieving " + uriString
                                         + " : " + statusCode);
+                                tries++;
+                                try {
+                                    // Calculate exponential backoff: 2^tries * baseWaitTimeMs (1 sec)
+                                    long waitTime = (long) (Math.pow(2, tries) * baseWaitTimeMs);
 
-                                if (statusCode != 429 && statusCode < 500) {
-                                    logger.fine("Will not retry for 40x errors");
+                                    // Add jitter: random value between 0-30% of the wait time
+                                    long jitter = (long) (waitTime * 0.3 * Math.random());
+                                    waitTime = waitTime + jitter;
+
+                                    // Cap the wait time at maxWaitTimeMs (30 seconds)
+                                    waitTime = Math.min(waitTime, maxWaitTimeMs);
+
+                                    logger.fine("Sleeping for " + waitTime + "ms before retry attempt " + tries);
+                                    Thread.sleep(waitTime);
+                                } catch (InterruptedException ie) {
+                                    logger.warning("Sleep interrupted during retry delay");
                                     tries += 5; // Skip remaining attempts
-                                } else {
-                                    tries++;
-                                    try {
-                                        // Calculate exponential backoff: 2^tries * baseWaitTimeMs (1 sec)
-                                        long waitTime = (long) (Math.pow(2, tries) * baseWaitTimeMs);
-
-                                        // Add jitter: random value between 0-30% of the wait time
-                                        long jitter = (long) (waitTime * 0.3 * Math.random());
-                                        waitTime = waitTime + jitter;
-
-                                        // Cap the wait time at maxWaitTimeMs (30 seconds)
-                                        waitTime = Math.min(waitTime, maxWaitTimeMs);
-
-                                        logger.fine("Sleeping for " + waitTime + "ms before retry attempt " + tries);
-                                        Thread.sleep(waitTime);
-                                    } catch (InterruptedException ie) {
-                                        logger.warning("Sleep interrupted during retry delay");
-                                        tries += 5; // Skip remaining attempts
-                                    }
                                 }
                             }
                         } catch (ClientProtocolException e) {
@@ -1160,9 +1154,9 @@ public class BagGenerator {
         apiKey = tokenString;
     }
 
-    public void setNumConnections(int numConnections) {
-        this.numConnections = numConnections;
-        logger.fine("BagGenerator will use " + numConnections + " threads");
+    public static void setNumConnections(int numConnections) {
+        BagGenerator.numConnections = numConnections;
+        logger.fine("All BagGenerators will use " + numConnections + " threads");
     }
 
 }
