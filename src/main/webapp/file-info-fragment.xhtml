@@ -49,8 +49,7 @@
             <div class="thumbnail-block text-center">
                 <span class="bi bi-#{dataFileServiceBean.getFileThumbnailClass(dataFile)} file-thumbnail-icon text-muted" jsf:rendered="#{!canDownloadFile or !hasThumbnail}"/>
                 <span class="file-thumbnail-preview-img" jsf:rendered="#{showThumbnail}"
-                      data-bs-toggle="popover" data-bs-placement="auto top" data-bs-trigger="hover" data-bs-html="true" data-bs-content="&lt;img src=&#34;/api/access/datafile/#{dataFile.id}?imageThumb=400&#34; alt=&#34;#{bundle['file.preview']} #{fileMetadata.label}&#34; /&gt;"
-                      data-bs-template='&lt;div class="popover thumb-preview" role="tooltip"&gt;&lt;div class="popover-arrow"&gt;&lt;/div&gt;&lt;h3 class="popover-header"&gt;&lt;/h3&gt;&lt;div class="popover-body"&gt;&lt;/div&gt;&lt;/div&gt;'>
+                      data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="hover" data-bs-html="true" data-bs-content="&lt;img src=&#34;/api/access/datafile/#{dataFile.id}?imageThumb=400&#34; alt=&#34;#{bundle['file.preview']} #{fileMetadata.label}&#34; /&gt;">
                     <p:graphicImage value="/api/access/datafile/#{dataFile.id}?imageThumb=true" alt="#{fileMetadata.label}"/>
                 </span>
                 <!-- Restricted File Icon -->

@@ -373,7 +373,7 @@
                                                     #{showPublishLink ? bundle['dataset.publishBtn'] : (latestVersionInReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitBtn'])}
                                                 </h:outputLink>
                                                 <!-- Publish BTN DROPDOWN-MENU OPTIONS -->
-                                                <ul class="dropdown-menu float-end text-left">
+                                                <ul class="dropdown-menu float-end text-start">
                                                         <li jsf:rendered="#{showPublishLink}" class="#{!DatasetPage.hasValidTermsOfAccess or ( DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}">
                                                         <!-- Publish LINK -->
                                                             <p:commandLink styleClass="#{!DatasetPage.hasValidTermsOfAccess or (DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}" 
@@ -1576,7 +1576,7 @@
                         <p:focus for="fileTagsMenuDS"/>
                         <p class="form-text">#{bundle['file.editTagsDialog.tip']}</p>
                         <div jsf:rendered="#{!(empty DatasetPage.selectedFiles)}">
-                            <div class="row mb-3 text-left">
+                            <div class="row mb-3 text-start">
                                 <label for="selectedTagsList" class="col-sm-4 form-label">
                                     #{bundle['file.editTagsDialog.selectedTags']}
                                 </label>
@@ -1593,7 +1593,7 @@
                                     </p:outputPanel>
                                 </div>
                             </div>
-                            <div class="row mb-3 text-left">
+                            <div class="row mb-3 text-start">
                                 <label for="fileTagsMenuDS" class="col-sm-4 form-label">
                                     #{bundle['file.editTagsDialog.select']}
                                 </label>
@@ -1607,7 +1607,7 @@
                                     <p:message for="fileTagsMenuDS" display="text" />
                                 </div>
                             </div>
-                            <div class="row mb-3 text-left">
+                            <div class="row mb-3 text-start">
                                 <label for="fileTagAddNewDS" class="col-sm-4 form-label">
                                     #{bundle['file.editTagsDialog.add']}
                                 </label>
@@ -1627,7 +1627,7 @@
                                     <p:message for="fileTagAddNewDS" display="text" />
                                 </div>
                             </div>
-                            <div class="row mb-3 text-left" jsf:rendered="#{DatasetPage.tabularDataSelected}">
+                            <div class="row mb-3 text-start" jsf:rendered="#{DatasetPage.tabularDataSelected}">
                                 <label for="tabularDataTagsDSPage" class="col-sm-4 form-label">
                                     #{bundle['file.tabularDataTags']}
                                 </label>
@@ -1643,7 +1643,7 @@
                                     <p:message for="tabularDataTagsDSPage" display="text" />
                                 </div>
                             </div>
-                            <div class="row mb-3 text-left">
+                            <div class="row mb-3 text-start">
                                 <label class="col-sm-4 form-label">
                                     #{bundle['dataset.removeUnusedFileTags.label']}
                                 </label>

@@ -18,7 +18,7 @@
             </div>
         </p:fragment>
         <div>
-            <p:outputPanel id="provPopupOutput" class="row mb-3 text-left">
+            <p:outputPanel id="provPopupOutput" class="row mb-3 text-start">
                 <div class="col-sm-12">
                     <p class="form-text">
                         <h:outputFormat value=" #{bundle['file.editProvenanceDialog.tip']}" escape="false">
@@ -112,12 +112,12 @@
                 </div>
             </p:outputPanel>
             
-            <div class="row mb-3 text-left">
+            <div class="row mb-3 text-start">
                 <div class="col-sm-12">
                     <p class="form-text">#{bundle['file.editProvenanceDialog.description.tip']}</p>
                 </div>
             </div>
-            <div class="row mb-3 text-left">
+            <div class="row mb-3 text-start">
                 <label jsf:for="provenanceFreeform" class="col-sm-3 form-label">
                     #{bundle['file.editProvenanceDialog.description']}
                 </label>
@@ -140,7 +140,7 @@
 
     <p:dialog id="confirmProvenancePopup" header="#{bundle['file.confirmProvenanceDialog']}" modal="true" visible="false" styleClass="smallPopUp" widgetVar="confirmProvenancePopup">
         <div>
-            <div class="row mb-3 text-left">
+            <div class="row mb-3 text-start">
                 <div id="ifJsonUp" jsf:rendered="#{provPopupFragmentBean.jsonUpdated}" class="col-sm-12 text-warning">
                     <span class="bi bi-exclamation-triangle-fill"></span> 
                     <h:outputText rendered="#{!provPopupFragmentBean.isDataFilePublishedRendering()}" value=" #{bundle['file.provConfirm.unpublished.json']}"/>
@@ -155,7 +155,7 @@
                     <h:outputText value=" #{bundle['file.provConfirm.empty']}" />
                 </div>
             </div>
-            <div jsf:rendered="#{provPopupFragmentBean.jsonUpdated}" class="row mb-3 text-left">
+            <div jsf:rendered="#{provPopupFragmentBean.jsonUpdated}" class="row mb-3 text-start">
                 <label class="col-sm-3 form-label">
                     #{bundle['file.editProvenanceDialog.bundleFile']}
                 </label>

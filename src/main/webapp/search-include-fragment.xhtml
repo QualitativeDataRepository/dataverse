@@ -62,7 +62,7 @@
                           <div></div>
                           <span>#{bundle['dataverse.results.btn.addData']}</span>
                         </button>
-                        <ul class="dropdown-menu float-end text-left">
+                        <ul class="dropdown-menu float-end text-start">
                             <ui:fragment rendered="#{permissionsWrapper.canIssueCreateDataverseCommand(SearchIncludeFragment.dataverse) }">
                                 <li><a href="/dataverse.xhtml?ownerId=#{SearchIncludeFragment.dataverse.id}">#{bundle['dataverse.results.btn.addData.newDataverse']}</a></li>
                             </ui:fragment>

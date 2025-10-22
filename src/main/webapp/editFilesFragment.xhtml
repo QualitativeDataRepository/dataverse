@@ -404,7 +404,7 @@
                                      ariaRowLabel="#{bundle['file.select.action']} #{fileMetadata.label}">
                             <f:facet name="header">
                                 <div jsf:id="filesHeaderBlock" class="row">
-                                    <div id="filesHeaderCount" class="col-6 text-left">
+                                    <div id="filesHeaderCount" class="col-6 text-start">
                                         <!-- Files Count -->
                                         <h:outputFormat value="#{datasetPage ? bundle['file.count.shown'] : bundle['file.count.shown']}" styleClass="fw-bold" rendered="#{!empty hasFileMetadatas}">
                                             <f:param value="#{fileMetadatas.size()}"/>
@@ -505,7 +505,7 @@
                                         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
                                             <span class="bi bi-pencil"/> #{bundle['file.editFilesSelected']}
                                         </button>
-                                        <ul class="dropdown-menu multi-level float-end text-left">
+                                        <ul class="dropdown-menu multi-level float-end text-start">
                                             <li class="#{DatasetPage.lockedFromEdits ? 'disabled' : ''}">
                                                 <p:commandLink  onclick="if (!testFilesSelected2()) return false;" 
                                                                 oncomplete="PF('deleteFileConfirmation').show();">                                                  
@@ -556,7 +556,7 @@
                                             disabled="#{DatasetPage.lockedFromEdits}">
                                         <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span>
                                     </button>
-                                    <ul class="dropdown-menu multi-level float-end text-left">
+                                    <ul class="dropdown-menu multi-level float-end text-start">
                                         <!-- Edit Options -->
                                         <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="bi bi-pencil"/></li>
                                         <ui:fragment rendered="#{systemConfig.provCollectionEnabled}">
@@ -894,7 +894,7 @@
         <p:focus context="editFileTagsPopup"/>
         <p class="form-text">#{bundle['file.editTagsDialog.tip']}</p>
         <div jsf:rendered="#{!(empty EditDatafilesPage.fileMetadataSelectedForTagsPopup)}">
-            <div class="row mb-3 text-left">
+            <div class="row mb-3 text-start">
                 <label for="selectedTagsListEFF" class="col-sm-4 form-label">
                     #{bundle['file.editTagsDialog.selectedTags']}
                 </label>
@@ -911,7 +911,7 @@
                     </p:outputPanel>
                 </div>
             </div>
-            <div class="row mb-3 text-left">
+            <div class="row mb-3 text-start">
                 <label for="fileTagsMenu" class="col-sm-4 form-label">
                     #{bundle['file.editTagsDialog.select']}
                 </label>
@@ -925,7 +925,7 @@
                     <p:message for="fileTagsMenu" display="text" />
                 </div>
             </div>
-            <div class="row mb-3 text-left">
+            <div class="row mb-3 text-start">
                 <label for="fileTagAddNew" class="col-sm-4 form-label">
                     #{bundle['file.editTagsDialog.add']}
                 </label>
@@ -943,7 +943,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row mb-3 text-left" jsf:rendered="#{EditDatafilesPage.fileMetadataSelectedForTagsPopup.dataFile.tabularData}">
+            <div class="row mb-3 text-start" jsf:rendered="#{EditDatafilesPage.fileMetadataSelectedForTagsPopup.dataFile.tabularData}">
                 <label for="tabularDataTags" class="col-sm-4 form-label">
                     #{bundle['file.tabularDataTags']}
                 </label>
@@ -959,7 +959,7 @@
                     <p:message for="tabularDataTags" display="text" />
                 </div>
             </div>
-            <!-- <div class="row mb-3 text-left"> REMOVED DELETE CHECKBOX FOR NOW
+            <!-- <div class="row mb-3 text-start"> REMOVED DELETE CHECKBOX FOR NOW
                 <label class="col-sm-4 form-label">
                     # {bundle['dataset.removeUnusedFileTags.label']}
                 </label>

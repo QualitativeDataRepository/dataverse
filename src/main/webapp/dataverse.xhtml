@@ -519,7 +519,7 @@
                                                 <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                                     <span class="bi bi-link"/> #{bundle['link']}
                                                 </button>
-                                                <ul class="dropdown-menu float-end text-left">
+                                                <ul class="dropdown-menu float-end text-start">
                                                     <li class="#{DataversePage.dataverse.owner != null ? '' : 'disabled'}">
                                                         <p:commandLink action="#{DataversePage.setupLinkingPopup('link')}"
                                                                        oncomplete="PF('linkDataverseForm').show()"
@@ -544,7 +544,7 @@
                                                 <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown">
                                                     <span class="bi bi-pencil"/> #{bundle['dataverse.edit']}
                                                 </button>
-                                                <ul class="dropdown-menu float-end text-left">
+                                                <ul class="dropdown-menu float-end text-start">
                                                     <li>
                                                         <div id="dataverse-info-dropdown">
                                                             <div class="dataverse-info-logo-icon">

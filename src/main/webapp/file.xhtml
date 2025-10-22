@@ -206,7 +206,7 @@
                                                     <button type="button" class="btn btn-secondary btn-access-file dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         #{((not empty FilePage.exploreTools) or FilePage.showComputeButton()) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']}
                                                     </button>
-                                                    <ul class="dropdown-menu float-end text-left">
+                                                    <ul class="dropdown-menu float-end text-start">
                                                         <!-- Explore/Download/Request Button Block -->
                                                         <ui:fragment rendered="#{!FilePage.fileMetadata.dataFile.filePackage
                                                                                    or FilePage.fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload}">
@@ -250,7 +250,7 @@
                                                             disabled="#{FilePage.lockedFromEdits}">
                                                         #{bundle['file.editBtn']}
                                                     </button>
-                                                    <ul class="dropdown-menu float-end text-left">
+                                                    <ul class="dropdown-menu float-end text-start">
                                                         <ui:include src="file-edit-button-fragment.xhtml">
                                                             <ui:param name="datasetVersion" value="#{FilePage.fileMetadata.datasetVersion}"/>
                                                             <ui:param name="fileMetadata" value="#{FilePage.fileMetadata}"/>
@@ -514,7 +514,7 @@
                                         <button class="btn btn-secondary btn-export dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                             <span class="bi bi-box-arrow-up-right"/> #{bundle['dataset.exportBtn']}
                                         </button>
-                                        <ul class="dropdown-menu float-end text-left">
+                                        <ul class="dropdown-menu float-end text-start">
                                             <ui:repeat var="exporter" value="#{FilePage.getExporters()}">
                                                 <li>
                                                     <h:outputLink value="#{exporter[1]}" target="_blank">

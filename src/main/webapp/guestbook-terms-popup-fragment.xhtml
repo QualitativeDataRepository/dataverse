@@ -217,7 +217,7 @@
                     </label>
                     <div class="col-sm-6">
                         <ui:repeat value="#{guestbookResponse.customQuestionResponses}" var="customQuestionResponse">
-                            <div class="text-left">
+                            <div class="text-start">
                                 <label class="form-label">
                                     <h:outputText value="#{customQuestionResponse.customQuestion.questionString} "/>
                                     <span class="bi bi-asterisk text-danger" jsf:rendered="#{customQuestionResponse.customQuestion.required}" />

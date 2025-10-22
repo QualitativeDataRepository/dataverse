@@ -373,7 +373,7 @@ form[id$='dataverseForm'] .panelLayoutBlock div table.ui-panelgrid.ui-widget,
 form[id$='dataverseForm'] .panelLayoutBlock div table.ui-panelgrid.ui-widget tr, 
 form[id$='dataverseForm'] .panelLayoutBlock div table.ui-panelgrid.ui-widget td {border:0;}
 form[id$='dataverseForm'] .panelLayoutBlock div div.row {vertical-align: middle;}
-div .text-left .form-label {text-align:left;}
+div .text-start .form-label {text-align:left;}
 .form-label {font-size: 16px;}
 
 input.metadata-blocks-default[type="checkbox"], input.facets-blocks-default[type="checkbox"] {margin: 4px 6px 0 0;}

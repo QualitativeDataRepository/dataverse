@@ -47,7 +47,7 @@
                                     <p:focus context="loginForm"/>
                                     <ui:remove>
                                         <ui:fragment rendered="#{LoginPage.multipleProvidersAvailable}">
-                                            <div class="row mb-3 text-left">
+                                            <div class="row mb-3 text-start">
                                                 <label class="col-sm-4 form-label" for="loginSystemSelect">
                                                     #{bundle['login.System']}
                                                 </label>
@@ -62,7 +62,7 @@
                                         </ui:fragment>
                                     </ui:remove>
                                     <ui:repeat id="credentialsContainer" value="#{LoginPage.filledCredentials}" var="fc" varStatus="fcCount">
-                                        <div class="row mb-3 text-left">
+                                        <div class="row mb-3 text-start">
                                             <label class="col-sm-4 form-label" for="loginForm:credentialsContainer:#{fcCount.index}:#{fc.credential.secret ? 'sC':'c'}redValue">
                                                 #{bundle[fc.credential.key]}
                                             </label>
@@ -127,7 +127,7 @@
                                 </h:form>
 
                                 <div>
-                                    <div class="row mb-3 text-left">
+                                    <div class="row mb-3 text-start">
                                         <label class="col-sm-4 form-label" jsf:rendered="#{!LoginPage.isShibbolethUseWayFinder()}">
                                             #{bundle['auth.providers.title.shib']}
                                         </label>
@@ -194,7 +194,7 @@
                                         </h:outputFormat>
                                     </p>
                                 </o:form>
-                                <div class="row mb-3 text-left">
+                                <div class="row mb-3 text-start">
                                     <div class="col-sm-12">
                                         <h:outputLink styleClass="btn btn-secondary" value="#{OAuth2Page.linkFor(LoginPage.authProvider.id, LoginPage.redirectPage)}">
                                             <o:importFunctions type="edu.harvard.iq.dataverse.authorization.providers.oauth2.impl.OrcidOAuth2AP" />

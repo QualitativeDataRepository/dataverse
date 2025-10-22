@@ -29,10 +29,11 @@
     <!-- Toggle Files Display Components -->
     <div jsf:id="filesDisplayToggleBlock" jsf:rendered="#{DatasetPage.fileTreeViewRequired}" class="row">
         <div class="row mb-3 col-12">
-            <label class="col-2 form-label" style="padding:.3em 1em;">
-                #{bundle['file.display.label']}
-            </label>
+
             <div class="col-4 input-group">
+                <label for="displayValue" class="col-2 form-label" style="padding:.3em 1em;">
+                    #{bundle['file.display.label']}
+                </label>
                 <p:selectOneButton id="displayValue" styleClass="form-control" value="#{DatasetPage.fileDisplayMode}" 
                                    style="padding:0;border:0;box-shadow:none;">
                     <f:selectItem itemLabel="#{bundle['file.display.table']}" itemValue="Table" />
@@ -74,7 +75,7 @@
         <f:facet name="header">
             <div class="row form-inline" jsf:id="cloudStorageBlock" jsf:rendered="#{DatasetPage.showComputeButton()}">
                 <!-- Cloud Storage Access -->
-                <div class="row mb-3 col-12 text-left">
+                <div class="row mb-3 col-12 text-start">
                     <div class="col-12">
                         <p class="form-text">
                             <h:outputFormat value="#{bundle['file.cloudStorageAccess.help']}" escape="false">
@@ -141,7 +142,7 @@
 
             <!-- FILES FILTER FACETS -->
             <div class="row" style="margin-bottom:10px;" jsf:rendered="#{(fileMetadataCount gt 1)}">
-                <div class="col-7 text-left" jsf:rendered="#{DatasetPage.indexedVersion}">
+                <div class="col-7 text-start" jsf:rendered="#{DatasetPage.indexedVersion}">
                     <div class="text-muted small" style="font-weight:normal;" jsf:rendered="#{(DatasetPage.fileMetadatasSearch.size() gt 0)}">#{bundle['file.results.filter']}</div>
                     <!-- FACET: TYPE -->
                     <div class="btn-group" style="margin-right:20px;" jsf:rendered="#{!(empty DatasetPage.fileTypeFacetLabels)}">
@@ -271,7 +272,7 @@
 
                 
                 <div class="file-sort col-5 text-end #{DatasetPage.indexedVersion ? '' : 'col-offset-7'}">
-                    <div class="file-group-by col-7 text-left text-muted small" style="font-weight:normal;" jsf:rendered="#{DatasetPage.allowUserManagementOfOrder()}">
+                    <div class="file-group-by col-7 text-start text-muted small" style="font-weight:normal;" jsf:rendered="#{DatasetPage.allowUserManagementOfOrder()}">
                                     <p:selectBooleanCheckbox id="fps" value="#{DatasetPage.folderPresort}" itemLabel="#{bundle['file.results.presort.folder']}" title="#{bundle['file.results.presort.folder.desc']} rendered='#{DatasetPage.orderByFolder()}'">
                         <p:ajax update="filesTable, messagePanel" process="fps, tps" listener="#{DatasetPage.sort()}"/>
                     </p:selectBooleanCheckbox>
@@ -284,7 +285,7 @@
                         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="bi bi-sort-alpha-down"></span> #{bundle['file.results.btn.sort']}
                         </button>
-                        <ul class="dropdown-menu float-end text-left">
+                        <ul class="dropdown-menu float-end text-start">
                             <li><h:outputLink rel="nofollow" value="/dataset.xhtml" styleClass="dropdown-item">
                                     <h:outputText styleClass="#{((empty DatasetPage.fileSortField) or DatasetPage.fileSortField == 'name') and (empty DatasetPage.fileSortOrder) ? 'fw-bold' : ''}" value="#{bundle['file.results.btn.sort.option.nameAZ']}"/>
                                     <f:param name="persistentId" value="#{DatasetPage.persistentId}"/>
@@ -354,7 +355,7 @@
             </div>
 
             <div class="row" jsf:rendered="#{fileMetadataCount gt 10 and (DatasetPage.selectedFiles.size() gt 0)}">
-                <div class="col-12 bg-warning text-left" style="font-weight:normal;padding-top:.5em;">
+                <div class="col-12 bg-warning text-start" style="font-weight:normal;padding-top:.5em;">
                     <!-- SELECTION MESSAGE -->
                     <p>
                         <h:outputFormat value="#{bundle['file.numFilesSelected']}">
@@ -375,7 +376,7 @@
             </div>
             <div class="row" jsf:rendered="#{(!DatasetPage.isVersionHasGlobus()) and (DatasetPage.sizeOfSelectedMaxNumeric gt settingsWrapper.zipDownloadLimit)
                                              and DatasetPage.selectedFiles.size() > 1}">
-                <div class="col-12 bg-warning text-left" style="font-weight:normal;padding-top:.5em;">
+                <div class="col-12 bg-warning text-start" style="font-weight:normal;padding-top:.5em;">
                     <h:outputFormat value="#{bundle['file.zip.download.exceeds.limit']}">
                         <f:param value="#{DatasetPage.sizeOfSelectedMaxAsString}"/>
                         <f:param value="#{DatasetPage.zipDownloadLimitAsString}"/>
@@ -384,7 +385,7 @@
             </div>
         </f:facet>
 
-        <p:column selectionMode="multiple" class="text-center" ariaHeaderText="#{bundle['file.select.tooltip']}"/>
+        <p:column selectionMode="multiple" selectionBox="true" class="text-center" ariaHeaderText="#{bundle['file.select.tooltip']}"/>
         <p:column class="col-file-metadata">
             <f:facet name="header">
                 <div jsf:id="filesHeaderCount">
@@ -421,7 +422,7 @@
                             disabled="#{uploadButtonDisabled}">
                         <span class="bi bi-pencil"/> #{bundle['file.editFiles']}
                     </button>
-                    <ul class="dropdown-menu multi-level float-end text-left">
+                    <ul class="dropdown-menu multi-level float-end text-start">
                         <ui:include src="file-edit-button-fragment.xhtml">
                             <ui:param name="datasetVersion" value="#{DatasetPage.workingVersion}"/>
                             <ui:param name="fileMetadataForAction" value="#{DatasetPage.fileMetadataForAction}"/>
@@ -461,7 +462,7 @@
                     <button type="button" class="btn btn-secondary btn-download dropdown-toggle" data-bs-toggle="dropdown">  
                         <span class="bi bi-download"/> #{bundle.download}
                     </button>
-                    <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level float-end text-left">
+                    <ul jsf:id="downloadDropdownOptions" class="dropdown-menu multi-level float-end text-start">
                         <li jsf:rendered="#{DatasetPage.canDownloadFiles()}">
                             <p:commandLink
                                            styleClass="dropdown-item"
@@ -566,12 +567,12 @@
                             <span class="bi bi-eye"/><span class="sr-only">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ? "":fileMetadata.directoryLabel.concat("/")}#{fileMetadata.label}"</span>
                         </a>
                     </ui:fragment>
-                    <a type="button" style="padding:6px 8px;" class="btn-access-file btn btn-link bootstrap-button-tooltip dropdown-toggle" 
+                    <button type="button" style="padding:6px 8px;" class="btn-access-file btn btn-link bootstrap-button-tooltip dropdown-toggle"
                        title="#{((not empty DatasetPage.getExploreToolsForDataFile(fileMetadata.dataFile)) or (DatasetPage.showComputeButton(fileMetadata))) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']}"
                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tabindex="0">
-                       <span class="bi bi-download"/><span class="sr-only">#{bundle['file.accessBtn']}</span>
-                    </a>
-                    <ul class="dropdown-menu float-end text-left">
+                       <span class="bi bi-download" style="pointer-events: none;"/><span class="sr-only">#{bundle['file.accessBtn']}</span>
+                    </button>
+                    <ul class="dropdown-menu float-end text-start">
                         <!-- Explore/Download/Request Button Block -->
                         <ui:include src="file-download-button-fragment.xhtml">
                             <ui:param name="fileMetadata" value="#{fileMetadata}"/>
@@ -628,7 +629,7 @@
                        tabindex="0">
                         <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span>
                     </a>
-                    <ul class="dropdown-menu multi-level float-end text-left">
+                    <ul class="dropdown-menu multi-level float-end text-start">
                         <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="bi bi-pencil"/></li>
                         <!-- TO-DO NEW FILE-LEVEL EDIT OPTIONS... RENDER LOGIC, LINKS, DISABLED LOGIC -->
                         <!-- Edit Options -->
