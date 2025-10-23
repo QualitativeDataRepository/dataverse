@@ -2262,13 +2262,13 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private void checkFilepathLength() {
-        if (datasetService.isFilepathLengthExceeded(workingVersion, 250)) {
+        if (datasetService.isFilepathLengthExceeded(workingVersion, 120)) {
             switch (workingVersion.getVersionState()) {
                 case DRAFT:
                     JsfHelper.addWarningMessage(BundleUtil.getStringFromBundle("dataset.message.zipWarningDueToFilePathsDraft"));
                     break;
                 case RELEASED:
-                    JsfHelper.addWarningMessage(BundleUtil.getStringFromBundle("dataset.message.zipWarningDueToFilePathsPublished"));
+                    // JsfHelper.addWarningMessage(BundleUtil.getStringFromBundle("dataset.message.zipWarningDueToFilePathsPublished"));
                     break;
                 default:
                     break;
