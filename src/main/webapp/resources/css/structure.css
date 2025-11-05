@@ -691,7 +691,7 @@ span[id$='editDataSet'] .ui-button-text {white-space: nowrap;}
 #replicationDataButton {margin-top:5px;}
 
 div.row .bi.bi-asterisk {font-size:.5em; vertical-align:text-top;}
-#datasetForm .row, #templateForm .row {overflow: hidden;}
+//#datasetForm .row, #templateForm .row {overflow: hidden;}
 #datasetCitationActionSummaryBlock .citation-block .row {overflow:visible;}
 div.form-col-container div.form-col-container {padding-left:0;}
 div.row .ui-selectonemenu {display:block;}
@@ -1634,7 +1634,6 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
 }
 /*File sorting*/
 #datasetForm .file-sort {
-	max-width: 255px;
 	float: right;
 	padding-right:21px;
 }
