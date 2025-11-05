@@ -17,6 +17,8 @@ import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.workflow.step.Failure;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult;
+import edu.harvard.iq.dataverse.util.bagit.BagGenerator;
+import edu.harvard.iq.dataverse.util.bagit.OREMap;
 import org.apache.commons.codec.binary.Hex;
 import org.threeten.bp.Duration;
 
@@ -24,10 +26,13 @@ import jakarta.json.Json;
 import jakarta.json.JsonObjectBuilder;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.Map;
@@ -40,9 +45,9 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
     private static final String GOOGLECLOUD_BUCKET = ":GoogleCloudBucket";
     private static final String GOOGLECLOUD_PROJECT = ":GoogleCloudProject";
 
- // Set timeouts in milliseconds. For example, 5 minutes.
+    // Set timeouts in milliseconds. For example, 5 minutes.
     private static final int timeout = 300_000;
-    
+
     public GoogleCloudSubmitToArchiveCommand(DataverseRequest aRequest, DatasetVersion version) {
         super(aRequest, version);
     }
@@ -53,17 +58,22 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
         String bucketName = requestedSettings.get(GOOGLECLOUD_BUCKET);
         String projectName = requestedSettings.get(GOOGLECLOUD_PROJECT);
         logger.fine("Project: " + projectName + " Bucket: " + bucketName);
+
         if (bucketName != null && projectName != null) {
             Storage storage;
-            //Set a failure status that will be updated if we succeed
+            // Set a failure status that will be updated if we succeed
             JsonObjectBuilder statusObject = Json.createObjectBuilder();
             statusObject.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_FAILURE);
             statusObject.add(DatasetVersion.ARCHIVAL_STATUS_MESSAGE, "Bag not transferred");
-            
+
             String cloudKeyFile = JvmSettings.FILES_DIRECTORY.lookup() + File.separator + "googlecloudkey.json";
             RetrySettings retrySettings = RetrySettings.newBuilder()
                     .setTotalTimeout(Duration.ofMillis(timeout))
                     .build();
+
+            // Create temporary file for bag
+            Path tempBagFile = null;
+
             try (FileInputStream cloudKeyStream = new FileInputStream(cloudKeyFile)) {
                 storage = StorageOptions.newBuilder()
                         .setCredentials(ServiceAccountCredentials.fromStream(cloudKeyStream))
@@ -80,6 +90,8 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                             .replace('.', '-').toLowerCase();
 
                     String dataciteXml = getDataCiteXml(dv);
+
+                    // Upload datacite.xml
                     MessageDigest messageDigest = MessageDigest.getInstance("MD5");
                     try (PipedInputStream dataciteIn = new PipedInputStream();
                             DigestInputStream digestInputStream = new DigestInputStream(dataciteIn, messageDigest)) {
@@ -125,70 +137,106 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                             return new Failure("Error in transferring DataCite.xml file to GoogleCloud",
                                     "GoogleCloud Submission Failure: incomplete metadata transfer");
                         }
+                    }
 
-                        // Store BagIt file
-                        success = false;
-                        String fileName = spaceName + ".v" + dv.getFriendlyVersionNumber() + ".zip";
+                    tempBagFile = Files.createTempFile("dataverse-bag-", ".zip");
+                    logger.fine("Creating bag in temporary file: " + tempBagFile.toString());
 
-                        // Add BagIt ZIP file
-                        // Google uses MD5 as one way to verify the
-                        // transfer
-                        messageDigest = MessageDigest.getInstance("MD5");
-                        try (PipedInputStream in = new PipedInputStream(100000);
-                                DigestInputStream digestInputStream2 = new DigestInputStream(in, messageDigest)) {
-                            Thread bagThread = startBagThread(dv, in, digestInputStream2, dataciteXml, token);
-                            Blob bag = bucket.create(spaceName + "/" + fileName, digestInputStream2, "application/zip",
-                                    Bucket.BlobWriteOption.doesNotExist());
-                            if (bag.getSize() == 0) {
-                                throw new IOException("Empty Bag");
-                            }
-                            bagThread.join();
+                    // Generate bag to temporary file
+                    try (FileOutputStream fos = new FileOutputStream(tempBagFile.toFile())) {
+                        BagGenerator.setNumConnections(getNumberOfBagGeneratorThreads());
+                        BagGenerator bagger = new BagGenerator(new OREMap(dv, false), dataciteXml);
+                        bagger.setAuthenticationKey(token.getTokenString());
 
-                            checksum = bag.getMd5ToHexString();
-                            logger.fine("Bag: " + fileName + " added with checksum: " + checksum);
-                            localchecksum = Hex.encodeHexString(digestInputStream2.getMessageDigest().digest());
-                            if (!success || !checksum.equals(localchecksum)) {
-                                logger.severe(success ? checksum + " not equal to " + localchecksum
-                                        : "bag transfer did not succeed");
-                                try {
-                                    bag.delete(Blob.BlobSourceOption.generationMatch());
-                                } catch (StorageException se) {
-                                    logger.warning(se.getMessage());
-                                }
-                                return new Failure("Error in transferring Zip file to GoogleCloud",
-                                        "GoogleCloud Submission Failure: incomplete archive transfer");
-                            }
+                        if (!bagger.generateBag(fos)) {
+                            throw new IOException("Bag generation failed");
+                        }
+                    }
+
+                    long bagSize = Files.size(tempBagFile);
+                    logger.fine("Bag created successfully, size: " + bagSize + " bytes");
+
+                    if (bagSize == 0) {
+                        throw new IOException("Generated bag file is empty");
+                    }
+
+                    // Upload bag file and calculate checksum during upload
+                    String fileName = spaceName + ".v" + dv.getFriendlyVersionNumber() + ".zip";
+                    messageDigest = MessageDigest.getInstance("MD5");
+                    String localChecksum;
+
+                    try (FileInputStream fis = new FileInputStream(tempBagFile.toFile());
+                            DigestInputStream dis = new DigestInputStream(fis, messageDigest)) {
+
+                        logger.fine("Uploading bag to GoogleCloud: " + spaceName + "/" + fileName);
+
+                        Blob bag = bucket.create(
+                                spaceName + "/" + fileName,
+                                dis,
+                                "application/zip",
+                                Bucket.BlobWriteOption.doesNotExist());
+
+                        if (bag.getSize() == 0) {
+                            throw new IOException("Uploaded bag has zero size");
                         }
 
-                        logger.fine("GoogleCloud Submission step: Content Transferred");
+                        // Get checksum after upload completes
+                        localChecksum = Hex.encodeHexString(dis.getMessageDigest().digest());
+                        String remoteChecksum = bag.getMd5ToHexString();
 
-                        // Document the location of dataset archival copy location (actually the URL
-                        // where you can view it as an admin)
-                        // Changed to point at bucket where the zip and datacite.xml are visible
+                        logger.fine("Bag: " + fileName + " uploaded");
+                        logger.fine("Local checksum:  " + localChecksum);
+                        logger.fine("Remote checksum: " + remoteChecksum);
 
-                        StringBuffer sb = new StringBuffer("https://console.cloud.google.com/storage/browser/");
-                        sb.append(bucketName + "/" + spaceName);
-                        statusObject.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_SUCCESS);
-                        statusObject.add(DatasetVersion.ARCHIVAL_STATUS_MESSAGE, sb.toString());
-                        
+                        if (!localChecksum.equals(remoteChecksum)) {
+                            logger.severe("Bag checksum mismatch!");
+                            logger.severe("Local: " + localChecksum + " != Remote: " + remoteChecksum);
+                            try {
+                                bag.delete(Blob.BlobSourceOption.generationMatch());
+                            } catch (StorageException se) {
+                                logger.warning(se.getMessage());
+                            }
+                            return new Failure("Error in transferring Zip file to GoogleCloud",
+                                    "GoogleCloud Submission Failure: bag checksum mismatch");
+                        }
                     }
+
+                    logger.fine("GoogleCloud Submission step: Content Transferred Successfully");
+
+                    // Document the location of dataset archival copy location (actually the URL
+                    // where you can view it as an admin)
+                    // Changed to point at bucket where the zip and datacite.xml are visible
+                    StringBuffer sb = new StringBuffer("https://console.cloud.google.com/storage/browser/");
+                    sb.append(bucketName + "/" + spaceName);
+                    statusObject.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_SUCCESS);
+                    statusObject.add(DatasetVersion.ARCHIVAL_STATUS_MESSAGE, sb.toString());
+
                 } else {
-                    logger.warning("GoogleCloud Submision Workflow aborted: Dataset locked for pidRegister");
+                    logger.warning("GoogleCloud Submission Workflow aborted: Dataset locked for pidRegister");
                     return new Failure("Dataset locked");
                 }
             } catch (Exception e) {
-                logger.warning(e.getLocalizedMessage());
+                logger.warning("GoogleCloud submission failed: " + e.getLocalizedMessage());
                 e.printStackTrace();
                 return new Failure("GoogleCloud Submission Failure",
                         e.getLocalizedMessage() + ": check log for details");
 
             } finally {
+                // Clean up temporary file
+                if (tempBagFile != null) {
+                    try {
+                        Files.deleteIfExists(tempBagFile);
+                        logger.fine("Temporary bag file deleted: " + tempBagFile.toString());
+                    } catch (IOException e) {
+                        logger.warning("Failed to delete temporary bag file: " + e.getMessage());
+                    }
+                }
+
                 dv.setArchivalCopyLocation(statusObject.build().toString());
             }
             return WorkflowStepResult.OK;
         } else {
-            return new Failure("GoogleCloud Submission not configured - no \":GoogleCloudBucket\"  and/or \":GoogleCloudProject\".");
+            return new Failure("GoogleCloud Submission not configured - no \":GoogleCloudBucket\" and/or \":GoogleCloudProject\".");
         }
     }
-
 }
