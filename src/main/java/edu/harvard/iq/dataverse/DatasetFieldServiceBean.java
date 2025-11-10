@@ -769,16 +769,17 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
                                             curPath = jo;
                                             return processPathSegment(index + 1, pathParts, curPath, termUri);
                                         }
-                                    }
-                                } else if (val.getValueType() == ValueType.ARRAY) {
-                                    // Match one string in an array
-                                    JsonArray jsonArray = (JsonArray) val;
-                                    for (JsonValue arrayVal : jsonArray) {
-                                        if (arrayVal.getValueType() == ValueType.STRING) {
-                                            if (((JsonString) arrayVal).getString().equals(expected)) {
-                                                logger.fine("Found match in array: " + jo.toString());
-                                                curPath = jo;
-                                                return processPathSegment(index + 1, pathParts, curPath, termUri);
+
+                                    } else if (val.getValueType() == ValueType.ARRAY) {
+                                        // Match one string in an array
+                                        JsonArray jsonArray = (JsonArray) val;
+                                        for (JsonValue arrayVal : jsonArray) {
+                                            if (arrayVal.getValueType() == ValueType.STRING) {
+                                                if (((JsonString) arrayVal).getString().equals(expected)) {
+                                                    logger.fine("Found match in array: " + jo.toString());
+                                                    curPath = jo;
+                                                    return processPathSegment(index + 1, pathParts, curPath, termUri);
+                                                }
                                             }
                                         }
                                     }
