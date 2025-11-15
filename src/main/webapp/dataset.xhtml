@@ -770,7 +770,7 @@
                     <!-- Create/Edit editMode -->
                     <ui:fragment rendered="#{DatasetPage.editMode == 'METADATA' or DatasetPage.editMode == 'CREATE'}">
                         <p:focus context="datasetForm"/>
-                        <div class="row mb-3">
+                        <div class="row mb-3"  jsf:rendered="#{DatasetPage.hasDataversesToChoose and DatasetPage.editMode == 'CREATE'}">
                             <label jsf:for="#{DatasetPage.editMode == 'CREATE' ? 'selectHostDataverse_input' : 'select_HostDataverse_Static'}" class="col-md-3 form-label">
                                 #{bundle.hostDataverse}
                                 <span class="bi bi-question-circle tooltip-icon"

@@ -130,6 +130,7 @@ public class UpdateDatasetVersionCommand extends AbstractDatasetCommand<Dataset>
             }
 
             getDataset().getOrCreateEditVersion(fmVarMet).setDatasetFields(getDataset().getOrCreateEditVersion(fmVarMet).initDatasetFields());
+
             validateOrDie(getDataset().getOrCreateEditVersion(fmVarMet), isValidateLenient());
 
             final DatasetVersion editVersion = getDataset().getOrCreateEditVersion(fmVarMet);

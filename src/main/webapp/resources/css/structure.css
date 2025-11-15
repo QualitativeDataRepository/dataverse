@@ -8,6 +8,9 @@ body {
   /* Sticky footer Margin bottom by footer height */
   font-family: 'AntoniaH2', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size:14px;
+  /* #11824 */
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 body.widget-view {margin-bottom:44px;}
 body .ui-widget {font-size: inherit;}
@@ -631,6 +634,7 @@ div.ui-tabs-panels .ui-tabs.ui-tabs-top .ui-tabs-nav.ui-widget-header {border-bo
 
 /* -------- PERMISSIONS -------- */
 div[id$='roleDisplay'] span.badge, div[id$='roleDetails'] span.badge {display:inline-block; margin-bottom:4px;}
+#rolesPermissionsForm {word-break:break-word;}
 
 /* -------- METRICS -------- */
 #metrics-block {margin-bottom:0px;}

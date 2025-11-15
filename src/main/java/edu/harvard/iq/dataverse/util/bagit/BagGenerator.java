@@ -8,9 +8,11 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -62,7 +64,6 @@ import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.Timeout;
 import org.json.JSONArray;
@@ -92,7 +93,7 @@ public class BagGenerator {
     private HashMap<String, String> pidMap = new LinkedHashMap<String, String>();
     private HashMap<String, String> checksumMap = new LinkedHashMap<String, String>();
 
-    private int timeout = 60;
+    private int timeout = 300;
     private RequestConfig config = RequestConfig.custom()
             .setConnectionRequestTimeout(Timeout.ofSeconds(timeout))
             .setResponseTimeout(Timeout.ofSeconds(timeout))
@@ -1082,32 +1083,44 @@ public class BagGenerator {
                                     logger.fine("Sleeping for " + waitTime + "ms before retry attempt " + tries);
                                     Thread.sleep(waitTime);
                                 } catch (InterruptedException ie) {
-                                    logger.warning("Sleep interrupted during retry delay");
+                                    logger.log(Level.SEVERE, "InterruptedException during retry delay for file: " + uriString, ie);
+                                    Thread.currentThread().interrupt(); // Restore interrupt status
                                     tries += 5; // Skip remaining attempts
                                 }
                             }
                         } catch (ClientProtocolException e) {
                             tries += 5;
-                            e.printStackTrace();
+                            logger.log(Level.SEVERE, "ClientProtocolException when retrieving file: " + uriString + " (attempt " + tries + ")", e);
+                        } catch (SocketTimeoutException e) {
+                            // Specific handling for timeout exceptions
+                            tries++;
+                            logger.log(Level.SEVERE, "SocketTimeoutException when retrieving file: " + uriString + " (attempt " + tries + " of 5) - Request exceeded timeout", e);
+                            if (tries == 5) {
+                                logger.log(Level.SEVERE, "FINAL FAILURE: File could not be retrieved after all retries due to timeouts: " + uriString, e);
+                            }
+                        } catch (InterruptedIOException e) {
+                            // Catches interruptions during I/O operations
+                            tries += 5;
+                            logger.log(Level.SEVERE, "InterruptedIOException when retrieving file: " + uriString + " - Operation was interrupted", e);
+                            Thread.currentThread().interrupt(); // Restore interrupt status
                         } catch (IOException e) {
                             // Retry if this is a potentially temporary error such as a timeout
                             tries++;
-                            logger.log(Level.WARNING, "Attempt# " + tries + " : Unable to retrieve file: " + uriString, e);
+                            logger.log(Level.WARNING, "IOException when retrieving file: " + uriString + " (attempt " + tries + " of 5)", e);
                             if (tries == 5) {
-                                logger.log(Level.SEVERE, "Final attempt failed for " + uriString, e);
+                                logger.log(Level.SEVERE, "FINAL FAILURE: File could not be retrieved after all retries: " + uriString, e);
                             }
                         }
                     }
                 } catch (URISyntaxException e) {
-                    logger.severe("URISyntaxException for: " + uriString);
+                    logger.log(Level.SEVERE, "URISyntaxException for file: " + uriString + " - Invalid URI format", e);
                 }
 
-                logger.severe("Could not read: " + uriString);
+                logger.severe("FAILED TO RETRIEVE FILE after all retries: " + uriString);
                 return null;
             }
         };
     }
-    
     /**
      * Adapted from org/apache/commons/io/FileUtils.java change to SI - add 2 digits
      * of precision

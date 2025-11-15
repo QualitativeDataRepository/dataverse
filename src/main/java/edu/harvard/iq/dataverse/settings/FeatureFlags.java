@@ -246,7 +246,6 @@ public enum FeatureFlags {
      * Only update a DataCite DOI when needed (for efficiency, lighter load on DataCite).
      */
     ONLY_UPDATE_DATACITE_WHEN_NEEDED("only-update-datacite-when-needed"),
-
     ;
     
     final String flag;
