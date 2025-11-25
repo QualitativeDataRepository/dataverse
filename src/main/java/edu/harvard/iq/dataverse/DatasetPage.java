@@ -392,7 +392,7 @@ public class DatasetPage implements java.io.Serializable {
     private boolean showIngestSuccess;
     
     private Boolean archivable = null;
-    private Boolean versionArchivable = null;
+    private HashMap<Long,Boolean> versionArchivable = new HashMap<>();
     private Boolean someVersionArchived = null;
 
     public boolean isShowIngestSuccess() {
@@ -6104,10 +6104,11 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     /** Method to decide if a 'Submit' button should be enabled for archiving a dataset version. */
-    public boolean isVersionArchivable() {
-        if (versionArchivable == null) {
+    public boolean isVersionArchivable(Long id) {
+        Boolean thisVersionArchivable = versionArchivable.get(id);
+        if (thisVersionArchivable == null) {
             // If this dataset isn't in an archivable collection return false
-            versionArchivable = false;
+            thisVersionArchivable = false;
             if (isArchivable()) {
                 
                 // Otherwise, we need to know if the archiver is single-version-only
@@ -6128,14 +6129,19 @@ public class DatasetPage implements java.io.Serializable {
                         if (checkForArchivalCopy) {
                             // If we have to check (single version archiving), we can't allow archiving if
                             // one version is already archived (or attempted - any non-null status)
-                            versionArchivable = !isSomeVersionArchived();
+                            thisVersionArchivable = !isSomeVersionArchived();
                         } else {
                             // If we didn't find one that has had archiving run
                             // on it, or we archiving per version is supported and either
                             // the status is null or the archiver can delete prior runs and status isn't success,
                             // we can archive, so return true
-                            String status = workingVersion.getArchivalCopyLocationStatus();
-                            versionArchivable = (status == null) || ((!status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS) && (!status.equals(DatasetVersion.ARCHIVAL_STATUS_PENDING)) && supportsDelete));
+                            // Find the specific version by id
+                            DatasetVersion targetVersion = dataset.getVersions().stream()
+                                .filter(v -> v.getId().equals(id))
+                                .findFirst()
+                                .orElse(null);
+                            String status = targetVersion.getArchivalCopyLocationStatus();
+                            thisVersionArchivable = (status == null) || ((!status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS) && (!status.equals(DatasetVersion.ARCHIVAL_STATUS_PENDING)) && supportsDelete));
                         }
                     } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException
                             | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -6144,8 +6150,9 @@ public class DatasetPage implements java.io.Serializable {
                     }
                 }
             }
+            versionArchivable.put(id, thisVersionArchivable);
         }
-        return versionArchivable;
+        return thisVersionArchivable;
     }
 
     public boolean isSomeVersionArchived() {
