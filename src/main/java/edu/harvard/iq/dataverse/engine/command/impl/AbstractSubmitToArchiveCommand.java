@@ -186,4 +186,8 @@ public abstract class AbstractSubmitToArchiveCommand extends AbstractCommand<Dat
    public static boolean isSingleVersion(SettingsServiceBean settingsService) {
        return false;
   }
+
+   public static boolean supportsDelete() {
+    return false;
+   }
 }

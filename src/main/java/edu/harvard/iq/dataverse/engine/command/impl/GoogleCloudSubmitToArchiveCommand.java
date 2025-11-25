@@ -53,6 +53,11 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
     }
 
     @Override
+    public static boolean supportsDelete() {
+        return true;
+    }
+    
+    @Override
     public WorkflowStepResult performArchiveSubmission(DatasetVersion dv, ApiToken token, Map<String, String> requestedSettings) {
         logger.fine("In GoogleCloudSubmitToArchiveCommand...");
         String bucketName = requestedSettings.get(GOOGLECLOUD_BUCKET);
@@ -89,6 +94,34 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                     String spaceName = dataset.getGlobalId().asString().replace(':', '-').replace('/', '-')
                             .replace('.', '-').toLowerCase();
 
+                    // Check for and delete existing files for this version
+                    String dataciteFileName = spaceName + "/datacite.v" + dv.getFriendlyVersionNumber() + ".xml";
+                    String bagFileName = spaceName + "/" + spaceName + ".v" + dv.getFriendlyVersionNumber() + ".zip";
+
+                    logger.fine("Checking for existing files in archive...");
+
+                    try {
+                        Blob existingDatacite = bucket.get(dataciteFileName);
+                        if (existingDatacite != null && existingDatacite.exists()) {
+                            logger.fine("Found existing datacite.xml, deleting: " + dataciteFileName);
+                            existingDatacite.delete();
+                            logger.fine("Deleted existing datacite.xml");
+                        }
+                    } catch (StorageException se) {
+                        logger.warning("Error checking/deleting existing datacite.xml: " + se.getMessage());
+                    }
+
+                    try {
+                        Blob existingBag = bucket.get(bagFileName);
+                        if (existingBag != null && existingBag.exists()) {
+                            logger.fine("Found existing bag file, deleting: " + bagFileName);
+                            existingBag.delete();
+                            logger.fine("Deleted existing bag file");
+                        }
+                    } catch (StorageException se) {
+                        logger.warning("Error checking/deleting existing bag file: " + se.getMessage());
+                    }
+
                     String dataciteXml = getDataCiteXml(dv);
 
                     // Upload datacite.xml
@@ -120,7 +153,7 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                             Thread.sleep(10);
                             i++;
                         }
-                        Blob dcXml = bucket.create(spaceName + "/datacite.v" + dv.getFriendlyVersionNumber() + ".xml", digestInputStream, "text/xml", Bucket.BlobWriteOption.doesNotExist());
+                        Blob dcXml = bucket.create(dataciteFileName, digestInputStream, "text/xml", Bucket.BlobWriteOption.doesNotExist());
 
                         dcThread.join();
                         String checksum = dcXml.getMd5ToHexString();
@@ -161,17 +194,16 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                     }
 
                     // Upload bag file and calculate checksum during upload
-                    String fileName = spaceName + ".v" + dv.getFriendlyVersionNumber() + ".zip";
                     messageDigest = MessageDigest.getInstance("MD5");
                     String localChecksum;
 
                     try (FileInputStream fis = new FileInputStream(tempBagFile.toFile());
                             DigestInputStream dis = new DigestInputStream(fis, messageDigest)) {
 
-                        logger.fine("Uploading bag to GoogleCloud: " + spaceName + "/" + fileName);
+                        logger.fine("Uploading bag to GoogleCloud: " + bagFileName);
 
                         Blob bag = bucket.create(
-                                spaceName + "/" + fileName,
+                                bagFileName,
                                 dis,
                                 "application/zip",
                                 Bucket.BlobWriteOption.doesNotExist());
@@ -184,7 +216,7 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                         localChecksum = Hex.encodeHexString(dis.getMessageDigest().digest());
                         String remoteChecksum = bag.getMd5ToHexString();
 
-                        logger.fine("Bag: " + fileName + " uploaded");
+                        logger.fine("Bag: " + bagFileName + " uploaded");
                         logger.fine("Local checksum:  " + localChecksum);
                         logger.fine("Remote checksum: " + remoteChecksum);
 
