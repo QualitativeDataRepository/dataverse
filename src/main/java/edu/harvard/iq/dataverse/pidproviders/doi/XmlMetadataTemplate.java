@@ -1557,12 +1557,15 @@ public class XmlMetadataTemplate {
                             if (externalIdentifier.isValidIdentifier(funder)) {
                                 isROR = true;
                                 JsonObject jo = getExternalVocabularyValue(funder);
-                                if (jo != null) {
-                                    funderIdentifier = funder;
-                                    funder = jo.getString("termName");
+                                if (jo != null && jo.containsKey("termName")) {
+                                    JsonValue termName = jo.get("termName");
+                                    if (termName.getValueType() == ValueType.STRING) {
+                                        funderIdentifier = funder;
+                                        funder = ((JsonString) termName).getString();
+                                    }
                                 }
                             }
-                          
+                            
                             xmlw.writeStartElement("fundingReference"); // <fundingReference>
                             XmlWriterUtil.writeFullElement(xmlw, "funderName", StringEscapeUtils.escapeXml10(funder));
                             if (isROR) {

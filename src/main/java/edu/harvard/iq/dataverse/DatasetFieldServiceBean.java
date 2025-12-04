@@ -408,7 +408,7 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
         JsonObject filtering = cvocEntry.getJsonObject("retrieval-filtering");
         String termUriField = cvocEntry.getJsonString("term-uri-field").getString();
 
-        if (jo != null) {
+        if (jo != null && !filtering.isEmpty()) {
             try {
                 for (String key : jo.keySet()) {
                     String indexIn = filtering.getJsonObject(key).getString("indexIn", null);
