@@ -484,7 +484,7 @@
         <dependency>
             <groupId>edu.ucsb.nceas</groupId>
             <artifactId>ezid</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.3</version>
             <type>jar</type>
             <exclusions>
                 <exclusion>
