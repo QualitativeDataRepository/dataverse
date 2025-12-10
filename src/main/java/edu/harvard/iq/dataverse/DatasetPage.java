@@ -3024,21 +3024,18 @@ public class DatasetPage implements java.io.Serializable {
                          * pulled this out as a separate submit().
                          */
                         try {
-                            updateVersion = commandEngine.submit(archiveCommand);
-                            if (!updateVersion.getArchivalCopyLocationStatus().equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)) {
-                                successMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.success");
-                            } else {
-                                errorMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.failure");
-                            }
+                            commandEngine.submitAsync(archiveCommand);
+                            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("datasetversion.archive.inprogress"));
                         } catch (CommandException ex) {
                             errorMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.failure") + " - " + ex.toString();
                             logger.severe(ex.getMessage());
                         }
                     } else if(status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
+                        //Not automatically replacing the old archival copy as creating it is expensive
                         JsonObject archivalLocation = JsonUtil.getJsonObject(updateVersion.getArchivalCopyLocation());
                         JsonObjectBuilder job = Json.createObjectBuilder(archivalLocation);
                         job.add(DatasetVersion.ARCHIVAL_STATUS,DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
-                        updateVersion.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
+                        datasetVersionService.setArchivalCopyLocation(updateVersion, JsonUtil.prettyPrint(job.build()));
                         datasetVersionService.merge(updateVersion);
                     }
                 }
@@ -6060,8 +6057,7 @@ public class DatasetPage implements java.io.Serializable {
                     if(status == null || (force && cmd.canDelete())){
                         
                     // Set initial pending status
-                    dv.setArchivalCopyLocation(DatasetVersion.ARCHIVAL_STATUS_PENDING);
-                    dv = datasetVersionService.merge(dv);
+                    datasetVersionService.setArchivalCopyLocation(dv, DatasetVersion.ARCHIVAL_STATUS_PENDING);
                     
                     commandEngine.submitAsync(cmd);
 
