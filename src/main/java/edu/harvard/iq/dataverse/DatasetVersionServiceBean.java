@@ -1302,9 +1302,9 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
      */
     public void setArchivalCopyLocation(DatasetVersion dv, String archivalStatusPending) {
         em.createNativeQuery(
-                "UPDATE datasetversion SET archivalcopylocation = :location WHERE id = :id")
-                .setParameter("location", archivalStatusPending)
-                .setParameter("id", dv.getId())
+                "UPDATE datasetversion SET archivalcopylocation = ?1 WHERE id = ?2")
+                .setParameter(1, archivalStatusPending)
+                .setParameter(2, dv.getId())
                 .executeUpdate();
 
         // Keep the in-memory object in sync
