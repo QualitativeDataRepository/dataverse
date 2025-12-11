@@ -306,6 +306,13 @@ public enum JvmSettings {
     SCOPE_EXPORTS_SCHEMA_DOT_ORG(SCOPE_EXPORTS, "schema-dot-org"),
     EXPORTS_SCHEMA_DOT_ORG_MAX_FILES_FOR_DOWNLOAD_ENTRIES(SCOPE_EXPORTS_SCHEMA_DOT_ORG, "max-files-for-download-entries"),
     
+    
+    // LinkedDataNotification
+    SCOPE_LINKEDDATANOTIFICATION(PREFIX, "ldn"),
+    LINKEDDATANOTIFICATION_ALLOWED_HOSTS(SCOPE_LINKEDDATANOTIFICATION, "allowed-hosts"),
+    SCOPE_COARNOTIFY(SCOPE_LINKEDDATANOTIFICATION, "coar-notify"),
+    SCOPE_COARNOTIFY_RELATIONSHIP_ANNOUNCEMENT(SCOPE_COARNOTIFY, "relationship-announcement"),
+    COARNOTIFY_RELATIONSHIP_ANNOUNCEMENT_NOTIFY_SUPERUSERS_ONLY(SCOPE_COARNOTIFY_RELATIONSHIP_ANNOUNCEMENT, "notify-superusers-only"),
     ;
 
     private static final String SCOPE_SEPARATOR = ".";
@@ -314,6 +321,7 @@ public enum JvmSettings {
     
     private final String key;
     private final String scopedKey;
+    @SuppressWarnings("unused")
     private final JvmSettings parent;
     private final List<String> oldNames;
     private final int placeholders;
@@ -613,4 +621,73 @@ public enum JvmSettings {
         return String.format(this.getScopedKey(), (Object[]) arguments);
     }
     
+    /**
+     * Lookup an optional comma-separated value and return the tokens as an immutable list.
+     * MicroProfile Config removes zero-length segments when it converts to {@code String[]}, but
+     * it leaves any leading or trailing whitespace on the surviving tokens (including tokens that
+     * contain only spaces). This convenience overload trims each token; after trimming, any token
+     * that becomes empty (because it consisted solely of whitespace) is discarded so callers still
+     * receive a list that is free of empty strings. Use the boolean overload with {@code false} if
+     * you need the exact whitespace that MicroProfile provided.
+     *
+     * @return an {@link Optional} containing the list of tokens when the setting is present;
+     *         an empty {@link Optional} if the setting is not configured
+     */
+    public Optional<List<String>> lookupSplittedListOptional() {
+        return lookupSplittedListOptional(true);
+    }
+
+    /**
+    * Lookup an optional comma-separated value and return the tokens as an immutable list.
+    *
+    * @param trimSpaces when {@code true}, individual elements are trimmed; tokens that become empty after
+    *                   trimming (because they were all whitespace) are removed to preserve MicroProfile's
+    *                   "no empty entries" guarantee; when {@code false}, the tokens are returned exactly as
+    *                   produced by MicroProfile Config
+     * @return an {@link Optional} containing the list of tokens when the setting is present;
+     *         an empty {@link Optional} if the setting is not configured
+     */
+    public Optional<List<String>> lookupSplittedListOptional(boolean trimSpaces) {
+        return lookupOptional(String[].class)
+            .map(values -> Arrays.stream(values)
+                .map(s -> trimSpaces ? s.trim() : s)
+                .filter(s -> trimSpaces ? !s.isEmpty() : true)
+                .toList());
+    }
+
+    /**
+     * Lookup a required comma-separated value and return the tokens as an immutable list.
+     * MicroProfile Config removes zero-length segments when it converts to {@code String[]}, but it
+     * leaves any leading or trailing whitespace on the surviving tokens (including tokens that contain
+     * only spaces). This convenience overload trims each token; after trimming, any token that becomes
+     * empty (because it consisted solely of whitespace) is discarded so callers still receive a list that
+     * is free of empty strings. Use the boolean overload with {@code false} if you need the exact whitespace
+     * that MicroProfile provided.
+     *
+     * @return the list of tokens for the configured setting
+     * @throws java.util.NoSuchElementException if the setting is missing or blank
+     * @throws IllegalArgumentException if conversion to {@code String[]} fails
+     */
+    public List<String> lookupSplittedList() {
+        return lookupSplittedList(true);
+    }
+
+    /**
+    * Lookup a required comma-separated value and return the tokens as an immutable list.
+    *
+    * @param trimSpaces when {@code true}, individual elements are trimmed; tokens that become empty after
+    *                   trimming (because they were all whitespace) are removed to preserve MicroProfile's
+    *                   "no empty entries" guarantee; when {@code false}, the tokens are returned exactly as
+    *                   produced by MicroProfile Config
+     * @return the list of tokens for the configured setting
+     * @throws java.util.NoSuchElementException if the setting is missing or blank
+     * @throws IllegalArgumentException if conversion to {@code String[]} fails
+     */
+    public List<String> lookupSplittedList(boolean trimSpaces) {
+        return Arrays.stream(lookup(String[].class))
+            .map(s -> trimSpaces ? s.trim() : s)
+            .filter(s -> trimSpaces ? !s.isEmpty() : true)
+            .toList();
+    }
+
 }
