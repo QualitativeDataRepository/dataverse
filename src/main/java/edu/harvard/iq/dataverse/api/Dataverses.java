@@ -15,6 +15,7 @@ import edu.harvard.iq.dataverse.authorization.RoleAssignee;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroupServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.dataset.DatasetType;
@@ -120,7 +121,7 @@ public class Dataverses extends AbstractApiBean {
 
     @EJB
     DataverseFeaturedItemServiceBean dataverseFeaturedItemServiceBean;
-
+    
     @POST
     @AuthRequired
     public Response addRoot(@Context ContainerRequestContext crc, String body) {
@@ -715,7 +716,7 @@ public class Dataverses extends AbstractApiBean {
         return response(req -> {
             Dataverse dataverse = execCommand(new GetDataverseCommand(req, findDataverseOrDie(idtf)));
             boolean hideEmail = settingsService.isTrueForKey(SettingsServiceBean.Key.ExcludeEmailFromExport, false);
-            return ok(json(dataverse, hideEmail, returnOwners, returnChildCount ? dataverseService.getChildCount(dataverse) : null));
+            return ok(json(dataverse, hideEmail, returnOwners, false, returnChildCount ? dataverseService.getChildCount(dataverse) : null));
         }, getRequestUser(crc));
     }
 
@@ -1235,9 +1236,9 @@ public class Dataverses extends AbstractApiBean {
     @GET
     @AuthRequired
     @Path("{identifier}/storage/quota")
-    public Response getCollectionQuota(@Context ContainerRequestContext crc, @PathParam("identifier") String dvIdtf) throws WrappedResponse {
+    public Response getCollectionQuota(@Context ContainerRequestContext crc, @PathParam("identifier") String dvIdtf, @QueryParam("showInherited") boolean showInherited) throws WrappedResponse {
         try {
-            Long bytesAllocated = execCommand(new GetCollectionQuotaCommand(createDataverseRequest(getRequestUser(crc)), findDataverseOrDie(dvIdtf)));
+            Long bytesAllocated = execCommand(new GetCollectionQuotaCommand(createDataverseRequest(getRequestUser(crc)), findDataverseOrDie(dvIdtf), showInherited));
             if (bytesAllocated != null) {
                 return ok(MessageFormat.format(BundleUtil.getStringFromBundle("dataverse.storage.quota.allocation"),bytesAllocated));
             }
@@ -1247,11 +1248,17 @@ public class Dataverses extends AbstractApiBean {
         }
     }
     
-    @POST
+    @PUT
     @AuthRequired
-    @Path("{identifier}/storage/quota/{bytesAllocated}")
-    public Response setCollectionQuota(@Context ContainerRequestContext crc, @PathParam("identifier") String dvIdtf, @PathParam("bytesAllocated") Long bytesAllocated) throws WrappedResponse {
+    @Path("{identifier}/storage/quota")
+    public Response setCollectionQuota(@Context ContainerRequestContext crc, @PathParam("identifier") String dvIdtf, String value) throws WrappedResponse {
         try {
+            Long bytesAllocated; 
+            try {
+                bytesAllocated = Long.parseLong(value);
+            } catch (NumberFormatException nfe){
+                return error(Status.BAD_REQUEST, value + " is not a valid number of bytes");
+            }
             execCommand(new SetCollectionQuotaCommand(createDataverseRequest(getRequestUser(crc)), findDataverseOrDie(dvIdtf), bytesAllocated));
             return ok(BundleUtil.getStringFromBundle("dataverse.storage.quota.updated"));
         } catch (WrappedResponse ex) {
@@ -1772,6 +1779,36 @@ public class Dataverses extends AbstractApiBean {
             return ex.getResponse();
         }
     }
+    
+    @GET
+    @AuthRequired
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{identifier}/{type}/linkingDataverses")
+    public Response getLinkingDataverseList(@Context ContainerRequestContext crc, @PathParam("identifier") String dvIdtf, @QueryParam("searchTerm") String searchTerm, @QueryParam("alreadyLinking") boolean alreadyLinking, @PathParam("type") String type) {
+
+        try {
+
+            DvObject dvObject = findDvoByIdAndTypeOrDie(dvIdtf, type, false);
+            List<Dataverse> dataversesForLinking = execCommand(new GetLinkingDataverseListCommand(
+                    createDataverseRequest(getRequestUser(crc)),
+                    dvObject,
+                    searchTerm,
+                    alreadyLinking
+            ));
+
+            JsonArrayBuilder dvBuilder = Json.createArrayBuilder();
+            if (dataversesForLinking != null && !dataversesForLinking.isEmpty()) {
+                for (Dataverse dv : dataversesForLinking) {
+                    dvBuilder.add(json(dv, true));
+                }
+            }
+            return ok(dvBuilder);
+        } catch (WrappedResponse wr) {
+            return wr.getResponse();
+        }
+    }
+    
+    
 
     @GET
     @AuthRequired
@@ -1812,7 +1849,7 @@ public class Dataverses extends AbstractApiBean {
         try {
             dataverse = findDataverseOrDie(dvIdtf);
             if (dvObjectIdtf != null) {
-                dvObject = findDvoByIdAndFeaturedItemTypeOrDie(dvObjectIdtf, type);
+                dvObject = findDvoByIdAndTypeOrDie(dvObjectIdtf, type, true);
             }
         } catch (WrappedResponse wr) {
             return wr.getResponse();
@@ -1900,7 +1937,7 @@ public class Dataverses extends AbstractApiBean {
 
                 // ignore dvObject if the id is missing or an empty string
                 DvObject dvObject = dvObjectIdtf.get(i) != null && !dvObjectIdtf.get(i).isEmpty()
-                        ? findDvoByIdAndFeaturedItemTypeOrDie(dvObjectIdtf.get(i), types.get(i)) : null;
+                        ? findDvoByIdAndTypeOrDie(dvObjectIdtf.get(i), types.get(i), true) : null;
                 if (ids.get(i) == 0) {
                     newItems.add(NewDataverseFeaturedItemDTO.fromFormData(
                             contents.get(i), displayOrders.get(i), fileInputStream, contentDisposition, types.get(i), dvObject));
@@ -1969,6 +2006,34 @@ public class Dataverses extends AbstractApiBean {
         } catch (WrappedResponse e) {
             return e.getResponse();
         }
+    }
+
+    @GET
+    @AuthRequired
+    @Path("{identifier}/allowedMetadataLanguages")
+    public Response getMetadataLanguage(@Context ContainerRequestContext crc, @PathParam("identifier") String dvIdtf) {
+        return response(req -> {
+            Dataverse dataverse = findDataverseOrDie(dvIdtf);
+            return ok(jsonLanguage(execCommand(
+                    new GetDataverseMetadataLanguageCommand(req, dataverse))));
+        }, getRequestUser(crc));
+    }
+
+    @PUT
+    @AuthRequired
+    @Path("{identifier}/allowedMetadataLanguages/{metadataLanguage}")
+    public Response setMetadataLanguage(@Context ContainerRequestContext crc, @PathParam("identifier") String dvIdtf, @PathParam("metadataLanguage") String lang) {
+        return response(req -> {
+            Map<String, String> langMap = settingsService.getBaseMetadataLanguageMap(null, true);
+            if (langMap.isEmpty()) {
+                return badRequest("There are no metadata languages configured on this server");
+            }
+            if (!langMap.containsKey(lang)) {
+                return badRequest("The specified metadata language " + lang + " is not allowed on this server!");
+            }
+            Dataverse dataverse = findDataverseOrDie(dvIdtf);
+            return ok(jsonLanguage(execCommand(new SetDataverseMetadataLanguageCommand(req, dataverse, lang))));
+        }, getRequestUser(crc));
     }
     
     @GET

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd;">
     <modelVersion>4.0.0</modelVersion>
@@ -133,9 +134,9 @@
  
     <properties>
         <!-- This is a special Maven property name, do not change! -->
-        <revision>6.7.1</revision>
+        <revision>6.8</revision>
     
-        <target.java.version>17</target.java.version>
+        <target.java.version>21</target.java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <additionalparam>-Xdoclint:none</additionalparam>
         <!-- Needed to avoid IDEA IDE compilation failures. See commits in GH #5059 -->
@@ -150,9 +151,10 @@
         <argLine>-Duser.timezone=${project.timezone} -Dfile.encoding=${project.build.sourceEncoding} -Duser.language=${project.language} -Duser.region=${project.region}</argLine>
     
         <!-- Major system components and dependencies -->
-        <payara.version>6.2025.9</payara.version>
+        <payara.version>7.2025.2</payara.version>
         <postgresql.version>42.7.7</postgresql.version>
-        <solr.version>9.9.0</solr.version>
+        <solr.version>9.10.0</solr.version>
+        <postgresql.server.version>16</postgresql.server.version>
         <aws.version>2.33.0</aws.version>
         <google.library.version>26.30.0</google.library.version>
     
@@ -166,11 +168,10 @@
         <apache.httpcomponents.core.version>4.4.14</apache.httpcomponents.core.version>
         
         <!-- NEW gdcc XOAI library implementation -->
-        <!--gdcc.xoai.version>5.2.0</gdcc.xoai.version -->
-        <gdcc.xoai.version>5.3.2.1-local</gdcc.xoai.version>
+        <gdcc.xoai.version>5.3.0</gdcc.xoai.version>
     
         <!-- Testing dependencies -->
-        <testcontainers.version>1.19.7</testcontainers.version>
+        <testcontainers.version>2.0.2</testcontainers.version>
         <smallrye-mpconfig.version>3.7.1</smallrye-mpconfig.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <mockito.version>5.11.0</mockito.version>
@@ -420,15 +421,22 @@
             <id>unidata-all</id>
             <name>Unidata All</name>
             <url>https://artifacts.unidata.ucar.edu/repository/unidata-all/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <!-- Uncomment when using snapshot releases from Maven Central -->
+        <!-- Note the new - as of Sept. 2025 sonatype url -->
         <!--
         <repository>
-            <id>oss-sonatype</id>
-            <name>oss-sonatype</name>
+            <id>central-portal-snapshots</id>
+            <name>Central Portal Snapshots</name>
             <url>
-                https://oss.sonatype.org/content/repositories/snapshots/
+                https://central.sonatype.com/repository/maven-snapshots/
             </url>
+	    <releases>
+	      <enabled>false</enabled>
+	    </releases>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
@@ -442,8 +450,8 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository>
-        -->
+            </repository>
+	 -->
     </repositories>
     
     <profiles>
@@ -456,7 +464,7 @@
                     (These properties are provided by the build-helper plugin below.)
                 -->
                 <base.image.version>${parsedVersion.majorVersion}.${parsedVersion.nextMinorVersion}</base.image.version>
-                <!--<base.image.version>${revision}</base.image.version>-->
+                <!-- <base.image.version>${revision}</base.image.version> -->
                 <!-- This is used by the maintenance CI jobs, no need to adapt during releases. -->
                 <app.image.version>${base.image.version}</app.image.version>
             </properties>

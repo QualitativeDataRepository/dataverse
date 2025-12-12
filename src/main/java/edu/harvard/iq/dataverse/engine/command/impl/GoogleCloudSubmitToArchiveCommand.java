@@ -15,6 +15,8 @@ import edu.harvard.iq.dataverse.authorization.users.ApiToken;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
+import static edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key.GoogleCloudBucket;
+import static edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key.GoogleCloudProject;
 import edu.harvard.iq.dataverse.workflow.step.Failure;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult;
 import edu.harvard.iq.dataverse.util.bagit.BagGenerator;
@@ -42,8 +44,8 @@ import java.util.logging.Logger;
 public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCommand {
 
     private static final Logger logger = Logger.getLogger(GoogleCloudSubmitToArchiveCommand.class.getName());
-    private static final String GOOGLECLOUD_BUCKET = ":GoogleCloudBucket";
-    private static final String GOOGLECLOUD_PROJECT = ":GoogleCloudProject";
+    private static final String GOOGLECLOUD_BUCKET = GoogleCloudBucket.toString();
+    private static final String GOOGLECLOUD_PROJECT = GoogleCloudProject.toString();
 
     // Set timeouts in milliseconds. For example, 5 minutes.
     private static final int timeout = 300_000;
@@ -52,6 +54,14 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
         super(aRequest, version);
     }
 
+    public static boolean supportsDelete() {
+        return true;
+    }
+    @Override
+    public boolean canDelete() {
+        return supportsDelete();
+    }
+    
     @Override
     public WorkflowStepResult performArchiveSubmission(DatasetVersion dv, ApiToken token, Map<String, String> requestedSettings) {
         logger.fine("In GoogleCloudSubmitToArchiveCommand...");
@@ -89,6 +99,34 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                     String spaceName = dataset.getGlobalId().asString().replace(':', '-').replace('/', '-')
                             .replace('.', '-').toLowerCase();
 
+                    // Check for and delete existing files for this version
+                    String dataciteFileName = spaceName + "/datacite.v" + dv.getFriendlyVersionNumber() + ".xml";
+                    String bagFileName = spaceName + "/" + spaceName + ".v" + dv.getFriendlyVersionNumber() + ".zip";
+
+                    logger.fine("Checking for existing files in archive...");
+
+                    try {
+                        Blob existingDatacite = bucket.get(dataciteFileName);
+                        if (existingDatacite != null && existingDatacite.exists()) {
+                            logger.fine("Found existing datacite.xml, deleting: " + dataciteFileName);
+                            existingDatacite.delete();
+                            logger.fine("Deleted existing datacite.xml");
+                        }
+                    } catch (StorageException se) {
+                        logger.warning("Error checking/deleting existing datacite.xml: " + se.getMessage());
+                    }
+
+                    try {
+                        Blob existingBag = bucket.get(bagFileName);
+                        if (existingBag != null && existingBag.exists()) {
+                            logger.fine("Found existing bag file, deleting: " + bagFileName);
+                            existingBag.delete();
+                            logger.fine("Deleted existing bag file");
+                        }
+                    } catch (StorageException se) {
+                        logger.warning("Error checking/deleting existing bag file: " + se.getMessage());
+                    }
+
                     String dataciteXml = getDataCiteXml(dv);
 
                     // Upload datacite.xml
@@ -120,7 +158,7 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                             Thread.sleep(10);
                             i++;
                         }
-                        Blob dcXml = bucket.create(spaceName + "/datacite.v" + dv.getFriendlyVersionNumber() + ".xml", digestInputStream, "text/xml", Bucket.BlobWriteOption.doesNotExist());
+                        Blob dcXml = bucket.create(dataciteFileName, digestInputStream, "text/xml", Bucket.BlobWriteOption.doesNotExist());
 
                         dcThread.join();
                         String checksum = dcXml.getMd5ToHexString();
@@ -161,17 +199,16 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                     }
 
                     // Upload bag file and calculate checksum during upload
-                    String fileName = spaceName + ".v" + dv.getFriendlyVersionNumber() + ".zip";
                     messageDigest = MessageDigest.getInstance("MD5");
                     String localChecksum;
 
                     try (FileInputStream fis = new FileInputStream(tempBagFile.toFile());
                             DigestInputStream dis = new DigestInputStream(fis, messageDigest)) {
 
-                        logger.fine("Uploading bag to GoogleCloud: " + spaceName + "/" + fileName);
+                        logger.fine("Uploading bag to GoogleCloud: " + bagFileName);
 
                         Blob bag = bucket.create(
-                                spaceName + "/" + fileName,
+                                bagFileName,
                                 dis,
                                 "application/zip",
                                 Bucket.BlobWriteOption.doesNotExist());
@@ -184,7 +221,7 @@ public class GoogleCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveCo
                         localChecksum = Hex.encodeHexString(dis.getMessageDigest().digest());
                         String remoteChecksum = bag.getMd5ToHexString();
 
-                        logger.fine("Bag: " + fileName + " uploaded");
+                        logger.fine("Bag: " + bagFileName + " uploaded");
                         logger.fine("Local checksum:  " + localChecksum);
                         logger.fine("Remote checksum: " + remoteChecksum);
 

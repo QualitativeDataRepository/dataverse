@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.Template;
 import edu.harvard.iq.dataverse.UserNotification;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
@@ -20,7 +21,6 @@ import static edu.harvard.iq.dataverse.util.StringUtil.nonEmpty;
 import java.util.logging.Logger;
 
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
-
 import java.util.List;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -110,23 +110,31 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
     
     @Override
     protected void postPersist( Dataset theDataset, CommandContext ctxt ){
-
         
         if ( template != null ) {
             ctxt.templates().incrementUsageCount(template.getId());
         }
     }
     
-    /* Saves role assignments for the dataset.
-     * Emails those able to publish the dataset (except the creator themselves who already gets an email)
+    /** Performs tasks that need the dataset to have an id (and hence can't be done in postPersist), such as
+     * Save role assignments for the dataset.
+     * Email those able to publish the dataset (except the creator themselves who already gets an email)
      * that a new dataset exists. 
-     * NB: These need the dataset id so have to be postDBFlush (vs postPersist())
+     *  <p>
+     * This method checks if dataset creation notifications are enabled. If so, it
+     * notifies all users with {@code Permission.PublishDataset} on the new dataset.
+     * The user who initiated the action can be included or excluded from this
+     * notification based on the allowSelfNotification flag.
+     *
+     * @param dataset The newly created {@code Dataset}.
+     * @param ctxt    The {@code CommandContext} providing access to application services.
      */
-    protected void postDBFlush(Dataset theDataset, CommandContext ctxt) {
+     
+    protected void postDBFlush( Dataset theDataset, CommandContext ctxt ){
         // set the role to be default contributor role for its dataverse
         String privateUrlToken = null;
         if (theDataset.getOwner().getDefaultContributorRole() != null) {
-            logger.info("New Dataset id: " + theDataset.getId());
+            logger.fine("New Dataset id: " + theDataset.getId());
             RoleAssignment roleAssignment = new RoleAssignment(theDataset.getOwner().getDefaultContributorRole(),
                     getRequest().getUser(), theDataset, privateUrlToken);
             ctxt.roles().save(roleAssignment, false, getRequest());
@@ -149,22 +157,30 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
          * This method checks if dataset creation notifications are enabled. If so, it notifies all users with {@code Permission.PublishDataset} on the new dataset. The user who initiated the action can be
          * included or excluded from this notification based on the allowSelfNotification flag.
          */
-        if (ctxt.settings().isTrueForKey(SettingsServiceBean.Key.SendNotificationOnDatasetCreation, false)) {
-            // QDR - alert curators that a dataset has been created
-            // Should this create a notification too? (which would let us use the notification mailcapbilities to generate the subject/body.
-            AuthenticatedUser requestor = getUser().isAuthenticated() ? (AuthenticatedUser) getUser() : null;
-            ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, theDataset)
-                    .stream()
-                    .filter(recipient -> allowSelfNotification || !recipient.equals(requestor))
-                    .forEach(recipient -> ctxt.notifications().sendNotification(
-                            recipient,
-                            Timestamp.from(Instant.now()),
-                            UserNotification.Type.DATASETCREATED,
-                            theDataset.getId(),
-                            null,
-                            requestor,
-                            true));
+        
+        // 1. Exit early if the SendNotificationOnDatasetCreation setting is disabled.
+        if (!ctxt.settings().isTrueForKey(SettingsServiceBean.Key.SendNotificationOnDatasetCreation, false)) {
+            return;
         }
+
+        // 2. Identify the user who initiated the action.
+        final User user = getUser();
+        final AuthenticatedUser requestor = user.isAuthenticated() ? (AuthenticatedUser) user : null;
+        
+        // 3. Get all users with publish permission and notify them.
+        // Should this create a notification too? (which would let us use the notification mailcapbilities to generate the subject/body.
+        ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, theDataset)
+                .stream()
+                .filter(recipient -> allowSelfNotification || !recipient.equals(requestor))
+                .forEach(recipient -> ctxt.notifications().sendNotification(
+                        recipient,
+                        Timestamp.from(Instant.now()),
+                        UserNotification.Type.DATASETCREATED,
+                        theDataset.getId(),
+                        null,
+                        requestor,
+                        true
+                ));
     }
     
     // Re-enabling the method below will change the permission setup to dynamic.
@@ -190,5 +206,5 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
         }
         return ret;
     }*/
-        
+
 }

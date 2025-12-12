@@ -24,6 +24,7 @@ import edu.harvard.iq.dataverse.engine.command.impl.GetLatestPublishedDatasetVer
 import edu.harvard.iq.dataverse.engine.command.impl.GetSpecificPublishedDatasetVersionCommand;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
 import edu.harvard.iq.dataverse.license.LicenseServiceBean;
+import edu.harvard.iq.dataverse.makedatacount.DatasetMetricsServiceBean;
 import edu.harvard.iq.dataverse.pidproviders.FailedPIDResolutionLoggingServiceBean;
 import edu.harvard.iq.dataverse.pidproviders.FailedPIDResolutionLoggingServiceBean.FailedPIDResolutionEntry;
 import edu.harvard.iq.dataverse.pidproviders.PidUtil;
@@ -223,6 +224,9 @@ public abstract class AbstractApiBean {
 
     @EJB
     protected ExternalToolServiceBean externalToolService;
+
+    @EJB
+    protected DatasetMetricsServiceBean datasetMetricsService;
 
     @EJB
     DataFileServiceBean fileSvc;
@@ -617,11 +621,12 @@ public abstract class AbstractApiBean {
      *
      * @param dvIdtf
      * @param type
+     * @param testForReleased
      * @return DvObject if type matches or throw exception
      * @throws WrappedResponse
      */
     @NotNull
-    protected DvObject findDvoByIdAndFeaturedItemTypeOrDie(@NotNull final String dvIdtf, String type) throws WrappedResponse {
+    protected DvObject findDvoByIdAndTypeOrDie(@NotNull final String dvIdtf, String type, boolean testForReleased) throws WrappedResponse {
         try {
             DataverseFeaturedItem.TYPES dvType = DataverseFeaturedItem.getDvType(type);
             DvObject dvObject = null;
@@ -654,7 +659,12 @@ public abstract class AbstractApiBean {
                     }
                 }
             }
-            DataverseFeaturedItem.validateTypeAndDvObject(dvIdtf, dvObject, dvType);
+            if (testForReleased){
+                DataverseFeaturedItem.validateTypeAndDvObject(dvIdtf, dvObject, dvType);
+            }
+            if (dvObject == null) {
+                throw new WrappedResponse(notFound(BundleUtil.getStringFromBundle("find.dvo.error.dvObjectNotFound", Collections.singletonList(dvIdtf))));
+            }
             return dvObject;
         } catch (IllegalArgumentException e) {
             throw new WrappedResponse(error(Response.Status.BAD_REQUEST, e.getMessage()));

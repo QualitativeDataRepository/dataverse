@@ -927,10 +927,9 @@ public class XmlMetadataTemplate {
         }
 
         for (DatasetFieldCompoundValue otherIdentifier : otherIdentifiers) {
-            String identifierType = null;
+            String identifierType = ":unav";;
             String identifier = null;
             for (DatasetField subField : otherIdentifier.getChildDatasetFields()) {
-                identifierType = ":unav";
                 switch (subField.getDatasetFieldType().getName()) {
                 case DatasetFieldConstant.otherIdAgency:
                     identifierType = subField.getValue();
@@ -1557,12 +1556,15 @@ public class XmlMetadataTemplate {
                             if (externalIdentifier.isValidIdentifier(funder)) {
                                 isROR = true;
                                 JsonObject jo = getExternalVocabularyValue(funder);
-                                if (jo != null) {
-                                    funderIdentifier = funder;
-                                    funder = jo.getString("termName");
+                                if (jo != null && jo.containsKey("termName")) {
+                                    JsonValue termName = jo.get("termName");
+                                    if (termName.getValueType() == ValueType.STRING) {
+                                        funderIdentifier = funder;
+                                        funder = ((JsonString) termName).getString();
+                                    }
                                 }
                             }
-                          
+                            
                             xmlw.writeStartElement("fundingReference"); // <fundingReference>
                             XmlWriterUtil.writeFullElement(xmlw, "funderName", StringEscapeUtils.escapeXml10(funder));
                             if (isROR) {
