@@ -103,4 +103,5 @@ public class UriInfoTestFake implements UriInfo {
     public URI relativize(URI uri) {
         return null;
     }
+
 }

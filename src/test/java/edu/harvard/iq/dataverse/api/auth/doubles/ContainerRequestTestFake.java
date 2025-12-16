@@ -5,6 +5,7 @@ import jakarta.ws.rs.core.*;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class ContainerRequestTestFake implements ContainerRequestContext {
 

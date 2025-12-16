@@ -6128,7 +6128,7 @@ public class DatasetPage implements java.io.Serializable {
                             thisVersionArchivable = !isSomeVersionArchived();
                         } else {
                             // If we didn't find one that has had archiving run
-                            // on it, or we archiving per version is supported and either
+                            // on it, or archiving per version is supported and either
                             // the status is null or the archiver can delete prior runs and status isn't success,
                             // we can archive, so return true
                             // Find the specific version by id

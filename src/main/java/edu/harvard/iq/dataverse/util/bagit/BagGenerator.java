@@ -78,6 +78,7 @@ import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.DataFile.ChecksumType;
 import edu.harvard.iq.dataverse.pidproviders.PidUtil;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
+import static edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key.BagGeneratorThreads;
 import edu.harvard.iq.dataverse.util.json.JsonLDTerm;
 
 public class BagGenerator {
@@ -123,7 +124,7 @@ public class BagGenerator {
     private boolean usetemp = false;
 
     private static int numConnections = 2;
-    public static final String BAG_GENERATOR_THREADS = ":BagGeneratorThreads";
+    public static final String BAG_GENERATOR_THREADS = BagGeneratorThreads.toString();
 
     private OREMap oremap;
 

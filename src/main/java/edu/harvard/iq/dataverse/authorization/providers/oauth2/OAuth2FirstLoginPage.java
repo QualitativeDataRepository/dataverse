@@ -43,8 +43,8 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.inject.Inject;
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Backing bean for {@code oauth/welcome.xhtml}, the page that greets new users
