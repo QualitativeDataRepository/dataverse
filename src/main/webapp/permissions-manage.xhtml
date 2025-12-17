@@ -208,14 +208,14 @@
                         </div>
                         <!-- Role Assignment History Panel -->
                         <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
-                        <div class="card" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
+                        <div id="panelCollapseHistoryHeader" class="card" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
                             <div data-bs-toggle="collapse" data-bs-target="#panelCollapseHistory" 
                                  class="card-header text-info"
                                  aria-expanded="false"
                                  aria-controls="panelCollapseHistory">
                             #{bundle['dataverse.permissions.history']} <span class="bi bi-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
                           </div>
-                          <div id="panelCollapseHistory" class="collapse" aria-labelledby="panelCollapseHistory"pseHistory" class="col>
+                          <div id="panelCollapseHistory" class="collapse" aria-labelledby="panelCollapseHistoryHeader">
                             <p:panel id="historyPanel" deferred="true" deferredMode="visible">
                                 <div class="card-body">
                                     <div class="button-group margin-bottom text-end">
