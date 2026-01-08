@@ -3032,10 +3032,7 @@ public class DatasetPage implements java.io.Serializable {
                         }
                     } else if(status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
                         //Not automatically replacing the old archival copy as creating it is expensive
-                        JsonObject archivalLocation = JsonUtil.getJsonObject(updateVersion.getArchivalCopyLocation());
-                        JsonObjectBuilder job = Json.createObjectBuilder(archivalLocation);
-                        job.add(DatasetVersion.ARCHIVAL_STATUS,DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
-                        updateVersion.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
+                        updateVersion.setArchivalStatus(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
                         datasetVersionService.persistArchivalCopyLocation(updateVersion);
                         datasetVersionService.merge(updateVersion);
                     }

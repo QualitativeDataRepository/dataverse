@@ -1273,24 +1273,32 @@ public class Datasets extends AbstractApiBean {
                     DatasetVersion updateVersion = ds.getLatestVersion();
                     AbstractSubmitToArchiveCommand archiveCommand = ArchiverUtil.createSubmitToArchiveCommand(className, createDataverseRequest(user), updateVersion);
                     if (archiveCommand != null) {
-                        // Delete the record of any existing copy since it is now out of date/incorrect
-                        dv.setArcivalCopyLocation(null);
-                        datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
-                        /*
-                         * Then try to generate and submit an archival copy. Note that running this
-                         * command within the CuratePublishedDatasetVersionCommand was causing an error:
-                         * "The attribute [id] of class
-                         * [edu.harvard.iq.dataverse.DatasetFieldCompoundValue] is mapped to a primary
-                         * key column in the database. Updates are not allowed." To avoid that, and to
-                         * simplify reporting back to the GUI whether this optional step succeeded, I've
-                         * pulled this out as a separate submit().
-                         */
-                        try {
-                            commandEngine.submitAsync(archiveCommand);
-                            successMsg = BundleUtil.getStringFromBundle("datasetversion.archive.inprogress");
-                        } catch (CommandException ex) {
-                            successMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.failure") + " - " + ex.toString();
-                            logger.severe(ex.getMessage());
+                        String status = updateVersion.getArchivalCopyLocationStatus();
+                        if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)){
+                            // Otherwise, delete the record of any existing copy since it is now out of
+                            // date/incorrect
+                            updateVersion.setArchivalCopyLocation(null);
+                            datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
+                            /*
+                             * Then try to generate and submit an archival copy. Note that running this
+                             * command within the CuratePublishedDatasetVersionCommand was causing an error:
+                             * "The attribute [id] of class
+                             * [edu.harvard.iq.dataverse.DatasetFieldCompoundValue] is mapped to a primary
+                             * key column in the database. Updates are not allowed." To avoid that, and to
+                             * simplify reporting back to the GUI whether this optional step succeeded, I've
+                             * pulled this out as a separate submit().
+                             */
+                            try {
+                                commandEngine.submitAsync(archiveCommand);
+                                successMsg = BundleUtil.getStringFromBundle("datasetversion.archive.inprogress");
+                            } catch (CommandException ex) {
+                                successMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.failure") + " - " + ex.toString();
+                                logger.severe(ex.getMessage());
+                            }
+                        } else  if(status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
+                            //Not automatically replacing the old archival copy as creating it is expensive
+                            updateVersion.setArchivalStatus(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
+                            datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
                         }
                     }
                 } catch (CommandException ex) {

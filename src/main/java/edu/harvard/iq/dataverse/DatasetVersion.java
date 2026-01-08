@@ -414,6 +414,14 @@ public class DatasetVersion implements Serializable {
         this.archivalCopyLocation = location;
         populateArchivalStatus(true);
     }
+    
+    public void setArchivalStatus(String status) {
+        populateArchivalStatus(false);
+        JsonObjectBuilder job = Json.createObjectBuilder(archivalStatus);
+        job.add(DatasetVersion.ARCHIVAL_STATUS, status);
+        archivalStatus = job.build();
+        archivalCopyLocation = JsonUtil.prettyPrint(archivalStatus);
+    }
 
     public String getDeaccessionLink() {
         return deaccessionLink;
