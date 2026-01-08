@@ -417,8 +417,21 @@ public class SolrIndexServiceBean {
             indexPermissionsForOneDvObject(definitionPoint);
             numObjects++;
 
-            // Process the dataset's files in a new transaction
-            self.indexDatasetFilesInNewTransaction(dataset.getId(), counter, fileQueryMin);
+            // Prepare the data needed for the new transaction.
+            // This ensures lazy-loaded collections are fetched here.
+            Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
+            Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
+            List<DatasetVersion> versionsToIndex = new ArrayList<>();
+            for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
+                if (desiredCards.get(version.getVersionState())) {
+                    // IMPORTANT: This triggers the loading of fileMetadatas within the current transaction
+                    version.getFileMetadatas().size(); 
+                    versionsToIndex.add(version);
+                }
+            }
+
+            // Process the dataset's files in a new transaction, passing the pre-loaded data
+            self.indexDatasetFilesInNewTransaction(versionsToIndex, fileDownloadersMap, counter, fileQueryMin);
         } else {
             // For other types (like files), just index in a new transaction
             indexPermissionsForOneDvObject(definitionPoint);
@@ -452,23 +465,18 @@ public class SolrIndexServiceBean {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void indexDatasetFilesInNewTransaction(Long datasetId, final int[] fileCounter, int fileQueryMin) {
-        Dataset dataset = datasetService.find(datasetId);
-        if (dataset != null) {
-            Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
-            Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
-
-            for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
-                if (desiredCards.get(version.getVersionState())) {
-                    processDatasetVersionFiles(version, fileDownloadersMap, fileCounter, fileQueryMin);
-                }
-            }
+    public void indexDatasetFilesInNewTransaction(List<DatasetVersion> versions, Map<Long, List<String>> fileDownloadersMap, final int[] fileCounter, int fileQueryMin) {
+        for (DatasetVersion version : versions) {
+            // The version object is detached, but its fileMetadatas collection is already loaded.
+            // We only need its ID and state, which are available.
+            processDatasetVersionFiles(version, fileDownloadersMap, fileCounter, fileQueryMin);
         }
     }
 
     private void processDatasetVersionFiles(DatasetVersion version, Map<Long, List<String>> fileDownloadersMap,
             final int[] fileCounter, int fileQueryMin) {
         List<String> cachedPerms = searchPermissionsService.findDatasetVersionPerms(version);
+
         String solrIdEnd = getDatasetOrDataFileSolrEnding(version.getVersionState());
         Long versionId = version.getId();
         List<DataFileProxy> filesToReindexAsBatch = new ArrayList<>();
