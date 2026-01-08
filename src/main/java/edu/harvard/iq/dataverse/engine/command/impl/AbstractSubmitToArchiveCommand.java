@@ -66,7 +66,8 @@ public abstract class AbstractSubmitToArchiveCommand extends AbstractCommand<Dat
             token = ctxt.authentication().generateApiTokenForUser(user);
         }
         performArchiveSubmission(version, token, requestedSettings);
-        return ctxt.em().merge(version);
+        ctxt.datasetVersion().persistArchivalCopyLocation(version);
+        return version;
     }
 
     /**

@@ -6057,7 +6057,8 @@ public class DatasetPage implements java.io.Serializable {
                     if(status == null || (force && cmd.canDelete())){
                         
                     // Set initial pending status
-                    datasetVersionService.setArchivalCopyLocation(dv, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                        dv.setArchivalCopyLocation(DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                    datasetVersionService.persistArchivalCopyLocation(dv);
                     
                     commandEngine.submitAsync(cmd);
 

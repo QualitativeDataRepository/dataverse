@@ -1300,14 +1300,11 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
      * @param archivalStatusPending
      *            the JSON status string, may be {@code null}.
      */
-    public void setArchivalCopyLocation(DatasetVersion dv, String archivalStatusPending) {
+    public void persistArchivalCopyLocation(DatasetVersion dv) {
         em.createNativeQuery(
                 "UPDATE datasetversion SET archivalcopylocation = ?1 WHERE id = ?2")
-                .setParameter(1, archivalStatusPending)
+                .setParameter(1, dv.getArchivalCopyLocation())
                 .setParameter(2, dv.getId())
                 .executeUpdate();
-
-        // Keep the in-memory object in sync
-        dv.setArchivalCopyLocation(archivalStatusPending);
     }
 }

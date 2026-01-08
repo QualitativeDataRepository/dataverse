@@ -1274,7 +1274,8 @@ public class Datasets extends AbstractApiBean {
                     AbstractSubmitToArchiveCommand archiveCommand = ArchiverUtil.createSubmitToArchiveCommand(className, createDataverseRequest(user), updateVersion);
                     if (archiveCommand != null) {
                         // Delete the record of any existing copy since it is now out of date/incorrect
-                        datasetVersionSvc.setArchivalCopyLocation(updateVersion, null);
+                        dv.setArcivalCopyLocation(null);
+                        datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
                         /*
                          * Then try to generate and submit an archival copy. Note that running this
                          * command within the CuratePublishedDatasetVersionCommand was causing an error:
