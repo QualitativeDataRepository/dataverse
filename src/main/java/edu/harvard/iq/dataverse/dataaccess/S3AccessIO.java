@@ -1011,8 +1011,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             } catch (S3Exception e) {
                 logger.warning("Exception generating temporary S3 url for " + key + " (" + e.getMessage() + ")");
                 return null;
-            } finally {
-                s3Presigner.close();
             }
 
             if (presignedRequest != null) {
@@ -1069,8 +1067,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         } catch (S3Exception e) {
             logger.warning("Exception generating temporary S3 upload url for " + key + " (" + e.getMessage() + ")");
             return null;
-        } finally {
-            s3Presigner.close();
         }
 
         String urlString = presignedRequest.url().toString();
@@ -1131,8 +1127,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                     + "&storageidentifier=" + storageIdentifier);
             response.add("complete", "/api/datasets/mpupload?globalid=" + globalId + "&uploadid=" + uploadId
                     + "&storageidentifier=" + storageIdentifier);
-
-            s3Presigner.close();
         }
 
         response.add("partSize", minPartSize);
