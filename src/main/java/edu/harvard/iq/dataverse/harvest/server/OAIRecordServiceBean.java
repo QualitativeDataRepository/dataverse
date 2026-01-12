@@ -26,6 +26,7 @@ import jakarta.ejb.TransactionAttribute;
 import static jakarta.ejb.TransactionAttributeType.REQUIRES_NEW;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.TemporalType;
@@ -263,6 +264,15 @@ public class OAIRecordServiceBean implements java.io.Serializable {
             ExportService exportServiceInstance = ExportService.getInstance();
             exportServiceInstance.exportAllFormats(dataset);
             dataset = datasetService.merge(dataset);
+            em.flush();
+        } catch (OptimisticLockException ole) {
+            Dataset currentDataset = datasetService.find(dataset.getId());
+            if (currentDataset != null) {
+                currentDataset.setLastExportTime(dataset.getLastExportTime());
+                datasetService.merge(currentDataset);
+            } else {
+                logger.log(Level.SEVERE, "Could not find Dataset with id={0} to retry persisting archival copy location after OptimisticLockException.", dataset.getId());
+            }
         } catch (Exception e) {
             logger.log(Level.FINE, "Caught unknown exception while trying to export", e);
             throw new ExportException(e.getMessage());
