@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.ExportService;
 import io.gdcc.spi.export.ExportException;
-import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import java.time.Instant;
 import java.util.Collection;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -263,7 +263,8 @@ public class OAIRecordServiceBean implements java.io.Serializable {
         try {
             ExportService exportServiceInstance = ExportService.getInstance();
             exportServiceInstance.exportAllFormats(dataset);
-            dataset = datasetService.merge(dataset);
+            //Use em.merge or the jakarta OLE we want to catch will be wrapped
+            dataset = em.merge(dataset);
             em.flush();
         } catch (OptimisticLockException ole) {
             Dataset currentDataset = datasetService.find(dataset.getId());
