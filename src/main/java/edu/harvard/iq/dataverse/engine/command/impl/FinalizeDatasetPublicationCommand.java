@@ -287,6 +287,28 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         } catch (Exception e) {
             logger.warning("Failure to send dataset published messages for : " + dataset.getId() + " : " + e.getMessage());
         }
+        final long datasetId = dataset.getId();
+        ctxt.workflows().getDefaultWorkflow(TriggerType.PostPublishDataset).ifPresent(wf -> {
+            boolean isWorkflowLock = true;
+            int n = 1;
+            int sum = 0;
+            do {
+                int numAttempts = Integer.max(n * n, 60);
+                sum += numAttempts;
+                try {
+                    Thread.sleep(1000 * numAttempts);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } // wait for workflow lock to be released
+                List<DatasetLock> locks = ctxt.datasets().getLocksByDatasetId(datasetId);
+                if (!locks.stream().anyMatch(lock -> lock.getReason() == DatasetLock.Reason.Workflow)) {
+                    isWorkflowLock = false;
+                }
+            }
+            while (isWorkflowLock);
+            logger.info("Waited for workflow locks to be released for dataset " + datasetId + ". Took " + sum + " seconds.");
+        });
         // Metadata export:
         ctxt.datasets().reExportDatasetAsync(dataset);
         
