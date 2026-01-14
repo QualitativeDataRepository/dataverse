@@ -293,7 +293,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
             int n = 1;
             int sum = 0;
             do {
-                int numAttempts = Integer.max(n * n, 60);
+                int numAttempts = Integer.min(n * n, 60);
                 sum += numAttempts;
                 try {
                     Thread.sleep(1000 * numAttempts);
