@@ -267,13 +267,7 @@ public class OAIRecordServiceBean implements java.io.Serializable {
             dataset = em.merge(dataset);
             em.flush();
         } catch (OptimisticLockException ole) {
-            Dataset currentDataset = datasetService.find(dataset.getId());
-            if (currentDataset != null) {
-                currentDataset.setLastExportTime(dataset.getLastExportTime());
-                datasetService.merge(currentDataset);
-            } else {
-                logger.log(Level.SEVERE, "Could not find Dataset with id={0} to retry persisting archival copy location after OptimisticLockException.", dataset.getId());
-            }
+            datasetService.setLastExportTimeInNewTransaction(dataset.getId(), dataset.getLastExportTime());
         } catch (Exception e) {
             logger.log(Level.FINE, "Caught unknown exception while trying to export", e);
             throw new ExportException(e.getMessage());
