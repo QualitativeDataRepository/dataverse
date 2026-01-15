@@ -497,6 +497,7 @@ public class SolrIndexServiceBean {
             Long releasedVersionId = versions.get(versions.get(0).isReleased() ? 0 : 1).getId();
             Long draftVersionId = versions.get(versions.get(0).isReleased() ? 1 : 0).getId();
             
+            logger.info("Checking for file changes in indexDatasetFilesInNewTransaction");
             populateChangedFileIds(
                     releasedVersionId, 
                     draftVersionId, 
@@ -533,23 +534,25 @@ public class SolrIndexServiceBean {
             if (result != null) {
                 // Ensure we're adding Long objects to the list
                 if (result instanceof Integer intResult) {
-                    logger.finest("Converted Integer result to Long: " + result);
+                    logger.fine("Converted Integer result to Long: " + result);
                     changedFileIds.add(Long.valueOf(intResult));
                 } else if (result instanceof Long longResult) {
                     // Already a Long, add directly
-                    logger.finest("Added existing Long to list: " + result);
+                    logger.fine("Added existing Long to list: " + result);
                     changedFileIds.add(longResult);
                 } else {
                     // If it's not a Long, convert it to one via String
                     try {
                         changedFileIds.add(Long.valueOf(result.toString()));
-                        logger.finest("Converted non-Long result to Long: " + result + " of type " + result.getClass().getName());
+                        logger.fine("Converted non-Long result to Long: " + result + " of type " + result.getClass().getName());
                     } catch (NumberFormatException e) {
                         logger.warning("Could not convert query result to Long: " + result);
                     }
                 }
             }
         }
+        logger.info("Found " + changedFileIds.size() + " file metadata IDs that have changed between versions " + releasedVersionId + " and " + draftVersionId);
+        logger.info("First id: " + changedFileIds.get(0) + ", last id: " + changedFileIds.get(changedFileIds.size() - 1));  
     }
 
     private void processDatasetVersionFiles(DatasetVersion version, Map<Long, List<String>> fileDownloadersMap,

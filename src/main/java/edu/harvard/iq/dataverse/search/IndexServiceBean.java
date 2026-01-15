@@ -1445,6 +1445,7 @@ public class IndexServiceBean {
                     fileMap.put(released.getDataFile().getId(), released);
                 }
 
+                logger.info("Checking for file changes in toSolrDocs");
                 solrIndexService.populateChangedFileIds(
                         dataset.getReleasedVersion().getId(),
                         datasetVersion.getId(),
