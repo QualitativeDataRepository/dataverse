@@ -466,12 +466,8 @@ public class SolrIndexServiceBean {
 
                 // Process files for this dataset
                 Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
-                Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
-
                 for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
-                    if (desiredCards.get(version.getVersionState())) {
-                        processDatasetVersionFiles(version, fileDownloadersMap, fileCounter, fileQueryMin);
-                    }
+                    processDatasetVersionFiles(version, fileDownloadersMap, fileCounter, fileQueryMin);
                 }
             }
         }
