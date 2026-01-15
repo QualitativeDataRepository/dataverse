@@ -97,11 +97,10 @@ public class SolrIndexServiceBean {
             solrDocs.addAll(datasetSolrDocs);
         } else if (dvObject.isInstanceofDataFile()) {
             DataFile datafile = (DataFile) dvObject;
-            Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(datafile.getOwner());
             Set<DatasetVersion> datasetVersions = datasetVersionsToBuildCardsFor(datafile.getOwner());
             List<String> downloaders = searchPermissionsService.findDvObjectPerms(datafile);
             for (DatasetVersion version : datasetVersions) {
-                if(desiredCards.containsKey(version.getVersionState()) && desiredCards.get(version.getVersionState()) && datafile.isInDatasetVersion(version)) {
+                if(datafile.isInDatasetVersion(version)) {
                             List<String> cachedPerms = searchPermissionsService.findDatasetVersionPerms(version);
                             String solrIdEnd = getDatasetOrDataFileSolrEnding(version.getVersionState());
                             Long versionId = version.getId();
@@ -148,13 +147,9 @@ public class SolrIndexServiceBean {
     private List<DvObjectSolrDoc> constructDatasetSolrDocs(Dataset dataset) {
         List<DvObjectSolrDoc> emptyList = new ArrayList<>();
         List<DvObjectSolrDoc> solrDocs = emptyList;
-        Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
         for (DatasetVersion version : datasetVersionsToBuildCardsFor(dataset)) {
-            boolean cardShouldExist = desiredCards.get(version.getVersionState());
-            if (cardShouldExist) {
-                DvObjectSolrDoc datasetSolrDoc = makeDatasetSolrDoc(version);
-                solrDocs.add(datasetSolrDoc);
-            }
+            DvObjectSolrDoc datasetSolrDoc = makeDatasetSolrDoc(version);
+            solrDocs.add(datasetSolrDoc);
         }
         return solrDocs;
     }
@@ -173,43 +168,49 @@ public class SolrIndexServiceBean {
 
     private List<DvObjectSolrDoc> constructDatafileSolrDocsFromDataset(Dataset dataset) {
         List<DvObjectSolrDoc> datafileSolrDocs = new ArrayList<>();
-        Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
         for (DatasetVersion datasetVersionFileIsAttachedTo : datasetVersionsToBuildCardsFor(dataset)) {
-            boolean cardShouldExist = desiredCards.get(datasetVersionFileIsAttachedTo.getVersionState());
-            if (cardShouldExist) {
-                List<String> perms = new ArrayList<>();
-                if (datasetVersionFileIsAttachedTo.isReleased()) {
-                    perms.add(IndexServiceBean.getPublicGroupString());
-                } else {
-                    perms = searchPermissionsService.findDatasetVersionPerms(datasetVersionFileIsAttachedTo);
-                }
+            List<String> perms = new ArrayList<>();
+            if (datasetVersionFileIsAttachedTo.isReleased()) {
+                perms.add(IndexServiceBean.getPublicGroupString());
+            } else {
+                perms = searchPermissionsService.findDatasetVersionPerms(datasetVersionFileIsAttachedTo);
+            }
 
-                for (FileMetadata fileMetadata : datasetVersionFileIsAttachedTo.getFileMetadatas()) {
-                    Long fileId = fileMetadata.getDataFile().getId();
-                    String solrIdStart = IndexServiceBean.solrDocIdentifierFile + fileId;
-                    String solrIdEnd = getDatasetOrDataFileSolrEnding(datasetVersionFileIsAttachedTo.getVersionState());
-                    String solrId = solrIdStart + solrIdEnd;
-                    List<String> ftperms = new ArrayList<>();
-                    if (fileMetadata.getDataFile().isRestricted()) {
-                        ftperms = searchPermissionsService.findDvObjectPerms(fileMetadata.getDataFile());
-                    }
-                    DvObjectSolrDoc dataFileSolrDoc = new DvObjectSolrDoc(fileId.toString(), solrId, datasetVersionFileIsAttachedTo.getId(), fileMetadata.getLabel(), perms, ftperms);
-                    logger.finest("adding fileid " + fileId);
-                    datafileSolrDocs.add(dataFileSolrDoc);
+            for (FileMetadata fileMetadata : datasetVersionFileIsAttachedTo.getFileMetadatas()) {
+                Long fileId = fileMetadata.getDataFile().getId();
+                String solrIdStart = IndexServiceBean.solrDocIdentifierFile + fileId;
+                String solrIdEnd = getDatasetOrDataFileSolrEnding(datasetVersionFileIsAttachedTo.getVersionState());
+                String solrId = solrIdStart + solrIdEnd;
+                List<String> ftperms = new ArrayList<>();
+                if (fileMetadata.getDataFile().isRestricted()) {
+                    ftperms = searchPermissionsService.findDvObjectPerms(fileMetadata.getDataFile());
                 }
+                DvObjectSolrDoc dataFileSolrDoc = new DvObjectSolrDoc(fileId.toString(), solrId, datasetVersionFileIsAttachedTo.getId(), fileMetadata.getLabel(), perms, ftperms);
+                logger.finest("adding fileid " + fileId);
+                datafileSolrDocs.add(dataFileSolrDoc);
             }
         }
         return datafileSolrDocs;
     }
 
+    /** Find the versions to index. The overall logic is
+     *  If there is only one version, or no released version (all non-draft versions are deaccessioned)
+     *    then index it regardless of it's versionstate
+     *  If there are released versions
+     *    then index the latest released version and a draft version if one exists
+     *  Hence - the latest deaccessioned version is only indexed if there is no released version
+     * @param dataset
+     * @return  the set of versions to build cards for
+     */
     private Set<DatasetVersion> datasetVersionsToBuildCardsFor(Dataset dataset) {
         Set<DatasetVersion> datasetVersions = new HashSet<>();
         DatasetVersion latest = dataset.getLatestVersion();
-        if (latest != null) {
+        DatasetVersion released = dataset.getReleasedVersion();
+        if (latest != null && (released == null || latest.isDraft())) {
             datasetVersions.add(latest);
         }
-        DatasetVersion released = dataset.getReleasedVersion();
         if (released != null) {
+            //May be the same as the latest version - only one copy will be in the set in that case
             datasetVersions.add(released);
         }
         return datasetVersions;
@@ -435,17 +436,14 @@ public class SolrIndexServiceBean {
              * 
              **/
             Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
-            Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
             List<DatasetVersion> versionsToIndex = new ArrayList<>();
-            for (DatasetVersion version : versionsToReIndexPermissionsFor(dataset)) {
-                if (desiredCards.get(version.getVersionState())) {
-                    int fileCount = dataFileService.findCountByDatasetVersionId(version.getId()).intValue();
-                    if (fileCount >= fileQueryMin) {
-                        // IMPORTANT: This triggers the loading of fileMetadatas within the current transaction
-                        version.getFileMetadatas().size(); 
-                    }
-                    versionsToIndex.add(version);
+            for (DatasetVersion version : datasetVersionsToBuildCardsFor(dataset)) {
+                int fileCount = dataFileService.findCountByDatasetVersionId(version.getId()).intValue();
+                if (fileCount >= fileQueryMin) {
+                    // IMPORTANT: This triggers the loading of fileMetadatas within the current transaction
+                    version.getFileMetadatas().size();
                 }
+                versionsToIndex.add(version);
             }
 
             // Process the dataset's files in a new transaction, passing the pre-loaded data
@@ -471,11 +469,19 @@ public class SolrIndexServiceBean {
 
                 // Process files for this dataset
                 Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
-                List<DatasetVersion> versions = versionsToReIndexPermissionsFor(dataset);
+                Set<DatasetVersion> versions = datasetVersionsToBuildCardsFor(dataset);
                 final List<Long> changedFileIds = new ArrayList<>();
                 if(versions.size()>1) {
-                    Long releasedVersionId = versions.get(versions.get(0).isReleased() ? 0 : 1).getId();
-                    Long draftVersionId = versions.get(versions.get(0).isReleased() ? 1 : 0).getId();
+                    Long releasedVersionId = null;
+                    Long draftVersionId = null;
+                    
+                    for (DatasetVersion version : versions) {
+                        if (version.isReleased()) {
+                            releasedVersionId = version.getId();
+                        } else if (version.isDraft()) {
+                            draftVersionId = version.getId();
+                        }
+                    }
                     
                     populateChangedFileIds(
                             releasedVersionId, 
@@ -630,18 +636,6 @@ public class SolrIndexServiceBean {
             logger.log(Level.WARNING, "Failed to reindex " + filesToReindexAsBatch.size() + 
                     " files across " + docs.size() + " Solr documents", ex);
         }
-    }
-
-    private List<DatasetVersion> versionsToReIndexPermissionsFor(Dataset dataset) {
-        List<DatasetVersion> versionsToReindexPermissionsFor = new ArrayList<>();
-        Map<DatasetVersion.VersionState, Boolean> desiredCards = searchPermissionsService.getDesiredCards(dataset);
-        for (DatasetVersion version : datasetVersionsToBuildCardsFor(dataset)) {
-            boolean cardShouldExist = desiredCards.get(version.getVersionState());
-            if (cardShouldExist) {
-                    versionsToReindexPermissionsFor.add(version);
-            }
-        }
-        return versionsToReindexPermissionsFor;
     }
 
     public IndexResponse deleteMultipleSolrIds(List<String> solrIdsToDelete) {
