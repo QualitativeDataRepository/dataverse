@@ -366,7 +366,7 @@ public class EjbDataverseEngine {
     @Asynchronous
     public <R> Future<R> submitAsync(Command<R> aCommand) throws CommandException {
         try {
-            logger.log(Level.INFO, "Submitting async command: {0}", aCommand.getClass().getSimpleName());
+            logger.log(Level.FINE, "Submitting async command: {0}", aCommand.getClass().getSimpleName());
             R result = submit(aCommand);
             return new AsyncResult<>(result);
         } catch (Exception e) {

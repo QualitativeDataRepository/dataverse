@@ -6108,7 +6108,7 @@ public class DatasetPage implements java.io.Serializable {
                     
                     commandEngine.submitAsync(cmd);
 
-                    logger.info(
+                    logger.fine(
                             "DatasetVersion id=" + dv.getId() + " submitted to Archive, status: " + dv.getArchivalCopyLocationStatus());
                     setVersionTabList(resetVersionTabList());
                     this.setVersionTabListForPostLoad(getVersionTabList());
