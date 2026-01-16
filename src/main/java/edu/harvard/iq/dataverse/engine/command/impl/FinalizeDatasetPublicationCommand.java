@@ -299,8 +299,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
                 try {
                     Thread.sleep(1000 * numAttempts);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    logger.warning("Interrupt while waiting for workflow lock in FinalizeDatasetPublicationCommand");
                 } // wait for workflow lock to be released
                 List<DatasetLock> locks = ctxt.datasets().getLocksByDatasetId(datasetId);
                 if (!locks.stream().anyMatch(lock -> lock.getReason() == DatasetLock.Reason.Workflow)) {
@@ -308,7 +307,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
                 }
             }
             while (isWorkflowLock);
-            logger.info("Waited for workflow locks to be released for dataset " + datasetId + ". Took " + sum + " seconds.");
+            logger.fine("Waited for workflow locks to be released for dataset " + datasetId + ". Took " + sum + " seconds.");
         });
         
         //re-indexing dataverses that have additional subjects

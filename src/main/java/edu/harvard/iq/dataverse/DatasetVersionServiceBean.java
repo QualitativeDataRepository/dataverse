@@ -1348,7 +1348,7 @@ w
             em.merge(dv);
             em.flush(); // Force the update and version check immediately
         } catch (OptimisticLockException ole) {
-            logger.log(Level.INFO, "OptimisticLockException while persisting archival copy location for DatasetVersion id={0}. Retrying on latest version.", dv.getId());
+            logger.log(Level.FINE, "OptimisticLockException while persisting archival copy location for DatasetVersion id={0}. Retrying on latest version.", dv.getId());
             DatasetVersion currentVersion = find(dv.getId());
             if (currentVersion != null) {
                 currentVersion.setArchivalCopyLocation(dv.getArchivalCopyLocation());
