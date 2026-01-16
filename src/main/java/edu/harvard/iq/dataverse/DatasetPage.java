@@ -3004,12 +3004,8 @@ public class DatasetPage implements java.io.Serializable {
                      * pulled this out as a separate submit().
                      */
                     try {
-                        updateVersion = commandEngine.submit(archiveCommand);
-                        if (!updateVersion.getArchivalCopyLocationStatus().equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)) {
-                            successMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.success");
-                        } else {
-                            errorMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.failure");
-                        }
+                            commandEngine.submitAsync(archiveCommand);
+                            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("datasetversion.archive.inprogress"));
                     } catch (CommandException ex) {
                         errorMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.failure") + " - " + ex.toString();
                         logger.severe(ex.getMessage());
@@ -6087,10 +6083,7 @@ public class DatasetPage implements java.io.Serializable {
 
     /**
      * This method can be called from *.xhtml files to allow archiving of a dataset
-     * version from the user interface. It is not currently (11/18) used in the IQSS/develop
-     * branch, but is used by QDR and is kept here in anticipation of including a
-     * GUI option to archive (already published) versions after other dataset page
-     * changes have been completed.
+     * version from the user interface.
      *
      * @param id - the id of the datasetversion to archive.
      */
@@ -6152,16 +6145,20 @@ public class DatasetPage implements java.io.Serializable {
             // If this dataset isn't in an archivable collection return false
             thisVersionArchivable = false;
             if (isArchivable()) {
-                boolean checkForArchivalCopy = false;
+                
                 // Otherwise, we need to know if the archiver is single-version-only
                 // If it is, we have to check for an existing archived version to answer the
                 // question
                 String className = settingsWrapper.getValueForKey(SettingsServiceBean.Key.ArchiverClassName, null);
                 if (className != null) {
                     try {
+                        boolean checkForArchivalCopy = false;
                         Class<?> clazz = Class.forName(className);
                         Method m = clazz.getMethod("isSingleVersion", SettingsWrapper.class);
+                        Method m2 = clazz.getMethod("supportsDelete");
+
                         Object[] params = { settingsWrapper };
+                        boolean supportsDelete = (Boolean) m2.invoke(null);
                         checkForArchivalCopy = (Boolean) m.invoke(null, params);
 
                         if (checkForArchivalCopy) {
