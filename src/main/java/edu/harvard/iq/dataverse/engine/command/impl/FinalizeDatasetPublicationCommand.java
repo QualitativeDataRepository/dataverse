@@ -246,20 +246,10 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         
         //Should this be in onSuccess()?
         ctxt.workflows().getDefaultWorkflow(TriggerType.PostPublishDataset).ifPresent(wf -> {
-            try {
                 // Create the workflow lock BEFORE starting the workflow
                 DatasetLock workflowLock = new DatasetLock(DatasetLock.Reason.Workflow, (AuthenticatedUser) getRequest().getUser());
                 workflowLock.setDataset(ds);
                 ctxt.datasets().addDatasetLock(ds, workflowLock);
-                
-                // Build context with the lock attached
-                WorkflowContext context = buildContext(ds, TriggerType.PostPublishDataset, datasetExternallyReleased);
-                context.setLockId(ds.getLockFor(DatasetLock.Reason.Workflow).getId());
-                ctxt.workflows().start(wf, buildContext(ds, TriggerType.PostPublishDataset, datasetExternallyReleased), false);
-            } catch (CommandException ex) {
-                ctxt.datasets().removeDatasetLocks(ds, DatasetLock.Reason.Workflow);
-                logger.log(Level.SEVERE, "Error invoking post-publish workflow: " + ex.getMessage(), ex);
-            }
         });
 
         Dataset readyDataset = ctxt.em().merge(ds);
@@ -297,6 +287,17 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
             logger.warning("Failure to send dataset published messages for : " + dataset.getId() + " : " + e.getMessage());
         }
 
+        final Dataset ds = dataset;
+        ctxt.workflows().getDefaultWorkflow(TriggerType.PostPublishDataset).ifPresent(wf -> {
+            // Build context with the lock attached
+            WorkflowContext context = buildContext(ds, TriggerType.PostPublishDataset, datasetExternallyReleased);
+            context.setLockId(ds.getLockFor(DatasetLock.Reason.Workflow).getId());
+            try {
+                ctxt.workflows().start(wf, context, false);
+            } catch (CommandException e) {
+                logger.log(Level.SEVERE, "Error invoking post-publish workflow: " + e.getMessage(), e);
+            }
+        });
         // Metadata export:
         ctxt.datasets().reExportDatasetAsync(dataset);
         
