@@ -166,7 +166,7 @@ import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SolrClientService;
-import edu.harvard.iq.dataverse.search.SolrSearchServiceBean;
+import edu.harvard.iq.dataverse.settings.FeatureFlags;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SignpostingResources;
 import edu.harvard.iq.dataverse.util.FileMetadataUtil;
@@ -3011,7 +3011,7 @@ public class DatasetPage implements java.io.Serializable {
                     // If pending or an obsolete copy exists, do nothing (nominally if a pending run succeeds and we're updating the current version here, it should be marked as obsolete - ignoring for now since updates within the time an archiving run is pending should be rare
                     // If a failure or null, rerun archiving now. If a failure is due to an exiting copy in the repo, we'll fail again
                     String status = updateVersion.getArchivalCopyLocationStatus();
-                    if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)){
+                    if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE) || (FeatureFlags.ARCHIVE_ON_VERSION_UPDATE.enabled() && archiveCommand.canDelete())){
                         // Delete the record of any existing copy since it is now out of date/incorrect
                         updateVersion.setArchivalCopyLocation(null);
                         /*
