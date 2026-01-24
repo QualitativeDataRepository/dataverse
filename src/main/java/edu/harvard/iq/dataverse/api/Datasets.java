@@ -1277,7 +1277,9 @@ public class Datasets extends AbstractApiBean {
                         if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)){
                             // Otherwise, delete the record of any existing copy since it is now out of
                             // date/incorrect
-                            updateVersion.setArchivalCopyLocation(null);
+                            JsonObjectBuilder job = Json.createObjectBuilder();
+                            job.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                            updateVersion.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
                             datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
                             /*
                              * Then try to generate and submit an archival copy. Note that running this
@@ -1297,7 +1299,7 @@ public class Datasets extends AbstractApiBean {
                             }
                         } else  if(status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
                             //Not automatically replacing the old archival copy as creating it is expensive
-                            updateVersion.setArchivalStatus(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
+                            updateVersion.setArchivalStatusOnly(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
                             datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
                         }
                     }

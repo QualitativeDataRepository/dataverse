@@ -3013,7 +3013,11 @@ public class DatasetPage implements java.io.Serializable {
                     String status = updateVersion.getArchivalCopyLocationStatus();
                     if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE) || (FeatureFlags.ARCHIVE_ON_VERSION_UPDATE.enabled() && archiveCommand.canDelete())){
                         // Delete the record of any existing copy since it is now out of date/incorrect
-                        updateVersion.setArchivalCopyLocation(null);
+                        JsonObjectBuilder job = Json.createObjectBuilder();
+                        job.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                        updateVersion.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
+                        //Persist to db now
+                        datasetVersionService.persistArchivalCopyLocation(updateVersion);
                         /*
                          * Then try to generate and submit an archival copy. Note that running this
                          * command within the CuratePublishedDatasetVersionCommand was causing an error:
@@ -3032,9 +3036,8 @@ public class DatasetPage implements java.io.Serializable {
                         }
                     } else if(status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
                         //Not automatically replacing the old archival copy as creating it is expensive
-                        updateVersion.setArchivalStatus(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
+                        updateVersion.setArchivalStatusOnly(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
                         datasetVersionService.persistArchivalCopyLocation(updateVersion);
-                        datasetVersionService.merge(updateVersion);
                     }
                 }
             }
@@ -6092,7 +6095,10 @@ public class DatasetPage implements java.io.Serializable {
                     if(status == null || (force && cmd.canDelete())){
                         
                     // Set initial pending status
-                        dv.setArchivalCopyLocation(DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                    JsonObjectBuilder job = Json.createObjectBuilder();
+                    job.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                    dv.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
+                    //Persist now
                     datasetVersionService.persistArchivalCopyLocation(dv);
                     
                     commandEngine.submitAsync(cmd);
