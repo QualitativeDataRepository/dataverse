@@ -392,7 +392,7 @@ public class DatasetVersion implements Serializable {
     }
     public String getArchivalCopyLocationMessage() {
         populateArchivalStatus(false);
-        if(archivalCopyLocationJson!=null && archivalCopyLocationJson.) {
+        if(archivalCopyLocationJson!=null && archivalCopyLocationJson.containsKey(ARCHIVAL_STATUS_MESSAGE)) {
             return archivalCopyLocationJson.getString(ARCHIVAL_STATUS_MESSAGE);
         } 
         return null;
@@ -419,10 +419,10 @@ public class DatasetVersion implements Serializable {
     // Convenience method to just change the status without changing the location
     public void setArchivalStatusOnly(String status) {
         populateArchivalStatus(false);
-        JsonObjectBuilder job = Json.createObjectBuilder(archivalStatus);
+        JsonObjectBuilder job = Json.createObjectBuilder(archivalCopyLocationJson);
         job.add(DatasetVersion.ARCHIVAL_STATUS, status);
-        archivalStatus = job.build();
-        archivalCopyLocation = JsonUtil.prettyPrint(archivalStatus);
+        archivalCopyLocationJson = job.build();
+        archivalCopyLocation = JsonUtil.prettyPrint(archivalCopyLocationJson);
     }
 
     // COnvenience method to set only the status
