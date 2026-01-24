@@ -1299,7 +1299,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
      * Update the archival copy location for a specific version of a dataset.
      * Archiving can be long-running and other parallel updates to the datasetversion have likely occurred
      * so this method will just re-find the version rather than risking an
-     * OptimisticLockException and then having to retry in yert another transaction (since the OLE rolls this one back).
+     * OptimisticLockException and then having to retry in yet another transaction (since the OLE rolls this one back).
      *
      * @param dv
      *            The dataset version whose archival copy location we want to update. Must not be {@code null}.
