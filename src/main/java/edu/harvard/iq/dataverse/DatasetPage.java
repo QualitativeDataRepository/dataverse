@@ -166,7 +166,7 @@ import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SolrClientService;
-import edu.harvard.iq.dataverse.search.SolrSearchServiceBean;
+import edu.harvard.iq.dataverse.settings.FeatureFlags;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SignpostingResources;
 import edu.harvard.iq.dataverse.util.FileMetadataUtil;
@@ -3011,9 +3011,13 @@ public class DatasetPage implements java.io.Serializable {
                     // If pending or an obsolete copy exists, do nothing (nominally if a pending run succeeds and we're updating the current version here, it should be marked as obsolete - ignoring for now since updates within the time an archiving run is pending should be rare
                     // If a failure or null, rerun archiving now. If a failure is due to an exiting copy in the repo, we'll fail again
                     String status = updateVersion.getArchivalCopyLocationStatus();
-                    if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)){
+                    if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE) || (FeatureFlags.ARCHIVE_ON_VERSION_UPDATE.enabled() && archiveCommand.canDelete())){
                         // Delete the record of any existing copy since it is now out of date/incorrect
-                        updateVersion.setArchivalCopyLocation(null);
+                        JsonObjectBuilder job = Json.createObjectBuilder();
+                        job.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                        updateVersion.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
+                        //Persist to db now
+                        datasetVersionService.persistArchivalCopyLocation(updateVersion);
                         /*
                          * Then try to generate and submit an archival copy. Note that running this
                          * command within the CuratePublishedDatasetVersionCommand was causing an error:
@@ -3032,11 +3036,8 @@ public class DatasetPage implements java.io.Serializable {
                         }
                     } else if(status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
                         //Not automatically replacing the old archival copy as creating it is expensive
-                        JsonObject archivalLocation = JsonUtil.getJsonObject(updateVersion.getArchivalCopyLocation());
-                        JsonObjectBuilder job = Json.createObjectBuilder(archivalLocation);
-                        job.add(DatasetVersion.ARCHIVAL_STATUS,DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
-                        datasetVersionService.setArchivalCopyLocation(updateVersion, JsonUtil.prettyPrint(job.build()));
-                        datasetVersionService.merge(updateVersion);
+                        updateVersion.setArchivalStatusOnly(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
+                        datasetVersionService.persistArchivalCopyLocation(updateVersion);
                     }
                 }
             }
@@ -3087,6 +3088,8 @@ public class DatasetPage implements java.io.Serializable {
         //dataset = datasetService.find(dataset.getId());
         dataset = null;
         workingVersion = null; 
+        
+        clearCachedPopupRequiredValues();
 
         logger.fine("refreshing working version");
 
@@ -4018,6 +4021,10 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String save() {
+        
+        //Clear cached info
+        clearCachedPopupRequiredValues();
+        
         //Before dataset saved, write cached prov freeform to version
         if (systemConfig.isProvCollectionEnabled()) {
             provPopupFragmentBean.saveStageProvFreeformToLatestVersion();
@@ -5523,24 +5530,55 @@ public class DatasetPage implements java.io.Serializable {
         return false;
     }
 
+    private Boolean downloadPopupRequired = null;
+    private Boolean requestAccessPopupRequired = null;
+    private Boolean guestbookAndTermsPopupRequired = null;
+    private Boolean guestbookPopupRequired = null;
+    private Boolean termsPopupRequired = null;
+    
     public boolean isDownloadPopupRequired() {
-        return FileUtil.isDownloadPopupRequired(workingVersion);
+        if (downloadPopupRequired == null) {
+            downloadPopupRequired = FileUtil.isDownloadPopupRequired(workingVersion);
+        }
+        return downloadPopupRequired;
     }
 
     public boolean isRequestAccessPopupRequired() {
-        return FileUtil.isRequestAccessPopupRequired(workingVersion);
+        if (requestAccessPopupRequired == null) {
+            requestAccessPopupRequired = FileUtil.isRequestAccessPopupRequired(workingVersion);
+        }
+        return requestAccessPopupRequired;
     }
     
-    public boolean isGuestbookAndTermsPopupRequired() {  
-        return FileUtil.isGuestbookAndTermsPopupRequired(workingVersion);
+    public boolean isGuestbookAndTermsPopupRequired() {
+        if (guestbookAndTermsPopupRequired == null) {
+            guestbookAndTermsPopupRequired = FileUtil.isGuestbookAndTermsPopupRequired(workingVersion);
+        }
+        return guestbookAndTermsPopupRequired;
     }
 
     public boolean isGuestbookPopupRequired(){
-        return FileUtil.isGuestbookPopupRequired(workingVersion);
+        if(guestbookPopupRequired == null) {
+            guestbookPopupRequired = FileUtil.isGuestbookPopupRequired(workingVersion);
+        }
+        return guestbookPopupRequired; 
     }
     
-    public boolean isTermsPopupRequired(){
-        return FileUtil.isTermsPopupRequired(workingVersion);
+    public boolean isTermsPopupRequired() {
+        if (termsPopupRequired == null) {
+            termsPopupRequired = FileUtil.isTermsPopupRequired(workingVersion);
+        }
+        return termsPopupRequired;
+    }
+    
+    private void clearCachedPopupRequiredValues() {
+        downloadPopupRequired = null;
+        requestAccessPopupRequired = null;
+        guestbookAndTermsPopupRequired = null;
+        guestbookPopupRequired = null;
+        termsPopupRequired = null;
+        
+        downloadButtonAvailable = null;
     }
     
     public boolean isGuestbookPopupRequiredAtDownload(){
@@ -6057,7 +6095,11 @@ public class DatasetPage implements java.io.Serializable {
                     if(status == null || (force && cmd.canDelete())){
                         
                     // Set initial pending status
-                    datasetVersionService.setArchivalCopyLocation(dv, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                    JsonObjectBuilder job = Json.createObjectBuilder();
+                    job.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                    dv.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
+                    //Persist now
+                    datasetVersionService.persistArchivalCopyLocation(dv);
                     
                     commandEngine.submitAsync(cmd);
 

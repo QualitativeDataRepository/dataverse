@@ -133,8 +133,8 @@ public class WorkflowServiceBean {
          * (e.g. if this method is not asynchronous)
          * 
          */
-
-        if (!findDataset) {
+        boolean isLocked = ctxt.getLockId()!=null;
+        if (!findDataset && !isLocked) {
             /*
              * Sleep here briefly to make sure the database update from the callers
              * transaction completes which avoids any concurrency/optimistic lock issues.
@@ -152,7 +152,9 @@ public class WorkflowServiceBean {
         }
         //Refresh will only em.find the dataset if findDataset is true. (otherwise the dataset is em.merged)
         ctxt = refresh(ctxt, retrieveRequestedSettings( wf.getRequiredSettings()), getCurrentApiToken(ctxt.getRequest().getAuthenticatedUser()), findDataset);
-        lockDataset(ctxt, new DatasetLock(DatasetLock.Reason.Workflow, ctxt.getRequest().getAuthenticatedUser()));
+        if(!isLocked) {
+            lockDataset(ctxt, new DatasetLock(DatasetLock.Reason.Workflow, ctxt.getRequest().getAuthenticatedUser()));
+        }
         forward(wf, ctxt);
     }
     
@@ -290,7 +292,7 @@ public class WorkflowServiceBean {
             try {
                 if (res == WorkflowStepResult.OK) {
                     logger.log(Level.INFO, "Workflow {0} step {1}: OK", new Object[]{ctxt.getInvocationId(), stepIdx});
-                    em.merge(ctxt.getDataset());
+                    // The dataset is merged in refresh(ctxt)
                     ctxt = refresh(ctxt);
                 } else if (res instanceof Failure) {
                     logger.log(Level.WARNING, "Workflow {0} failed: {1}", new Object[]{ctxt.getInvocationId(), ((Failure) res).getReason()});

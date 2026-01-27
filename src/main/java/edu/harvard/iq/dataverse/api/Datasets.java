@@ -1273,23 +1273,34 @@ public class Datasets extends AbstractApiBean {
                     DatasetVersion updateVersion = ds.getLatestVersion();
                     AbstractSubmitToArchiveCommand archiveCommand = ArchiverUtil.createSubmitToArchiveCommand(className, createDataverseRequest(user), updateVersion);
                     if (archiveCommand != null) {
-                        // Delete the record of any existing copy since it is now out of date/incorrect
-                        datasetVersionSvc.setArchivalCopyLocation(updateVersion, null);
-                        /*
-                         * Then try to generate and submit an archival copy. Note that running this
-                         * command within the CuratePublishedDatasetVersionCommand was causing an error:
-                         * "The attribute [id] of class
-                         * [edu.harvard.iq.dataverse.DatasetFieldCompoundValue] is mapped to a primary
-                         * key column in the database. Updates are not allowed." To avoid that, and to
-                         * simplify reporting back to the GUI whether this optional step succeeded, I've
-                         * pulled this out as a separate submit().
-                         */
-                        try {
-                            commandEngine.submitAsync(archiveCommand);
-                            successMsg = BundleUtil.getStringFromBundle("datasetversion.archive.inprogress");
-                        } catch (CommandException ex) {
-                            successMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.failure") + " - " + ex.toString();
-                            logger.severe(ex.getMessage());
+                        String status = updateVersion.getArchivalCopyLocationStatus();
+                        if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)){
+                            // Otherwise, delete the record of any existing copy since it is now out of
+                            // date/incorrect
+                            JsonObjectBuilder job = Json.createObjectBuilder();
+                            job.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                            updateVersion.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
+                            datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
+                            /*
+                             * Then try to generate and submit an archival copy. Note that running this
+                             * command within the CuratePublishedDatasetVersionCommand was causing an error:
+                             * "The attribute [id] of class
+                             * [edu.harvard.iq.dataverse.DatasetFieldCompoundValue] is mapped to a primary
+                             * key column in the database. Updates are not allowed." To avoid that, and to
+                             * simplify reporting back to the GUI whether this optional step succeeded, I've
+                             * pulled this out as a separate submit().
+                             */
+                            try {
+                                commandEngine.submitAsync(archiveCommand);
+                                successMsg = BundleUtil.getStringFromBundle("datasetversion.archive.inprogress");
+                            } catch (CommandException ex) {
+                                successMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.failure") + " - " + ex.toString();
+                                logger.severe(ex.getMessage());
+                            }
+                        } else  if(status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
+                            //Not automatically replacing the old archival copy as creating it is expensive
+                            updateVersion.setArchivalStatusOnly(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
+                            datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
                         }
                     }
                 } catch (CommandException ex) {
@@ -1380,17 +1391,25 @@ public class Datasets extends AbstractApiBean {
              */
             String errorMsg = null;
             Optional<Workflow> prePubWf = wfService.getDefaultWorkflow(TriggerType.PrePublishDataset);
-
+            DataverseRequest dataverseRequest = createDataverseRequest(user);
             try {
                 // ToDo - should this be in onSuccess()? May relate to todo above
                 if (prePubWf.isPresent()) {
+                    // Create the workflow lock BEFORE starting the workflow
+                    DatasetLock workflowLock = new DatasetLock(DatasetLock.Reason.Workflow, user);
+                    workflowLock.setDataset(ds);
+                    datasetSvc.addDatasetLock(ds, workflowLock);
+                    
+                    // Build context with the lock attached
+                    WorkflowContext context = new WorkflowContext(dataverseRequest, ds, TriggerType.PrePublishDataset, !contactPIDProvider);
+                    context.setLockId(ds.getLockFor(DatasetLock.Reason.Workflow).getId());
                     // Start the workflow, the workflow will call FinalizeDatasetPublication later
                     wfService.start(prePubWf.get(),
-                            new WorkflowContext(createDataverseRequest(user), ds, TriggerType.PrePublishDataset, !contactPIDProvider),
+                            new WorkflowContext(dataverseRequest, ds, TriggerType.PrePublishDataset, !contactPIDProvider),
                             false);
                 } else {
                     FinalizeDatasetPublicationCommand cmd = new FinalizeDatasetPublicationCommand(ds,
-                            createDataverseRequest(user), !contactPIDProvider);
+                            dataverseRequest, !contactPIDProvider);
                     ds = commandEngine.submit(cmd);
                 }
             } catch (CommandException ex) {

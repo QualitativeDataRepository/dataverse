@@ -335,7 +335,8 @@ public class COARNotifyRelationshipAnnouncementStep implements WorkflowStep {
                         break;
                     }
                 }
-            } else if (jo.containsKey(publicationURL.getLabel())) {
+            } 
+            if (id == null && jo.containsKey(publicationURL.getLabel())) {
 
                 String value = jo.getString(publicationURL.getLabel());
                 if (isURI(value)) {

@@ -98,11 +98,12 @@
 	subject	Business and Management	D2	2											
 	subject	Computer and Information Science	D7	3											
 	subject	Earth and Environmental Sciences	D4	4											
-	subject	Engineering	D5	5											
-	subject	Law	D8	6											
-	subject	Medicine, Health and Life Sciences	D6	7											
-	subject	Social Sciences	D11	8											
-	subject	Other	D12	9											
+	subject	Education	D13	5											
+	subject	Engineering	D5	6											
+	subject	Law	D8	7											
+	subject	Medicine, Health and Life Sciences	D6	8											
+	subject	Social Sciences	D11	9											
+	subject	Other	D12	10											
 	publicationIDType	ark		0											
 	publicationIDType	arXiv		1											
 	publicationIDType	doi		2											

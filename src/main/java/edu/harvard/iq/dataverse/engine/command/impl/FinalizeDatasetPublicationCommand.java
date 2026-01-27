@@ -27,6 +27,7 @@ import edu.harvard.iq.dataverse.pidproviders.PidUtil;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.workflow.WorkflowContext;
 import edu.harvard.iq.dataverse.workflow.WorkflowContext.TriggerType;
 
 import java.awt.datatransfer.StringSelection;
@@ -243,14 +244,11 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         //Remove any pre-pub workflow lock (not needed as WorkflowServiceBean.workflowComplete() should already have removed it after setting the finalizePublication lock?)
         ctxt.datasets().removeDatasetLocks(ds, DatasetLock.Reason.Workflow);
         
-        //Should this be in onSuccess()?
         ctxt.workflows().getDefaultWorkflow(TriggerType.PostPublishDataset).ifPresent(wf -> {
-            try {
-                ctxt.workflows().start(wf, buildContext(ds, TriggerType.PostPublishDataset, datasetExternallyReleased), false);
-            } catch (CommandException ex) {
-                ctxt.datasets().removeDatasetLocks(ds, DatasetLock.Reason.Workflow);
-                logger.log(Level.SEVERE, "Error invoking post-publish workflow: " + ex.getMessage(), ex);
-            }
+                // Create the workflow lock BEFORE starting the workflow
+                DatasetLock workflowLock = new DatasetLock(DatasetLock.Reason.Workflow, (AuthenticatedUser) getRequest().getUser());
+                workflowLock.setDataset(ds);
+                ctxt.datasets().addDatasetLock(ds, workflowLock);
         });
 
         Dataset readyDataset = ctxt.em().merge(ds);
@@ -287,6 +285,18 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         } catch (Exception e) {
             logger.warning("Failure to send dataset published messages for : " + dataset.getId() + " : " + e.getMessage());
         }
+
+        final Dataset ds = dataset;
+        ctxt.workflows().getDefaultWorkflow(TriggerType.PostPublishDataset).ifPresent(wf -> {
+            // Build context with the lock attached
+            WorkflowContext context = buildContext(ds, TriggerType.PostPublishDataset, datasetExternallyReleased);
+            context.setLockId(ds.getLockFor(DatasetLock.Reason.Workflow).getId());
+            try {
+                ctxt.workflows().start(wf, context, false);
+            } catch (CommandException e) {
+                logger.log(Level.SEVERE, "Error invoking post-publish workflow: " + e.getMessage(), e);
+            }
+        });
         // Metadata export:
         ctxt.datasets().reExportDatasetAsync(dataset);
         
