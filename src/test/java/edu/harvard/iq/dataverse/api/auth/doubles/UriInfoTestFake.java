@@ -104,4 +104,9 @@ public class UriInfoTestFake implements UriInfo {
         return null;
     }
 
+    @Override
+    public String getMatchedResourceTemplate() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
