@@ -17,7 +17,6 @@ import edu.harvard.iq.dataverse.settings.JvmSettings;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,7 +53,6 @@ public class SolrIndexServiceBean {
 
     private static final Logger logger = Logger.getLogger(SolrIndexServiceBean.class.getCanonicalName());
 
-    
     @EJB
     private SolrIndexServiceBean self; // Self-injection to allow calling methods in new transactions (from other methods in this bean)
     
@@ -100,12 +98,12 @@ public class SolrIndexServiceBean {
             Set<DatasetVersion> datasetVersions = datasetVersionsToBuildCardsFor(datafile.getOwner());
             List<String> downloaders = searchPermissionsService.findDvObjectPerms(datafile);
             for (DatasetVersion version : datasetVersions) {
-                if(datafile.isInDatasetVersion(version)) {
-                            List<String> cachedPerms = searchPermissionsService.findDatasetVersionPerms(version);
-                            String solrIdEnd = getDatasetOrDataFileSolrEnding(version.getVersionState());
-                            Long versionId = version.getId();
-                            DvObjectSolrDoc fileSolrDoc = constructDatafileSolrDoc(new DataFileProxy(datafile.getFileMetadata()),  cachedPerms, versionId, solrIdEnd, downloaders);
-            solrDocs.add(fileSolrDoc);
+                if (datafile.isInDatasetVersion(version)) {
+                    List<String> cachedPerms = searchPermissionsService.findDatasetVersionPerms(version);
+                    String solrIdEnd = getDatasetOrDataFileSolrEnding(version.getVersionState());
+                    Long versionId = version.getId();
+                    DvObjectSolrDoc fileSolrDoc = constructDatafileSolrDoc(new DataFileProxy(datafile.getFileMetadata()), cachedPerms, versionId, solrIdEnd, downloaders);
+                    solrDocs.add(fileSolrDoc);
                 }
             }
         } else {
@@ -576,20 +574,22 @@ public class SolrIndexServiceBean {
         if (dataFileService.findCountByDatasetVersionId(version.getId()).intValue() > fileQueryMin) {
             // For large datasets, use a more efficient SQL query
             // ToDo - only get the ones in finalFileIdsToReindex
-            Stream<DataFileProxy> fileStream = getDataFileInfoForPermissionIndexing(version.getId());
+            try (Stream<DataFileProxy> fileStream = getDataFileInfoForPermissionIndexing(version.getId())) {
 
-            // Process files in batches to avoid memory issues
-            fileStream.forEach(fileInfo -> {
-                // Only add files that need reindexing
+                // Process files in batches to avoid memory issues
+                fileStream.forEach(fileInfo -> {
+                    // Only add files that need reindexing
                 if (changedFileIds == null || changedFileIds.contains(fileInfo.getFileId())) {
-                    filesToReindexAsBatch.add(fileInfo);
-                    fileCounter[0]++;
-                    if (filesToReindexAsBatch.size() >= batchSize) {
-                        reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
-                        filesToReindexAsBatch.clear();
+                        filesToReindexAsBatch.add(fileInfo);
+                        fileCounter[0]++;
+
+                        if (filesToReindexAsBatch.size() >= batchSize) {
+                            reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
+                            filesToReindexAsBatch.clear();
+                        }
                     }
-                }
-            });
+                });
+            }
         } else {
             // For smaller datasets, process files directly
             // We only call getFileMetadatas() in the case where we know they have already been loaded
@@ -599,6 +599,7 @@ public class SolrIndexServiceBean {
                 if (changedFileIds == null || changedFileIds.contains(fileProxy.getFileId())) {
                     filesToReindexAsBatch.add(fileProxy);
                     fileCounter[0]++;
+
                     if (filesToReindexAsBatch.size() >= batchSize) {
                         reindexFilesInBatches(filesToReindexAsBatch, cachedPerms, versionId, solrIdEnd, fileDownloadersMap);
                         filesToReindexAsBatch.clear();
@@ -621,19 +622,19 @@ public class SolrIndexServiceBean {
                 logger.warning("reindexFilesInBatches called incorrectly with an empty file list");
             }
 
-                    for (DataFileProxy file : filesToReindexAsBatch) {
-                            List<String> downloaders=null;
-                            if(file.isRestricted()) {
-                                downloaders = fileDownloadersMap.get(file.getFileId());
-                            }
-                            DvObjectSolrDoc fileSolrDoc = constructDatafileSolrDoc(file, cachedPerms, versionId, solrIdEnd, downloaders);
-                            SolrInputDocument solrDoc = SearchUtil.createSolrDoc(fileSolrDoc);
-                            docs.add(solrDoc);
-                    }
+            for (DataFileProxy file : filesToReindexAsBatch) {
+                List<String> downloaders = null;
+                if (file.isRestricted()) {
+                    downloaders = fileDownloadersMap.get(file.getFileId());
+                }
+                DvObjectSolrDoc fileSolrDoc = constructDatafileSolrDoc(file, cachedPerms, versionId, solrIdEnd, downloaders);
+                SolrInputDocument solrDoc = SearchUtil.createSolrDoc(fileSolrDoc);
+                docs.add(solrDoc);
+            }
             persistToSolr(docs);
             logger.fine("Indexed " + filesToReindexAsBatch.size() + " files across " + docs.size() + " Solr documents");
         } catch (SolrServerException | IOException ex) {
-            logger.log(Level.WARNING, "Failed to reindex " + filesToReindexAsBatch.size() + 
+            logger.log(Level.WARNING, "Failed to reindex " + filesToReindexAsBatch.size() +
                     " files across " + docs.size() + " Solr documents", ex);
         }
     }
@@ -687,7 +688,7 @@ public class SolrIndexServiceBean {
     }
 
     public Stream<DataFileProxy> getDataFileInfoForPermissionIndexing(Long id) {
-       return em.createNamedQuery("DataFile.getDataFileInfoForPermissionIndexing", DataFileProxy.class)
+        return em.createNamedQuery("DataFile.getDataFileInfoForPermissionIndexing", DataFileProxy.class)
                 .setParameter(1, id)
                 .getResultStream();
     }

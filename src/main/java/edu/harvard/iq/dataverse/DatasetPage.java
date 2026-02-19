@@ -1,8 +1,5 @@
 package edu.harvard.iq.dataverse;
 
-import edu.harvard.iq.dataverse.authorization.DataverseRole;
-import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
-import edu.harvard.iq.dataverse.globus.Permissions;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
@@ -109,7 +106,6 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.json.Json;
-import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.persistence.OptimisticLockException;
 
@@ -392,6 +388,8 @@ public class DatasetPage implements java.io.Serializable {
     private boolean showIngestSuccess;
     
     private Boolean archivable = null;
+    private Boolean checkForArchivalCopy;
+    private Boolean supportsDelete;
     private HashMap<Long,Boolean> versionArchivable = new HashMap<>();
     private Boolean someVersionArchived = null;
 
@@ -3006,7 +3004,7 @@ public class DatasetPage implements java.io.Serializable {
                 String className = settingsService.get(SettingsServiceBean.Key.ArchiverClassName.toString());
                 AbstractSubmitToArchiveCommand archiveCommand = ArchiverUtil.createSubmitToArchiveCommand(className, dvRequestService.getDataverseRequest(), updateVersion);
                 if (archiveCommand != null) {
-                    //There is an archiver configured, so now decide what to dO:
+                    //There is an archiver configured, so now decide what to do:
                     // If a successful copy exists, don't automatically update, just note the old copy is obsolete (and enable the superadmin button in the display to allow a ~manual update if desired)
                     // If pending or an obsolete copy exists, do nothing (nominally if a pending run succeeds and we're updating the current version here, it should be marked as obsolete - ignoring for now since updates within the time an archiving run is pending should be rare
                     // If a failure or null, rerun archiving now. If a failure is due to an exiting copy in the repo, we'll fail again
@@ -6147,6 +6145,7 @@ public class DatasetPage implements java.io.Serializable {
         if (thisVersionArchivable == null) {
             // If this dataset isn't in an archivable collection return false
             thisVersionArchivable = false;
+            boolean requiresEarlierVersionsToBeArchived = settingsWrapper.isTrueForKey(SettingsServiceBean.Key.ArchiveOnlyIfEarlierVersionsAreArchived, false);
             if (isArchivable()) {
                 
                 // Otherwise, we need to know if the archiver is single-version-only
@@ -6155,15 +6154,26 @@ public class DatasetPage implements java.io.Serializable {
                 String className = settingsWrapper.getValueForKey(SettingsServiceBean.Key.ArchiverClassName, null);
                 if (className != null) {
                     try {
-                        boolean checkForArchivalCopy = false;
+                        DatasetVersion targetVersion = dataset.getVersions().stream()
+                                .filter(v -> v.getId().equals(id)).findFirst().orElse(null);
+                        if (requiresEarlierVersionsToBeArchived) {// Find the specific version by id
+                            DatasetVersion priorVersion = DatasetUtil.getPriorVersion(targetVersion);
+
+                            if (priorVersion== null || (isVersionArchivable(priorVersion.getId())
+                                    && ArchiverUtil.isVersionArchived(priorVersion))) {
+                                thisVersionArchivable = true;
+                            }
+                        }
+                        if (checkForArchivalCopy == null) {
+                            //Only check once
                         Class<?> clazz = Class.forName(className);
                         Method m = clazz.getMethod("isSingleVersion", SettingsWrapper.class);
                         Method m2 = clazz.getMethod("supportsDelete");
 
                         Object[] params = { settingsWrapper };
-                        boolean supportsDelete = (Boolean) m2.invoke(null);
                         checkForArchivalCopy = (Boolean) m.invoke(null, params);
-
+                            supportsDelete = (Boolean) m2.invoke(null);
+                        }
                         if (checkForArchivalCopy) {
                             // If we have to check (single version archiving), we can't allow archiving if
                             // one version is already archived (or attempted - any non-null status)
@@ -6174,16 +6184,12 @@ public class DatasetPage implements java.io.Serializable {
                             // the status is null or the archiver can delete prior runs and status isn't success,
                             // we can archive, so return true
                             // Find the specific version by id
-                            DatasetVersion targetVersion = dataset.getVersions().stream()
-                                .filter(v -> v.getId().equals(id))
-                                .findFirst()
-                                .orElse(null);
                             String status = targetVersion.getArchivalCopyLocationStatus();
                             thisVersionArchivable = (status == null) || ((!status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS) && (!status.equals(DatasetVersion.ARCHIVAL_STATUS_PENDING)) && supportsDelete));
                         }
                     } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException
                             | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                        logger.warning("Failed to call isSingleVersion on configured archiver class: " + className);
+                        logger.warning("Failed to call methods on configured archiver class: " + className);
                         e.printStackTrace();
                     }
                 }
@@ -6260,6 +6266,7 @@ public class DatasetPage implements java.io.Serializable {
 
     private String termsOfAccess;
     private boolean fileAccessRequest;
+    private boolean publishDisclaimerAcknowledged;
 
     public String getTermsOfAccess() {
         return termsOfAccess;
@@ -6275,6 +6282,14 @@ public class DatasetPage implements java.io.Serializable {
 
     public void setFileAccessRequest(boolean fileAccessRequest) {
         this.fileAccessRequest = fileAccessRequest;
+    }
+
+    public boolean isPublishDisclaimerAcknowledged() {
+        return publishDisclaimerAcknowledged || !settingsWrapper.isHasPublishDatasetDisclaimerText();
+    }
+
+    public void setPublishDisclaimerAcknowledged(boolean publishDisclaimerAcknowledged) {
+        this.publishDisclaimerAcknowledged = publishDisclaimerAcknowledged;
     }
 
     // wrapper method to see if the file has been deleted (or replaced) in the current version

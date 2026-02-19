@@ -9,6 +9,7 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import static edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key.BagItLocalPath;
 import edu.harvard.iq.dataverse.util.bagit.BagGenerator;
+import edu.harvard.iq.dataverse.util.bagit.BagGenerator.FileEntry;
 import edu.harvard.iq.dataverse.util.json.JsonLDTerm;
 import edu.harvard.iq.dataverse.workflow.step.Failure;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult;
@@ -23,6 +24,7 @@ import jakarta.json.JsonObjectBuilder;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -56,13 +58,15 @@ public class LocalSubmitToArchiveCommand extends AbstractSubmitToArchiveCommand 
         statusObject.add(DatasetVersion.ARCHIVAL_STATUS_MESSAGE, "Bag not transferred");
         
         try {
+
             Dataset dataset = dv.getDataset();
 
-            String spaceName = dataset.getGlobalId().asString().replace(':', '-').replace('/', '-')
-                    .replace('.', '-').toLowerCase();
+            String spaceName = dataset.getGlobalId().asString().replace(':', '-').replace('/', '-').replace('.', '-')
+                    .toLowerCase();
 
             // Define file paths
-            String dataciteFileName = localPath + "/" + spaceName + "-datacite.v" + dv.getFriendlyVersionNumber() + ".xml";
+            String dataciteFileName = localPath + "/" + spaceName + "-datacite.v" + dv.getFriendlyVersionNumber()
+                    + ".xml";
             zipName = localPath + "/" + spaceName + "v" + dv.getFriendlyVersionNumber() + ".zip";
 
             // Check for and delete existing files for this version
@@ -112,6 +116,17 @@ public class LocalSubmitToArchiveCommand extends AbstractSubmitToArchiveCommand 
             if (!bagSuccess) {
                 logger.severe("Bag generation failed for " + zipName);
                 return new Failure("Local Submission Failure", "Bag generation failed");
+            }
+            // Now download any files that were too large for the bag
+            for (FileEntry entry : bagger.getOversizedFiles()) {
+                String childPath = entry.getChildPath(entry.getChildTitle());
+                File destFile = new File(localPath,
+                        localPath + "/" + spaceName + "v" + dv.getFriendlyVersionNumber() + "/" + childPath);
+                logger.fine("Downloading oversized file to " + destFile.getAbsolutePath());
+                destFile.getParentFile().mkdirs();
+                try (InputStream is = bagger.getInputStreamSupplier(entry.getDataUrl()).get()) {
+                    FileUtils.copyInputStreamToFile(is, destFile);
+                }
             }
 
             File srcFile = new File(zipName + ".partial");

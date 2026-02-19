@@ -425,15 +425,6 @@ public class DatasetVersion implements Serializable {
         archivalCopyLocation = JsonUtil.prettyPrint(archivalCopyLocationJson);
     }
 
-    // COnvenience method to set only the status
-    public void setArchivalStatus(String status) {
-        populateArchivalStatus(false);
-        JsonObjectBuilder job = Json.createObjectBuilder(archivalCopyLocationJson);
-        job.add(DatasetVersion.ARCHIVAL_STATUS, status);
-        archivalCopyLocationJson = job.build();
-        archivalCopyLocation = JsonUtil.prettyPrint(archivalCopyLocationJson);
-    }
-
     public String getDeaccessionLink() {
         return deaccessionLink;
     }

@@ -2,9 +2,7 @@ package edu.harvard.iq.dataverse.api;
 
 import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.DatasetLock.Reason;
-import edu.harvard.iq.dataverse.DataverseRoleServiceBean.RoleAssignmentHistoryConsolidatedEntry;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogRecord;
-import edu.harvard.iq.dataverse.api.AbstractApiBean.WrappedResponse;
 import edu.harvard.iq.dataverse.api.auth.AuthRequired;
 import edu.harvard.iq.dataverse.api.dto.CustomTermsDTO;
 import edu.harvard.iq.dataverse.api.dto.LicenseUpdateRequest;
@@ -477,12 +475,16 @@ public class Datasets extends AbstractApiBean {
                                @QueryParam("excludeMetadataBlocks") Boolean excludeMetadataBlocks,
                                @QueryParam("includeDeaccessioned") boolean includeDeaccessioned,
                                @QueryParam("returnOwners") boolean returnOwners,
+                               @QueryParam("ignoreSettingExcludeEmailFromExport") Boolean ignoreSettingToExcludeEmailFromExport,
                                @Context UriInfo uriInfo,
                                @Context HttpHeaders headers) {
         return response( req -> {
+            boolean includeMetadataBlocks = excludeMetadataBlocks == null ? true : !excludeMetadataBlocks;
+            boolean includeFiles = excludeFiles == null ? true : !excludeFiles;
+            boolean ignoreSettingExcludeEmailFromExport = ignoreSettingToExcludeEmailFromExport != null ? ignoreSettingToExcludeEmailFromExport : false;
 
             //If excludeFiles is null the default is to provide the files and because of this we need to check permissions.
-            boolean checkPerms = excludeFiles == null ? true : !excludeFiles;
+            boolean checkPerms = includeFiles;
 
             Dataset dataset = findDatasetOrDie(datasetId);
             DatasetVersion requestedDatasetVersion = getDatasetVersionOrDie(req,
@@ -496,16 +498,19 @@ public class Datasets extends AbstractApiBean {
             if (requestedDatasetVersion == null || requestedDatasetVersion.getId() == null) {
                 return notFound("Dataset version not found");
             }
-
-            if (excludeFiles == null ? true : !excludeFiles) {
+            if (includeFiles) {
                 requestedDatasetVersion = datasetversionService.findDeep(requestedDatasetVersion.getId());
             }
-            Boolean includeMetadataBlocks = excludeMetadataBlocks == null ? true : !excludeMetadataBlocks;
 
-            JsonObjectBuilder jsonBuilder = json(requestedDatasetVersion,
-                                                 null,
-                                                 excludeFiles == null ? true : !excludeFiles,
-                                                 returnOwners, includeMetadataBlocks);
+            // Check to see if the caller wants to ignore the ExcludeEmailFromExport setting in the metadata block and that they have permission to do so
+            // Let the JsonPrinter know to ignore the ExcludeEmailFromExport setting so the emails will show for this API call by permitted user
+            if (ignoreSettingExcludeEmailFromExport && (!includeMetadataBlocks || !permissionService.userOn(getRequestUser(crc), dataset).has(Permission.EditDataset))) {
+                // either not showing metadata block or user isn't allowed to override the setting
+                ignoreSettingExcludeEmailFromExport = false;
+            }
+
+            JsonObjectBuilder jsonBuilder = json(requestedDatasetVersion, null, includeFiles,
+                    returnOwners, includeMetadataBlocks, ignoreSettingExcludeEmailFromExport);
             return ok(jsonBuilder);
 
         }, getRequestUser(crc));
@@ -1274,21 +1279,17 @@ public class Datasets extends AbstractApiBean {
                     AbstractSubmitToArchiveCommand archiveCommand = ArchiverUtil.createSubmitToArchiveCommand(className, createDataverseRequest(user), updateVersion);
                     if (archiveCommand != null) {
                         String status = updateVersion.getArchivalCopyLocationStatus();
-                        if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)){
-                            // Otherwise, delete the record of any existing copy since it is now out of
+                        if ((status == null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)) {
+                            // Delete the record of any existing copy since it is now out of
                             // date/incorrect
                             JsonObjectBuilder job = Json.createObjectBuilder();
                             job.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_PENDING);
                             updateVersion.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
                             datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
                             /*
-                             * Then try to generate and submit an archival copy. Note that running this
-                             * command within the CuratePublishedDatasetVersionCommand was causing an error:
-                             * "The attribute [id] of class
-                             * [edu.harvard.iq.dataverse.DatasetFieldCompoundValue] is mapped to a primary
-                             * key column in the database. Updates are not allowed." To avoid that, and to
-                             * simplify reporting back to the GUI whether this optional step succeeded, I've
-                             * pulled this out as a separate submit().
+                             * Then try to generate and submit an archival copy. Note that running this command within the CuratePublishedDatasetVersionCommand was causing an error: "The attribute [id] of class
+                             * [edu.harvard.iq.dataverse.DatasetFieldCompoundValue] is mapped to a primary key column in the database. Updates are not allowed." To avoid that, and to simplify reporting back to the GUI whether
+                             * this optional step succeeded, I've pulled this out as a separate submit().
                              */
                             try {
                                 commandEngine.submitAsync(archiveCommand);
@@ -1297,8 +1298,8 @@ public class Datasets extends AbstractApiBean {
                                 successMsg = BundleUtil.getStringFromBundle("datasetversion.update.archive.failure") + " - " + ex.toString();
                                 logger.severe(ex.getMessage());
                             }
-                        } else  if(status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
-                            //Not automatically replacing the old archival copy as creating it is expensive
+                        } else if (status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
+                            // Not automatically replacing the old archival copy as creating it is expensive
                             updateVersion.setArchivalStatusOnly(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
                             datasetVersionSvc.persistArchivalCopyLocation(updateVersion);
                         }
@@ -1441,8 +1442,7 @@ public class Datasets extends AbstractApiBean {
             }
             // Command requires Super user - it will be tested by the command
             execCommand(new MoveDatasetCommand(
-                    createDataverseRequest(u), ds, target, force
-                    ));
+                    createDataverseRequest(u), ds, target, force, true));
             return ok(BundleUtil.getStringFromBundle("datasets.api.moveDataset.success"));
         } catch (WrappedResponse ex) {
             if (ex.getCause() instanceof UnforcedCommandException) {
@@ -5036,7 +5036,7 @@ public class Datasets extends AbstractApiBean {
             }
             DataverseRequest req = createDataverseRequest(au);
             DatasetVersion dsv = getDatasetVersionOrDie(req, versionNumber, findDatasetOrDie(datasetId), uriInfo,
-                    headers);
+                    headers, true);
 
             if (dsv.getArchivalCopyLocation() == null) {
                 return error(Status.NOT_FOUND, "This dataset version has not been archived");
@@ -5078,7 +5078,7 @@ public class Datasets extends AbstractApiBean {
 
                     DataverseRequest req = createDataverseRequest(au);
                     DatasetVersion dsv = getDatasetVersionOrDie(req, versionNumber, findDatasetOrDie(datasetId),
-                            uriInfo, headers);
+                            uriInfo, headers, true);
 
                     if (dsv == null) {
                         return error(Status.NOT_FOUND, "Dataset version not found");
@@ -5125,7 +5125,7 @@ public class Datasets extends AbstractApiBean {
 
             DataverseRequest req = createDataverseRequest(au);
             DatasetVersion dsv = getDatasetVersionOrDie(req, versionNumber, findDatasetOrDie(datasetId), uriInfo,
-                    headers);
+                    headers, true);
             if (dsv == null) {
                 return error(Status.NOT_FOUND, "Dataset version not found");
             }

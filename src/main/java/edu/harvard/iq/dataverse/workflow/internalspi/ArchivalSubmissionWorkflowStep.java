@@ -62,6 +62,10 @@ public class ArchivalSubmissionWorkflowStep implements WorkflowStep {
         if (archiveCommand != null) {
             // Generate the required components for archiving
             DatasetVersion version = context.getDataset().getReleasedVersion();
+            if (!archiveCommand.preconditionsMet(version, context.getApiToken(), requestedSettings)) {
+                return new Failure("Earlier versions must be successfully archived first",
+                        "Archival prerequisites not met");
+            }
             
             // Generate DataCite XML
             String dataCiteXml = archiveCommand.getDataCiteXml(version);

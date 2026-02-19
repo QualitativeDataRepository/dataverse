@@ -146,7 +146,7 @@ public class LoginPage implements java.io.Serializable {
         Collections.sort(idps, Comparator.comparing(AuthenticationProvider::getOrder).thenComparing(AuthenticationProvider::getId));
         
         for (AuthenticationProvider idp : idps) {
-            if (idp != null) {
+            if (idp != null && !idp.isHidden()) {
                 infos.add(idp.getInfo());
             }
         }

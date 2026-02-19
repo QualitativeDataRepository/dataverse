@@ -36,12 +36,14 @@ public class CitationServlet extends HttpServlet {
         
         String persistentId = request.getParameter("persistentId");
         if (persistentId != null) {
-            GlobalId pid = PidUtil.parseAsGlobalID(persistentId);
-            DvObject dob = dvObjectService.findByGlobalId(pid);
+            GlobalId globalId = PidUtil.parseAsGlobalID(persistentId);
+            DvObject dob = dvObjectService.findByGlobalId(globalId);
             if (dob == null) {
-                dob = dvObjectService.findByAltGlobalId(pid, DvObject.DType.Dataset);
+                // try to find with alternative PID
+                dob = dvObjectService.findByAltGlobalId(globalId, DvObject.DType.Dataset);
                 if (dob == null) {
-                    dob = dvObjectService.findByAltGlobalId(pid, DvObject.DType.DataFile);
+                    //also check file case
+                    dob = dvObjectService.findByAltGlobalId(globalId, DvObject.DType.DataFile);
                 }
             }
             if (dob != null) {

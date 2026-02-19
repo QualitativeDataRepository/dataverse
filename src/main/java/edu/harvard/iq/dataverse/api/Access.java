@@ -15,7 +15,6 @@ import edu.harvard.iq.dataverse.authorization.DataverseRole;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.RoleAssignee;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.authorization.users.GuestUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
@@ -185,14 +184,12 @@ public class Access extends AbstractApiBean {
         
         DataFile df = findDataFileOrDieWrapper(fileId);
         
-        // This will throw a ForbiddenException if access isn't authorized: 
-        checkAuthorization(getRequestUser(crc), df);
+        // This will throw a ForbiddenException if access isn't authorized:
+        checkAuthorization(crc, df);
         
         if (gbrecs != true && df.isReleased()){
             // Write Guestbook record if not done previously and file is released
-            //This calls findUserOrDie which will retrieve the key param or api token header, or the workflow token header.
-            User apiTokenUser = findAPITokenUser(getRequestUser(crc));
-            gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, apiTokenUser);
+            gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, getRequestor(crc));
             guestbookResponseService.save(gbr);
             MakeDataCountEntry entry = new MakeDataCountEntry(uriInfo, headers, dvRequestService, df);
             mdcLogService.logEntry(entry);
@@ -283,13 +280,12 @@ public class Access extends AbstractApiBean {
             // (nobody should ever be using this API on a harvested DataFile)!
         }
                
-        // This will throw a ForbiddenException if access isn't authorized: 
-        checkAuthorization(getRequestUser(crc), df);
+        // This will throw a ForbiddenException if access isn't authorized:
+        checkAuthorization(crc, df);
 
         if (gbrecs != true && df.isReleased()){
             // Write Guestbook record if not done previously and file is released
-            User apiTokenUser = findAPITokenUser(getRequestUser(crc));
-            gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, apiTokenUser);
+            gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, getRequestor(crc));
         }
 
         DownloadInfo dInfo = new DownloadInfo(df);
@@ -623,7 +619,7 @@ public class Access extends AbstractApiBean {
         // as defined for the DataFile itself), and will throw a ForbiddenException 
         // if access is denied:
         if (!publiclyAvailable) {
-            checkAuthorization(getRequestUser(crc), df);
+            checkAuthorization(crc, df);
         }
         
         return downloadInstance;
@@ -643,7 +639,7 @@ public class Access extends AbstractApiBean {
     public Response postDownloadDatafiles(@Context ContainerRequestContext crc, String fileIds, @QueryParam("gbrecs") boolean gbrecs, @Context UriInfo uriInfo, @Context HttpHeaders headers, @Context HttpServletResponse response) throws WebApplicationException {
         
 
-        return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response, null);
+        return downloadDatafiles(crc, fileIds, gbrecs, uriInfo, headers, response, null);
     }
 
     @GET
@@ -664,7 +660,7 @@ public class Access extends AbstractApiBean {
                     // We don't want downloads from Draft versions to be counted, 
                     // so we are setting the gbrecs (aka "do not write guestbook response") 
                     // variable accordingly:
-                    return downloadDatafiles(getRequestUser(crc), fileIds, true, uriInfo, headers, response, "draft");
+                    return downloadDatafiles(crc, fileIds, true, uriInfo, headers, response, "draft");
                 }
             }
             
@@ -685,7 +681,7 @@ public class Access extends AbstractApiBean {
             }
             
             String fileIds = getFileIdsAsCommaSeparated(latest.getFileMetadatas());
-            return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response, latest.getFriendlyVersionNumber());
+            return downloadDatafiles(crc, fileIds, gbrecs, uriInfo, headers, response, latest.getFriendlyVersionNumber());
         } catch (WrappedResponse wr) {
             return wr.getResponse();
         }
@@ -735,7 +731,7 @@ public class Access extends AbstractApiBean {
             if (dsv.isDraft()) {
                 gbrecs = true;
             }
-            return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response, dsv.getFriendlyVersionNumber().toLowerCase());
+            return downloadDatafiles(crc, fileIds, gbrecs, uriInfo, headers, response, dsv.getFriendlyVersionNumber().toLowerCase());
         } catch (WrappedResponse wr) {
             return wr.getResponse();
         }
@@ -776,10 +772,10 @@ public class Access extends AbstractApiBean {
     @Path("datafiles/{fileIds}")
     @Produces({"application/zip"})
     public Response datafiles(@Context ContainerRequestContext crc, @PathParam("fileIds") String fileIds, @QueryParam("gbrecs") boolean gbrecs, @Context UriInfo uriInfo, @Context HttpHeaders headers, @Context HttpServletResponse response) throws WebApplicationException {
-        return downloadDatafiles(getRequestUser(crc), fileIds, gbrecs, uriInfo, headers, response, null);
+        return downloadDatafiles(crc, fileIds, gbrecs, uriInfo, headers, response, null);
     }
 
-    private Response downloadDatafiles(User user, String rawFileIds, boolean donotwriteGBResponse, UriInfo uriInfo, HttpHeaders headers, HttpServletResponse response, String versionTag) throws WebApplicationException /* throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
+    private Response downloadDatafiles(ContainerRequestContext crc, String rawFileIds, boolean donotwriteGBResponse, UriInfo uriInfo, HttpHeaders headers, HttpServletResponse response, String versionTag) throws WebApplicationException /* throws NotFoundException, ServiceUnavailableException, PermissionDeniedException, AuthorizationRequiredException*/ {
         final long zipDownloadSizeLimit = systemConfig.getZipDownloadLimit();
                 
         logger.fine("setting zip download size limit to " + zipDownloadSizeLimit + " bytes.");
@@ -800,8 +796,8 @@ public class Access extends AbstractApiBean {
         
         String customZipServiceUrl = settingsService.getValueForKey(SettingsServiceBean.Key.CustomZipDownloadServiceUrl);
         boolean useCustomZipService = customZipServiceUrl != null; 
-        
-        User apiTokenUser = findAPITokenUser(user); //for use in adding gb records if necessary
+
+        User user = getRequestor(crc);
         
         Boolean getOrig = false;
         for (String key : uriInfo.getQueryParameters().keySet()) {
@@ -814,7 +810,7 @@ public class Access extends AbstractApiBean {
         if (useCustomZipService) {
             URI redirect_uri = null; 
             try {
-                redirect_uri = handleCustomZipDownload(user, customZipServiceUrl, fileIds, apiTokenUser, uriInfo, headers, donotwriteGBResponse, true);
+                redirect_uri = handleCustomZipDownload(user, customZipServiceUrl, fileIds, uriInfo, headers, donotwriteGBResponse, true);
             } catch (WebApplicationException wae) {
                 throw wae;
             }
@@ -859,7 +855,7 @@ public class Access extends AbstractApiBean {
                                     logger.fine("adding datafile (id=" + file.getId() + ") to the download list of the ZippedDownloadInstance.");
                                     //downloadInstance.addDataFile(file);
                                     if (donotwriteGBResponse != true && file.isReleased()){
-                                        GuestbookResponse  gbr = guestbookResponseService.initAPIGuestbookResponse(file.getOwner(), file, session, apiTokenUser);
+                                        GuestbookResponse  gbr = guestbookResponseService.initAPIGuestbookResponse(file.getOwner(), file, session, user);
                                         guestbookResponseService.save(gbr);
                                         MakeDataCountEntry entry = new MakeDataCountEntry(uriInfo, headers, dvRequestService, file);                                        
                                         mdcLogService.logEntry(entry);
@@ -1734,15 +1730,22 @@ public class Access extends AbstractApiBean {
     }
 
     // checkAuthorization is a convenience method; it calls the boolean method
-    // isAccessAuthorized(), the actual workhorse, tand throws a 403 exception if not.
-    
-    private void checkAuthorization(User user, DataFile df) throws WebApplicationException {
-
+    // isAccessAuthorized(), the actual workhorse, and throws a 403 exception if not.
+    private void checkAuthorization(ContainerRequestContext crc, DataFile df) throws WebApplicationException {
+        User user = getRequestor(crc);
         if (!isAccessAuthorized(user, df)) {
             throw new ForbiddenException();
         }        
     }
-    
+    private User getRequestor(ContainerRequestContext crc) {
+        User user = getRequestUser(crc);
+        // CompoundAuthMechanism should find the user by API Key/Token, Workflow, etc. And for SPA the Bearer Token
+        // For JSF check if CompoundAuthMechanism couldn't find the user then try to get it from the session
+        if (session!=null && user instanceof GuestUser) {
+            user = session.getUser();
+        }
+        return user;
+    }
 
     private boolean isAccessAuthorized(User requestUser, DataFile df) {
     // First, check if the file belongs to a released Dataset version: 
@@ -1817,8 +1820,6 @@ public class Access extends AbstractApiBean {
                 }
             }
         }
-        
-        
 
         //The one case where we don't need to check permissions
         if (!restricted && !embargoed && !retentionExpired && published) {
@@ -1827,49 +1828,10 @@ public class Access extends AbstractApiBean {
             // be handled below)
             return true;
         }
-        
-        //For permissions check decide if we have a session user, or an API user
-        User sessionUser = null;
-        
+
         /** 
          * Authentication/authorization:
          */
-
-        User apiUser = requestUser;
-
-        /*
-         * If API user is not authenticated, and a session user exists, we use that.
-         * If the API user indicates a GuestUser, we will use that if there's no session.
-         * 
-         * This is currently the only API call that supports sessions. If the rest of
-         * the API is opened up, the custom logic here wouldn't be needed.
-         */
-
-        if ((apiUser instanceof GuestUser) && session != null) {
-            if (session.getUser() != null) {
-                sessionUser = session.getUser();
-                apiUser = null;
-                //Fine logging
-                if (!session.getUser().isAuthenticated()) {
-                    logger.fine("User associated with the session is not an authenticated user.");
-                    if (session.getUser() instanceof PrivateUrlUser) {
-                        logger.fine("User associated with the session is a PrivateUrlUser user.");
-                    }
-                    if (session.getUser() instanceof GuestUser) {
-                        logger.fine("User associated with the session is indeed a guest user.");
-                    }
-                }
-            } else {
-                logger.fine("No user associated with the session.");
-            }
-        } else {
-            logger.fine("Session is null.");
-        } 
-        //If we don't have a user, nothing more to do. (Note session could have returned GuestUser)
-        if (sessionUser == null && apiUser == null) {
-            logger.warning("Unable to find a user via session or with a token.");
-            return false;
-        }
 
         /*
          * Since published and not restricted/embargoed is handled above, the main split
@@ -1878,13 +1840,8 @@ public class Access extends AbstractApiBean {
          * and not restricted/embargoed both get handled the same way.
          */
 
-        DataverseRequest dvr = null;
-        if (apiUser != null) {
-            dvr = createDataverseRequest(apiUser);
-        } else {
-            // used in JSF context, user may be Guest
-            dvr = dvRequestService.getDataverseRequest();
-        }
+        DataverseRequest dvr = createDataverseRequest(requestUser);
+
         if (!published) { // and restricted or embargoed (implied by earlier processing)
             // If the file is not published, they can still download the file, if the user
             // has the permission to view unpublished versions:
@@ -1894,7 +1851,7 @@ public class Access extends AbstractApiBean {
                 // it's not unthinkable, that a GuestUser could be given
                 // the ViewUnpublished permission!
                 logger.log(Level.FINE,
-                        "Session-based auth: user {0} has access rights on the non-restricted, unpublished datafile.",
+                        "auth: user {0} has access rights on the non-restricted, unpublished datafile.",
                         dvr.getUser().getIdentifier());
                 return true;
             }
@@ -1904,35 +1861,11 @@ public class Access extends AbstractApiBean {
                 return true;
             }
         }
-        if (sessionUser != null) {
-            logger.log(Level.FINE, "Session-based auth: user {0} has NO access rights on the requested datafile.", sessionUser.getIdentifier());
-        } 
-        
-        if (apiUser != null) {
-            logger.log(Level.FINE, "Token-based auth: user {0} has NO access rights on the requested datafile.", apiUser.getIdentifier());
-        } 
-        return false; 
-    }   
-    
 
-        
-    private User findAPITokenUser(User requestUser) {
-        User apiTokenUser = requestUser;
-        /*
-         * The idea here is to not let a guest user coming from the request (which
-         * happens when there is no key/token, and which we want if there's no session)
-         * from overriding an authenticated session user.
-         */
-        if(apiTokenUser instanceof GuestUser) {
-            if(session!=null && session.getUser()!=null) {
-            //The apiTokenUser, if set, will override the sessionUser in permissions calcs, so set it to null if we have a session user
-            apiTokenUser=null;
-            }
-        }
-        return apiTokenUser;
+        return false; 
     }
 
-    private URI handleCustomZipDownload(User user, String customZipServiceUrl, String fileIds, User apiTokenUser, UriInfo uriInfo, HttpHeaders headers, boolean donotwriteGBResponse, boolean orig) throws WebApplicationException {
+    private URI handleCustomZipDownload(User user, String customZipServiceUrl, String fileIds, UriInfo uriInfo, HttpHeaders headers, boolean donotwriteGBResponse, boolean orig) throws WebApplicationException {
         
         String zipServiceKey = null; 
         Timestamp timestamp = null; 
@@ -1961,7 +1894,7 @@ public class Access extends AbstractApiBean {
                     if (isAccessAuthorized(user, file)) {
                         logger.fine("adding datafile (id=" + file.getId() + ") to the download list of the ZippedDownloadInstance.");
                         if (donotwriteGBResponse != true && file.isReleased()) {
-                            GuestbookResponse gbr = guestbookResponseService.initAPIGuestbookResponse(file.getOwner(), file, session, apiTokenUser);
+                            GuestbookResponse gbr = guestbookResponseService.initAPIGuestbookResponse(file.getOwner(), file, session, user);
                             guestbookResponseService.save(gbr);
                             MakeDataCountEntry entry = new MakeDataCountEntry(uriInfo, headers, dvRequestService, file);
                             mdcLogService.logEntry(entry);
