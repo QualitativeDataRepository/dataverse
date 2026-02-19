@@ -43,6 +43,7 @@ public abstract class AbstractSubmitToArchiveCommand extends AbstractCommand<Dat
 
     protected final DatasetVersion version;
     protected final Map<String, String> requestedSettings = new HashMap<String, String>();
+    protected String spaceName = null;
     protected boolean success=false;
     private static final Logger logger = Logger.getLogger(AbstractSubmitToArchiveCommand.class.getName());
     private static final int MAX_ZIP_WAIT = 20000;
@@ -177,8 +178,8 @@ public abstract class AbstractSubmitToArchiveCommand extends AbstractCommand<Dat
      * constructor and could be dropped from the parameter list.)
      * 
      * @param version - the DatasetVersion to archive
-     * @param ore 
-     * @param dataCiteXml 
+     * @param dataCiteXml
+     * @param ore  
      * @param terms 
      * @param token - an API Token for the user performing this action
      * @param requestedSettings - a map of the names/values for settings required by this archiver (sent because this class is not part of the EJB context (by design) and has no direct access to service beans).
@@ -301,5 +302,21 @@ public abstract class AbstractSubmitToArchiveCommand extends AbstractCommand<Dat
 
   public boolean canDelete() {
       return supportsDelete();
+  }
+
+  protected String getDataCiteFileName(String spaceName, DatasetVersion dv) {
+    return spaceName + "_datacite.v" + dv.getFriendlyVersionNumber();
+  }
+
+  protected String getFileName(String spaceName, DatasetVersion dv) {
+    return spaceName + ".v" + dv.getFriendlyVersionNumber();
+  }
+
+  protected String getSpaceName(Dataset dataset) {
+    if (spaceName == null) {
+        spaceName = dataset.getGlobalId().asString().replace(':', '-').replace('/', '-').replace('.', '-')
+                .toLowerCase();
+    }
+    return spaceName;
   }
 }
