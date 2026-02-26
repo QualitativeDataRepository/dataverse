@@ -5910,7 +5910,7 @@ public class DatasetPage implements java.io.Serializable {
         if (previewTools.isEmpty()) {
             return false;
         }
-        return false;
+        return true;
     }
     
     public boolean isShowQueryButton(DataFile dataFile) {
