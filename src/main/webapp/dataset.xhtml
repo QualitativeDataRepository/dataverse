@@ -1163,8 +1163,12 @@
                     <p:dialog id="deleteConfirmation" styleClass="smallPopUp" header="#{bundle['file.deleteDialog.header']}" widgetVar="deleteConfirmation" modal="true">
                         <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteDialog.tip']}</p>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{DatasetPage.deleteDataset()}"/>
-                            <button class="btn btn-link" onclick="PF('deleteConfirmation').hide();PF('blockDatasetForm').hide();" type="button">
+                            <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}" 
+                                onstart="PF('deleteConfirmation').hide()" 
+                                action="#{DatasetPage.deleteDataset()}" 
+                                process="@this"
+                                onkeydown="if (event.keyCode === 13) { $(this).click(); return false; }"/>
+                            <button class="btn btn-link" onclick="PF('deleteConfirmation').hide();PF('blockDatasetForm').hide();" type="button" onkeydown="if (event.keyCode === 13) { $(this).click(); return false; }">
                                 #{bundle.cancel}
                             </button>
                         </div>
