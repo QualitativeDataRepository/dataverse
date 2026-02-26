@@ -508,7 +508,6 @@ public class ManagePermissionsPage implements java.io.Serializable {
     }
 
     public void assignRole(ActionEvent evt) {
-        logger.info("Got to assignRole");
         List<RoleAssignee> selectedRoleAssigneesList = getRoleAssignSelectedRoleAssignees();
         if ( selectedRoleAssigneesList == null ) {
             logger.info("** SELECTED role asignees is null");
