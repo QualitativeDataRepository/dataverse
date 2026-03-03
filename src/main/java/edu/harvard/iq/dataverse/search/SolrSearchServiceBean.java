@@ -4,6 +4,7 @@ import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.impl.builtin.AllUsers;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.GuestUser;
 import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
@@ -1149,7 +1150,8 @@ public class SolrSearchServiceBean implements SearchService {
 
         for (Group group : groups) {
             String groupAlias = group.getAlias();
-            if (groupAlias != null && !groupAlias.isEmpty() && (!avoidJoin || !groupAlias.startsWith("builtIn"))) {
+            // We don't need all users if we're avoiding the join
+            if (groupAlias != null && !groupAlias.isEmpty() && (!avoidJoin || !groupAlias.equals(AllUsers.instance.getAlias()))) {
                 groupList.add(IndexServiceBean.getGroupPrefix() + groupAlias);
             }
         }
