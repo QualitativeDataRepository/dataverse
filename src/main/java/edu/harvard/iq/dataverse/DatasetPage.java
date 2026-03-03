@@ -1,8 +1,5 @@
 package edu.harvard.iq.dataverse;
 
-import edu.harvard.iq.dataverse.authorization.DataverseRole;
-import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
-import edu.harvard.iq.dataverse.globus.Permissions;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
@@ -109,7 +106,6 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.json.Json;
-import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.persistence.OptimisticLockException;
 
@@ -5905,7 +5901,8 @@ public class DatasetPage implements java.io.Serializable {
         return DatasetUtil.getDatasetSummaryFields(workingVersion, customFields);
     }
 
-    public boolean isShowPreviewButton(DataFile dataFile) {
+    public boolean isShowPreviewButton(FileMetadata fmd) {
+        DataFile dataFile = fmd.getDataFile();
         List<ExternalTool> previewTools = getPreviewToolsForDataFile(dataFile, fileDownloadHelper.canDownloadFile(fmd));
         if (previewTools.isEmpty()) {
             return false;
