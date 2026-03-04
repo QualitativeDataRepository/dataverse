@@ -1151,7 +1151,7 @@ public class SolrSearchServiceBean implements SearchService {
         for (Group group : groups) {
             String groupAlias = group.getAlias();
             // We don't need all users if we're avoiding the join
-            if (groupAlias != null && !groupAlias.isEmpty() && (!avoidJoin || !groupAlias.equals(AllUsers.instance.getAlias()))) {
+            if (groupAlias != null && !groupAlias.isEmpty()) {
                 groupList.add(IndexServiceBean.getGroupPrefix() + groupAlias);
             }
         }
