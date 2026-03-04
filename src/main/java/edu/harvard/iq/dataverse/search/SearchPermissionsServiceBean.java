@@ -117,7 +117,7 @@ public class SearchPermissionsServiceBean {
      * should be globally unique because non-builtin groups have a sort of a
      * name space with "shib/2" and "ip/ipGroup3", for example.
      */
-    String getIndexableStringForUserOrGroup(RoleAssignee userOrGroup) {
+    public String getIndexableStringForUserOrGroup(RoleAssignee userOrGroup) {
         if (userOrGroup instanceof AuthenticatedUser) {
             logger.fine(userOrGroup.getIdentifier() + " must be a user: " + userOrGroup.getClass().getName());
             AuthenticatedUser au = (AuthenticatedUser) userOrGroup;
