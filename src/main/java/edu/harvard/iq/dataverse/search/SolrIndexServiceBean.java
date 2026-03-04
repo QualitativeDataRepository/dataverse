@@ -13,9 +13,9 @@ import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
-import edu.harvard.iq.dataverse.authorization.groups.Group;
+import edu.harvard.iq.dataverse.authorization.RoleAssignee;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
-import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 
 import java.io.IOException;
@@ -74,8 +74,6 @@ public class SolrIndexServiceBean {
     RoleAssigneeServiceBean roleAssigneeSvc;
     @EJB
     SolrClientIndexService solrClientService;
-    @EJB
-    GroupServiceBean groupSvc;
     
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -469,34 +467,18 @@ public class SolrIndexServiceBean {
                 .flatMap(List::stream)
                 .collect(Collectors.toSet());
         
-        // Separate identifiers by type and build swaps map in one pass
-        Map<String, String> swaps = allIdentifiers.stream()
-                .collect(Collectors.toMap(
-                        identifier -> identifier,
-                        identifier -> {
-                            if (identifier.startsWith("@")) {
-                                // Will be replaced with actual user lookup below
-                                return identifier;
-                            } else if (identifier.startsWith(":")) {
-                                Group group = groupSvc.getGroup(identifier);
-                                return group != null ? searchPermissionsService.getIndexableStringForUserOrGroup(group) : identifier;
-                            }
-                            return identifier;
-                        }
-                ));
-        
-        // Batch lookup users and update swaps map
-        Set<String> userIdentifiers = allIdentifiers.stream()
-                .filter(identifier -> identifier.startsWith("@"))
-                .map(identifier -> identifier.substring(1))
-                .collect(Collectors.toSet());
-        
-        if (!userIdentifiers.isEmpty()) {
-            em.createNamedQuery("AuthenticatedUser.findByUserIdentifiers", AuthenticatedUser.class)
-                    .setParameter("userIdentifiers", userIdentifiers)
-                    .getResultStream()
-                    .forEach(user -> swaps.put("@" + user.getUserIdentifier(), 
-                            searchPermissionsService.getIndexableStringForUserOrGroup(user)));
+     // Build swaps map by looking up each identifier and converting to indexable string
+        Map<String, String> swaps = new HashMap<>();
+        for (String identifier : allIdentifiers) {
+            if (!identifier.startsWith(PrivateUrlUser.PREFIX)) {
+                RoleAssignee roleAssignee = roleAssigneeSvc.getRoleAssignee(identifier);
+                if (roleAssignee != null) {
+                    String indexableString = searchPermissionsService.getIndexableStringForUserOrGroup(roleAssignee);
+                    if (indexableString != null) {
+                        swaps.put(identifier, indexableString);
+                    }
+                }
+            }
         }
         
         // Transform the identifier map to indexable strings map
