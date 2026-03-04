@@ -524,7 +524,7 @@ public class SolrIndexServiceBean {
                 indexPermissionsForOneDvObject(dataset);
 
                 // Process files for this dataset
-                Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
+                Map<Long, List<String>> fileDownloadersMap = getFileDownloadersMap(dataset.getId());
                 Set<DatasetVersion> versions = datasetVersionsToBuildCardsFor(dataset);
                 final List<Long> changedFileIds = new ArrayList<>();
                 if(versions.size()>1) {
