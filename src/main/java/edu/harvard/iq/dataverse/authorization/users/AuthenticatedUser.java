@@ -75,7 +75,11 @@ import jakarta.validation.constraints.NotNull;
     @NamedQuery( name="AuthenticatedUser.findAdminUser",
                 query="select au from AuthenticatedUser au WHERE "
                         + "au.superuser = true "
-                        + "order by au.id")
+                        + "order by au.id"),
+    @NamedQuery(
+            name = "AuthenticatedUser.findByUserIdentifiers",
+            query = "SELECT u FROM AuthenticatedUser u WHERE u.userIdentifier IN :userIdentifiers"
+        )
     
 })
 @Entity

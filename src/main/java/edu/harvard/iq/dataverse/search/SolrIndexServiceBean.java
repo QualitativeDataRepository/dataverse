@@ -13,6 +13,9 @@ import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.Group;
+import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
+import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 
 import java.io.IOException;
@@ -27,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.ejb.EJB;
@@ -40,12 +44,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
 @Named
@@ -76,6 +76,8 @@ public class SolrIndexServiceBean {
     RoleAssigneeServiceBean roleAssigneeSvc;
     @EJB
     SolrClientIndexService solrClientService;
+    @EJB
+    GroupServiceBean groupSvc;
     
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
@@ -435,7 +437,7 @@ public class SolrIndexServiceBean {
              * loaded (first case) and done only when needed for the second case.
              * 
              **/
-            Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
+            Map<Long, List<String>> fileDownloadersMap = getFileDownloadersMap(dataset.getId());
             List<DatasetVersion> versionsToIndex = new ArrayList<>();
             for (DatasetVersion version : datasetVersionsToBuildCardsFor(dataset)) {
                 int fileCount = dataFileService.findCountByDatasetVersionId(version.getId()).intValue();
@@ -458,6 +460,62 @@ public class SolrIndexServiceBean {
                 " datasets/collections in " + (System.currentTimeMillis() - globalStartTime) + " ms");
 
         return new IndexResponse("Number of dvObject permissions indexed for " + definitionPoint + ": " + numObjects);
+    }
+
+    //Map the ids from the query to the text strings expected via searchPermissionsService.getIndexableStringForUserOrGroup
+    private Map<Long, List<String>> getFileDownloadersMap(Long id) {
+        Map<Long, List<String>> identifierMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(id);
+        
+        // Collect all unique identifiers across all files
+        Set<String> allIdentifiers = identifierMap.values().stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toSet());
+        
+        // Separate identifiers by type and build swaps map in one pass
+        Map<String, String> swaps = allIdentifiers.stream()
+                .collect(Collectors.toMap(
+                        identifier -> identifier,
+                        identifier -> {
+                            if (identifier.startsWith("@")) {
+                                // Will be replaced with actual user lookup below
+                                return identifier;
+                            } else if (identifier.startsWith(":")) {
+                                Group group = groupSvc.getGroup(identifier);
+                                return group != null ? searchPermissionsService.getIndexableStringForUserOrGroup(group) : identifier;
+                            }
+                            return identifier;
+                        }
+                ));
+        
+        // Batch lookup users and update swaps map
+        Set<String> userIdentifiers = allIdentifiers.stream()
+                .filter(identifier -> identifier.startsWith("@"))
+                .map(identifier -> identifier.substring(1))
+                .collect(Collectors.toSet());
+        
+        if (!userIdentifiers.isEmpty()) {
+            em.createNamedQuery("AuthenticatedUser.findByUserIdentifiers", AuthenticatedUser.class)
+                    .setParameter("userIdentifiers", userIdentifiers)
+                    .getResultStream()
+                    .forEach(user -> swaps.put("@" + user.getUserIdentifier(), 
+                            searchPermissionsService.getIndexableStringForUserOrGroup(user)));
+        }
+        
+        // Transform the identifier map to indexable strings map
+        return identifierMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(identifier -> swaps.getOrDefault(identifier, null))
+                                .filter(indexableString -> {
+                                    if (indexableString == null) {
+                                        logger.warning("No indexable string found for identifier");
+                                        return false;
+                                    }
+                                    return true;
+                                })
+                                .collect(Collectors.toList())
+                ));
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
