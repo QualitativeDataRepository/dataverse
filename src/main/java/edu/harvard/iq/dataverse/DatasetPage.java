@@ -6184,12 +6184,12 @@ public class DatasetPage implements java.io.Serializable {
                         logger.info("Version is " + targetVersion.getFriendlyVersionNumber());
                         if (requiresEarlierVersionsToBeArchived) {// Find the specific version by id
                             logger.info("Checking if all prior versions are archived for version " + targetVersion.getFriendlyVersionNumber());
-                            
+
                             // Check all prior versions to ensure they are successfully archived
                             boolean allPriorVersionsArchived = true;
                             boolean foundTarget = false;
                             List<DatasetVersion> versions = dataset.getVersions();
-                            
+
                             for (DatasetVersion versionInLoop : versions) {
                                 // Once we find the target version, start checking subsequent versions (which are prior versions)
                                 if (foundTarget) {
@@ -6201,12 +6201,12 @@ public class DatasetPage implements java.io.Serializable {
                                         break;
                                     }
                                 }
-                                
+
                                 if (versionInLoop.equals(targetVersion)) {
                                     foundTarget = true;
                                 }
                             }
-                            
+
                             if (allPriorVersionsArchived) {
                                 thisVersionArchivable = true;
                             } else {
@@ -6215,6 +6215,7 @@ public class DatasetPage implements java.io.Serializable {
                                 versionArchivable.put(id, thisVersionArchivable);
                                 return thisVersionArchivable;
                             }
+                        }
                         logger.info("require check passed for " + id);
                         if (checkForArchivalCopy == null) {
                             //Only check once
