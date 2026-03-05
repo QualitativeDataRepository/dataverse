@@ -6166,6 +6166,7 @@ public class DatasetPage implements java.io.Serializable {
     /** Method to decide if a 'Submit' button should be enabled for archiving a dataset version. */
     public boolean isVersionArchivable(Long id) {
         Boolean thisVersionArchivable = versionArchivable.get(id);
+        logger.info("Checking id : " + id + " : " + thisVersionArchivable);
         if (thisVersionArchivable == null) {
             // If this dataset isn't in an archivable collection return false
             thisVersionArchivable = false;
@@ -6180,9 +6181,11 @@ public class DatasetPage implements java.io.Serializable {
                     try {
                         DatasetVersion targetVersion = dataset.getVersions().stream()
                                 .filter(v -> v.getId().equals(id)).findFirst().orElse(null);
+                        logger.info("Version is " + targetVersion.getFriendlyVersionNumber());
                         if (requiresEarlierVersionsToBeArchived) {// Find the specific version by id
                             DatasetVersion priorVersion = DatasetUtil.getPriorVersion(targetVersion);
-
+                            logger.info("Prior version is " + targetVersion.getFriendlyVersionNumber());
+                            
                             if (priorVersion== null || (isVersionArchivable(priorVersion.getId())
                                     && ArchiverUtil.isVersionArchived(priorVersion))) {
                                 thisVersionArchivable = true;
@@ -6192,6 +6195,7 @@ public class DatasetPage implements java.io.Serializable {
                                 return thisVersionArchivable;
                             }
                         }
+                        logger.info("require check passed");
                         if (checkForArchivalCopy == null) {
                             //Only check once
                         Class<?> clazz = Class.forName(className);
@@ -6213,6 +6217,7 @@ public class DatasetPage implements java.io.Serializable {
                             // we can archive, so return true
                             // Find the specific version by id
                             String status = targetVersion.getArchivalCopyLocationStatus();
+                            logger.info("Status is " + status);
                             thisVersionArchivable = (status == null) || ((!status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS) && (!status.equals(DatasetVersion.ARCHIVAL_STATUS_PENDING)) && supportsDelete));
                         }
                     } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException
@@ -6222,6 +6227,7 @@ public class DatasetPage implements java.io.Serializable {
                     }
                 }
             }
+            logger.info("Writing id : " + id + " : " + thisVersionArchivable);
             versionArchivable.put(id, thisVersionArchivable);
         }
         return thisVersionArchivable;
