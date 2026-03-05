@@ -6186,6 +6186,10 @@ public class DatasetPage implements java.io.Serializable {
                             if (priorVersion== null || (isVersionArchivable(priorVersion.getId())
                                     && ArchiverUtil.isVersionArchived(priorVersion))) {
                                 thisVersionArchivable = true;
+                            } else {
+                                // Store the false value and skip further checks
+                                versionArchivable.put(id, thisVersionArchivable);
+                                return thisVersionArchivable;
                             }
                         }
                         if (checkForArchivalCopy == null) {
