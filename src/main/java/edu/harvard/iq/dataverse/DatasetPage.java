@@ -6183,19 +6183,39 @@ public class DatasetPage implements java.io.Serializable {
                                 .filter(v -> v.getId().equals(id)).findFirst().orElse(null);
                         logger.info("Version is " + targetVersion.getFriendlyVersionNumber());
                         if (requiresEarlierVersionsToBeArchived) {// Find the specific version by id
-                            DatasetVersion priorVersion = DatasetUtil.getPriorVersion(targetVersion);
-                            logger.info("Prior version is " + targetVersion.getFriendlyVersionNumber());
+                            logger.info("Checking if all prior versions are archived for version " + targetVersion.getFriendlyVersionNumber());
                             
-                            if (priorVersion== null || (isVersionArchivable(priorVersion.getId())
-                                    && ArchiverUtil.isVersionArchived(priorVersion))) {
+                            // Check all prior versions to ensure they are successfully archived
+                            boolean allPriorVersionsArchived = true;
+                            boolean foundTarget = false;
+                            List<DatasetVersion> versions = dataset.getVersions();
+                            
+                            for (DatasetVersion versionInLoop : versions) {
+                                // Once we find the target version, start checking subsequent versions (which are prior versions)
+                                if (foundTarget) {
+                                    // Check if this prior version has been successfully archived
+                                    String archivalStatus = versionInLoop.getArchivalCopyLocationStatus();
+                                    if (archivalStatus == null || !archivalStatus.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
+                                        logger.info("Prior version " + versionInLoop.getFriendlyVersionNumber() + " is not successfully archived (status: " + archivalStatus + ")");
+                                        allPriorVersionsArchived = false;
+                                        break;
+                                    }
+                                }
+                                
+                                if (versionInLoop.equals(targetVersion)) {
+                                    foundTarget = true;
+                                }
+                            }
+                            
+                            if (allPriorVersionsArchived) {
                                 thisVersionArchivable = true;
                             } else {
                                 // Store the false value and skip further checks
+                                logger.info("Writing false to versionArchivable for " + id + " because not all prior versions are archived");
                                 versionArchivable.put(id, thisVersionArchivable);
                                 return thisVersionArchivable;
                             }
-                        }
-                        logger.info("require check passed");
+                        logger.info("require check passed for " + id);
                         if (checkForArchivalCopy == null) {
                             //Only check once
                         Class<?> clazz = Class.forName(className);
