@@ -9,6 +9,7 @@ import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.UserNotification;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
+import edu.harvard.iq.dataverse.DatasetLock.Reason;
 import edu.harvard.iq.dataverse.authorization.users.ApiToken;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
@@ -136,6 +137,7 @@ public class WorkflowServiceBean {
          * (e.g. if this method is not asynchronous)
          * 
          */
+        logger.info("Ctxt lock id is " + ctxt.getLockId());
         boolean isLocked = ctxt.getLockId()!=null;
         if (!findDataset && !isLocked) {
             /*
@@ -353,6 +355,7 @@ public class WorkflowServiceBean {
         em.persist(datasetLock);
         //flush creates the id
         em.flush();
+        logger.info("Adding new lock id " + datasetLock.getId());
         ctxt.setLockId(datasetLock.getId());
     }
 
@@ -369,12 +372,15 @@ public class WorkflowServiceBean {
         lockCounter.setParameter("datasetId", ctxt.getDataset().getId());
         List<DatasetLock> locks = lockCounter.getResultList();
         for (DatasetLock lock : locks) {
+            logger.info("Found lock id " + lock.getId());
             if (lock.getReason() == DatasetLock.Reason.Workflow) {
                 ctxt.getDataset().removeLock(lock);
+                logger.info("Removing lock id " + lock.getId());
                 em.remove(lock);
             }
         }
         em.flush();
+        logger.info("dataset locked " + (null != ctxt.getDataset().getLockFor(Reason.Workflow)));
     }
     
     //
