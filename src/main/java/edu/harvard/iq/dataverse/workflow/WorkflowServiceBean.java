@@ -78,6 +78,9 @@ public class WorkflowServiceBean {
     @EJB
     EjbDataverseEngine engine;
     
+    @EJB
+    WorkflowServiceBean self;  
+    
     @Inject
     DataverseRequestServiceBean dvRequestService;
     
@@ -269,7 +272,7 @@ public class WorkflowServiceBean {
         
         logger.log( Level.INFO, "Removing workflow lock");
         try {
-            unlockDataset(ctxt);
+            self.unlockDataset(ctxt);
         } catch (CommandException ex) {
             logger.log(Level.SEVERE, "Error restoring dataset locks state after rollback: " + ex.getMessage(), ex);
         }
@@ -354,7 +357,7 @@ public class WorkflowServiceBean {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    void unlockDataset(WorkflowContext ctxt) throws CommandException {
+    public void unlockDataset(WorkflowContext ctxt) throws CommandException {
         /*
          * Since the lockDataset command above directly persists a lock to the database,
          * the ctxt.getDataset() is not updated and its list of locks can't be used.
@@ -407,7 +410,7 @@ public class WorkflowServiceBean {
                 lockDataset(ctxt, lock);
                 ctxt.getDataset().addLock(lock);
                 
-                unlockDataset(ctxt);
+                self.unlockDataset(ctxt);
                 ctxt.setLockId(null); //the workflow lock
                 //Refreshing merges the dataset
                 ctxt = refresh(ctxt);
