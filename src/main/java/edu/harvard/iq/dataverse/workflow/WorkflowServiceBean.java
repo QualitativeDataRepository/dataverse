@@ -388,13 +388,17 @@ public class WorkflowServiceBean {
         // (Nominally the workflow lock should have stopped other changes).
         Dataset dataset = ctxt.getDataset();
         Dataset dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
+        logger.info("Changing index time from " +dataset.getIndexTime() + " to  " + dbDataset.getIndexTime());
         dataset.setIndexTime(dbDataset.getIndexTime());
+        logger.info("Changing permission index time from " + dataset.getPermissionIndexTime() + " to  " + dbDataset.getPermissionIndexTime());
         dataset.setPermissionIndexTime(dbDataset.getPermissionIndexTime());
+        logger.info("Changing last export time from " + dataset.getLastExportTime() + " to  " + dbDataset.getLastExportTime());
         dataset.setLastExportTime(dbDataset.getLastExportTime());
-
+        
         try {
             if (ctxt.getType() == TriggerType.PrePublishDataset) {
                 ctxt = refresh(ctxt);
+                dataset = ctxt.getDataset();
                 // Now lock for FinalizePublication - this block mirrors that in PublishDatasetCommand
                 AuthenticatedUser user = ctxt.getRequest().getAuthenticatedUser();
                 DatasetLock lock = new DatasetLock(DatasetLock.Reason.finalizePublication, user);
