@@ -404,6 +404,7 @@ public class WorkflowServiceBean {
      // Get a FRESH copy from database (detach first to force new query)
         em.detach(dataset);
         Dataset dbDataset = em.find(Dataset.class, dataset.getId());
+        em.refresh(dbDataset);
         logger.info("Changing index time from " +dataset.getIndexTime() + " to  " + dbDataset.getIndexTime());
         dataset.setIndexTime(dbDataset.getIndexTime());
         logger.info("Changing permission index time from " + dataset.getPermissionIndexTime() + " to  " + dbDataset.getPermissionIndexTime());
