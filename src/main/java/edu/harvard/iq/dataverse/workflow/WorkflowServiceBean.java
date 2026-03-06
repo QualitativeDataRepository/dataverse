@@ -281,11 +281,17 @@ public class WorkflowServiceBean {
     private void executeSteps(Workflow wf, WorkflowContext ctxt, int initialStepIdx ) {
         final List<WorkflowStepData> steps = wf.getSteps();
         
+        Dataset dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
+        logger.info("Before stepping "  + dbDataset.getIndexTime());
+
         for ( int stepIdx = initialStepIdx; stepIdx < steps.size(); stepIdx++ ) {
             WorkflowStepData wsd = steps.get(stepIdx);
             WorkflowStep step = createStep(wsd);
             WorkflowStepResult res = runStep(step, ctxt);
             
+            dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
+            logger.info("After stepping "  + dbDataset.getIndexTime());
+
             try {
                 if (res == WorkflowStepResult.OK) {
                     logger.log(Level.INFO, "Workflow {0} step {1}: OK", new Object[]{ctxt.getInvocationId(), stepIdx});
@@ -308,7 +314,9 @@ public class WorkflowServiceBean {
                 return;
             }
         }
-        
+        dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
+        logger.info("Before complete "  + dbDataset.getIndexTime());
+
         workflowCompleted(wf, ctxt);
         
     }
