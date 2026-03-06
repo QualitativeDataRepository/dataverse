@@ -405,8 +405,8 @@ public class WorkflowServiceBean {
 
         Query timestampQuery = em.createNativeQuery(
                 "SELECT indextime, permissionindextime, lastexporttime, modificationtime " +
-                "FROM dvobject WHERE id = :datasetId");
-            timestampQuery.setParameter("datasetId", dataset.getId());
+                "FROM dvobject WHERE id = ?");
+            timestampQuery.setParameter(1, dataset.getId());
 
             Object[] timestamps = (Object[]) timestampQuery.getSingleResult();
 
