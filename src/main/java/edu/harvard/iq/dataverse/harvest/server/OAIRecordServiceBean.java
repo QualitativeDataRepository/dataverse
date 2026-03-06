@@ -266,6 +266,7 @@ public class OAIRecordServiceBean implements java.io.Serializable {
             //Use em.merge or the jakarta OLE we want to catch will be wrapped
             dataset = em.merge(dataset);
             em.flush();
+            logger.info("merged dataset after export: index time is " + dataset.getIndexTime().toString());
         } catch (OptimisticLockException ole) {
             datasetService.setLastExportTimeInNewTransaction(dataset.getId(), dataset.getLastExportTime());
         } catch (Exception e) {
