@@ -42,6 +42,7 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
 /**
@@ -401,24 +402,32 @@ public class WorkflowServiceBean {
         // Read fresh timestamps from DB - parallel index/exports may have occurred while the workflow ran
         // (Nominally the workflow lock should have stopped other changes).
         Dataset dataset = ctxt.getDataset();
-     // Get a FRESH copy from database (detach first to force new query)
-        em.detach(dataset);
-        Dataset dbDataset = em.find(Dataset.class, dataset.getId());
-        em.refresh(dbDataset);
-        logger.info("Changing index time from " +dataset.getIndexTime() + " to  " + dbDataset.getIndexTime());
-        dataset.setIndexTime(dbDataset.getIndexTime());
-        logger.info("Changing permission index time from " + dataset.getPermissionIndexTime() + " to  " + dbDataset.getPermissionIndexTime());
-        dataset.setPermissionIndexTime(dbDataset.getPermissionIndexTime());
-        logger.info("Changing last export time from " + dataset.getLastExportTime() + " to  " + dbDataset.getLastExportTime());
-        dataset.setLastExportTime(dbDataset.getLastExportTime());
 
-        // Copy ONLY the fields you want to update
-        dataset.setIndexTime(dbDataset.getIndexTime());
-        dataset.setModificationTime(dbDataset.getModificationTime());
-        // Don't copy versionState, publicationDate - keep your changes!
+        Query timestampQuery = em.createNativeQuery(
+                "SELECT indextime, permissionindextime, lastexporttime, modificationtime " +
+                "FROM dvobject WHERE id = :datasetId");
+            timestampQuery.setParameter("datasetId", dataset.getId());
 
-        // Re-merge the updated dataset
-        dataset = em.merge(dataset);
+            Object[] timestamps = (Object[]) timestampQuery.getSingleResult();
+
+            // Cast and apply the fresh timestamps to the current dataset
+            Timestamp freshIndexTime = (Timestamp) timestamps[0];
+            Timestamp freshPermissionIndexTime = (Timestamp) timestamps[1];
+            Timestamp freshLastExportTime = (Timestamp) timestamps[2];
+            Timestamp freshModificationTime = (Timestamp) timestamps[3];
+
+            logger.info("Updating index time from " + dataset.getIndexTime() + " to " + freshIndexTime);
+            dataset.setIndexTime(freshIndexTime);
+
+            logger.info("Updating permission index time from " + dataset.getPermissionIndexTime() + " to " + freshPermissionIndexTime);
+            dataset.setPermissionIndexTime(freshPermissionIndexTime);
+
+            logger.info("Updating last export time from " + dataset.getLastExportTime() + " to " + freshLastExportTime);
+            dataset.setLastExportTime(freshLastExportTime);
+
+            logger.info("Updating modification time from " + dataset.getModificationTime() + " to " + freshModificationTime);
+            dataset.setModificationTime(freshModificationTime);
+
         
         try {
             if (ctxt.getType() == TriggerType.PrePublishDataset) {
