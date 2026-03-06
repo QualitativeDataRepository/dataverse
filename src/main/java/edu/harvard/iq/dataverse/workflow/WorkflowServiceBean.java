@@ -149,9 +149,15 @@ public class WorkflowServiceBean {
                 logger.warning("Failed to sleep for a second.");
             }
         }
+        Dataset dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
+        logger.info("Before starting "  + dbDataset.getIndexTime());
         //Refresh will only em.find the dataset if findDataset is true. (otherwise the dataset is em.merged)
         ctxt = refresh(ctxt, retrieveRequestedSettings( wf.getRequiredSettings()), getCurrentApiToken(ctxt.getRequest().getAuthenticatedUser()), findDataset);
+        dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
+        logger.info("After refresh "  + dbDataset.getIndexTime());
         lockDataset(ctxt, new DatasetLock(DatasetLock.Reason.Workflow, ctxt.getRequest().getAuthenticatedUser()));
+        dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
+        logger.info("After lock "  + dbDataset.getIndexTime());
         forward(wf, ctxt);
     }
     
