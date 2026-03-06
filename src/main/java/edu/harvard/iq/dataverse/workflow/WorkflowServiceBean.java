@@ -150,18 +150,32 @@ public class WorkflowServiceBean {
                 logger.warning("Failed to sleep for a second.");
             }
         }
-        Dataset dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
-        logger.info("Before starting "  + dbDataset.getIndexTime());
-        //Refresh will only em.find the dataset if findDataset is true. (otherwise the dataset is em.merged)
+        
+        logIndexTime("Before starting", ctxt.getDataset());
         ctxt = refresh(ctxt, retrieveRequestedSettings( wf.getRequiredSettings()), getCurrentApiToken(ctxt.getRequest().getAuthenticatedUser()), findDataset);
-        dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
-        logger.info("After refresh "  + dbDataset.getIndexTime());
+        logIndexTime("After refresh", ctxt.getDataset());
         lockDataset(ctxt, new DatasetLock(DatasetLock.Reason.Workflow, ctxt.getRequest().getAuthenticatedUser()));
-        dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
-        logger.info("After lock "  + dbDataset.getIndexTime());
+        logIndexTime("After lock", ctxt.getDataset());
         forward(wf, ctxt);
     }
     
+
+    private void logIndexTime(String event, Dataset dataset) {
+        Query timestampQuery = em.createNativeQuery(
+                "SELECT dvo.indextime, dvo.permissionindextime, d.lastexporttime, dvo.modificationtime " +
+                "FROM dvobject dvo, dataset d WHERE dvo.id = d.id AND dvo.id = ?");
+            timestampQuery.setParameter(1, dataset.getId());
+
+            Object[] timestamps = (Object[]) timestampQuery.getSingleResult();
+
+            // Cast and apply the fresh timestamps to the current dataset
+            Timestamp freshIndexTime = (Timestamp) timestamps[0];
+            Timestamp freshPermissionIndexTime = (Timestamp) timestamps[1];
+            Timestamp freshLastExportTime = (Timestamp) timestamps[2];
+            Timestamp freshModificationTime = (Timestamp) timestamps[3];
+
+            logger.info(event + ":index time from " + dataset.getIndexTime() + " to " + freshIndexTime);
+    }
 
     private ApiToken getCurrentApiToken(AuthenticatedUser au) {
         if (au != null) {
@@ -288,16 +302,14 @@ public class WorkflowServiceBean {
     private void executeSteps(Workflow wf, WorkflowContext ctxt, int initialStepIdx ) {
         final List<WorkflowStepData> steps = wf.getSteps();
         
-        Dataset dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
-        logger.info("Before stepping "  + dbDataset.getIndexTime());
+        logIndexTime("Before steps", ctxt.getDataset());
 
         for ( int stepIdx = initialStepIdx; stepIdx < steps.size(); stepIdx++ ) {
             WorkflowStepData wsd = steps.get(stepIdx);
             WorkflowStep step = createStep(wsd);
             WorkflowStepResult res = runStep(step, ctxt);
             
-            dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
-            logger.info("After stepping "  + dbDataset.getIndexTime());
+            logIndexTime("After step", ctxt.getDataset());
 
             try {
                 if (res == WorkflowStepResult.OK) {
@@ -321,8 +333,7 @@ public class WorkflowServiceBean {
                 return;
             }
         }
-        dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
-        logger.info("Before complete "  + dbDataset.getIndexTime());
+        logIndexTime("before complete", ctxt.getDataset());
 
         workflowCompleted(wf, ctxt);
         
