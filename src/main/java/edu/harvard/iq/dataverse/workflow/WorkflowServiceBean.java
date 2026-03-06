@@ -401,13 +401,23 @@ public class WorkflowServiceBean {
         // Read fresh timestamps from DB - parallel index/exports may have occurred while the workflow ran
         // (Nominally the workflow lock should have stopped other changes).
         Dataset dataset = ctxt.getDataset();
-        Dataset dbDataset = em.find(Dataset.class, ctxt.getDataset().getId());
+     // Get a FRESH copy from database (detach first to force new query)
+        em.detach(dataset);
+        Dataset dbDataset = em.find(Dataset.class, dataset.getId());
         logger.info("Changing index time from " +dataset.getIndexTime() + " to  " + dbDataset.getIndexTime());
         dataset.setIndexTime(dbDataset.getIndexTime());
         logger.info("Changing permission index time from " + dataset.getPermissionIndexTime() + " to  " + dbDataset.getPermissionIndexTime());
         dataset.setPermissionIndexTime(dbDataset.getPermissionIndexTime());
         logger.info("Changing last export time from " + dataset.getLastExportTime() + " to  " + dbDataset.getLastExportTime());
         dataset.setLastExportTime(dbDataset.getLastExportTime());
+
+        // Copy ONLY the fields you want to update
+        dataset.setIndexTime(dbDataset.getIndexTime());
+        dataset.setModificationTime(dbDataset.getModificationTime());
+        // Don't copy versionState, publicationDate - keep your changes!
+
+        // Re-merge the updated dataset
+        dataset = em.merge(dataset);
         
         try {
             if (ctxt.getType() == TriggerType.PrePublishDataset) {
