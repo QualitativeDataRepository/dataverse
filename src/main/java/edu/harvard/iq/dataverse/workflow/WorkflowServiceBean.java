@@ -79,6 +79,9 @@ public class WorkflowServiceBean {
     @EJB
     EjbDataverseEngine engine;
     
+    @EJB
+    WorkflowServiceBean self;
+    
     @Inject
     DataverseRequestServiceBean dvRequestService;
     
@@ -151,16 +154,16 @@ public class WorkflowServiceBean {
             }
         }
         
-        logIndexTime("Before starting", ctxt.getDataset());
+        self.logIndexTime("Before starting", ctxt.getDataset());
         ctxt = refresh(ctxt, retrieveRequestedSettings( wf.getRequiredSettings()), getCurrentApiToken(ctxt.getRequest().getAuthenticatedUser()), findDataset);
-        logIndexTime("After refresh", ctxt.getDataset());
+        self.logIndexTime("After refresh", ctxt.getDataset());
         lockDataset(ctxt, new DatasetLock(DatasetLock.Reason.Workflow, ctxt.getRequest().getAuthenticatedUser()));
-        logIndexTime("After lock", ctxt.getDataset());
+        self.logIndexTime("After lock", ctxt.getDataset());
         forward(wf, ctxt);
     }
     
-
-    private void logIndexTime(String event, Dataset dataset) {
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void logIndexTime(String event, Dataset dataset) {
         Query timestampQuery = em.createNativeQuery(
                 "SELECT dvo.indextime, dvo.permissionindextime, d.lastexporttime, dvo.modificationtime " +
                 "FROM dvobject dvo, dataset d WHERE dvo.id = d.id AND dvo.id = ?");
@@ -302,14 +305,14 @@ public class WorkflowServiceBean {
     private void executeSteps(Workflow wf, WorkflowContext ctxt, int initialStepIdx ) {
         final List<WorkflowStepData> steps = wf.getSteps();
         
-        logIndexTime("Before steps", ctxt.getDataset());
+        self.logIndexTime("Before steps", ctxt.getDataset());
 
         for ( int stepIdx = initialStepIdx; stepIdx < steps.size(); stepIdx++ ) {
             WorkflowStepData wsd = steps.get(stepIdx);
             WorkflowStep step = createStep(wsd);
             WorkflowStepResult res = runStep(step, ctxt);
             
-            logIndexTime("After step", ctxt.getDataset());
+            self.logIndexTime("After step", ctxt.getDataset());
 
             try {
                 if (res == WorkflowStepResult.OK) {
@@ -333,7 +336,7 @@ public class WorkflowServiceBean {
                 return;
             }
         }
-        logIndexTime("before complete", ctxt.getDataset());
+        self.logIndexTime("before complete", ctxt.getDataset());
 
         workflowCompleted(wf, ctxt);
         
