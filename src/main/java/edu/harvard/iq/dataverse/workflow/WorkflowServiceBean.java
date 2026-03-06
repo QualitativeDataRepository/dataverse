@@ -9,7 +9,6 @@ import edu.harvard.iq.dataverse.EjbDataverseEngine;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.UserNotification;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
-import edu.harvard.iq.dataverse.DatasetLock.Reason;
 import edu.harvard.iq.dataverse.authorization.users.ApiToken;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
@@ -79,9 +78,6 @@ public class WorkflowServiceBean {
     @EJB
     EjbDataverseEngine engine;
     
-    @EJB
-    WorkflowServiceBean self;  
-    
     @Inject
     DataverseRequestServiceBean dvRequestService;
     
@@ -137,9 +133,7 @@ public class WorkflowServiceBean {
          * (e.g. if this method is not asynchronous)
          * 
          */
-        logger.info("Ctxt lock id is " + ctxt.getLockId());
-        boolean isLocked = ctxt.getLockId()!=null;
-        if (!findDataset && !isLocked) {
+        if (!findDataset) {
             /*
              * Sleep here briefly to make sure the database update from the callers
              * transaction completes which avoids any concurrency/optimistic lock issues.
@@ -157,9 +151,7 @@ public class WorkflowServiceBean {
         }
         //Refresh will only em.find the dataset if findDataset is true. (otherwise the dataset is em.merged)
         ctxt = refresh(ctxt, retrieveRequestedSettings( wf.getRequiredSettings()), getCurrentApiToken(ctxt.getRequest().getAuthenticatedUser()), findDataset);
-        if(!isLocked) {
-            lockDataset(ctxt, new DatasetLock(DatasetLock.Reason.Workflow, ctxt.getRequest().getAuthenticatedUser()));
-        }
+        lockDataset(ctxt, new DatasetLock(DatasetLock.Reason.Workflow, ctxt.getRequest().getAuthenticatedUser()));
         forward(wf, ctxt);
     }
     
@@ -274,7 +266,7 @@ public class WorkflowServiceBean {
         
         logger.log( Level.INFO, "Removing workflow lock");
         try {
-            self.unlockDataset(ctxt);
+            unlockDataset(ctxt);
         } catch (CommandException ex) {
             logger.log(Level.SEVERE, "Error restoring dataset locks state after rollback: " + ex.getMessage(), ex);
         }
@@ -355,12 +347,11 @@ public class WorkflowServiceBean {
         em.persist(datasetLock);
         //flush creates the id
         em.flush();
-        logger.info("Adding new lock id " + datasetLock.getId());
         ctxt.setLockId(datasetLock.getId());
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void unlockDataset(WorkflowContext ctxt) throws CommandException {
+    void unlockDataset(WorkflowContext ctxt) throws CommandException {
         /*
          * Since the lockDataset command above directly persists a lock to the database,
          * the ctxt.getDataset() is not updated and its list of locks can't be used.
@@ -372,15 +363,12 @@ public class WorkflowServiceBean {
         lockCounter.setParameter("datasetId", ctxt.getDataset().getId());
         List<DatasetLock> locks = lockCounter.getResultList();
         for (DatasetLock lock : locks) {
-            logger.info("Found lock id " + lock.getId());
             if (lock.getReason() == DatasetLock.Reason.Workflow) {
                 ctxt.getDataset().removeLock(lock);
-                logger.info("Removing lock id " + lock.getId());
                 em.remove(lock);
             }
         }
         em.flush();
-        logger.info("dataset locked " + (null != ctxt.getDataset().getLockFor(Reason.Workflow)));
     }
     
     //
@@ -416,7 +404,7 @@ public class WorkflowServiceBean {
                 lockDataset(ctxt, lock);
                 ctxt.getDataset().addLock(lock);
                 
-                self.unlockDataset(ctxt);
+                unlockDataset(ctxt);
                 ctxt.setLockId(null); //the workflow lock
                 //Refreshing merges the dataset
                 ctxt = refresh(ctxt);
