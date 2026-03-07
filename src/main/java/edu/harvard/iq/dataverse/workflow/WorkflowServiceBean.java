@@ -79,9 +79,6 @@ public class WorkflowServiceBean {
     @EJB
     EjbDataverseEngine engine;
     
-    @EJB
-    WorkflowServiceBean self;
-    
     @Inject
     DataverseRequestServiceBean dvRequestService;
     
@@ -154,32 +151,11 @@ public class WorkflowServiceBean {
             }
         }
         
-        self.logIndexTime("Before starting", ctxt.getDataset());
         ctxt = refresh(ctxt, retrieveRequestedSettings( wf.getRequiredSettings()), getCurrentApiToken(ctxt.getRequest().getAuthenticatedUser()), findDataset);
-        self.logIndexTime("After refresh", ctxt.getDataset());
         lockDataset(ctxt, new DatasetLock(DatasetLock.Reason.Workflow, ctxt.getRequest().getAuthenticatedUser()));
-        self.logIndexTime("After lock", ctxt.getDataset());
         forward(wf, ctxt);
     }
     
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void logIndexTime(String event, Dataset dataset) {
-        Query timestampQuery = em.createNativeQuery(
-                "SELECT dvo.indextime, dvo.permissionindextime, d.lastexporttime, dvo.modificationtime " +
-                "FROM dvobject dvo, dataset d WHERE dvo.id = d.id AND dvo.id = ?");
-            timestampQuery.setParameter(1, dataset.getId());
-
-            Object[] timestamps = (Object[]) timestampQuery.getSingleResult();
-
-            // Cast and apply the fresh timestamps to the current dataset
-            Timestamp freshIndexTime = (Timestamp) timestamps[0];
-            Timestamp freshPermissionIndexTime = (Timestamp) timestamps[1];
-            Timestamp freshLastExportTime = (Timestamp) timestamps[2];
-            Timestamp freshModificationTime = (Timestamp) timestamps[3];
-
-            logger.info(event + ":index time from " + dataset.getIndexTime() + " to " + freshIndexTime);
-    }
-
     private ApiToken getCurrentApiToken(AuthenticatedUser au) {
         if (au != null) {
             CommandContext ctxt = engine.getContext();
@@ -234,7 +210,6 @@ public class WorkflowServiceBean {
     }
     
     
-    @Asynchronous
     private void forward(Workflow wf, WorkflowContext ctxt) {
         executeSteps(wf, ctxt, 0);
     }
@@ -268,7 +243,6 @@ public class WorkflowServiceBean {
         }
     }
 
-    @Asynchronous
     private void rollback(Workflow wf, WorkflowContext ctxt, Failure failure, int lastCompletedStepIdx) {
         ctxt = refresh(ctxt);
         final List<WorkflowStepData> steps = wf.getSteps();
@@ -305,15 +279,11 @@ public class WorkflowServiceBean {
     private void executeSteps(Workflow wf, WorkflowContext ctxt, int initialStepIdx ) {
         final List<WorkflowStepData> steps = wf.getSteps();
         
-        self.logIndexTime("Before steps", ctxt.getDataset());
-
         for ( int stepIdx = initialStepIdx; stepIdx < steps.size(); stepIdx++ ) {
             WorkflowStepData wsd = steps.get(stepIdx);
             WorkflowStep step = createStep(wsd);
             WorkflowStepResult res = runStep(step, ctxt);
             
-            self.logIndexTime("After step", ctxt.getDataset());
-
             try {
                 if (res == WorkflowStepResult.OK) {
                     logger.log(Level.INFO, "Workflow {0} step {1}: OK", new Object[]{ctxt.getInvocationId(), stepIdx});
@@ -336,8 +306,6 @@ public class WorkflowServiceBean {
                 return;
             }
         }
-        self.logIndexTime("before complete", ctxt.getDataset());
-
         workflowCompleted(wf, ctxt);
         
     }
@@ -346,22 +314,18 @@ public class WorkflowServiceBean {
     // Internal methods to run each step in its own transaction.
     //
     
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     WorkflowStepResult runStep( WorkflowStep step, WorkflowContext ctxt ) {
         return step.run(ctxt);
     }
     
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     WorkflowStepResult resumeStep( WorkflowStep step, WorkflowContext ctxt, Map<String,String> localData, String externalData ) {
         return step.resume(ctxt, localData, externalData);
     }
     
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     void rollbackStep( WorkflowStep step, WorkflowContext ctxt, Failure reason ) {
         step.rollback(ctxt, reason);
     }
     
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     void lockDataset(WorkflowContext ctxt, DatasetLock datasetLock) throws CommandException {
         /*
          * Note that this method directly adds a lock to the database rather than adding
@@ -379,7 +343,6 @@ public class WorkflowServiceBean {
         ctxt.setLockId(datasetLock.getId());
     }
 
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     void unlockDataset(WorkflowContext ctxt) throws CommandException {
         /*
          * Since the lockDataset command above directly persists a lock to the database,
@@ -417,30 +380,7 @@ public class WorkflowServiceBean {
         // (Nominally the workflow lock should have stopped other changes).
         Dataset dataset = ctxt.getDataset();
 
-        Query timestampQuery = em.createNativeQuery(
-                "SELECT dvo.indextime, dvo.permissionindextime, d.lastexporttime, dvo.modificationtime " +
-                "FROM dvobject dvo, dataset d WHERE dvo.id = d.id AND dvo.id = ?");
-            timestampQuery.setParameter(1, dataset.getId());
-
-            Object[] timestamps = (Object[]) timestampQuery.getSingleResult();
-
-            // Cast and apply the fresh timestamps to the current dataset
-            Timestamp freshIndexTime = (Timestamp) timestamps[0];
-            Timestamp freshPermissionIndexTime = (Timestamp) timestamps[1];
-            Timestamp freshLastExportTime = (Timestamp) timestamps[2];
-            Timestamp freshModificationTime = (Timestamp) timestamps[3];
-
-            logger.info("Updating index time from " + dataset.getIndexTime() + " to " + freshIndexTime);
-            dataset.setIndexTime(freshIndexTime);
-
-            logger.info("Updating permission index time from " + dataset.getPermissionIndexTime() + " to " + freshPermissionIndexTime);
-            dataset.setPermissionIndexTime(freshPermissionIndexTime);
-
-            logger.info("Updating last export time from " + dataset.getLastExportTime() + " to " + freshLastExportTime);
-            dataset.setLastExportTime(freshLastExportTime);
-
-            logger.info("Updating modification time from " + dataset.getModificationTime() + " to " + freshModificationTime);
-            dataset.setModificationTime(freshModificationTime);
+        datasets.updateIndexingAndExportTimes(dataset);
 
         
         try {
