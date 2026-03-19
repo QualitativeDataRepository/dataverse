@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -264,7 +263,6 @@ public class OAIRecordServiceBean implements java.io.Serializable {
             ExportService exportServiceInstance = ExportService.getInstance();
             exportServiceInstance.exportAllFormats(dataset);
             datasetService.setLastExportTimeInNewTransaction(dataset.getId(), dataset.getLastExportTime());
-            logger.info("no longer merged dataset after export: index time is " + dataset.getIndexTime().toString());
         } catch (OptimisticLockException ole) {
             datasetService.setLastExportTimeInNewTransaction(dataset.getId(), dataset.getLastExportTime());
         } catch (Exception e) {

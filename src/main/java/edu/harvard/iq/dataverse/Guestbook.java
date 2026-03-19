@@ -2,16 +2,12 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.DateUtil;
+import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import java.util.List;
 import java.util.Objects;
 import jakarta.persistence.Column;
@@ -21,13 +17,17 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
-import edu.harvard.iq.dataverse.util.DateUtil;
 
 /**
  *
  * @author skraffmiller
  */
 @Entity
+@NamedQueries(
+        @NamedQuery(name = "Guestbook.findByDataverse",
+                query = "SELECT gb FROM Guestbook gb WHERE gb.dataverse=:dataverse")
+)
+
 public class Guestbook implements Serializable {
     
     @Id

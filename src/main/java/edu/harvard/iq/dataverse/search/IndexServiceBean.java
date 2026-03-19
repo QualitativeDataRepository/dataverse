@@ -506,7 +506,6 @@ public class IndexServiceBean {
     public void indexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
         doIndexDataset(dataset, doNormalSolrDocCleanUp);
         self.updateLastIndexedTime(dataset.getId());
-        logger.fine("indextime updated for dataset " + dataset.getId());
     }
     
     private void doIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
