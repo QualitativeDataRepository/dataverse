@@ -115,11 +115,11 @@ public class SearchPermissionsServiceBean {
      * should be globally unique because non-builtin groups have a sort of a
      * name space with "shib/2" and "ip/ipGroup3", for example.
      */
-    private String getIndexableStringForUserOrGroup(RoleAssignee userOrGroup) {
+    public String getIndexableStringForUserOrGroup(RoleAssignee userOrGroup) {
         if (userOrGroup instanceof AuthenticatedUser) {
             logger.fine(userOrGroup.getIdentifier() + " must be a user: " + userOrGroup.getClass().getName());
             AuthenticatedUser au = (AuthenticatedUser) userOrGroup;
-            // Strong prefence to index based on system generated value (e.g. primary key) whenever possible: https://github.com/IQSS/dataverse/issues/1151
+            // Strong preference to index based on system generated value (e.g. primary key) whenever possible: https://github.com/IQSS/dataverse/issues/1151
             Long primaryKey = au.getId();
             return IndexServiceBean.getGroupPerUserPrefix() + primaryKey;
         } else if (userOrGroup instanceof Group) {

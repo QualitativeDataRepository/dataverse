@@ -13,6 +13,9 @@ import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
+import edu.harvard.iq.dataverse.authorization.RoleAssignee;
+import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
+import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 
 import java.io.IOException;
@@ -26,8 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import jakarta.ejb.Asynchronous;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
@@ -39,12 +44,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 
 @Named
@@ -112,20 +113,6 @@ public class SolrIndexServiceBean {
         return solrDocs;
     }
 
-    private List<DvObjectSolrDoc> determineSolrDocsForFilesFromDataset(Map.Entry<Long, List<Long>> datasetHash) {
-        List<DvObjectSolrDoc> emptyList = new ArrayList<>();
-        List<DvObjectSolrDoc> solrDocs = emptyList;
-        DvObject dvObject = dvObjectService.findDvObject(datasetHash.getKey());
-        if (dvObject == null) {
-            return emptyList;
-        }
-        if (dvObject.isInstanceofDataset()) {
-            Dataset dataset = (Dataset) dvObject;
-            solrDocs.addAll(constructDatafileSolrDocsFromDataset(dataset));
-        }
-        return solrDocs;
-    }
-
     /**
      * @todo should this method return a List? The equivalent methods for
      * datasets and files return lists.
@@ -162,33 +149,6 @@ public class SolrIndexServiceBean {
             perms = cachedPerms;
         }
         return new DvObjectSolrDoc(fileProxy.getFileId().toString(), solrId, versionId, fileProxy.getName(), perms, downloaders);
-    }
-
-    private List<DvObjectSolrDoc> constructDatafileSolrDocsFromDataset(Dataset dataset) {
-        List<DvObjectSolrDoc> datafileSolrDocs = new ArrayList<>();
-        for (DatasetVersion datasetVersionFileIsAttachedTo : datasetVersionsToBuildCardsFor(dataset)) {
-            List<String> perms = new ArrayList<>();
-            if (datasetVersionFileIsAttachedTo.isReleased()) {
-                perms.add(IndexServiceBean.getPublicGroupString());
-            } else {
-                perms = searchPermissionsService.findDatasetVersionPerms(datasetVersionFileIsAttachedTo);
-            }
-
-            for (FileMetadata fileMetadata : datasetVersionFileIsAttachedTo.getFileMetadatas()) {
-                Long fileId = fileMetadata.getDataFile().getId();
-                String solrIdStart = IndexServiceBean.solrDocIdentifierFile + fileId;
-                String solrIdEnd = getDatasetOrDataFileSolrEnding(datasetVersionFileIsAttachedTo.getVersionState());
-                String solrId = solrIdStart + solrIdEnd;
-                List<String> ftperms = new ArrayList<>();
-                if (fileMetadata.getDataFile().isRestricted()) {
-                    ftperms = searchPermissionsService.findDvObjectPerms(fileMetadata.getDataFile());
-                }
-                DvObjectSolrDoc dataFileSolrDoc = new DvObjectSolrDoc(fileId.toString(), solrId, datasetVersionFileIsAttachedTo.getId(), fileMetadata.getLabel(), perms, ftperms);
-                logger.finest("adding fileid " + fileId);
-                datafileSolrDocs.add(dataFileSolrDoc);
-            }
-        }
-        return datafileSolrDocs;
     }
 
     /** Find the versions to index. The overall logic is
@@ -240,60 +200,58 @@ public class SolrIndexServiceBean {
         }
     }
 
-    public IndexResponse indexAllPermissions() {
-        Collection<SolrInputDocument> docs = new ArrayList<>();
-
-        List<DvObjectSolrDoc> definitionPoints = new ArrayList<>();
-        Map<Long, List<Long>> filesPerDataset = new HashMap<>();
-        List<DvObject> allExceptFiles = dvObjectService.findAll();
-        for (DvObject dvObject : allExceptFiles) {
-            logger.fine("determining definition points for dvobject id " + dvObject.getId());
-            if (dvObject.isInstanceofDataFile()) {
-                Long dataset = dvObject.getOwner().getId();
-                Long datafile = dvObject.getId();
-
-                List<Long> files = filesPerDataset.get(dataset);
-                if (files == null) {
-                    files = new ArrayList<>();
-                    filesPerDataset.put(dataset, files);
-                }
-                files.add(datafile);
-            } else {
-                definitionPoints.addAll(determineSolrDocs(dvObject));
-            }
-        }
-
-        List<DvObject> all = allExceptFiles;
-        for (Map.Entry<Long, List<Long>> filePerDataset : filesPerDataset.entrySet()) {
-            definitionPoints.addAll(determineSolrDocsForFilesFromDataset(filePerDataset));
-            for (long fileId : filePerDataset.getValue()) {
-                DvObject file = dvObjectService.findDvObject(fileId);
-                if (file != null) {
-                    all.add(file);
-                }
-            }
-        }
-
-        for (DvObjectSolrDoc dvObjectSolrDoc : definitionPoints) {
-            logger.fine("creating solr doc in memory for " + dvObjectSolrDoc.getSolrId());
-            SolrInputDocument solrInputDocument = SearchUtil.createSolrDoc(dvObjectSolrDoc);
-            logger.fine("adding to list of docs to index " + dvObjectSolrDoc.getSolrId());
-            docs.add(solrInputDocument);
-        }
+    @Asynchronous
+    public void asyncIndexAllPermissions() {
+        logger.info("Starting asynchronous indexing of all permissions");
+        long startTime = System.currentTimeMillis();
+        
         try {
-            persistToSolr(docs);
-            /**
-             * @todo Do we need a separate permissionIndexTime timestamp?
-             * Probably. Update it here.
-             */
-            for (DvObject dvObject : all) {
-                dvObjectService.updatePermissionIndexTime(dvObject);
+           
+            // Get ALL dataverses in the system
+            List<Long> allDataverseIds = em.createQuery(
+                "SELECT d.id FROM Dataverse d ORDER BY d.id", Long.class)
+                .getResultList();
+            
+            logger.info("Found " + allDataverseIds.size() + " dataverses to index (each will index its datasets and files)");
+            
+            int processedCount = 0;
+            
+            // Index each dataverse (which will automatically index all its datasets and files)
+            for (Long dataverseId : allDataverseIds) {
+                try {
+                    Dataverse dataverse = dataverseService.find(dataverseId);
+                    if (dataverse == null) {
+                        logger.warning("Dataverse not found: " + dataverseId);
+                        continue;
+                    }
+                    
+                    logger.fine("Indexing permissions for Dataverse " + dataverseId + 
+                               " (" + dataverse.getName() + ") and all its datasets/files");
+                    
+                    // This will index the dataverse itself and all its direct dataset children (with their files)
+                    IndexResponse response = indexPermissionsOnSelfAndChildren(dataverse);
+                    processedCount++;
+                    
+                    logger.fine("Indexed Dataverse " + dataverseId + ": " + response.getMessage());
+                    
+                    // Clear persistence context periodically to free memory
+                    if (processedCount % 10 == 0) {
+                        em.clear();
+                        logger.info("Processed " + processedCount + "/" + allDataverseIds.size() + " dataverses");
+                    }
+                    
+                } catch (Exception e) {
+                    logger.log(Level.WARNING, "Error indexing permissions for dataverse " + dataverseId, e);
+                }
             }
-            return new IndexResponse("indexed all permissions");
-        } catch (SolrServerException | IOException ex) {
-            return new IndexResponse("problem indexing");
+            
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info("Completed asynchronous indexing of all permissions. Processed " + 
+                        processedCount + " dataverses (with all their datasets and files) in " + duration + "ms");
+            
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error during asynchronous permission indexing", e);
         }
-
     }
 
     public IndexResponse indexPermissionsForOneDvObject(DvObject dvObject) {
@@ -313,7 +271,12 @@ public class SolrIndexServiceBean {
             persistToSolr(docs);
             boolean updatePermissionTimeSuccessful = false;
             if (dvObject != null) {
-                DvObject savedDvObject = dvObjectService.updatePermissionIndexTime(dvObject);
+                DvObject savedDvObject = null;
+                if (dvObject.isInstanceofDataset()) {
+                    savedDvObject = dvObjectService.updatePermissionIndexTimeInNewTransaction(dvObject);
+                } else {
+                    savedDvObject = dvObjectService.updatePermissionIndexTime(dvObject);
+                }
                 if (savedDvObject != null) {
                     updatePermissionTimeSuccessful = true;
                 }
@@ -433,7 +396,7 @@ public class SolrIndexServiceBean {
              * loaded (first case) and done only when needed for the second case.
              * 
              **/
-            Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
+            Map<Long, List<String>> fileDownloadersMap = getFileDownloadersMap(dataset.getId());
             List<DatasetVersion> versionsToIndex = new ArrayList<>();
             for (DatasetVersion version : datasetVersionsToBuildCardsFor(dataset)) {
                 int fileCount = dataFileService.findCountByDatasetVersionId(version.getId()).intValue();
@@ -458,6 +421,46 @@ public class SolrIndexServiceBean {
         return new IndexResponse("Number of dvObject permissions indexed for " + definitionPoint + ": " + numObjects);
     }
 
+    //Map the ids from the query to the text strings expected via searchPermissionsService.getIndexableStringForUserOrGroup
+    private Map<Long, List<String>> getFileDownloadersMap(Long id) {
+        Map<Long, List<String>> identifierMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(id);
+        
+        // Collect all unique identifiers across all files
+        Set<String> allIdentifiers = identifierMap.values().stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toSet());
+        
+     // Build swaps map by looking up each identifier and converting to indexable string
+        Map<String, String> swaps = new HashMap<>();
+        for (String identifier : allIdentifiers) {
+            if (!identifier.startsWith(PrivateUrlUser.PREFIX)) {
+                RoleAssignee roleAssignee = roleAssigneeSvc.getRoleAssignee(identifier);
+                if (roleAssignee != null) {
+                    String indexableString = searchPermissionsService.getIndexableStringForUserOrGroup(roleAssignee);
+                    if (indexableString != null) {
+                        swaps.put(identifier, indexableString);
+                    }
+                }
+            }
+        }
+        
+        // Transform the identifier map to indexable strings map
+        return identifierMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(identifier -> swaps.getOrDefault(identifier, null))
+                                .filter(indexableString -> {
+                                    if (indexableString == null) {
+                                        logger.warning("No indexable string found for identifier");
+                                        return false;
+                                    }
+                                    return true;
+                                })
+                                .collect(Collectors.toList())
+                ));
+    }
+
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void indexDatasetBatchInNewTransaction(List<Long> datasetIds, final int[] fileCounter, int fileQueryMin) {
         for (Long datasetId : datasetIds) {
@@ -466,7 +469,7 @@ public class SolrIndexServiceBean {
                 indexPermissionsForOneDvObject(dataset);
 
                 // Process files for this dataset
-                Map<Long, List<String>> fileDownloadersMap = roleAssigneeSvc.findAssigneesWithDownloadPermissionOnDatasetFiles(dataset.getId());
+                Map<Long, List<String>> fileDownloadersMap = getFileDownloadersMap(dataset.getId());
                 Set<DatasetVersion> versions = datasetVersionsToBuildCardsFor(dataset);
                 final List<Long> changedFileIds = new ArrayList<>();
                 if(versions.size()>1) {

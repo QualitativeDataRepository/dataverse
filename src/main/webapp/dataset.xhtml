@@ -50,6 +50,7 @@
             <ui:param name="thumbnailString" value="#{DatasetPage.thumbnailString}"/>
             <ui:param name="jsonLd" value="#{DatasetPage.jsonLd}"/>
             <ui:param name="croissant" value="#{DatasetPage.croissant}"/>
+            <ui:param name="legacyFormatInHead" value="#{DatasetPage.useLegacyFormatInHead}"/>
             <ui:param name="latestVersionInReview" value="#{DatasetPage.dataset.latestVersion.inReview}"/>
             <ui:param name="showSubmitForReviewLink" value="#{DatasetPage.editMode != 'CREATE' and version == DatasetPage.dataset.latestVersion
                                                               and !DatasetPage.datasetLockedInWorkflow
@@ -96,11 +97,11 @@
             <ui:define name="jsonld_header">
                 <ui:fragment rendered="#{!anonymizedAccess}">
                     <script type="application/ld+json">
-                        <ui:fragment rendered="#{croissant == null}">
-                            <h:outputText value="#{jsonLd}"/>
-                        </ui:fragment>
-                        <ui:fragment rendered="#{croissant != null}">
+                        <ui:fragment rendered="#{!legacyFormatInHead}">
                             <h:outputText value="#{croissant}"/>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{legacyFormatInHead}">
+                            <h:outputText value="#{jsonLd}"/>
                         </ui:fragment>
                     </script>
                 </ui:fragment>
@@ -1164,8 +1165,12 @@
                     <p:dialog id="deleteConfirmation" styleClass="smallPopUp" header="#{bundle['file.deleteDialog.header']}" widgetVar="deleteConfirmation" modal="true">
                         <p class="text-warning"><span class="glyphicon glyphicon-warning-sign"/> #{bundle['file.deleteDialog.tip']}</p>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{DatasetPage.deleteDataset()}"/>
-                            <button class="btn btn-link" onclick="PF('deleteConfirmation').hide();PF('blockDatasetForm').hide();" type="button">
+                            <p:commandButton styleClass="btn btn-default" value="#{bundle.continue}" 
+                                onstart="PF('deleteConfirmation').hide()" 
+                                action="#{DatasetPage.deleteDataset()}" 
+                                process="@this"
+                                onkeydown="if (event.keyCode === 13) { $(this).click(); return false; }"/>
+                            <button class="btn btn-link" onclick="PF('deleteConfirmation').hide();PF('blockDatasetForm').hide();" type="button" onkeydown="if (event.keyCode === 13) { $(this).click(); return false; }">
                                 #{bundle.cancel}
                             </button>
                         </div>
