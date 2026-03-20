@@ -50,6 +50,12 @@ public class ArchivalSubmissionWorkflowStep implements WorkflowStep {
                 requestedSettings.put(setting, val.toString());
             }
         }
+        
+        // Log all received settings
+        logger.info("Archival Submission Workflow Step - Received settings:");
+        for (Map.Entry<String, String> entry : requestedSettings.entrySet()) {
+            logger.info("  " + entry.getKey() + " = " + entry.getValue());
+        }
 
         Dataset d = context.getDataset();
         if (d.isLockedFor(Reason.FileValidationFailed)) {
@@ -62,6 +68,11 @@ public class ArchivalSubmissionWorkflowStep implements WorkflowStep {
         if (archiveCommand != null) {
             // Generate the required components for archiving
             DatasetVersion version = context.getDataset().getReleasedVersion();
+            if (!archiveCommand.preconditionsMet(version, context.getApiToken(), requestedSettings)) {
+                logger.info("DIdn't pass preconditions");
+                return new Failure("Earlier versions must be successfully archived first",
+                        "Archival prerequisites not met");
+            }
             
             // Generate DataCite XML
             String dataCiteXml = archiveCommand.getDataCiteXml(version);
@@ -71,7 +82,7 @@ public class ArchivalSubmissionWorkflowStep implements WorkflowStep {
             JsonObject ore = oreMap.getOREMap();
             
             // Get JSON-LD terms
-            Map<String, JsonLDTerm> terms = archiveCommand.getJsonLDTerms(oreMap);
+            Map<String, JsonLDTerm> terms = AbstractSubmitToArchiveCommand.getJsonLDTerms(oreMap);
             
             // Call the updated method with all required parameters
             /*
@@ -85,6 +96,7 @@ public class ArchivalSubmissionWorkflowStep implements WorkflowStep {
              * pending as is done when running archiving from the UI/API. Instead, there is a generic workflow
              * lock on the dataset. 
              */
+
             return archiveCommand.performArchiveSubmission(
                 version, 
                 dataCiteXml, 

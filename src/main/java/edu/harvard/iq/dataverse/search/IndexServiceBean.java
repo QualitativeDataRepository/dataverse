@@ -165,6 +165,9 @@ public class IndexServiceBean {
     @EJB
     DatasetFieldServiceBean datasetFieldService;
 
+    @EJB
+    IndexServiceBean self;
+    
     @Inject
     DatasetVersionFilesServiceBean datasetVersionFilesServiceBean;
 
@@ -502,8 +505,7 @@ public class IndexServiceBean {
 
     public void indexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
         doIndexDataset(dataset, doNormalSolrDocCleanUp);
-        updateLastIndexedTime(dataset.getId());
-        logger.fine("indextime updated for dataset " + dataset.getId());
+        self.updateLastIndexedTime(dataset.getId());
     }
     
     private void doIndexDataset(Dataset dataset, boolean doNormalSolrDocCleanUp) throws  SolrServerException, IOException {
@@ -605,19 +607,20 @@ public class IndexServiceBean {
             if (doNormalSolrDocCleanUp) {
                 List<String> solrIdsOfPermissionDocsToDelete = new ArrayList<>();
                 try {
-                    
                     solrIdsOfDocsToDelete = findFilesOfParentDataset(dataset.getId());
                     logger.fine("Existing file docs: " + String.join(", ", solrIdsOfDocsToDelete));
                     if (!solrIdsOfDocsToDelete.isEmpty()) {
-                        if(!latestVersion.isDraft()) {
-                            //For draft datasets after a published version, we're not reindexing the files unless their metadata changes
-                            //Therefore, to make sure their 
-                            for(String fileDocId : solrIdsOfDocsToDelete) {
-                                if(!fileDocId.endsWith(draftSuffix)) {
+                        if (!latestVersion.isDraft()) {
+                            // After publication, we need to delete old draft perm docs
+                            // For the first draft, a perm doc will exist for each file
+                            // For subsequent drafts, perm docs should only exist for new files/those with changed metadata
+                            // This code adds the ids of draft perm docs for all files - if the docs don't exist, Solr will just ignore them
+                            for (String fileDocId : solrIdsOfDocsToDelete) {
+                                if (!fileDocId.endsWith(draftSuffix)) {
                                     solrIdsOfPermissionDocsToDelete.add(fileDocId + draftSuffix + discoverabilityPermissionSuffix);
                                 }
                             }
-                            
+
                             logger.fine("Existing permission docs: " + String.join(", ", solrIdsOfPermissionDocsToDelete));
                         }
                         // We keep the latest version's docs unless it is deaccessioned and there is no
@@ -1193,7 +1196,8 @@ public class IndexServiceBean {
                                 SimpleDateFormat inputDateyyyy = new SimpleDateFormat("yyyy", Locale.ENGLISH);
                                 try {
                                     /**
-                                     * @todo when bean validation is working we won't have to convert strings into dates
+                                     * @todo when bean validation is working we
+                                     * won't have to convert strings into dates
                                      */
                                     logger.finest("Trying to convert " + dateAsString + " to a YYYY date from dataset " + dataset.getId());
                                     Date dateAsDate = inputDateyyyy.parse(dateAsString);
@@ -1519,6 +1523,7 @@ public class IndexServiceBean {
                     start = startDate;
                 }
                 boolean indexThisFile = false;
+
                 if (indexThisMetadata && (isReleasedVersion || changedFileIds.contains(datafile.getId()))) {
                     indexThisFile = true;
                 } else if (indexThisMetadata) {
@@ -1880,15 +1885,15 @@ public class IndexServiceBean {
     }
 
     @Asynchronous
-    private void updateLastIndexedTime(Long id) {
+    public void updateLastIndexedTime(Long id) {
         // indexing is often in a transaction with update statements
         // if we flush on query (flush-mode auto), we want to prevent locking
         // -> update the dataset asynchronously in a new transaction
-        updateLastIndexedTimeInNewTransaction(id);
+        self.updateLastIndexedTimeInNewTransaction(id);
     }
 
     @TransactionAttribute(REQUIRES_NEW)
-    private void updateLastIndexedTimeInNewTransaction(Long id) {
+    public void updateLastIndexedTimeInNewTransaction(Long id) {
         /// Dataset updatedDataset =
         /// (Dataset)dvObjectService.updateContentIndexTime(dataset);
         /// updatedDataset = null;
@@ -1897,6 +1902,7 @@ public class IndexServiceBean {
         DvObject dvObjectToModify = em.find(DvObject.class, id);
         dvObjectToModify.setIndexTime(new Timestamp(new Date().getTime()));
         dvObjectToModify = em.merge(dvObjectToModify);
+        logger.info("Setting last indexed time for dataset to " + dvObjectToModify.getIndexTime().toString());
         em.flush();
     }
 

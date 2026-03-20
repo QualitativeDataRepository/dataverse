@@ -10,14 +10,20 @@ import static edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key.DuraClou
 import static edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key.DuraCloudHost;
 import static edu.harvard.iq.dataverse.settings.SettingsServiceBean.Key.DuraCloudPort;
 
+import edu.harvard.iq.dataverse.util.bagit.BagGenerator;
 import edu.harvard.iq.dataverse.util.json.JsonLDTerm;
 import edu.harvard.iq.dataverse.workflow.step.Failure;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepResult;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -86,15 +92,17 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
              * the same space.
              */
             String spaceName = dataset.getOwner().getAlias().toLowerCase().replaceAll("[^a-z0-9-]", ".dcsafe");
-            String baseFileName = dataset.getGlobalId().asString().replace(':', '-').replace('/', '-')
-                    .replace('.', '-').toLowerCase() + "_v" + dv.getFriendlyVersionNumber();
+            //This archiver doesn't use the standard spaceName, but does use it to generate the file name
+            String baseFileName = getFileName(getSpaceName(dataset), dv);
 
             ContentStore store;
-            //Set a failure status that will be updated if we succeed
+            // Set a failure status that will be updated if we succeed
             JsonObjectBuilder statusObject = Json.createObjectBuilder();
             statusObject.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_FAILURE);
             statusObject.add(DatasetVersion.ARCHIVAL_STATUS_MESSAGE, "Bag not transferred");
-            
+
+            Path tempBagFile = null;
+
             try {
                 /*
                  * If there is a failure in creating a space, it is likely that a prior version
@@ -119,14 +127,14 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
 
                                 dataciteOut.write(dataciteXml.getBytes(StandardCharsets.UTF_8));
                                 dataciteOut.close();
-                                success=true;
+                                success = true;
                             } catch (Exception e) {
                                 logger.severe("Error creating datacite.xml: " + e.getMessage());
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
                         }
-                    }); 
+                    });
                     dcThread.start();
                     // Have seen Pipe Closed errors for other archivers when used as a workflow
                     // without this delay loop
@@ -142,7 +150,8 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                     String localchecksum = Hex.encodeHexString(digestInputStream.getMessageDigest().digest());
                     if (!success || !checksum.equals(localchecksum)) {
                         logger.severe("Failure on " + baseFileName);
-                        logger.severe(success ? checksum + " not equal to " + localchecksum : "failed to transfer to DuraCloud");
+                        logger.severe(success ? checksum + " not equal to " + localchecksum
+                                : "failed to transfer to DuraCloud");
                         try {
                             store.deleteContent(spaceName, baseFileName + "_datacite.xml");
                         } catch (ContentStoreException cse) {
@@ -159,20 +168,39 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                     // Add BagIt ZIP file
                     // Although DuraCloud uses SHA-256 internally, it's API uses MD5 to verify the
                     // transfer
+                    Path bagFile = null;
 
-                    messageDigest = MessageDigest.getInstance("MD5");
-                    try (PipedInputStream in = new PipedInputStream(100000);
-                            DigestInputStream digestInputStream2 = new DigestInputStream(in, messageDigest)) {
-                            Thread bagThread = startBagThread(dv, in, digestInputStream2, dataciteXml, ore, terms, token);
-                        checksum = store.addContent(spaceName, fileName, digestInputStream2, -1l, null, null, null);
-                        bagThread.join();
-                        if (success) {
-                            logger.fine("Content: " + fileName + " added with checksum: " + checksum);
-                            localchecksum = Hex.encodeHexString(digestInputStream2.getMessageDigest().digest());
+                    tempBagFile = Files.createTempFile("dataverse-bag-", ".zip");
+                    logger.fine("Creating bag in temporary file: " + tempBagFile.toString());
+                    // Generate bag
+                    BagGenerator bagger = new BagGenerator(ore, dataciteXml, terms);
+                    bagger.setAuthenticationKey(token.getTokenString());
+
+                    // Generate bag to temporary file using the provided ore JsonObject
+                    try (FileOutputStream fos = new FileOutputStream(tempBagFile.toFile())) {
+                        if (!bagger.generateBag(fos)) {
+                            throw new IOException("Bag generation failed");
                         }
-                        if (!success || !checksum.equals(localchecksum)) {
+                    }
+
+                    // Store BagIt file
+                    long bagSize = Files.size(tempBagFile);
+                    logger.fine("Bag created successfully, size: " + bagSize + " bytes");
+
+                    // Now upload the bag file
+                    messageDigest = MessageDigest.getInstance("MD5");
+                    try (InputStream is = Files.newInputStream(bagFile);
+                            DigestInputStream bagDigestInputStream = new DigestInputStream(is, messageDigest)) {
+                        checksum = store.addContent(spaceName, fileName, bagDigestInputStream,
+                                bagFile.toFile().length(), "application/zip", null, null);
+                        localchecksum = Hex.encodeHexString(bagDigestInputStream.getMessageDigest().digest());
+
+                        if (checksum != null && checksum.equals(localchecksum)) {
+                            logger.fine("Content: " + fileName + " added with checksum: " + checksum);
+                            success = true;
+                        } else {
                             logger.severe("Failure on " + fileName);
-                            logger.severe(success ? checksum + " not equal to " + localchecksum : "failed to transfer to DuraCloud");
+                            logger.severe(checksum + " not equal to " + localchecksum);
                             try {
                                 store.deleteContent(spaceName, fileName);
                                 store.deleteContent(spaceName, baseFileName + "_datacite.xml");
@@ -191,7 +219,7 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                     // view it as an admin)
                     StringBuffer sb = new StringBuffer("https://");
                     sb.append(host);
-                    if (!port.equals("443")) {
+                    if (!port.equals(DEFAULT_PORT)) {
                         sb.append(":" + port);
                     }
                     sb.append("/duradmin/spaces/sm/");
@@ -199,7 +227,7 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                     sb.append("/" + spaceName + "/" + fileName);
                     statusObject.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_SUCCESS);
                     statusObject.add(DatasetVersion.ARCHIVAL_STATUS_MESSAGE, sb.toString());
-                    
+
                     logger.fine("DuraCloud Submission step complete: " + sb.toString());
                 } catch (ContentStoreException | IOException e) {
                     // TODO Auto-generated catch block
@@ -221,8 +249,19 @@ public class DuraCloudSubmitToArchiveCommand extends AbstractSubmitToArchiveComm
                 return new Failure("Unable to create DuraCloud space with name: " + baseFileName, mesg);
             } catch (NoSuchAlgorithmException e) {
                 logger.severe("MD5 MessageDigest not available!");
-            }
-            finally {
+            } catch (Exception e) {
+                logger.warning(e.getLocalizedMessage());
+                e.printStackTrace();
+                return new Failure("Error in transferring file to DuraCloud",
+                        "DuraCloud Submission Failure: internal error");
+            } finally {
+                if (tempBagFile != null) {
+                    try {
+                        Files.deleteIfExists(tempBagFile);
+                    } catch (IOException e) {
+                        logger.warning("Failed to delete temporary bag file: " + tempBagFile + " : " + e.getMessage());
+                    }
+                }
                 dv.setArchivalCopyLocation(statusObject.build().toString());
             }
             return WorkflowStepResult.OK;

@@ -92,37 +92,42 @@
                                 </p>
                             </div>
                             <div class="panel-body" jsf:id="contentOfHttpPanel" jsf:rendered="#{!hasPackageFile}">
-                    <p class="help-block">
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipMoreInformation']}" escape="false">
-                            <f:param value="#{settingsWrapper.get(':QDRDrupalSiteURL')}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipMaxNumFiles']}" escape="false"
-                                        rendered="#{EditDatafilesPage.maxNumberOfFiles > 0}">
-                            <f:param value="#{EditDatafilesPage.maxNumberOfFiles}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipMaxNumFilesUploadsAvailable']}" escape="false"
-                                        rendered="#{EditDatafilesPage.fileUploadsAvailable > -1}">
-                            <f:param value="#{EditDatafilesPage.fileUploadsAvailable}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipLimit']}" escape="false"
-                                        rendered="#{!EditDatafilesPage.isUnlimitedUploadFileSize()}">
-                            <f:param value="#{EditDatafilesPage.getHumanMaxFileUploadSizeInBytes()}"/>
-                        </h:outputFormat>                      
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipQuotaRemaining']}" escape="false" 
-                              rendered="#{EditDatafilesPage.isStorageQuotaEnforced()}">
-                            <f:param value="#{EditDatafilesPage.getHumanMaxTotalUploadSizeInBytes()}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipTabularLimit']}" escape="false"
-                                        rendered="#{EditDatafilesPage.maxIngestSizeInBytes != -1}">
-                            <f:param value="#{systemConfig.guidesBaseUrl}"/>
-                            <f:param value="#{systemConfig.guidesVersion}"/>
-                            <f:param value="#{EditDatafilesPage.humanMaxIngestSizeInBytes}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipPerFileTabularLimit']}"
-                                         rendered="#{not empty EditDatafilesPage.humanPerFormatTabularLimits}">
-                            <f:param value="#{fn:replace(EditDatafilesPage.humanPerFormatTabularLimits, ' 1 B', ' disabled')}"/>
-                        </h:outputFormat>
-                    </p>
+                                <p class="help-block">
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipMoreInformation']}" escape="false">
+                                        <f:param value="#{settingsWrapper.get(':QDRDrupalSiteURL')}"/>
+                                    </h:outputFormat>
+            												<h:outputFormat value=" #{bundle['file.selectToAdd.tipTotalSizeUsed']}" escape="false">
+												                <f:param value="#{EditDatafilesPage.currentContainerStorageUse}"/>
+												            </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipMaxNumFiles']}" escape="false"
+                                                    rendered="#{EditDatafilesPage.maxNumberOfFiles > 0}">
+                                        <f:param value="#{EditDatafilesPage.maxNumberOfFiles}"/>
+                                    </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipMaxNumFilesUploadsAvailable']}" escape="false"
+                                                    rendered="#{EditDatafilesPage.fileUploadsAvailable > -1}">
+                                        <f:param value="#{EditDatafilesPage.fileUploadsAvailable}"/>
+                                    </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipLimit']}" escape="false"
+                                                    rendered="#{!EditDatafilesPage.isUnlimitedUploadFileSize()}">
+                                        <f:param value="#{EditDatafilesPage.getHumanMaxFileUploadSizeInBytes()}"/>
+                                    </h:outputFormat>
+                                    
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipQuotaRemaining']}" escape="false" 
+                                                    rendered="#{EditDatafilesPage.isStorageQuotaEnforced()}">
+                                        <f:param value="#{EditDatafilesPage.getHumanMaxTotalUploadSizeInBytes()}"/>
+                                    </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipTabularLimit']}" escape="false"
+                                                    rendered="#{EditDatafilesPage.maxIngestSizeInBytes != -1}">
+                                        <f:param value="#{systemConfig.guidesBaseUrl}"/>
+                                        <f:param value="#{systemConfig.guidesVersion}"/>
+                                        <f:param value="#{EditDatafilesPage.humanMaxIngestSizeInBytes}"/>
+                                    </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipPerFileTabularLimit']}"
+                                                    rendered="#{not empty EditDatafilesPage.humanPerFormatTabularLimits}">
+                                        <f:param value="#{fn:replace(EditDatafilesPage.humanPerFormatTabularLimits, ' 1 B', ' disabled')}"/>
+                                    </h:outputFormat>
+                                </p>
+                    
                     <script>
                         //<![CDATA[
                         function uploadWidgetDropMsg() {
@@ -207,7 +212,6 @@
                                     <p:commandButton id="dropBoxButton" actionListener="#{EditDatafilesPage.handleDropBoxUpload}" oncomplete="javascript:dropBoxUploadFinished();" update="@none" style="display:none;" />
                                     <p:commandButton id="dropBoxUserButton" disabled="#{!(showFileUploadComponent)}" value="#{bundle['file.fromDropbox']}" onclick="openDropboxChooser();" icon="dropin-btn-status" />
                                     <p:message for="dropBoxButton" id="dropBoxUploadMessage" display="text" redisplay="false" />
-                                    
                                 </div>
                                 <div jsf:id="hypothesisBlock" jsf:rendered="#{settingsWrapper.isHasHypothesisKey() and !lockedFromEdits }"  class="margin-top">
                                     <!-- Hypothesis upload widget -->

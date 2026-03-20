@@ -23,14 +23,11 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.pidproviders.PidProvider;
-import edu.harvard.iq.dataverse.pidproviders.PidUtil;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrl;
-import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.workflow.WorkflowContext;
 import edu.harvard.iq.dataverse.workflow.WorkflowContext.TriggerType;
 
-import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -244,13 +241,6 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         //Remove any pre-pub workflow lock (not needed as WorkflowServiceBean.workflowComplete() should already have removed it after setting the finalizePublication lock?)
         ctxt.datasets().removeDatasetLocks(ds, DatasetLock.Reason.Workflow);
         
-        ctxt.workflows().getDefaultWorkflow(TriggerType.PostPublishDataset).ifPresent(wf -> {
-                // Create the workflow lock BEFORE starting the workflow
-                DatasetLock workflowLock = new DatasetLock(DatasetLock.Reason.Workflow, (AuthenticatedUser) getRequest().getUser());
-                workflowLock.setDataset(ds);
-                ctxt.datasets().addDatasetLock(ds, workflowLock);
-        });
-
         Dataset readyDataset = ctxt.em().merge(ds);
         
         setDataset(readyDataset);
@@ -290,7 +280,6 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         ctxt.workflows().getDefaultWorkflow(TriggerType.PostPublishDataset).ifPresent(wf -> {
             // Build context with the lock attached
             WorkflowContext context = buildContext(ds, TriggerType.PostPublishDataset, datasetExternallyReleased);
-            context.setLockId(ds.getLockFor(DatasetLock.Reason.Workflow).getId());
             try {
                 ctxt.workflows().start(wf, context, false);
             } catch (CommandException e) {
