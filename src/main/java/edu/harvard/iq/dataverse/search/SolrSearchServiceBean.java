@@ -1234,7 +1234,7 @@ public class SolrSearchServiceBean implements SearchService {
         if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
             return SearchFields.FULL_TEXT_SEARCHABLE_BY + ":" + permissionFilterGroups;
         }
-        return q1Query.toString(); 
+        return null; 
     }
 
     private boolean isAllGroups(String groups) {
