@@ -156,9 +156,13 @@ public class SolrSearchServiceBean implements SearchService {
         if(settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
             query = SearchUtil.expandQuery(query, isPublicOnly(permissionFilterGroups), isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
-            String q1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
+            String q1Query = buildPermissionGroupQuery(permissionFilterGroups);
             solrQuery.add("q1",  q1Query);
             logger.fine("q1: " + q1Query);
+            //Sanity check: if the query contains $q1 but no q1 query, log a warning.
+            if(query.contains("$q1") && StringUtils.isBlank(q1Query)) {
+                logger.warning("Query contains $q1 but no q1 query: " + query);
+            }
         }
         
         solrQuery.setQuery(query);
@@ -1008,9 +1012,14 @@ public class SolrSearchServiceBean implements SearchService {
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
             query = SearchUtil.expandQuery(query, isPublicOnly(permissionFilterGroups), isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
-            String finalQ1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
+            String finalQ1Query = buildPermissionGroupQuery(permissionFilterGroups);
             solrQuery.add("q1", finalQ1Query);
             logger.fine("q1: " + finalQ1Query);
+          //Sanity check: if the query contains $q1 but no q1 query, log a warning.
+            if(query.contains("$q1") && StringUtils.isBlank(finalQ1Query)) {
+                logger.warning("Simple search: Query contains $q1 but no q1 query: " + query);
+            }
+
         }
 
         solrQuery.setQuery(query);
@@ -1221,16 +1230,9 @@ public class SolrSearchServiceBean implements SearchService {
         return query;
     }
 
-    private String buildPermissionGroupQuery(boolean avoidJoin, String fullTextSearchableBy, String permissionFilterGroups) {
-        StringBuilder q1Query = new StringBuilder();
-        if(avoidJoin && !isAllGroups(permissionFilterGroups)) {
-            q1Query.append(SearchFields.PUBLIC_OBJECT + ":" + true);
-        }
+    private String buildPermissionGroupQuery(String permissionFilterGroups) {
         if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
-            if(!q1Query.isEmpty()) {
-                q1Query.append(" OR ");
-            }
-            q1Query.append(SearchFields.FULL_TEXT_SEARCHABLE_BY + ":" + permissionFilterGroups);
+            return SearchFields.FULL_TEXT_SEARCHABLE_BY + ":" + permissionFilterGroups;
         }
         return q1Query.toString(); 
     }
