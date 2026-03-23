@@ -88,6 +88,8 @@ public class SolrSearchServiceBean implements SearchService {
     SolrClientService solrClientService;
     @EJB
     PermissionServiceBean permissionService;
+    @EJB
+    SearchPermissionsServiceBean searchPermissionsService;
     @Inject
     ThumbnailServiceWrapper thumbnailServiceWrapper;
     
@@ -1172,7 +1174,7 @@ public class SolrSearchServiceBean implements SearchService {
         for (Group group : groups) {
             String groupAlias = group.getAlias();
             if (groupAlias != null && !groupAlias.isEmpty()) {
-                groupList.add(IndexServiceBean.getGroupPrefix() + groupAlias);
+                groupList.add(searchPermissionsService.getIndexableStringForUserOrGroup(group));
             }
         }
 
