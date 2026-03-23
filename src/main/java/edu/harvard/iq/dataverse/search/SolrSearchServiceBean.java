@@ -55,6 +55,7 @@ import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
+
 @Stateless
 @Named
 public class SolrSearchServiceBean implements SearchService {
@@ -153,7 +154,7 @@ public class SolrSearchServiceBean implements SearchService {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, onlyDatatRelatedToMe, addFacets, avoidJoin);
         if(settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups==null, isAllGroups(permissionFilterGroups), avoidJoin);
+            query = SearchUtil.expandQuery(query, isPublicOnly(permissionFilterGroups), isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String q1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
             solrQuery.add("q1",  q1Query);
@@ -1005,7 +1006,7 @@ public class SolrSearchServiceBean implements SearchService {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, false, !(facets == null || facets.isEmpty()), avoidJoin);
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups == null, isAllGroups(permissionFilterGroups), avoidJoin);
+            query = SearchUtil.expandQuery(query, isPublicOnly(permissionFilterGroups), isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String finalQ1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
             solrQuery.add("q1", finalQ1Query);
@@ -1074,6 +1075,21 @@ public class SolrSearchServiceBean implements SearchService {
         return queryResponse;
     }
 
+    // Determine if the filter groups indicate a public-only search. That means no entries, or only public entries (group_public and/or group_buitlIn/all-users)
+    private boolean isPublicOnly(String permissionFilterGroups) {
+        if(StringUtils.isBlank(permissionFilterGroups)) {
+            return true;
+        }
+        List<String> groups = Arrays.asList(permissionFilterGroups.split(","));
+        int count = 0;
+        if(groups.contains(IndexServiceBean.getPublicGroupString())) { 
+            count++;
+        }
+        if(groups.contains(IndexServiceBean.getGroupPrefix() + AllUsers.get().getAlias())) { 
+            count++;
+        }
+        return groups.size() == count;
+    }
 
     public String getLocaleTitle(String title,  String controlledvoc , String propertyfile) {
 
@@ -1177,11 +1193,10 @@ public class SolrSearchServiceBean implements SearchService {
                 groupList.add(searchPermissionsService.getIndexableStringForUserOrGroup(group));
             }
         }
-        //QDR - we need group_public for full-text search since AllUsers is not indexed
-        //if (!avoidJoin) {
+        if (!avoidJoin) {
             // Add the public group
             groupList.add(0, IndexServiceBean.getPublicGroupString());
-        //} 
+        } 
         logger.fine("GroupList size: " + groupList.size());
         String groupString = null;
         //If we have additional groups, format them correctly into a search string, with parens if there is more than one
