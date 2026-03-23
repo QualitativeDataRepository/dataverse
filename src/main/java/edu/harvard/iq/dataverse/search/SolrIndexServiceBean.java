@@ -626,7 +626,8 @@ public class SolrIndexServiceBean {
             }
 
             for (DataFileProxy file : filesToReindexAsBatch) {
-                List<String> downloaders = null;
+                // If null SearchUtil won't write the FULL_TEXT_SEARCHABLE_BY entry
+                List<String> downloaders = new ArrayList<>();
                 if (file.isRestricted()) {
                     downloaders = fileDownloadersMap.get(file.getFileId());
                 }
