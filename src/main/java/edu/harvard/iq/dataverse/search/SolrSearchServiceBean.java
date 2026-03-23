@@ -1177,11 +1177,11 @@ public class SolrSearchServiceBean implements SearchService {
                 groupList.add(searchPermissionsService.getIndexableStringForUserOrGroup(group));
             }
         }
-
-        if (!avoidJoin) {
+        //QDR - we need group_public for full-text search since AllUsers is not indexed
+        //if (!avoidJoin) {
             // Add the public group
             groupList.add(0, IndexServiceBean.getPublicGroupString());
-        } 
+        //} 
         logger.fine("GroupList size: " + groupList.size());
         String groupString = null;
         //If we have additional groups, format them correctly into a search string, with parens if there is more than one
