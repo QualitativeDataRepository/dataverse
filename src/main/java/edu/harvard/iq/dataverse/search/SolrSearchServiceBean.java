@@ -360,7 +360,7 @@ public class SolrSearchServiceBean implements SearchService {
 //        solrQuery.addNumericRangeFacet(SearchFields.PRODUCTION_DATE_YEAR_ONLY, citationYearRangeStart, citationYearRangeEnd, citationYearRangeSpan);
 //        solrQuery.addNumericRangeFacet(SearchFields.DISTRIBUTION_DATE_YEAR_ONLY, citationYearRangeStart, citationYearRangeEnd, citationYearRangeSpan);
         solrQuery.setRows(numResultsPerPage);
-        logger.fine("Solr query:" + solrQuery);
+        logger.fine("Solr query:" + solrQuery.toQueryString());
 
         // -----------------------------------
         // Make the solr query
