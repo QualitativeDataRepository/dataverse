@@ -7,7 +7,7 @@ import edu.harvard.iq.dataverse.util.testing.JvmSetting;
 import edu.harvard.iq.dataverse.util.testing.LocalJvmSettings;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateHttp2SolrClient;
+import org.apache.solr.client.solrj.jetty.ConcurrentUpdateJettySolrClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +48,7 @@ class SolrClientIndexServiceTest {
         // then
         SolrClient client = clientService.getSolrClient();
         assertNotNull(client);
-        assertInstanceOf(ConcurrentUpdateHttp2SolrClient.class, client);
+        assertInstanceOf(ConcurrentUpdateJettySolrClient.class, client);
         assertEquals(url, clientService.getSolrUrl());
     }
 
@@ -66,7 +66,7 @@ class SolrClientIndexServiceTest {
         // then
         SolrClient client = clientService.getSolrClient();
         assertNotNull(client);
-        assertInstanceOf(ConcurrentUpdateHttp2SolrClient.class, client);
+        assertInstanceOf(ConcurrentUpdateJettySolrClient.class, client);
         assertEquals(url, clientService.getSolrUrl());
     }
 }
