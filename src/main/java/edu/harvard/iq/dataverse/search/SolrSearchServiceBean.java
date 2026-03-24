@@ -157,8 +157,11 @@ public class SolrSearchServiceBean implements SearchService {
             query = SearchUtil.expandQuery(query, isPublicOnly(permissionFilterGroups), isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String q1Query = buildPermissionGroupQuery(permissionFilterGroups);
-            solrQuery.add("q1",  q1Query);
-            logger.fine("q1: " + q1Query);
+            if(StringUtils.isNotBlank(q1Query)) {
+                solrQuery.add("q1",  q1Query);
+                logger.fine("q1: " + q1Query);
+            }
+            
             //Sanity check: if the query contains $q1 but no q1 query, log a warning.
             if(query.contains("$q1") && StringUtils.isBlank(q1Query)) {
                 logger.warning("Query contains $q1 but no q1 query: " + query);
@@ -360,7 +363,7 @@ public class SolrSearchServiceBean implements SearchService {
 //        solrQuery.addNumericRangeFacet(SearchFields.PRODUCTION_DATE_YEAR_ONLY, citationYearRangeStart, citationYearRangeEnd, citationYearRangeSpan);
 //        solrQuery.addNumericRangeFacet(SearchFields.DISTRIBUTION_DATE_YEAR_ONLY, citationYearRangeStart, citationYearRangeEnd, citationYearRangeSpan);
         solrQuery.setRows(numResultsPerPage);
-        logger.fine("Solr query:" + solrQuery);
+        logger.fine("Solr query:" + solrQuery.toQueryString());
 
         // -----------------------------------
         // Make the solr query
@@ -1013,8 +1016,10 @@ public class SolrSearchServiceBean implements SearchService {
             query = SearchUtil.expandQuery(query, isPublicOnly(permissionFilterGroups), isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
             String finalQ1Query = buildPermissionGroupQuery(permissionFilterGroups);
-            solrQuery.add("q1", finalQ1Query);
-            logger.fine("q1: " + finalQ1Query);
+            if (StringUtils.isNotBlank(finalQ1Query)) {
+                solrQuery.add("q1", finalQ1Query);
+                logger.fine("q1: " + finalQ1Query);
+            }
           //Sanity check: if the query contains $q1 but no q1 query, log a warning.
             if(query.contains("$q1") && StringUtils.isBlank(finalQ1Query)) {
                 logger.warning("Simple search: Query contains $q1 but no q1 query: " + query);
