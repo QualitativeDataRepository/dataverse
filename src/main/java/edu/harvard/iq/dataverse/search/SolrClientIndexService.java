@@ -30,7 +30,7 @@ public class SolrClientIndexService extends AbstractSolrClientService {
         HttpJettySolrClient httpClient = new HttpJettySolrClient.Builder(getSolrUrl()).build();
         
         solrClient = new ConcurrentUpdateJettySolrClient.Builder(
-            getSolrUrl(), httpClient).withDefaultCollection("collection1").build();
+            getSolrUrl(), httpClient).withDefaultCollection(getSolrCollection()).build();
     }
 
     @PreDestroy
