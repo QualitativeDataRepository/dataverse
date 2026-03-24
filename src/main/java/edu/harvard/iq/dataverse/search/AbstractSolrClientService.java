@@ -45,7 +45,17 @@ public abstract class AbstractSolrClientService {
         // Get from MPCONFIG. Might be configured by a sysadmin or simply return the
         // default shipped with resources/META-INF/microprofile-config.properties.
         final String protocol = JvmSettings.SOLR_PROT.lookup();
-        final String path = JvmSettings.SOLR_PATH.lookup();
+        String path = JvmSettings.SOLR_PATH.lookup();
+        String collectionSuffix = "/" + getSolrCollection();
+        if (path.endsWith(collectionSuffix)) {
+            path = path.substring(0, path.length() - collectionSuffix.length());
+        }
         return protocol + "://" + this.systemConfig.getSolrHostColonPort() + path;
+    }
+    
+    public String getSolrCollection() {
+        // Get from MPCONFIG. Might be configured by a sysadmin or simply return the
+        // default shipped with resources/META-INF/microprofile-config.properties.
+        return  JvmSettings.SOLR_CORE.lookup();
     }
 }
