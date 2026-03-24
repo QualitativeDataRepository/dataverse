@@ -92,6 +92,9 @@ public class AuthFilter implements Filter {
                 //After resetting, just return with no content
                 HttpServletResponse httpServletResponse = (HttpServletResponse) response;
                 httpServletResponse.setStatus(200);
+                // We must call doFilter to allow other filters (e.g. CORS) to run.
+                // However, we return immediately after to stop further processing for this path.
+                filterChain.doFilter(servletRequest, response);
                 return;
             }
             if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
