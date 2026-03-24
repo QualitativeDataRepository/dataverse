@@ -57,8 +57,8 @@ class CorsFilterTest {
         sut.doFilter(req, res, chain);
 
         verify(res).setHeader("Access-Control-Allow-Origin", "https://a.example");
-        // By design, Vary not required for wildcard
-        verify(res, never()).setHeader(eq("Vary"), anyString());
+        // By design, Vary Origin is set
+        verify(res).setHeader(eq("Vary"), "Origin");
         verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
     }
 
@@ -146,7 +146,7 @@ class CorsFilterTest {
         sut.doFilter(req, res, mock(FilterChain.class));
 
         verify(res).setHeader("Access-Control-Allow-Origin", "https://random.example");
-        verify(res, never()).setHeader(eq("Vary"), anyString());
+        verify(res).setHeader(eq("Vary"), "Origin");
     }
 
     @Test
