@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Named;
-import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.request.SolrQuery;
 
 @Stateless
 @Named
