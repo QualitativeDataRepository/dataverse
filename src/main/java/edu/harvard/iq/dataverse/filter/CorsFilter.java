@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.ListSplitUtil;
+import jakarta.annotation.Priority;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -32,6 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 
 @WebFilter("/*")
+@Priority(90) // Lower number means higher priority - run before authorization.AuthFilter
 public class CorsFilter implements Filter {
 
     private boolean allowCors;
