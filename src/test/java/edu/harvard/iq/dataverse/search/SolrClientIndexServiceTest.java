@@ -40,7 +40,7 @@ class SolrClientIndexServiceTest {
     @Test
     void testInitWithDefaults() {
         // given
-        String url = "http://localhost:8983/solr/collection1";
+        String url = "http://localhost:8983/solr";
 
         // when
         clientService.init();
@@ -50,6 +50,7 @@ class SolrClientIndexServiceTest {
         assertNotNull(client);
         assertInstanceOf(ConcurrentUpdateJettySolrClient.class, client);
         assertEquals(url, clientService.getSolrUrl());
+        assertEquals("collection1", clientService.getSolrCollection());
     }
 
     @Test
@@ -58,7 +59,7 @@ class SolrClientIndexServiceTest {
     @JvmSetting(key = JvmSettings.SOLR_CORE, value = "test")
     void testInitWithConfig() {
         // given
-        String url = "http://foobar:1234/solr/test";
+        String url = "http://foobar:1234/solr";
 
         // when
         clientService.init();
@@ -68,5 +69,6 @@ class SolrClientIndexServiceTest {
         assertNotNull(client);
         assertInstanceOf(ConcurrentUpdateJettySolrClient.class, client);
         assertEquals(url, clientService.getSolrUrl());
+        assertEquals("test", clientService.getSolrCollection());
     }
 }
