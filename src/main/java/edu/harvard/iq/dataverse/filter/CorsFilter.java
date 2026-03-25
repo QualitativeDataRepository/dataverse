@@ -85,11 +85,8 @@ public class CorsFilter implements Filter {
 
             if (allowAllOrigins) {
                 response.setHeader("Access-Control-Allow-Origin", requestOrigin != null ? requestOrigin : "*");
-                response.setHeader("Access-Control-Allow-Credentials", "true");
-                response.setHeader("Vary", appendVary(response.getHeader("Vary"), "Origin"));
             } else if (requestOrigin != null && allowedOrigins.contains(requestOrigin)) {
                 response.setHeader("Access-Control-Allow-Origin", requestOrigin);
-                response.setHeader("Access-Control-Allow-Credentials", "true");
                 response.setHeader("Vary", appendVary(response.getHeader("Vary"), "Origin"));
             }
 
