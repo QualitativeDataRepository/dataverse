@@ -8,8 +8,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import edu.harvard.iq.dataverse.settings.JvmSettings;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.ListSplitUtil;
 import jakarta.annotation.Priority;
+import jakarta.ejb.EJB;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -41,6 +43,9 @@ import jakarta.servlet.http.HttpServletResponse;
 })
 @Priority(90) // Lower number means higher priority - run before authorization.AuthFilter
 public class CorsFilter implements Filter {
+    
+    @EJB
+    SettingsServiceBean settingsService;
 
     private boolean allowCors;
     private boolean allowAllOrigins;
@@ -85,6 +90,11 @@ public class CorsFilter implements Filter {
 
             if (allowAllOrigins) {
                 response.setHeader("Access-Control-Allow-Origin", requestOrigin != null ? requestOrigin : "*");
+                response.setHeader("Vary", appendVary(response.getHeader("Vary"), "Origin"));
+                String drupalSiteUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
+                if(drupalSiteUrl!= null && drupalSiteUrl.equals(requestOrigin)) {
+                    response.setHeader("Access-Control-Allow-Credentials", "true");
+                }
             } else if (requestOrigin != null && allowedOrigins.contains(requestOrigin)) {
                 response.setHeader("Access-Control-Allow-Origin", requestOrigin);
                 response.setHeader("Vary", appendVary(response.getHeader("Vary"), "Origin"));
