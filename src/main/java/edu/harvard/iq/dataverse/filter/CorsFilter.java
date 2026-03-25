@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.ListSplitUtil;
+import jakarta.annotation.Priority;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -31,7 +33,13 @@ import jakarta.servlet.http.HttpServletResponse;
  * The filter is applied to all paths ("/*") in the application.
  */
 
-@WebFilter("/*")
+@WebFilter(value = "/*", dispatcherTypes = {
+        DispatcherType.REQUEST,
+        DispatcherType.FORWARD,
+        DispatcherType.ERROR,
+        DispatcherType.ASYNC
+})
+@Priority(90) // Lower number means higher priority - run before authorization.AuthFilter
 public class CorsFilter implements Filter {
 
     private boolean allowCors;
@@ -76,9 +84,12 @@ public class CorsFilter implements Filter {
             String requestOrigin = originHeader == null ? null : originHeader.trim();
 
             if (allowAllOrigins) {
-                response.setHeader("Access-Control-Allow-Origin", "*");
+                response.setHeader("Access-Control-Allow-Origin", requestOrigin != null ? requestOrigin : "*");
+                response.setHeader("Access-Control-Allow-Credentials", "true");
+                response.setHeader("Vary", appendVary(response.getHeader("Vary"), "Origin"));
             } else if (requestOrigin != null && allowedOrigins.contains(requestOrigin)) {
                 response.setHeader("Access-Control-Allow-Origin", requestOrigin);
+                response.setHeader("Access-Control-Allow-Credentials", "true");
                 response.setHeader("Vary", appendVary(response.getHeader("Vary"), "Origin"));
             }
 
@@ -89,6 +100,13 @@ public class CorsFilter implements Filter {
         chain.doFilter(servletRequest, servletResponse);
     }
 
+    /**
+     * Appends a value to the Vary header, ensuring no duplicates.
+     *
+     * @param existing The existing Vary header value
+     * @param value The value to append
+     * @return The updated Vary header value
+     */
     private String appendVary(String existing, String value) {
         if (existing == null || existing.isEmpty()) {
             return value;
