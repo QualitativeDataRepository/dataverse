@@ -152,7 +152,11 @@ public class FileMetadata implements Serializable {
 
     @OneToMany (mappedBy="fileMetadata", cascade={ CascadeType.REMOVE, CascadeType.MERGE,CascadeType.PERSIST})
     private Collection<VariableMetadata> variableMetadatas;
-        
+
+    @Transient
+    @ValidateDataFileLabel(message = "{filename.illegalCharacters}")
+    @NotBlank(message = "{filename.blank}")
+    String labelNoExtension;
     /**
      * Creates a copy of {@code this}, with identical business logic fields, making the bi-drectional connections to the specified version.
      * 
@@ -182,7 +186,8 @@ public class FileMetadata implements Serializable {
 
     public String getLabelNoExtension() {
         int last = label.lastIndexOf(".");
-        return (last == -1) ? label : label.substring(0, last);
+        labelNoExtension = (last == -1) ? label : label.substring(0, last);
+        return labelNoExtension;
     }
 
     public String getOriginalExtension() {
@@ -192,6 +197,7 @@ public class FileMetadata implements Serializable {
     }
 
     public void setLabelNoExtension(String name) {
+        labelNoExtension = name;
         int last = this.label.lastIndexOf(".");
         if (last == -1) {
             this.label = name;
