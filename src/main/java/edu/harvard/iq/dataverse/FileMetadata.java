@@ -182,6 +182,7 @@ public class FileMetadata implements Serializable {
     
     public void setLabel(String label) {
         this.label = label;
+        getLabelNoExtension();
     }
 
     public String getLabelNoExtension() {
@@ -217,6 +218,9 @@ public class FileMetadata implements Serializable {
     public FileMetadata() {
         variableMetadatas = new ArrayList<VariableMetadata>();
         varGroups = new ArrayList<VarGroup>();
+        int last = label.lastIndexOf(".");
+        labelNoExtension = (last == -1) ? label : label.substring(0, last);
+
     }
 
     public String getDirectoryLabel() {
