@@ -177,6 +177,7 @@ public class FileMetadata implements Serializable {
     }
     
     public String getLabel() {
+        getLabelNoExtension();
         return label;
     }
     
