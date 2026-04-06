@@ -176,15 +176,20 @@ public class GuestbookResponse implements Serializable {
         this.setDatasetVersion(source.getDatasetVersion());
         this.setAuthenticatedUser(source.getAuthenticatedUser());
         this.setSessionId(source.getSessionId());
-        List <CustomQuestionResponse> customQuestionResponses = new ArrayList<>();
-        if (!(source.getCustomQuestionResponses() == null) && !source.getCustomQuestionResponses().isEmpty()){
-            for (CustomQuestionResponse customQuestionResponse : source.getCustomQuestionResponsesSorted() ){
+        this.setEventType(source.getEventType());
+        this.setWriteResponse(source.isWriteResponse());
+        this.setFileFormat(source.getFileFormat());
+        this.setExternalTool(source.getExternalTool());
+
+        List<CustomQuestionResponse> customQuestionResponses = new ArrayList<>();
+        if (source.getCustomQuestionResponses() != null && !source.getCustomQuestionResponses().isEmpty()) {
+            for (CustomQuestionResponse customQuestionResponse : source.getCustomQuestionResponsesSorted()) {
                 CustomQuestionResponse customQuestionResponseAdd = new CustomQuestionResponse();
-                customQuestionResponseAdd.setResponse(customQuestionResponse.getResponse());  
+                customQuestionResponseAdd.setResponse(customQuestionResponse.getResponse());
                 customQuestionResponseAdd.setCustomQuestion(customQuestionResponse.getCustomQuestion());
                 customQuestionResponseAdd.setGuestbookResponse(this);
                 customQuestionResponses.add(customQuestionResponseAdd);
-            }           
+            }
         }
         this.setCustomQuestionResponses(customQuestionResponses);
         this.setGuestbook(source.getGuestbook());
