@@ -1013,7 +1013,7 @@ public class Access extends AbstractApiBean {
         Boolean guestbookResponseRequired = null;
 //        ToDo - cache dataset perms, e.g. editdataset let's you get all files (assuming one dataset)
         // Same for filedownload if assigned at the dataset level
-        long authStartNanos = System.nanoTime();
+
         long totalAuthorizationNanos = 0L;
         for (int i = 0; i < fileIdParams.length; i++) {
             DataFile df = findDataFileOrDieWrapper(fileIdParams[i]);
@@ -1021,7 +1021,8 @@ public class Access extends AbstractApiBean {
                 // Only need to check this on the first file
                 guestbookResponseRequired = checkGuestbookRequiredResponse(crc, uriInfo, df, gbrids);
             }
-            logger.info("Downloading" + fileIdParams.length + " files. GBR required: " + guestbookResponseRequired);
+            long authStartNanos = System.nanoTime();
+            if(i==1) logger.info("Downloading" + fileIdParams.length + " files. GBR required: " + guestbookResponseRequired);
             datafilesMap.put(df.getId(), df);
             datasetIds.add(df.getOwner() != null ? df.getOwner().getId() : 0L);
             if (isAccessAuthorized(user, df)) {

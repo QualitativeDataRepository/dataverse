@@ -127,27 +127,27 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         
         String customZipDownloadUrl = settingsService.getValueForKey(SettingsServiceBean.Key.CustomZipDownloadServiceUrl);
         boolean useCustomZipService = customZipDownloadUrl != null; 
-        String zipServiceKey = null; 
+        String zipServiceKey = null;
 
+        totalPrepNanos = 0L;
+        totalWriteNanos = 0L;
+        long totalStartNanos = System.nanoTime();
+        long numFiles = guestbookResponse.getSelectedFileIds().split(",").length;
         // Do we need to write GuestbookRecord entries for the files? 
-        if (!doNotSaveGuestbookRecord || useCustomZipService) {
+        if (!doNotSaveGuestbookRecord) {
 
+            writeGuestbookResponseRecords(guestbookResponse);
+        }
+        if(useCustomZipService) {
             List<String> list = new ArrayList<>(Arrays.asList(guestbookResponse.getSelectedFileIds().split(",")));
             Timestamp timestamp = null;
             //Reset values
-            totalGuestbookStorageNanos = 0L;
-            totalMdcWriteNanos = 0L;
-            long totalStartNanos = System.nanoTime();
+
 
             for (String idAsString : list) {
                 //DataFile df = datafileService.findCheapAndEasy(new Long(idAsString));
                 DataFile df = datafileService.find(new Long(idAsString));
                 if (df != null) {
-                    if (!doNotSaveGuestbookRecord) {
-                        guestbookResponse.setDataFile(df);
-                        gbrid = writeGuestbookResponseRecord(guestbookResponse);
-                    }
-                    
                     if (useCustomZipService) {
                         if (zipServiceKey == null) {
                             zipServiceKey = generateServiceKey();
@@ -160,16 +160,16 @@ public class FileDownloadServiceBean implements java.io.Serializable {
                     }
                 }
             }
-            logger.info(String.format(
-                    Locale.ROOT,
-                    "downloadDatafiles timing: total=%d ms, guestbookStorage=%d ms, mdcWrite=%d ms, files=%d",
-                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - totalStartNanos),
-                    TimeUnit.NANOSECONDS.toMillis(totalGuestbookStorageNanos),
-                    TimeUnit.NANOSECONDS.toMillis(totalMdcWriteNanos),
-                    list.size()
-            ));
-        }
 
+        }
+        logger.info(String.format(
+                Locale.ROOT,
+                "downloadDatafiles timing: total=%d ms, prep=%d ms, write=%d ms, files=%d",
+                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - totalStartNanos),
+                TimeUnit.NANOSECONDS.toMillis(totalPrepNanos),
+                TimeUnit.NANOSECONDS.toMillis(totalWriteNanos),
+                numFiles
+        ));
         if (useCustomZipService) {
             redirectToCustomZipDownloadService(customZipDownloadUrl, zipServiceKey);
         } else {
@@ -247,6 +247,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         if (guestbookResponse == null || guestbookResponse.getSelectedFileIds() == null || guestbookResponse.getSelectedFileIds().isBlank()) {
             return Collections.emptyList();
         }
+        long prepStartNanos = System.nanoTime();
 
         List<DataFile> selectedDataFiles = resolveSelectedDataFiles(guestbookResponse.getSelectedFileIds());
         if (selectedDataFiles.isEmpty()) {
@@ -259,8 +260,12 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             perFileResponse.setDataFile(dataFile);
             responsesToPersist.add(perFileResponse);
         }
+        Long writeStartNanos = System.nanoTime();
+        totalPrepNanos = writeStartNanos - prepStartNanos;
+        List<String> savedIds = saveGuestbookResponseRecordsAndMDCLogEntries(responsesToPersist);
+        totalWriteNanos = System.nanoTime() - writeStartNanos;
 
-        return saveGuestbookResponseRecords(responsesToPersist);
+        return savedIds;
     }
 
     private List<DataFile> resolveSelectedDataFiles(String selectedFileIds) {
@@ -290,7 +295,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public List<String> saveGuestbookResponseRecords(List<GuestbookResponse> guestbookResponses) {
+    public List<String> saveGuestbookResponseRecordsAndMDCLogEntries(List<GuestbookResponse> guestbookResponses) {
         if (guestbookResponses == null || guestbookResponses.isEmpty()) {
             return Collections.emptyList();
         }
@@ -344,8 +349,8 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         return savedIds;
     }
 
-    long totalGuestbookStorageNanos = 0L;
-    long totalMdcWriteNanos = 0L;
+    long totalPrepNanos = 0L;
+    long totalWriteNanos = 0L;
     public String writeGuestbookResponseRecord(GuestbookResponse guestbookResponse) {
         String guestbookResponseIds = "";
 
@@ -363,8 +368,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             if (version == null) {
                 version = guestbookResponse.getDataset().getReleasedVersion();
             }
-            long mdcStartNanos = System.nanoTime();
-            totalGuestbookStorageNanos += mdcStartNanos - storageStartNanos;
+
 
             MakeDataCountEntry entry = new MakeDataCountEntry(
                     FacesContext.getCurrentInstance(),
@@ -375,7 +379,6 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             entry.setTargetUrl("/api/access/datafile/" + guestbookResponse.getDataFile().getId());
             entry.setRequestUrl("/api/access/datafile/" + guestbookResponse.getDataFile().getId());
             mdcLogService.logEntry(entry);
-            totalMdcWriteNanos += System.nanoTime() - mdcStartNanos;
 
         } catch (CommandException e) {
             logger.warning("Exception writing GuestbookResponse for file: "
