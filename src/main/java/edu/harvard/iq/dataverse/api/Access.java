@@ -59,6 +59,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -1010,17 +1011,24 @@ public class Access extends AbstractApiBean {
         // Get DataFiles, check authorized access, check for multiple Datasets, and check for required guestbook response
         Set<Long> datasetIds = new HashSet<>();
         Boolean guestbookResponseRequired = null;
+//        ToDo - cache dataset perms, e.g. editdataset let's you get all files (assuming one dataset)
+        // Same for filedownload if assigned at the dataset level
+        long authStartNanos = System.nanoTime();
+        long totalAuthorizationNanos = 0L;
         for (int i = 0; i < fileIdParams.length; i++) {
             DataFile df = findDataFileOrDieWrapper(fileIdParams[i]);
             if (guestbookResponseRequired == null) {
                 // Only need to check this on the first file
                 guestbookResponseRequired = checkGuestbookRequiredResponse(crc, uriInfo, df, gbrids);
             }
+            logger.info("Downloading" + fileIdParams.length + " files. GBR required: " + guestbookResponseRequired);
             datafilesMap.put(df.getId(), df);
             datasetIds.add(df.getOwner() != null ? df.getOwner().getId() : 0L);
             if (isAccessAuthorized(user, df)) {
                 authorizedDatafileIds.add(df.getId());
             }
+            totalAuthorizationNanos += System.nanoTime() - authStartNanos;
+
             if (datasetIds.size() > 1) {
                 // All files must be from the same Dataset
                 return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.download.failure.multipleDatasets"));
@@ -1043,6 +1051,12 @@ public class Access extends AbstractApiBean {
                 }
             }
         }
+        logger.info(String.format(
+                Locale.ROOT,
+                "downloadDatafiles timing: authorization=%d ms, files=%d",
+                TimeUnit.NANOSECONDS.toMillis(totalAuthorizationNanos),
+                fileIdParams.length
+        ));
 
         if (useCustomZipService) {
             URI redirect_uri = null;
