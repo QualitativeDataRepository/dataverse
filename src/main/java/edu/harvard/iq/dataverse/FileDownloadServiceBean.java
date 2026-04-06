@@ -21,6 +21,8 @@ import jakarta.ejb.Stateless;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.ServletOutputStream;
@@ -30,6 +32,7 @@ import org.primefaces.PrimeFaces;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 //import org.primefaces.context.RequestContext;
 
@@ -43,6 +46,7 @@ import java.util.logging.Logger;
 @Named
 public class FileDownloadServiceBean implements java.io.Serializable {
 
+    public static final double GUESTBOOK_RESPONSE_BATCH_SIZE = 250;
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
     
@@ -129,8 +133,12 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         if (!doNotSaveGuestbookRecord || useCustomZipService) {
 
             List<String> list = new ArrayList<>(Arrays.asList(guestbookResponse.getSelectedFileIds().split(",")));
-            Timestamp timestamp = null; 
-            
+            Timestamp timestamp = null;
+            //Reset values
+            totalGuestbookStorageNanos = 0L;
+            totalMdcWriteNanos = 0L;
+            long totalStartNanos = System.nanoTime();
+
             for (String idAsString : list) {
                 //DataFile df = datafileService.findCheapAndEasy(new Long(idAsString));
                 DataFile df = datafileService.find(new Long(idAsString));
@@ -152,8 +160,16 @@ public class FileDownloadServiceBean implements java.io.Serializable {
                     }
                 }
             }
+            logger.info(String.format(
+                    Locale.ROOT,
+                    "downloadDatafiles timing: total=%d ms, guestbookStorage=%d ms, mdcWrite=%d ms, files=%d",
+                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - totalStartNanos),
+                    TimeUnit.NANOSECONDS.toMillis(totalGuestbookStorageNanos),
+                    TimeUnit.NANOSECONDS.toMillis(totalMdcWriteNanos),
+                    list.size()
+            ));
         }
-        
+
         if (useCustomZipService) {
             redirectToCustomZipDownloadService(customZipDownloadUrl, zipServiceKey);
         } else {
@@ -226,27 +242,146 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             writeGuestbookResponseRecord(guestbookResponse);
         }
     }
-    
+
+    public List<String> writeGuestbookResponseRecords(GuestbookResponse guestbookResponse) {
+        if (guestbookResponse == null || guestbookResponse.getSelectedFileIds() == null || guestbookResponse.getSelectedFileIds().isBlank()) {
+            return Collections.emptyList();
+        }
+
+        List<DataFile> selectedDataFiles = resolveSelectedDataFiles(guestbookResponse.getSelectedFileIds());
+        if (selectedDataFiles.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<GuestbookResponse> responsesToPersist = new ArrayList<>(selectedDataFiles.size());
+        for (DataFile dataFile : selectedDataFiles) {
+            GuestbookResponse perFileResponse = new GuestbookResponse(guestbookResponse);
+            perFileResponse.setDataFile(dataFile);
+            responsesToPersist.add(perFileResponse);
+        }
+
+        return saveGuestbookResponseRecords(responsesToPersist);
+    }
+
+    private List<DataFile> resolveSelectedDataFiles(String selectedFileIds) {
+        String[] rawFileIds = selectedFileIds.split(",");
+        List<DataFile> selectedDataFiles = new ArrayList<>(rawFileIds.length);
+
+        for (String rawFileId : rawFileIds) {
+            if (rawFileId == null || rawFileId.isBlank()) {
+                continue;
+            }
+
+            Long fileId;
+            try {
+                fileId = Long.valueOf(rawFileId.trim());
+            } catch (NumberFormatException nfe) {
+                logger.fine("Skipping invalid file id in selectedFileIds: " + rawFileId);
+                continue;
+            }
+
+            DataFile dataFile = datafileService.find(fileId);
+            if (dataFile != null) {
+                selectedDataFiles.add(dataFile);
+            }
+        }
+
+        return selectedDataFiles;
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public List<String> saveGuestbookResponseRecords(List<GuestbookResponse> guestbookResponses) {
+        if (guestbookResponses == null || guestbookResponses.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> savedIds = new ArrayList<>(guestbookResponses.size());
+
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+
+        for (int i = 0; i < guestbookResponses.size(); i++) {
+            GuestbookResponse response = guestbookResponses.get(i);
+
+            try {
+                response.setResponseTime(now);
+                em.persist(response);
+
+                if (response.getId() != null) {
+                    savedIds.add(response.getId().toString());
+                }
+
+                DatasetVersion version = response.getDatasetVersion();
+                if (version == null) {
+                    version = response.getDataset().getReleasedVersion();
+                }
+
+                DataFile dataFile = response.getDataFile();
+                MakeDataCountEntry entry = new MakeDataCountEntry(
+                        FacesContext.getCurrentInstance(),
+                        dvRequestService,
+                        version,
+                        dataFile
+                );
+                entry.setTargetUrl("/api/access/datafile/" + dataFile.getId());
+                entry.setRequestUrl("/api/access/datafile/" + dataFile.getId());
+                mdcLogService.logEntry(entry);
+
+                if ((i + 1) % GUESTBOOK_RESPONSE_BATCH_SIZE == 0) {
+                    em.flush();
+                    em.clear();
+                }
+            } catch (RuntimeException ex) {
+                DataFile dataFile = response.getDataFile();
+                logger.warning("Exception writing GuestbookResponse"
+                        + (dataFile != null ? " for file: " + dataFile.getId() : "")
+                        + " : " + ex.getLocalizedMessage());
+            }
+        }
+
+        em.flush();
+        em.clear();
+
+        return savedIds;
+    }
+
+    long totalGuestbookStorageNanos = 0L;
+    long totalMdcWriteNanos = 0L;
     public String writeGuestbookResponseRecord(GuestbookResponse guestbookResponse) {
         String guestbookResponseIds = "";
+
         try {
-            CreateGuestbookResponseCommand cmd = new CreateGuestbookResponseCommand(dvRequestService.getDataverseRequest(), guestbookResponse, guestbookResponse.getDataset());
+            long storageStartNanos = System.nanoTime();
+            CreateGuestbookResponseCommand cmd = new CreateGuestbookResponseCommand(
+                    dvRequestService.getDataverseRequest(),
+                    guestbookResponse,
+                    guestbookResponse.getDataset()
+            );
             commandEngine.submit(cmd);
             guestbookResponseIds = guestbookResponse.getId().toString();
+
             DatasetVersion version = guestbookResponse.getDatasetVersion();
-            
-            //Sometimes guestbookResponse doesn't have a version, so we grab the released version
-            if (null == version) {
+            if (version == null) {
                 version = guestbookResponse.getDataset().getReleasedVersion();
             }
-            MakeDataCountEntry entry = new MakeDataCountEntry(FacesContext.getCurrentInstance(), dvRequestService, version, guestbookResponse.getDataFile());
-            //As the api download url is not available at this point we construct it manually
+            long mdcStartNanos = System.nanoTime();
+            totalGuestbookStorageNanos += mdcStartNanos - storageStartNanos;
+
+            MakeDataCountEntry entry = new MakeDataCountEntry(
+                    FacesContext.getCurrentInstance(),
+                    dvRequestService,
+                    version,
+                    guestbookResponse.getDataFile()
+            );
             entry.setTargetUrl("/api/access/datafile/" + guestbookResponse.getDataFile().getId());
             entry.setRequestUrl("/api/access/datafile/" + guestbookResponse.getDataFile().getId());
             mdcLogService.logEntry(entry);
+            totalMdcWriteNanos += System.nanoTime() - mdcStartNanos;
+
         } catch (CommandException e) {
-            //if an error occurs here then download won't happen no need for response recs...
-            logger.warning("Exception writing GuestbookResponse for file: " + guestbookResponse.getDataFile().getId() + " : " + e.getLocalizedMessage());
+            logger.warning("Exception writing GuestbookResponse for file: "
+                    + guestbookResponse.getDataFile().getId()
+                    + " : "
+                    + e.getLocalizedMessage());
         }
         return guestbookResponseIds;
     }
