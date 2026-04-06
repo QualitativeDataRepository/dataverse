@@ -1014,21 +1014,18 @@ public class Access extends AbstractApiBean {
 //        ToDo - cache dataset perms, e.g. editdataset let's you get all files (assuming one dataset)
         // Same for filedownload if assigned at the dataset level
 
-        long totalAuthorizationNanos = 0L;
         for (int i = 0; i < fileIdParams.length; i++) {
             DataFile df = findDataFileOrDieWrapper(fileIdParams[i]);
             if (guestbookResponseRequired == null) {
                 // Only need to check this on the first file
                 guestbookResponseRequired = checkGuestbookRequiredResponse(crc, uriInfo, df, gbrids);
             }
-            long authStartNanos = System.nanoTime();
             if(i==1) logger.info("Downloading" + fileIdParams.length + " files. GBR required: " + guestbookResponseRequired);
             datafilesMap.put(df.getId(), df);
             datasetIds.add(df.getOwner() != null ? df.getOwner().getId() : 0L);
             if (isAccessAuthorized(user, df)) {
                 authorizedDatafileIds.add(df.getId());
             }
-            totalAuthorizationNanos += System.nanoTime() - authStartNanos;
 
             if (datasetIds.size() > 1) {
                 // All files must be from the same Dataset
@@ -1052,12 +1049,6 @@ public class Access extends AbstractApiBean {
                 }
             }
         }
-        logger.info(String.format(
-                Locale.ROOT,
-                "downloadDatafiles timing: authorization=%d ms, files=%d",
-                TimeUnit.NANOSECONDS.toMillis(totalAuthorizationNanos),
-                fileIdParams.length
-        ));
 
         if (useCustomZipService) {
             URI redirect_uri = null;
@@ -1456,7 +1447,6 @@ public class Access extends AbstractApiBean {
      * @param isPublic
      * @param type
      * @param fileInputStream
-     * @param contentDispositionHeader
      * @param formDataBodyPart
      * @return 
      *
@@ -1525,12 +1515,7 @@ public class Access extends AbstractApiBean {
      * @param fileId
      * @param formatTag
      * @param formatVersion
-     * @param origin
-     * @param isPublic
-     * @param fileInputStream
-     * @param contentDispositionHeader
-     * @param formDataBodyPart
-     * @return 
+     * @return
      */
     @DELETE
     @AuthRequired

@@ -129,9 +129,6 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         boolean useCustomZipService = customZipDownloadUrl != null; 
         String zipServiceKey = null;
 
-        totalPrepNanos = 0L;
-        totalWriteNanos = 0L;
-        long totalStartNanos = System.nanoTime();
         long numFiles = guestbookResponse.getSelectedFileIds().split(",").length;
         // Do we need to write GuestbookRecord entries for the files? 
         if (!doNotSaveGuestbookRecord) {
@@ -162,14 +159,6 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             }
 
         }
-        logger.info(String.format(
-                Locale.ROOT,
-                "downloadDatafiles timing: total=%d ms, prep=%d ms, write=%d ms, files=%d",
-                TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - totalStartNanos),
-                TimeUnit.NANOSECONDS.toMillis(totalPrepNanos),
-                TimeUnit.NANOSECONDS.toMillis(totalWriteNanos),
-                numFiles
-        ));
         if (useCustomZipService) {
             redirectToCustomZipDownloadService(customZipDownloadUrl, zipServiceKey);
         } else {
@@ -247,7 +236,6 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         if (guestbookResponse == null || guestbookResponse.getSelectedFileIds() == null || guestbookResponse.getSelectedFileIds().isBlank()) {
             return Collections.emptyList();
         }
-        long prepStartNanos = System.nanoTime();
 
         List<DataFile> selectedDataFiles = resolveSelectedDataFiles(guestbookResponse.getSelectedFileIds());
         if (selectedDataFiles.isEmpty()) {
@@ -260,11 +248,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             perFileResponse.setDataFile(dataFile);
             responsesToPersist.add(perFileResponse);
         }
-        Long writeStartNanos = System.nanoTime();
-        totalPrepNanos = writeStartNanos - prepStartNanos;
         List<String> savedIds = saveGuestbookResponseRecordsAndMDCLogEntries(responsesToPersist);
-        totalWriteNanos = System.nanoTime() - writeStartNanos;
-
         return savedIds;
     }
 
@@ -349,13 +333,10 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         return savedIds;
     }
 
-    long totalPrepNanos = 0L;
-    long totalWriteNanos = 0L;
     public String writeGuestbookResponseRecord(GuestbookResponse guestbookResponse) {
         String guestbookResponseIds = "";
 
         try {
-            long storageStartNanos = System.nanoTime();
             CreateGuestbookResponseCommand cmd = new CreateGuestbookResponseCommand(
                     dvRequestService.getDataverseRequest(),
                     guestbookResponse,
