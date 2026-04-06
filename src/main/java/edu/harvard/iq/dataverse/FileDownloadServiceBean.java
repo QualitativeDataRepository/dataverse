@@ -18,6 +18,7 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.*;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -27,13 +28,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.primefaces.PrimeFaces;
 
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.io.FileNotFoundException;
 //import org.primefaces.context.RequestContext;
 
 /**
@@ -128,22 +130,33 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         String customZipDownloadUrl = settingsService.getValueForKey(SettingsServiceBean.Key.CustomZipDownloadServiceUrl);
         boolean useCustomZipService = customZipDownloadUrl != null; 
         String zipServiceKey = null;
+        List<String> fileIdsList = new ArrayList<>(Arrays.asList(fileIds));
 
-        long numFiles = guestbookResponse.getSelectedFileIds().split(",").length;
-        // Do we need to write GuestbookRecord entries for the files? 
+        List<DataFile> selectedDataFiles = new ArrayList<>();
+        //Should not be getting exceptions with Dataverse generating the fileIds
+        try {
+            selectedDataFiles = resolveSelectedDataFilesInDataset(fileIdsList);
+        } catch (FileNotFoundException e) {
+            PrimeFaces.current().dialog().showMessageDynamic(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+            return;
+        } catch (MultipleDatasetsException e) {
+            PrimeFaces.current().dialog().showMessageDynamic(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
+            return;
+        }
+
+        // Do we need to write GuestbookRecord entries for the files?
         if (!doNotSaveGuestbookRecord) {
-
-            writeGuestbookResponseRecords(guestbookResponse);
+            // Code here assumes user can download all files (which should be true when called from DatasetPage)
+            // Authorization will be checked in the custom zipper or redirect URL, so the only impact would be extra guestbookresponses
+            gbrid = writeGuestbookResponseRecords(guestbookResponse, selectedDataFiles ).getLast();
         }
         if(useCustomZipService) {
-            List<String> list = new ArrayList<>(Arrays.asList(guestbookResponse.getSelectedFileIds().split(",")));
+
             Timestamp timestamp = null;
             //Reset values
 
-
-            for (String idAsString : list) {
+            for (DataFile df : selectedDataFiles) {
                 //DataFile df = datafileService.findCheapAndEasy(new Long(idAsString));
-                DataFile df = datafileService.find(new Long(idAsString));
                 if (df != null) {
                     if (useCustomZipService) {
                         if (zipServiceKey == null) {
@@ -232,12 +245,11 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         }
     }
 
-    public List<String> writeGuestbookResponseRecords(GuestbookResponse guestbookResponse) {
+    public List<String> writeGuestbookResponseRecords(GuestbookResponse guestbookResponse, List<DataFile> selectedDataFiles) {
         if (guestbookResponse == null || guestbookResponse.getSelectedFileIds() == null || guestbookResponse.getSelectedFileIds().isBlank()) {
             return Collections.emptyList();
         }
 
-        List<DataFile> selectedDataFiles = resolveSelectedDataFiles(guestbookResponse.getSelectedFileIds());
         if (selectedDataFiles.isEmpty()) {
             return Collections.emptyList();
         }
@@ -252,9 +264,11 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         return savedIds;
     }
 
-    private List<DataFile> resolveSelectedDataFiles(String selectedFileIds) {
-        String[] rawFileIds = selectedFileIds.split(",");
-        List<DataFile> selectedDataFiles = new ArrayList<>(rawFileIds.length);
+    public List<DataFile> resolveSelectedDataFilesInDataset(List<String> rawFileIds)
+            throws FileNotFoundException, MultipleDatasetsException {
+
+        List<DataFile> selectedDataFiles = new ArrayList<>(rawFileIds.size());
+        Long datasetId = null;
 
         for (String rawFileId : rawFileIds) {
             if (rawFileId == null || rawFileId.isBlank()) {
@@ -265,14 +279,24 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             try {
                 fileId = Long.valueOf(rawFileId.trim());
             } catch (NumberFormatException nfe) {
-                logger.fine("Skipping invalid file id in selectedFileIds: " + rawFileId);
-                continue;
+                throw new FileNotFoundException("Invalid file id: " + rawFileId);
             }
 
             DataFile dataFile = datafileService.find(fileId);
-            if (dataFile != null) {
-                selectedDataFiles.add(dataFile);
+            if (dataFile == null) {
+                throw new FileNotFoundException("No file found for id: " + fileId);
             }
+
+            Long currentDatasetId = dataFile.getOwner().getId();
+            if (datasetId == null) {
+                datasetId = currentDatasetId;
+            } else if (!datasetId.equals(currentDatasetId)) {
+                throw new MultipleDatasetsException(
+                        "Selected files do not belong to the same dataset."
+                );
+            }
+
+            selectedDataFiles.add(dataFile);
         }
 
         return selectedDataFiles;
@@ -756,5 +780,10 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         }
             
         return null; 
+    }
+
+    public class MultipleDatasetsException extends Throwable {
+        public MultipleDatasetsException(String s) {
+        }
     }
 }
