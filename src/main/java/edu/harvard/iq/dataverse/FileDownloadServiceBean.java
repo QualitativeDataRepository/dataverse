@@ -149,9 +149,10 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             // Code here assumes user can download all files (which should be true when called from DatasetPage)
             // Authorization will be checked in the custom zipper or redirect URL, so the only impact would be extra guestbookresponses
             List<String> gbrids = writeGuestbookResponseRecords(guestbookResponse, selectedDataFiles);
-            if(gbrids.isEmpty()){
-                logger.warning("No GuestbookResponse records were created for the files that were selected for download.");
+            if(!gbrids.isEmpty()){
                 gbrid = gbrids.getFirst();
+            } else {
+                logger.warning("No GuestbookResponse records were created for the files that were selected for download.");
             }
         }
         if(useCustomZipService) {
@@ -323,10 +324,6 @@ public class FileDownloadServiceBean implements java.io.Serializable {
                 response.setResponseTime(now);
                 em.persist(response);
 
-                if (response.getId() != null) {
-                    savedIds.add(response.getId().toString());
-                }
-
                 DatasetVersion version = response.getDatasetVersion();
                 if (version == null) {
                     version = response.getDataset().getReleasedVersion();
@@ -357,7 +354,9 @@ public class FileDownloadServiceBean implements java.io.Serializable {
 
         em.flush();
         em.clear();
-
+        for (GuestbookResponse response : guestbookResponses) {
+            savedIds.add(response.getId().toString());
+        }
         return savedIds;
     }
 
