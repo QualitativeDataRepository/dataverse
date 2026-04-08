@@ -483,7 +483,25 @@
           $('#panelCollapse'+i).collapse('hide');
         }
       }
+      fixPrimeFacesFocusSentinels();
     });
+
+    // A11y fix for PrimeFaces sentinel inputs focusable inside aria-hidden containers
+    function fixPrimeFacesFocusSentinels() {
+        document
+            .querySelectorAll('#datasetForm input[id$="_focus"]')
+            .forEach((el) => {
+                el.setAttribute('tabindex', '-1');
+                el.setAttribute('aria-hidden', 'true');
+            });
+    }
+
+    // Re-apply after AJAX updates
+    if (window.PrimeFaces && PrimeFaces.onAjaxComplete) {
+        PrimeFaces.onAjaxComplete(function () {
+            fixPrimeFacesFocusSentinels();
+        });
+    }
     //]]>
-    </script>
+ </script>
 </ui:composition>
