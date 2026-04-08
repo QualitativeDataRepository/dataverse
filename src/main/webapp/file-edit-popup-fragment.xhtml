@@ -133,7 +133,7 @@
                                     styleClass="bg-danger text-danger" />
                             </div>
                         </div>
-                        <div class="p-field p-col-12 p-md-4">
+                        <div class="field col-12 md:col-4">
                             <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
                             <ui:param name="embargoReasonRequired" value="#{FeatureFlags.REQUIRE_EMBARGO_REASON.enabled()}"/>
                             <label class="help-block" for="datasetForm:fileEmbargoAddReason">
@@ -221,7 +221,7 @@
                                            styleClass="bg-danger text-danger" />
                             </div>
                         </div>
-                        <div class="p-field p-col-12 p-md-4">
+                        <div class="field col-12 md:col-4">
                             <p class="help-block">#{bundle['file.editRetentionDialog.reason.tip']}</p>
                             <p:inputText id="fileRetentionAddReason" styleClass="form-control"
                                          disabled="#{bean.removeRetention}" type="text"
