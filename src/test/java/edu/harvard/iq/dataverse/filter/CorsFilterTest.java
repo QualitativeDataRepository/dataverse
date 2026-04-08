@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.filter;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,15 +29,23 @@ import static org.mockito.Mockito.*;
 
 class CorsFilterTest {
 
+    @Mock
+    private SettingsServiceBean settingsService;
+
+    @InjectMocks
+    private CorsFilter sut;
+    
     private final Map<String, String> sysPropsBackup = new HashMap<>();
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws ServletException {
         // backup potentially touched props
         backupAndClear("dataverse.cors.origin");
         backupAndClear("dataverse.cors.methods");
         backupAndClear("dataverse.cors.headers.allow");
         backupAndClear("dataverse.cors.headers.expose");
+        sut = new CorsFilter();
+
     }
 
     @AfterEach
@@ -46,8 +60,11 @@ class CorsFilterTest {
     void wildcardOrigin_allowsAny_noVary() throws Exception {
         System.setProperty("dataverse.cors.origin", "*");
 
-        CorsFilter sut = new CorsFilter();
+        //QDR
+        MockitoAnnotations.openMocks(this);
         sut.init(null);
+        when(settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL)).thenReturn(
+                null);
 
         HttpServletRequest req = mock(HttpServletRequest.class);
         when(req.getHeader("Origin")).thenReturn("https://a.example");
@@ -56,9 +73,9 @@ class CorsFilterTest {
 
         sut.doFilter(req, res, chain);
 
-        verify(res).setHeader("Access-Control-Allow-Origin", "*");
-        // By design, Vary not required for wildcard
-        verify(res, never()).setHeader(eq("Vary"), anyString());
+        verify(res).setHeader("Access-Control-Allow-Origin", "https://a.example");
+        // By design, Vary Origin is set
+        verify(res).setHeader(eq("Vary"), eq("Origin"));
         verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
     }
 
@@ -66,7 +83,6 @@ class CorsFilterTest {
     void singleOrigin_echoesAndAddsVary() throws Exception {
         System.setProperty("dataverse.cors.origin", "https://libis.github.io");
 
-        CorsFilter sut = new CorsFilter();
         sut.init(null);
 
         HttpServletRequest req = mock(HttpServletRequest.class);
@@ -90,7 +106,6 @@ class CorsFilterTest {
         // Comma-separated list as set via JVM options/Microprofile
         System.setProperty("dataverse.cors.origin", "https://a.example, https://b.example");
 
-        CorsFilter sut = new CorsFilter();
         sut.init(null);
 
         // allowed origin
@@ -117,7 +132,6 @@ class CorsFilterTest {
         System.setProperty("dataverse.cors.origin",
                 "  https://one.example  ,\n\t https://two.example  ,  https://three.example  ");
 
-        CorsFilter sut = new CorsFilter();
         sut.init(null);
 
         HttpServletRequest req = mock(HttpServletRequest.class);
@@ -136,8 +150,11 @@ class CorsFilterTest {
     void wildcardAmongOthersTreatsAsWildcard() throws Exception {
         System.setProperty("dataverse.cors.origin", "https://a.example,*,https://b.example");
 
-        CorsFilter sut = new CorsFilter();
+        //QDR
+        MockitoAnnotations.openMocks(this);
         sut.init(null);
+        when(settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL)).thenReturn(
+                null);
 
         HttpServletRequest req = mock(HttpServletRequest.class);
         when(req.getHeader("Origin")).thenReturn("https://random.example");
@@ -145,15 +162,14 @@ class CorsFilterTest {
 
         sut.doFilter(req, res, mock(FilterChain.class));
 
-        verify(res).setHeader("Access-Control-Allow-Origin", "*");
-        verify(res, never()).setHeader(eq("Vary"), anyString());
+        verify(res).setHeader("Access-Control-Allow-Origin", "https://random.example");
+        verify(res).setHeader(eq("Vary"), eq("Origin"));
     }
 
     @Test
     void existingVaryMergedWithoutDuplication() throws Exception {
         System.setProperty("dataverse.cors.origin", "https://merge.example");
 
-        CorsFilter sut = new CorsFilter();
         sut.init(null);
 
         HttpServletRequest req = mock(HttpServletRequest.class);
@@ -174,7 +190,6 @@ class CorsFilterTest {
         System.setProperty("dataverse.cors.headers.expose", "\"Accept-Ranges, Content-Range\"");
         System.setProperty("dataverse.cors.methods", "GET, POST, OPTIONS");
 
-        CorsFilter sut = new CorsFilter();
         sut.init(null);
 
         HttpServletRequest req = mock(HttpServletRequest.class);
@@ -192,7 +207,7 @@ class CorsFilterTest {
     @Test
     void disabledCors_skipsHeaders() throws Exception {
         // no origin set -> CORS disabled
-        CorsFilter sut = new CorsFilter();
+        
         sut.init(null);
 
         HttpServletRequest req = mock(HttpServletRequest.class);

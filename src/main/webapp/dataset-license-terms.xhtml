@@ -14,10 +14,10 @@
                                         or !empty termsOfUseAndAccess.studyCompletion
                                         }"/>
     
-    <div class="text-end margin-bottom" 
+    <div class="text-end margin-bottom"
          jsf:rendered="#{dataverseSession.user.authenticated and empty editMode and !widgetWrapper.widgetView
                          and permissionsWrapper.canIssueUpdateDatasetCommand(DatasetPage.dataset)}">
-        <p:commandLink styleClass="btn btn-secondary btn-access" actionListener="#{DatasetPage.edit('LICENSE')}" 
+        <p:commandLink styleClass="btn btn-secondary btn-access" actionListener="#{DatasetPage.edit('LICENSE')}"
                        update="@form,:messagePanel" disabled="#{DatasetPage.lockedFromEdits}">
             <f:setPropertyActionListener target="#{DatasetPage.selectedTabIndex}" value="0" />
             <span class="bi bi-briefcase"/> #{bundle['file.dataFilesTab.terms.editTermsBtn']}
@@ -25,8 +25,8 @@
     </div>
     <div class="panel-group">
         <div class="card">
-           <div class="card-header text-info" id="headingTOU" data-bs-toggle="collapse" data-bs-target="#panelCollapseTOU" aria-expanded="true" aria-controls="panelCollapseTOU">
-               #{bundle['file.dataFilesTab.terms.list.termsOfUse.header']} &#160;<span class="bi bi-chevron-up"/>
+            <div class="card-header text-info" id="headingTOU" data-bs-toggle="collapse" data-bs-target="#panelCollapseTOU" aria-expanded="true" aria-controls="panelCollapseTOU">
+                #{bundle['file.dataFilesTab.terms.list.termsOfUse.header']} &#160;<span class="bi bi-chevron-up"/>
            </div>
            <div id="panelCollapseTOU" class="collapse show" aria-labelledby="headingTOU">
                <p:fragment id="touFragment">
@@ -252,11 +252,11 @@
                 </p:fragment>
             </div>
         </div>
-       <div class="card" jsf:rendered="#{managePage==true or !empty editMode or (datasetPage == true and DatasetPage.restrictedFileCount > 0) 
+       <div class="card" jsf:rendered="#{managePage==true or !empty editMode or (datasetPage == true and DatasetPage.restrictedFileCount > 0)
                                                         or toaNotEmpty}">
-           <div class="card-header text-info" data-bs-toggle="collapse" data-bs-target="#panelCollapseTOA" role="button" aria-expanded="#{!empty editMode or (datasetPage == false and toaNotEmpty) or (datasetPage == true and DatasetPage.hasValidTermsOfAccess) ? 'true' : 'false'}" aria-controls="panelCollapseTOA">
-               <h:outputText value="#{publicStore ? bundle['file.dataFilesTab.terms.list.termsOfAccess.termsOfsAccess'] : bundle['file.dataFilesTab.terms.list.termsOfAccess.header']}"/>
-               &#160;<span class="bi bi-chevron-up"/>
+            <div class="card-header text-info" data-bs-toggle="collapse" data-bs-target="#panelCollapseTOA" role="button" aria-expanded="#{!empty editMode or (datasetPage == false and toaNotEmpty) or (datasetPage == true and DatasetPage.hasValidTermsOfAccess) ? 'true' : 'false'}" aria-controls="panelCollapseTOA">
+                <h:outputText value="#{publicStore ? bundle['file.dataFilesTab.terms.list.termsOfAccess.termsOfsAccess'] : bundle['file.dataFilesTab.terms.list.termsOfAccess.header']}"/>
+                &#160;<span class="bi bi-chevron-up"/>
            </div>
            <div id="panelCollapseTOA" class="collapse #{!empty editMode or (datasetPage == false and toaNotEmpty )  or (datasetPage == true and DatasetPage.hasValidTermsOfAccess) ? 'show' : ''}">
                <div class="card-body">
@@ -306,7 +306,7 @@
                        </div>
                    </ui:fragment>
                    <ui:fragment rendered="#{!empty editMode}">
-                        <div class="row mb-3" jsf:rendered="#{!publicStore}"> 
+                        <div class="row mb-3" jsf:rendered="#{!publicStore}">
                             <p:fragment id="termsOfAccessHelp">
                                 <ui:fragment rendered="#{datasetPage == true and DatasetPage.hasRestrictedFiles}">
                                     <div class="alert alert-info">
@@ -487,8 +487,8 @@
         </div>
         <div class="card" jsf:rendered="#{!settingsWrapper.rsyncOnly and (managePage==false or datasetPage == true)
                                              and (!empty DatasetPage.dataset.guestbook or (dataverseSession.user.authenticated and permissionsWrapper.canIssueUpdateDatasetCommand(DatasetPage.dataset)))}">
-           <div class="card-header text-info" data-bs-toggle="collapse" data-bs-target="#panelCollapseGuestbook" role="button" aria-expanded="false" aria-controls="panelCollapseGuestbook">
-               #{bundle['file.dataFilesTab.terms.list.guestbook']} &#160;<span class="bi bi-chevron-down"/>
+            <div class="card-header text-info" data-bs-toggle="collapse" data-bs-target="#panelCollapseGuestbook" role="button" aria-expanded="false" aria-controls="panelCollapseGuestbook">
+                #{bundle['file.dataFilesTab.terms.list.guestbook']} &#160;<span class="bi bi-chevron-down"/>
            </div>
            <div id="panelCollapseGuestbook" class="collapse">
                <div class="card-body">

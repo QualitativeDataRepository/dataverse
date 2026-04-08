@@ -133,4 +133,10 @@ public class ContainerRequestTestFake implements ContainerRequestContext {
     public void abortWith(Response response) {
 
     }
+
+    @Override
+    public boolean containsHeaderString(String name, String valueSeparatorRegex, Predicate<String> valuePredicate) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

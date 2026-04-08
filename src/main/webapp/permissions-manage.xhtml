@@ -5,6 +5,7 @@
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
       xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:o="http://omnifaces.org/ui"
       xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
 
@@ -28,13 +29,13 @@
                         <p:fragment id="configureSettings">
                             <c:if test="#{managePermissionsPage.dvObject.instanceofDataverse}">
                                 <div class="card">
-                                    <div data-bs-toggle="collapse" data-bs-target="#panelCollapsePermissions" 
+                                    <div data-bs-toggle="collapse" data-bs-target="#panelCollapsePermissions"
                                          class="card-header text-info"
                                          aria-expanded="true"
                                          aria-controls="panelCollapsePermissions">
-                                        
+
                                         #{bundle['dataverse.permissions.title']} <span class="bi bi-chevron-up"/>
-                                        
+
                                         <span class="text-muted small float-end">#{bundle['dataverse.permissions.description']}</span>
                                     </div>
                                     <div id="panelCollapsePermissions" class="collapse show" aria-labelledby="panelCollapsePermissions">
@@ -92,12 +93,12 @@
 
                         <!-- Role Assignments Panel -->
                         <div class="card">
-                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseUsersGroups" 
-                                     class="card-header text-info"
-                                     aria-expanded="#{!managePermissionsPage.dvObject.instanceofDataverse ? 'true' : 'false'}"
-                                     aria-controls="panelCollapseUsersGroups">
+                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseUsersGroups"
+                                 class="card-header text-info"
+                                 aria-expanded="#{!managePermissionsPage.dvObject.instanceofDataverse ? 'true' : 'false'}"
+                                 aria-controls="panelCollapseUsersGroups">
                                 #{bundle['dataverse.permissions.usersOrGroups']} <span class="bi #{!managePermissionsPage.dvObject.instanceofDataverse ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
-                                
+
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissions.usersOrGroups.description']}</span>
                             </div>
                             <div id="panelCollapseUsersGroups" class="collapse #{!managePermissionsPage.dvObject.instanceofDataverse ? 'show' : ''}" aria-labelledby="panelCollapseUsersGroups">
@@ -111,7 +112,8 @@
                                         <p:commandLink id="userGroupsAdd" styleClass="btn btn-secondary"
                                                        actionListener="#{managePermissionsPage.initAssigneeDialog}"
                                                        update="userGroupDialog roleAssignmentHistory"
-                                                       oncomplete="PF('userGroupsForm').show();handleResizeDialog('userGroupDialog');">
+                                                       oncomplete="PF('userGroupsForm').show();handleResizeDialog('userGroupDialog');"
+                                                       process='@this'>
                                             <span class="bi bi-person-fill"/> #{bundle['dataverse.permissions.usersOrGroups.assignBtn']}
                                         </p:commandLink>
                                     </div>
@@ -139,8 +141,9 @@
                                                 </h:outputFormat>
                                                 <p:commandLink styleClass="btn btn-secondary"
                                                                rendered="#{managePermissionsPage.dvObject eq roleAssignment.definitionPoint}"
-                                                               onclick="PF('confirmation').show()">
-                                                    <f:setPropertyActionListener value="#{roleAssignment.roleAssignment}" target="#{managePermissionsPage.selectedRoleAssignment}" />
+                                                               process="assignedRoles"
+                                                               oncomplete="PF('confirmation').show()">
+                                                    <f:setPropertyActionListener value="#{roleAssignment.roleAssignment}" target="#{managePermissionsPage.selectedRoleAssignment}"/>
                                                     <span class="bi bi-x"/> #{bundle['dataverse.permissions.usersOrGroups.removeBtn']}
                                                 </p:commandLink>
                                             </p:column>
@@ -152,14 +155,15 @@
 
                         <!-- Roles Panel -->
                         <div class="card">
-                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseRoles" 
+                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseRoles"
                                  class="card-header text-info"
                                  aria-expanded="false"
                                  aria-controls="panelCollapseRoles">
                                 #{bundle['dataverse.permissions.roles']} <span class="bi bi-chevron-down"/>
                                 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissions.roles.description']}</span>
-                            </div>
+                            </button>
+                        </div>
                             <div id="panelCollapseRoles" class="collapse" aria-labelledby="panelCollapseRoles">
                                 <div class="card-body">
                                     <p:fragment id="roleMessages">
@@ -209,7 +213,7 @@
                         <!-- Role Assignment History Panel -->
                         <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
                         <div id="panelCollapseHistoryHeader" class="card" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
-                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseHistory" 
+                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseHistory"
                                  class="card-header text-info"
                                  aria-expanded="false"
                                  aria-controls="panelCollapseHistory">
@@ -220,7 +224,7 @@
                                 <div class="card-body">
                                     <div class="button-group margin-bottom text-end">
                                         <h:outputLink value="#{managePermissionsPage.signedUrlForRAHistoryCsv}" 
-                                                     styleClass="btn btn-secondary" 
+                                                     styleClass="btn btn-secondary"
                                                      onclick="downloadRAHistoryCSV(this.href, '#{managePermissionsPage.permissionsHistoryFilename}'); return false;">
                                             <span class="bi bi-download"></span> #{bundle['dataverse.permissions.history.download']}
                                         </h:outputLink>
@@ -284,8 +288,9 @@
                             <span class="bi bi-exclamation-triangle-fill text-danger"/> <span class="text-danger">#{bundle['dataverse.permissions.usersOrGroups.removeBtn.confirmation']}</span>
                         </p>
                         <div class="button-block">
-                            <p:commandButton value="#{bundle.continue}" styleClass="btn btn-secondary" onclick="PF('confirmation').hide()" 
-                                             action="#{managePermissionsPage.removeRoleAssignment()}" 
+                            <p:commandButton value="#{bundle.continue}" styleClass="btn btn-secondary" oncomplete="PF('confirmation').hide()"
+                                             action="#{managePermissionsPage.removeRoleAssignment()}"
+                                             process="@this"
                                              update=":#{p:resolveClientId('rolesPermissionsForm:configureSettings', view)} assignedRoles roleAssignmentHistory @([id$=Messages])" />
                             <button class="btn btn-link" onclick="PF('confirmation').hide()" type="button">
                                 #{bundle.cancel}

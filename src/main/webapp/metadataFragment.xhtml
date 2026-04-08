@@ -24,12 +24,12 @@
         </p>
         <ui:repeat value="#{metadataBlocks}"
                    var="metadataBlockVal" varStatus="block">
-            <div class="card">
-                <div data-bs-toggle="collapse" data-bs-target="#panelCollapse#{block.index}" 
-                         class="card-header text-info #{(block.first and block.last) ? 'hidden':''}"
-                         aria-expanded="#{block.first ? 'true' : 'false'}"
-                         aria-controls="panelCollapse#{block.index}">
-                     #{metadataBlockVal.key.localeDisplayName} &#160;<span class="bi #{block.first?'bi-chevron-up':'bi-chevron-down'}"/>
+<div class="card">
+    <div data-bs-toggle="collapse" data-bs-target="#panelCollapse#{block.index}"
+         class="card-header text-info #{(block.first and block.last) ? 'hidden':''}"
+         aria-expanded="#{block.first ? 'true' : 'false'}"
+         aria-controls="panelCollapse#{block.index}">
+         #{metadataBlockVal.key.localeDisplayName} &#160;<span class="bi #{block.first ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
                 </div>
                 <div id="panelCollapse#{block.index}" class="collapse #{block.first?'show':''}">
                     <div class="card-body metadata-container">
@@ -256,17 +256,17 @@
                 <div class="card" jsf:rendered="#{(editMode == 'METADATA' or metadataBlockVal.key.displayOnCreate or !metadataBlockVal.key.isEmpty()
                                                                  or metadataBlockVal.key.isHasRequired())
                                                                  or (!datasetPage)}">
-                    <div data-bs-toggle="collapse" data-bs-target="#panelCollapse#{block.index}" 
-                             class="card-header text-info #{(block.first and block.last) ? 'hidden':''}"
-                             aria-expanded="#{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'true' : 'false'}"
-                             aria-controls="panelCollapse#{block.index}">
-                        #{metadataBlockVal.key.localeDisplayName} <span class="bi #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
+<div data-bs-toggle="collapse" data-bs-target="#panelCollapse#{block.index}"
+     class="card-header text-info #{(block.first and block.last) ? 'hidden':''}"
+     aria-expanded="#{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'true' : 'false'}"
+     aria-controls="panelCollapse#{block.index}">
+     #{metadataBlockVal.key.localeDisplayName} <span class="bi #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
                     </div>
                     <div id="panelCollapse#{block.index}" class="collapse #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'show' : ''}">
                         <div class="card-body">
                             <ui:repeat value="#{metadataBlockVal.value}" var="dsf" varStatus="curField">
                                 <div class="row mb-3" role="group"
-                                     jsf:rendered="#{((editMode == 'METADATA' or dsf.datasetFieldType.shouldDisplayOnCreate() or !dsf.isEmpty() or dsf.required or dsf.hasRequiredChildren)) or (!datasetPage and dsf.include)}">
+                                     jsf:rendered="#{((editMode == 'METADATA' or dsf.datasetFieldType.shouldDisplayOnCreate() or !dsf.isEmpty() or dsf.required or dsf.hasRequiredChildren) and dsf.include) or (!datasetPage and dsf.include)}">
                                     <!-- Primitive fields -->
                                     <p:fragment id="editPrimitiveValueFragment" rendered="#{dsf.datasetFieldType.primitive}">
                                         <p:autoUpdate/>
@@ -302,13 +302,13 @@
                                                         </div>
                                                         <!-- Add / Remove buttons -->
                                                         <div class="col-3 field-add-delete" jsf:rendered="#{dsf.datasetFieldType.allowMultiples and !dsf.datasetFieldType.controlledVocabulary}">
-                                                            <p:commandLink title="#{bundle.add}"
+                                                            <p:commandLink ariaLabel="#{bundle.add}" title="#{bundle.add}"
                                                                            styleClass="btn btn-secondary btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                            actionListener="#{dsf.addDatasetFieldValue(valCount.index + 1)}"
                                                                            update=":#{p:resolveClientIds('@id(editPrimitiveValueFragment)', view)}">
                                                                 <span class="bi bi-plus no-text"/>
                                                             </p:commandLink>
-                                                            <p:commandLink title="#{bundle.delete}"
+                                                            <p:commandLink ariaLabel="#{bundle.delete}" title="#{bundle.delete}"
                                                                            styleClass="btn btn-secondary btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                            rendered="#{dsf.datasetFieldValues.size() > 1}"
                                                                            actionListener="#{dsf.removeDatasetFieldValue(valCount.index)}"
@@ -390,7 +390,7 @@
                                                                 #{subdsf.datasetFieldType.localeTitle}
                                                                 <span class="bi bi-asterisk text-danger" jsf:rendered="#{subdsf.required and dsf.required}"/>
                                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                                      data-bs-toggle="tooltip" data-bs-placement="right" 
+                                                                      data-bs-toggle="tooltip" data-bs-placement="right"
                                                                       title="#{subdsf.datasetFieldType.localeDescription}#{subdsf.required and !dsf.required?' – '.concat(bundle['conditionalRequiredMsg.tooltip']) : ''}"></span>
                                                             </label>
                                                             <ui:fragment rendered="#{!subdsf.datasetFieldType.controlledVocabulary}">
@@ -435,13 +435,13 @@
                                                     </ui:repeat>
                                                 </div>
                                                 <div class="col-sm-3 field-add-delete" jsf:rendered="#{dsf.datasetFieldType.allowMultiples and !dsf.datasetFieldType.controlledVocabulary}">
-                                                    <p:commandLink title="#{bundle.add}"
+                                                    <p:commandLink ariaLabel="#{bundle.add}" title="#{bundle.add}"
                                                                    styleClass="btn btn-secondary btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                    actionListener="#{dsf.addDatasetFieldCompoundValue(valCount.index + 1)}"   
                                                                    update=":#{p:resolveClientIds('@id(editCompoundValueFragment)', view)}">
                                                         <span class="bi bi-plus no-text"/>
                                                     </p:commandLink>
-                                                    <p:commandLink title="#{bundle.delete}"
+                                                    <p:commandLink ariaLabel="#{bundle.delete}" title="#{bundle.delete}"
                                                                    styleClass="btn btn-secondary btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                    rendered="#{dsf.datasetFieldCompoundValues.size() > 1}"
                                                                    actionListener="#{dsf.removeDatasetFieldCompoundValue(valCount.index)}"
@@ -471,7 +471,25 @@
           $('#panelCollapse'+i).collapse('hide');
         }
       }
+      fixPrimeFacesFocusSentinels();
     });
+
+    // A11y fix for PrimeFaces sentinel inputs focusable inside aria-hidden containers
+    function fixPrimeFacesFocusSentinels() {
+        document
+            .querySelectorAll('#datasetForm input[id$="_focus"]')
+            .forEach((el) => {
+                el.setAttribute('tabindex', '-1');
+                el.setAttribute('aria-hidden', 'true');
+            });
+    }
+
+    // Re-apply after AJAX updates
+    if (window.PrimeFaces && PrimeFaces.onAjaxComplete) {
+        PrimeFaces.onAjaxComplete(function () {
+            fixPrimeFacesFocusSentinels();
+        });
+    }
     //]]>
-    </script>
+ </script>
 </ui:composition>

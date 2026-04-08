@@ -431,7 +431,7 @@
                     <!-- EDIT Button Group -->
                     <h:panelGroup styleClass="btn-group" style="margin-right:14px;"
                         rendered="#{DatasetPage.sessionUserAuthenticated
-                                     and DatasetPage.canUpdateDataset() and !widgetWrapper.widgetView 
+                                     and DatasetPage.canUpdateDataset() and !widgetWrapper.widgetView
                                      and (DatasetPage.fileMetadatasSearch.size() gt 0)}">
                         <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown" disabled="#{uploadButtonDisabled}">
                             <span class="bi bi-pencil" /> #{bundle['file.editFiles']}
@@ -449,7 +449,7 @@
 
                     <!-- Download Button Groups -->
                     <h:panelGroup id="downloadButtonBlockNormal" styleClass="btn-group"
-                        rendered="#{(!(empty DatasetPage.workingVersion.fileMetadatas) 
+                        rendered="#{(!(empty DatasetPage.workingVersion.fileMetadatas)
                                      and fileMetadataCount > 1) and DatasetPage.downloadButtonAvailable
                                      and !(DatasetPage.isVersionHasTabular()||DatasetPage.isVersionHasGlobus())}">
                         <p:commandLink styleClass="btn btn-secondary btn-download" disabled="#{false and DatasetPage.lockedFromDownload}" onclick="if (!testFilesSelected()) return false;"
@@ -461,7 +461,7 @@
                     </h:panelGroup>
 
                     <h:panelGroup id="downloadButtonBlockMultiple" styleClass="btn-group"
-                        rendered="#{(!(empty DatasetPage.workingVersion.fileMetadatas) 
+                        rendered="#{(!(empty DatasetPage.workingVersion.fileMetadatas)
                                      and fileMetadataCount > 1) and DatasetPage.downloadButtonAvailable
                                      and (DatasetPage.isVersionHasTabular()||DatasetPage.isVersionHasGlobus())}">
                         <button type="button" class="btn btn-secondary btn-download dropdown-toggle" data-bs-toggle="dropdown">
@@ -547,7 +547,7 @@
                         </a>
                     </ui:fragment>
 
-                    <ui:fragment rendered="#{DatasetPage.isShowPreviewButton(fileMetadata.dataFile) and fileDownloadHelper.canDownloadFile(fileMetadata)}">
+                    <ui:fragment rendered="#{DatasetPage.isShowPreviewButton(fileMetadata)}">
                         <a class="btn-preview btn btn-link bootstrap-button-tooltip" title="#{DatasetPage.getPreviewToolsForDataFile(fileMetadata.dataFile).get(0).getDisplayNameLang()}"
                             href="#{widgetWrapper.wrapURL('/file.xhtml?'.concat(!empty fileMetadata.dataFile.globalId ? 'persistentId=' : 'fileId=').concat(!empty fileMetadata.dataFile.globalId ? fileMetadata.dataFile.globalId.asString() : fileMetadata.dataFile.id).concat('&amp;version=').concat(fileMetadata.datasetVersion.friendlyVersionNumber)).concat('&amp;toolType=PREVIEW')}">
                             <span class="bi bi-eye" /><span class="sr-only">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ?
@@ -579,7 +579,7 @@
 
                         <!-- Data Access for Rsync Download -->
                         <ui:fragment
-                            rendered="#{fileMetadata.dataFile.filePackage and systemConfig.rsyncDownload 
+                            rendered="#{fileMetadata.dataFile.filePackage and systemConfig.rsyncDownload
                                                  and !DatasetPage.workingVersion.getDataset().getStorageIdentifier().startsWith('s3://')}">
                             <li class="dropdown-header">#{bundle['file.accessBtn.header.download']} <span class="bi bi-download" /></li>
                             <li><p:commandLink onclick="PF('rsyncDataAccessPopup').show()">
@@ -592,7 +592,7 @@
 
                 <!-- File Options -->
                 <div class="btn-group"
-                    jsf:rendered="#{!widgetWrapper.widgetView 
+                    jsf:rendered="#{!widgetWrapper.widgetView
                                                         and DatasetPage.sessionUserAuthenticated 
                                                         and DatasetPage.canUpdateDataset()
                                                         and hasValidTermsOfAccess
@@ -603,7 +603,7 @@
                     </a>
                 </div>
                 <div class="btn-group"
-                    jsf:rendered="#{!widgetWrapper.widgetView 
+                    jsf:rendered="#{!widgetWrapper.widgetView
                                                         and DatasetPage.sessionUserAuthenticated 
                                                         and DatasetPage.canUpdateDataset()
                                                         and hasValidTermsOfAccess

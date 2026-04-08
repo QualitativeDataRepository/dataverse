@@ -216,6 +216,11 @@ public class TestEntityManager implements EntityManager {
     public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    @Override
+    public <T> TypedQuery<T> createQuery(TypedQueryReference<T> reference) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
     @Override
     public Query createNativeQuery(String sqlString) {
@@ -320,6 +325,76 @@ public class TestEntityManager implements EntityManager {
     @Override
     public <T> List<EntityGraph<? super T>> getEntityGraphs(Class<T> entityClass) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public <C, T> T callWithConnection(ConnectionFunction<C, T> function) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public <C> void runWithConnection(ConnectionConsumer<C> action) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public <T> T find(Class<T> entityClass, Object primaryKey, FindOption... options) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> T find(EntityGraph<T> entityGraph, Object primaryKey, FindOption... options) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> T getReference(T entity) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void lock(Object entity, LockModeType lockMode, LockOption... options) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void refresh(Object entity, RefreshOption... options) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setCacheRetrieveMode(CacheRetrieveMode cacheRetrieveMode) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setCacheStoreMode(CacheStoreMode cacheStoreMode) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public CacheRetrieveMode getCacheRetrieveMode() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public CacheStoreMode getCacheStoreMode() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> TypedQuery<T> createQuery(CriteriaSelect<T> selectQuery) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

@@ -109,8 +109,10 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonValue;
 import jakarta.persistence.OptimisticLockException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -125,6 +127,7 @@ import jakarta.faces.validator.ValidatorException;
 
 import java.util.logging.Level;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
+import edu.harvard.iq.dataverse.engine.command.exception.InvalidFieldsCommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.AbstractSubmitToArchiveCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateNewDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteDatasetLinkingDataverseCommand;
@@ -166,12 +169,12 @@ import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SolrClientService;
-import edu.harvard.iq.dataverse.search.SolrSearchServiceBean;
+import edu.harvard.iq.dataverse.settings.FeatureFlags;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SignpostingResources;
 import edu.harvard.iq.dataverse.util.FileMetadataUtil;
 import java.util.Comparator;
-import org.apache.solr.client.solrj.impl.BaseHttpSolrClient.RemoteSolrException;
+import org.apache.solr.client.solrj.RemoteSolrException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -288,6 +291,8 @@ public class DatasetPage implements java.io.Serializable {
     DataFileCategoryServiceBean dataFileCategoryService;
     @Inject
     GlobusServiceBean globusService;
+    @Inject
+    AuxiliaryFileServiceBean auxFileService;
 
     private Dataset dataset = new Dataset();
 
@@ -392,6 +397,8 @@ public class DatasetPage implements java.io.Serializable {
     private boolean showIngestSuccess;
     
     private Boolean archivable = null;
+    private Boolean checkForArchivalCopy;
+    private Boolean supportsDelete;
     private HashMap<Long,Boolean> versionArchivable = new HashMap<>();
     private Boolean someVersionArchived = null;
 
@@ -1421,6 +1428,10 @@ public class DatasetPage implements java.io.Serializable {
         }
     }
 
+    public boolean isUseLegacyFormatInHead() {
+        return JvmSettings.SCHEMAORG_IN_HTML_HEAD.lookupOptional(Boolean.class).orElse(false);
+    }
+
     /*
      * 4.2.1 optimization.
      * HOWEVER, this doesn't appear to be saving us anything!
@@ -2101,11 +2112,6 @@ public class DatasetPage implements java.io.Serializable {
                     readOnly = false;
                 }
                 publishDialogVersionNote = workingVersion.getVersionNote();
-                // As of v5.x (PF8?), having the variables initially set to true in their
-                // declarations doesn't result in them being true when a page is first viewed -
-                // need to set them here.
-                //this.setFolderPresort(true);
-                //this.setTagPresort(true);
                 // This will default to all the files in the version, if the search term
                 // parameter hasn't been specified yet:
                 fileMetadatasSearch = selectFileMetadatasForDisplay();
@@ -3006,14 +3012,18 @@ public class DatasetPage implements java.io.Serializable {
                 String className = settingsService.get(SettingsServiceBean.Key.ArchiverClassName.toString());
                 AbstractSubmitToArchiveCommand archiveCommand = ArchiverUtil.createSubmitToArchiveCommand(className, dvRequestService.getDataverseRequest(), updateVersion);
                 if (archiveCommand != null) {
-                    //There is an archiver configured, so now decide what to dO:
+                    //There is an archiver configured, so now decide what to do:
                     // If a successful copy exists, don't automatically update, just note the old copy is obsolete (and enable the superadmin button in the display to allow a ~manual update if desired)
                     // If pending or an obsolete copy exists, do nothing (nominally if a pending run succeeds and we're updating the current version here, it should be marked as obsolete - ignoring for now since updates within the time an archiving run is pending should be rare
                     // If a failure or null, rerun archiving now. If a failure is due to an exiting copy in the repo, we'll fail again
                     String status = updateVersion.getArchivalCopyLocationStatus();
-                    if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE)){
+                    if((status==null) || status.equals(DatasetVersion.ARCHIVAL_STATUS_FAILURE) || (JvmSettings.BAGIT_ARCHIVE_ON_VERSION_UPDATE.lookupOptional(Boolean.class).orElse(false) && archiveCommand.canDelete())){
                         // Delete the record of any existing copy since it is now out of date/incorrect
-                        updateVersion.setArchivalCopyLocation(null);
+                        JsonObjectBuilder job = Json.createObjectBuilder();
+                        job.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                        updateVersion.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
+                        //Persist to db now
+                        datasetVersionService.persistArchivalCopyLocation(updateVersion);
                         /*
                          * Then try to generate and submit an archival copy. Note that running this
                          * command within the CuratePublishedDatasetVersionCommand was causing an error:
@@ -3032,11 +3042,8 @@ public class DatasetPage implements java.io.Serializable {
                         }
                     } else if(status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
                         //Not automatically replacing the old archival copy as creating it is expensive
-                        JsonObject archivalLocation = JsonUtil.getJsonObject(updateVersion.getArchivalCopyLocation());
-                        JsonObjectBuilder job = Json.createObjectBuilder(archivalLocation);
-                        job.add(DatasetVersion.ARCHIVAL_STATUS,DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
-                        datasetVersionService.setArchivalCopyLocation(updateVersion, JsonUtil.prettyPrint(job.build()));
-                        datasetVersionService.merge(updateVersion);
+                        updateVersion.setArchivalStatusOnly(DatasetVersion.ARCHIVAL_STATUS_OBSOLETE);
+                        datasetVersionService.persistArchivalCopyLocation(updateVersion);
                     }
                 }
             }
@@ -3087,6 +3094,8 @@ public class DatasetPage implements java.io.Serializable {
         //dataset = datasetService.find(dataset.getId());
         dataset = null;
         workingVersion = null; 
+
+        clearCachedPopupRequiredValues();
 
         logger.fine("refreshing working version");
 
@@ -3153,9 +3162,18 @@ public class DatasetPage implements java.io.Serializable {
         if (deleteCommandSuccess) {
             datafileService.finalizeFileDeletes(deleteStorageLocations);
             JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.deleteSuccess"));
+            solrDelay();
         }
 
         return "/dataverse.xhtml?alias=" + dataset.getOwner().getAlias() + "&faces-redirect=true";
+    }
+    // delay 1 second so solr has time to update the indexes. Without the delay the UI will continue to show the deleted dataset
+    private void solrDelay() {
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String editFileMetadata(){
@@ -4018,6 +4036,10 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String save() {
+
+        //Clear cached info
+        clearCachedPopupRequiredValues();
+
         //Before dataset saved, write cached prov freeform to version
         if (systemConfig.isProvCollectionEnabled()) {
             provPopupFragmentBean.saveStageProvFreeformToLatestVersion();
@@ -4033,8 +4055,6 @@ public class DatasetPage implements java.io.Serializable {
             FacesContext.getCurrentInstance().validationFailed();
             return "";
         }
-
-
 
         // Use the Create or Update command to save the dataset:
         Command<Dataset> cmd;
@@ -4109,8 +4129,15 @@ public class DatasetPage implements java.io.Serializable {
                     return null;
                 }
             }
-            populateDatasetUpdateFailureMessage();
-            return returnToDraftVersion();
+            if (ex instanceof InvalidFieldsCommandException) {
+                InvalidFieldsCommandException ifce = (InvalidFieldsCommandException) ex;
+                String error = ifce.getFieldErrors().get("datasetType");
+                JsfHelper.addErrorMessage(error);
+                return null;
+            } else {
+                populateDatasetUpdateFailureMessage();
+                return returnToDraftVersion();
+            }
         }
 
         // Have we just deleted some draft datafiles (successfully)?
@@ -5523,24 +5550,55 @@ public class DatasetPage implements java.io.Serializable {
         return false;
     }
 
+    private Boolean downloadPopupRequired = null;
+    private Boolean requestAccessPopupRequired = null;
+    private Boolean guestbookAndTermsPopupRequired = null;
+    private Boolean guestbookPopupRequired = null;
+    private Boolean termsPopupRequired = null;
+
     public boolean isDownloadPopupRequired() {
-        return FileUtil.isDownloadPopupRequired(workingVersion);
+        if (downloadPopupRequired == null) {
+            downloadPopupRequired = FileUtil.isDownloadPopupRequired(workingVersion);
+        }
+        return downloadPopupRequired;
     }
 
     public boolean isRequestAccessPopupRequired() {
-        return FileUtil.isRequestAccessPopupRequired(workingVersion);
+        if (requestAccessPopupRequired == null) {
+            requestAccessPopupRequired = FileUtil.isRequestAccessPopupRequired(workingVersion);
+        }
+        return requestAccessPopupRequired;
     }
     
-    public boolean isGuestbookAndTermsPopupRequired() {  
-        return FileUtil.isGuestbookAndTermsPopupRequired(workingVersion);
+    public boolean isGuestbookAndTermsPopupRequired() {
+        if (guestbookAndTermsPopupRequired == null) {
+            guestbookAndTermsPopupRequired = FileUtil.isGuestbookAndTermsPopupRequired(workingVersion);
+        }
+        return guestbookAndTermsPopupRequired;
     }
 
     public boolean isGuestbookPopupRequired(){
-        return FileUtil.isGuestbookPopupRequired(workingVersion);
+        if(guestbookPopupRequired == null) {
+            guestbookPopupRequired = FileUtil.isGuestbookPopupRequired(workingVersion);
+        }
+        return guestbookPopupRequired;
     }
     
-    public boolean isTermsPopupRequired(){
-        return FileUtil.isTermsPopupRequired(workingVersion);
+    public boolean isTermsPopupRequired() {
+        if (termsPopupRequired == null) {
+            termsPopupRequired = FileUtil.isTermsPopupRequired(workingVersion);
+        }
+        return termsPopupRequired;
+    }
+
+    private void clearCachedPopupRequiredValues() {
+        downloadPopupRequired = null;
+        requestAccessPopupRequired = null;
+        guestbookAndTermsPopupRequired = null;
+        guestbookPopupRequired = null;
+        termsPopupRequired = null;
+
+        downloadButtonAvailable = null;
     }
     
     public boolean isGuestbookPopupRequiredAtDownload(){
@@ -5867,9 +5925,13 @@ public class DatasetPage implements java.io.Serializable {
         return DatasetUtil.getDatasetSummaryFields(workingVersion, customFields);
     }
 
-    public boolean isShowPreviewButton(DataFile dataFile) {
-        List<ExternalTool> previewTools = getPreviewToolsForDataFile(dataFile);
-        return previewTools.size() > 0;
+    public boolean isShowPreviewButton(FileMetadata fmd) {
+        DataFile dataFile = fmd.getDataFile();
+        List<ExternalTool> previewTools = getPreviewToolsForDataFile(dataFile, fileDownloadHelper.canDownloadFile(fmd));
+        if (previewTools.isEmpty()) {
+            return false;
+        }
+        return true;
     }
     
     public boolean isShowQueryButton(DataFile dataFile) {
@@ -5880,27 +5942,37 @@ public class DatasetPage implements java.io.Serializable {
                 || FileUtil.isRetentionExpired(dataFile)){
             return false;
         }
-        List<ExternalTool> fileQueryTools = getQueryToolsForDataFile(dataFile);
+        List<ExternalTool> fileQueryTools = getQueryToolsForDataFile(dataFile, true);
         return fileQueryTools.size() > 0;
     }
 
     public List<ExternalTool> getPreviewToolsForDataFile(DataFile dataFile) {
-        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.PREVIEW);
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.PREVIEW, null);
+    }
+
+    public List<ExternalTool> getPreviewToolsForDataFile(DataFile dataFile, Boolean canDownload) {
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.PREVIEW, canDownload);
     }
 
     public List<ExternalTool> getQueryToolsForDataFile(DataFile dataFile) {
-        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.QUERY);
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.QUERY, null);
+    }
+
+    public List<ExternalTool> getQueryToolsForDataFile(DataFile dataFile, Boolean canDownload) {
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.QUERY, canDownload);
     }
     
+    //ToDo: currently only shown if the user can Edit the dataset which means they can view files
     public List<ExternalTool> getConfigureToolsForDataFile(DataFile dataFile) {
-        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.CONFIGURE);
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.CONFIGURE, true);
     }
 
+    //ToDo: currently only shown if the user can Edit the dataset which means they can view files
     public List<ExternalTool> getExploreToolsForDataFile(DataFile dataFile) {
-        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.EXPLORE);
+        return getCachedToolsForDataFile(dataFile, ExternalTool.Type.EXPLORE, true);
     }
 
-    public List<ExternalTool> getCachedToolsForDataFile(DataFile dataFile, ExternalTool.Type type) {
+    public List<ExternalTool> getCachedToolsForDataFile(DataFile dataFile, ExternalTool.Type type, Boolean canDownload) {
         Long fileId = dataFile.getId();
         Map<Long, List<ExternalTool>> cachedToolsByFileId = new HashMap<>();
         List<ExternalTool> externalTools = new ArrayList<>();
@@ -5928,7 +6000,12 @@ public class DatasetPage implements java.io.Serializable {
         if (cachedTools != null) { //if already queried before and added to list
             return cachedTools;
         }
-        cachedTools = externalToolService.findExternalToolsByFile(externalTools, dataFile);
+        if(canDownload == null) {
+            logger.warning("Call to getCachedToolsForDataFile with null canDownload parameter and no cached results");
+            //Return the set available to non-downloader in this case (versus an empty list)
+            canDownload = false;
+        }
+        cachedTools = externalToolService.findExternalToolsByFile(externalTools, dataFile, canDownload);
         cachedToolsByFileId.put(fileId, cachedTools); //add to map so we don't have to do the lifting again
         return cachedTools;
     }
@@ -5981,7 +6058,12 @@ public class DatasetPage implements java.io.Serializable {
 
     public String getCroissant() {
         if (isThisLatestReleasedVersion()) {
-            final String CROISSANT_SCHEMA_NAME = "croissant";
+            // We put the slim version of Croissant in the head of the HTML
+            // to reduce page load times. See https://github.com/IQSS/dataverse/issues/12123
+            // and https://github.com/mlcommons/croissant/issues/646
+            // The full version is available from the "Export Metadata" dropdown.
+            // Both versions are available via API.
+            final String CROISSANT_SCHEMA_NAME = "croissantSlim";
             ExportService instance = ExportService.getInstance();
             String croissant = instance.getLatestPublishedAsString(dataset, CROISSANT_SCHEMA_NAME);
             if (croissant != null && !croissant.isEmpty()) {
@@ -6054,18 +6136,21 @@ public class DatasetPage implements java.io.Serializable {
             if (cmd != null) {
                 try {
                     String status = dv.getArchivalCopyLocationStatus();
-                    if(status == null || (force && cmd.canDelete())){
-                        
-                    // Set initial pending status
-                    datasetVersionService.setArchivalCopyLocation(dv, DatasetVersion.ARCHIVAL_STATUS_PENDING);
-                    
-                    commandEngine.submitAsync(cmd);
+                    if (status == null || (force && cmd.canDelete())) {
 
-                    logger.info(
-                            "DatasetVersion id=" + dv.getId() + " submitted to Archive, status: " + dv.getArchivalCopyLocationStatus());
-                    setVersionTabList(resetVersionTabList());
-                    this.setVersionTabListForPostLoad(getVersionTabList());
-                    JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("datasetversion.archive.inprogress"));
+                        // Set initial pending status
+                        JsonObjectBuilder job = Json.createObjectBuilder();
+                        job.add(DatasetVersion.ARCHIVAL_STATUS, DatasetVersion.ARCHIVAL_STATUS_PENDING);
+                        dv.setArchivalCopyLocation(JsonUtil.prettyPrint(job.build()));
+                        //Persist now
+                        datasetVersionService.persistArchivalCopyLocation(dv);
+                        commandEngine.submitAsync(cmd);
+
+                        logger.info(
+                                "DatasetVersion id=" + dv.getId() + " submitted to Archive, status: " + dv.getArchivalCopyLocationStatus());
+                        setVersionTabList(resetVersionTabList());
+                        this.setVersionTabListForPostLoad(getVersionTabList());
+                        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("datasetversion.archive.inprogress"));
                     }
                 } catch (CommandException ex) {
                     logger.log(Level.SEVERE, "Unexpected Exception calling  submit archive command", ex);
@@ -6105,23 +6190,56 @@ public class DatasetPage implements java.io.Serializable {
         if (thisVersionArchivable == null) {
             // If this dataset isn't in an archivable collection return false
             thisVersionArchivable = false;
+            boolean requiresEarlierVersionsToBeArchived = settingsWrapper.isTrueForKey(SettingsServiceBean.Key.ArchiveOnlyIfEarlierVersionsAreArchived, false);
             if (isArchivable()) {
-                
-                // Otherwise, we need to know if the archiver is single-version-only
-                // If it is, we have to check for an existing archived version to answer the
-                // question
+
                 String className = settingsWrapper.getValueForKey(SettingsServiceBean.Key.ArchiverClassName, null);
                 if (className != null) {
                     try {
-                        boolean checkForArchivalCopy = false;
-                        Class<?> clazz = Class.forName(className);
-                        Method m = clazz.getMethod("isSingleVersion", SettingsWrapper.class);
-                        Method m2 = clazz.getMethod("supportsDelete");
+                        DatasetVersion targetVersion = dataset.getVersions().stream()
+                                .filter(v -> v.getId().equals(id)).findFirst().orElse(null);
+                        if (requiresEarlierVersionsToBeArchived) {// Find the specific version by id
+                            // Check all prior versions to ensure they are successfully archived
+                            boolean allPriorVersionsArchived = true;
+                            boolean foundTarget = false;
+                            List<DatasetVersion> versions = dataset.getVersions();
 
-                        Object[] params = { settingsWrapper };
-                        boolean supportsDelete = (Boolean) m2.invoke(null);
-                        checkForArchivalCopy = (Boolean) m.invoke(null, params);
+                            for (DatasetVersion versionInLoop : versions) {
+                                // Once we find the target version, start checking subsequent versions (which are prior versions)
+                                if (foundTarget) {
+                                    // Check if this prior version has been successfully archived
+                                    String archivalStatus = versionInLoop.getArchivalCopyLocationStatus();
+                                    if (archivalStatus == null || !archivalStatus.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS)) {
+                                        allPriorVersionsArchived = false;
+                                        break;
+                                    }
+                                }
+                                if (versionInLoop.equals(targetVersion)) {
+                                    foundTarget = true;
+                                }
+                            }
 
+                            if (allPriorVersionsArchived) {
+                                thisVersionArchivable = true;
+                                // This check has been passed, so we go on to check other conditions
+                            } else {
+                                // Store the false value and skip further checks
+                                versionArchivable.put(id, thisVersionArchivable);
+                                return thisVersionArchivable;
+                            }
+                        }
+                        // Otherwise, we need to know if the archiver is single-version-only
+                        // If it is, we have to check for an existing archived version to answer the
+                        // question
+                        if (checkForArchivalCopy == null) {
+                            //Only check once
+                            Class<?> clazz = Class.forName(className);
+                            Method m = clazz.getMethod("isSingleVersion", SettingsWrapper.class);
+                            Method m2 = clazz.getMethod("supportsDelete");
+                            Object[] params = { settingsWrapper };
+                            checkForArchivalCopy = (Boolean) m.invoke(null, params);
+                            supportsDelete = (Boolean) m2.invoke(null);
+                        }
                         if (checkForArchivalCopy) {
                             // If we have to check (single version archiving), we can't allow archiving if
                             // one version is already archived (or attempted - any non-null status)
@@ -6132,16 +6250,12 @@ public class DatasetPage implements java.io.Serializable {
                             // the status is null or the archiver can delete prior runs and status isn't success,
                             // we can archive, so return true
                             // Find the specific version by id
-                            DatasetVersion targetVersion = dataset.getVersions().stream()
-                                .filter(v -> v.getId().equals(id))
-                                .findFirst()
-                                .orElse(null);
                             String status = targetVersion.getArchivalCopyLocationStatus();
                             thisVersionArchivable = (status == null) || ((!status.equals(DatasetVersion.ARCHIVAL_STATUS_SUCCESS) && (!status.equals(DatasetVersion.ARCHIVAL_STATUS_PENDING)) && supportsDelete));
                         }
                     } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException
                             | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                        logger.warning("Failed to call isSingleVersion on configured archiver class: " + className);
+                        logger.warning("Failed to call methods on configured archiver class: " + className);
                         e.printStackTrace();
                     }
                 }
@@ -6218,6 +6332,7 @@ public class DatasetPage implements java.io.Serializable {
 
     private String termsOfAccess;
     private boolean fileAccessRequest;
+    private boolean publishDisclaimerAcknowledged;
 
     public String getTermsOfAccess() {
         return termsOfAccess;
@@ -6233,6 +6348,14 @@ public class DatasetPage implements java.io.Serializable {
 
     public void setFileAccessRequest(boolean fileAccessRequest) {
         this.fileAccessRequest = fileAccessRequest;
+    }
+
+    public boolean isPublishDisclaimerAcknowledged() {
+        return publishDisclaimerAcknowledged || !settingsWrapper.isHasPublishDatasetDisclaimerText();
+    }
+
+    public void setPublishDisclaimerAcknowledged(boolean publishDisclaimerAcknowledged) {
+        this.publishDisclaimerAcknowledged = publishDisclaimerAcknowledged;
     }
 
     // wrapper method to see if the file has been deleted (or replaced) in the current version
@@ -6837,4 +6960,7 @@ public class DatasetPage implements java.io.Serializable {
         this.requestedCSL = requestedCSL;
     }
 
+    public void validateEmbargoReason(FacesContext context, UIComponent component, Object value) {
+        FileUtil.validateEmbargoReason(context, component, value, removeEmbargo);
+    }
 }

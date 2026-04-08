@@ -8,12 +8,14 @@ function bind_bsui_components(){
     });
     
     // Collapse Header Icons
-    $('div[id^="panelCollapse"]').on('shown.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.bi').removeClass("bi-chevron-down").addClass("bi-chevron-up");
+    $('[id^="panelCollapse"]').on('shown.bs.collapse', function () {
+      $(this).siblings('div.panel-title').find('button').attr('aria-expanded', 'true').removeClass('collapsed');
+      $(this).siblings('div.panel-title').find('span.bi').removeClass("bi-chevron-down").addClass("bi-chevron-up");
     });
 
-    $('div[id^="panelCollapse"]').on('hidden.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.bi').removeClass("bi-chevron-up").addClass("bi-chevron-down");
+    $('[id^="panelCollapse"]').on('hidden.bs.collapse', function () {
+      $(this).siblings('div.panel-title').find('button').attr('aria-expanded', 'false').addClass('collapsed');
+      $(this).siblings('div.panel-title').find('span.bi').removeClass("bi-chevron-up").addClass("bi-chevron-down");
     });
     
     // Button dropdown menus 
@@ -26,7 +28,7 @@ function bind_bsui_components(){
             tooltip.hide();
         }
     });
-    
+
     $("[data-bs-toggle='popover']").each(function() {
         var popover = bootstrap.Popover.getInstance(this);
         if (popover) {
@@ -70,7 +72,7 @@ function bind_tooltip_popover(){
             container: 'body'
         });
     });
-    
+
     // Initialize all popovers
     var popoverTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle='popover']"));
     popoverTriggerList.forEach(function(popoverTriggerEl) {
@@ -134,7 +136,7 @@ function popoverHTML(popoverTitleHTML, popoverTagsHTML) {
        '</div>',
        '</div>'].join('');
    var popoverContentHTML = ['<code>', popoverTagsHTML, '</code>'].join('');
-   
+
    // Update to Bootstrap 5 popover initialization
    var popoverTriggerList = [].slice.call(document.querySelectorAll('a.popoverHTML'));
    popoverTriggerList.forEach(function(popoverTriggerEl) {
@@ -222,7 +224,7 @@ function contentTruncate(truncSelector, truncMoreBtn, truncMoreTip, truncLessBtn
 
             // add "Read full desc [+]" btn, background fade
             $(this).append(moreBlock);
-            
+
             // Initialize tooltip on the new button
             new bootstrap.Tooltip(document.querySelector('.more-block button'), {
                 container: 'body'
@@ -237,7 +239,7 @@ function contentTruncate(truncSelector, truncMoreBtn, truncMoreTip, truncLessBtn
                 }
                 $(this).parent('div').parent('div').css({'max-height':'none','overflow-y':'visible','position':'relative'});
                 $(this).parent('div.more-block').replaceWith(lessBlock);
-                
+
                 // Initialize tooltip on the new button
                 new bootstrap.Tooltip(document.querySelector('.less-block button'), {
                     container: 'body'
@@ -254,7 +256,7 @@ function contentTruncate(truncSelector, truncMoreBtn, truncMoreTip, truncLessBtn
                 $(this).parent('div').parent('div').css({'max-height':'250px','overflow-y':'hidden','position':'relative'});
                 $(this).parent('div.less-block').replaceWith(moreBlock);
                 $('html, body').animate({scrollTop: $('#' + truncSelector).offset().top - 60}, 500);
-                
+
                 // Initialize tooltip on the new button
                 new bootstrap.Tooltip(document.querySelector('.more-block button'), {
                     container: 'body'
@@ -425,37 +427,37 @@ function enableSubMenus() {
     $('.dropdown-submenu>a').off('keydown click');
     $('.dropdown-submenu>.dropdown-menu>li:last-of-type>a').off('keydown');
     $('.dropdown-submenu>.dropdown-menu>li:first-of-type>a').off('keydown');
-    
+
     // Add keyboard navigation
     $('.dropdown-submenu>a').on('keydown', toggleSubMenu);
     $('.dropdown-submenu>.dropdown-menu>li:last-of-type>a').on('keydown', closeOnTab);
     $('.dropdown-submenu>.dropdown-menu>li:first-of-type>a').on('keydown', closeOnShiftTab);
-    
+
     // Prevent default action for dropdown submenu links to allow them to act as toggles
     $('.dropdown-submenu>a').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         // Close all other open submenus at the same level
         $(this).parent().siblings('.dropdown-submenu').removeClass('show').find('.dropdown-menu').removeClass('show');
-        
+
         // Toggle this submenu
         $(this).parent().toggleClass('show');
         $(this).next('.dropdown-menu').toggleClass('show');
-        
+
         return false;
     });
-    
+
     addMenuDelays();
 }
 
 function toggleSubMenu(event) {
     if (event.key === ' ' || event.key === 'Enter') {
         event.preventDefault();
-        
+
         // Close all other open submenus at the same level
         $(this).parent().siblings('.dropdown-submenu').removeClass('show').find('.dropdown-menu').removeClass('show');
-        
+
         // Toggle this submenu
         $(this).parent().toggleClass('show');
         $(this).next('.dropdown-menu').toggleClass('show');
@@ -480,20 +482,20 @@ function addMenuDelays() {
     $('.dropdown-submenu').each(function() {
         var $submenu = $(this);
         var closeMenuTimer;
-        
+
         // Add hover behavior
         $submenu.on('mouseenter', function() {
             clearTimeout(closeMenuTimer);
-            
+
             // Close other submenus at the same level
             $(this).siblings('.dropdown-submenu').removeClass('show')
                 .find('.dropdown-menu').removeClass('show');
-                
+
             // Open this submenu
             $(this).addClass('show');
             $(this).find('> .dropdown-menu').addClass('show');
         });
-        
+
         $submenu.on('mouseleave', function() {
             var $this = $(this);
             closeMenuTimer = setTimeout(function() {

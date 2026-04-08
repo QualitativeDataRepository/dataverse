@@ -26,14 +26,15 @@
                 <h:form id="rolesPermissionsForm" styleClass="margin-top">
                     <div class="panel-group">
                         <!-- Users/Groups Access Panel -->
-                        <div class="card">
-                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseFiles" 
-                                 class="card-header text-info"
-                                 aria-expanded="false"
-                                 aria-controls="panelCollapseFiles">
-                                #{bundle['dataverse.permissionsFiles.usersOrGroups']} <span class="bi bi-chevron-up"/>
+<div class="card">
+    <div data-bs-toggle="collapse" data-bs-target="#panelCollapseUsersGroups"
+         class="card-header text-info"
+         aria-expanded="true"
+         aria-controls="panelCollapseUsersGroups">
+        #{bundle['dataverse.permissionsFiles.usersOrGroups']} <span class="bi bi-chevron-up"/>
 
-                                <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.usersOrGroups.description']}</span>
+                                    <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.usersOrGroups.description']}</span>
+                                </button>
                             </div>
                             <div id="panelCollapseUsersGroups" class="collapse show">
                                 <div class="card-body">
@@ -152,14 +153,15 @@
                             </div>
                         </div>
                         <!-- Files (Restricted) Panel -->
-                        <div class="card">
-                            <div data-bs-toggle="collapse" data-bs-target="#panelCollapseFiles" 
-                                 class="card-header text-info"
-                                 aria-expanded="false" 
-                                 aria-controls="panelCollapseFiles">
-                                 #{bundle['dataverse.permissionsFiles.files']} <span class="bi bi-chevron-down"/>
+<div class="card">
+    <div data-bs-toggle="collapse" data-bs-target="#panelCollapseFiles"
+         class="card-header text-info"
+         aria-expanded="false"
+         aria-controls="panelCollapseFiles">
+        #{bundle['dataverse.permissionsFiles.files']} <span class="bi bi-chevron-down"/>
 
-                                <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.files.description']}</span>
+                                    <span class="text-muted small float-end">#{bundle['dataverse.permissionsFiles.files.description']}</span>
+                                </button>
                             </div>
                             <div id="panelCollapseFiles" class="collapse">
                                 <div class="card-body">
@@ -227,19 +229,19 @@
                     </div>
                     <!-- Role Assignment History Panel -->
                     <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
-                    <div class="card" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
-                        <div data-bs-toggle="collapse" data-bs-target="#panelCollapseHistory" 
-                            class="card-header text-info"
-                            aria-expanded="false"
-                            aria-controls="panelCollapseHistory">
-                            #{bundle['dataverse.permissions.history']} <span class="bi bi-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
+<div class="card" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
+    <div data-bs-toggle="collapse" data-bs-target="#panelCollapseHistory"
+         class="card-header text-info"
+         aria-expanded="false"
+         aria-controls="panelCollapseHistory">
+        #{bundle['dataverse.permissions.history']} <span class="bi bi-chevron-down" /> <span class="text-muted small float-end">#{bundle['dataverse.permissions.history.description']}</span>
                       </div>
                       <div id="panelCollapseHistory" class="collapse">
                         <div class="card-body">
                             <!-- Download button for file permissions history -->
                             <div class="button-group margin-bottom text-end">
                                 <h:outputLink value="#{manageFilePermissionsPage.signedUrlForRAHistoryCsv}" 
-                                             styleClass="btn btn-secondary" 
+                                             styleClass="btn btn-secondary"
                                              onclick="downloadRAHistoryCSV(this.href, '#{manageFilePermissionsPage.permissionsHistoryFilename}'); return false;">
                                     <span class="bi bi-download"></span> #{bundle['dataverse.permissions.history.download']}
                                 </h:outputLink>

@@ -1,7 +1,7 @@
 package edu.harvard.iq.dataverse.search;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.Http2SolrClient;
+import org.apache.solr.client.solrj.jetty.HttpJettySolrClient;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -30,7 +30,7 @@ public class SolrClientService extends AbstractSolrClientService {
     
     @PostConstruct
     public void init() {
-        solrClient = new Http2SolrClient.Builder(getSolrUrl()).build();
+        solrClient = new HttpJettySolrClient.Builder(getSolrUrl()).withDefaultCollection(getSolrCollection()).build();
     }
     
     @PreDestroy

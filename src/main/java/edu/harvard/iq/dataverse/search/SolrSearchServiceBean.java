@@ -4,6 +4,7 @@ import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.impl.builtin.AllUsers;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.GuestUser;
 import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
@@ -43,16 +44,17 @@ import jakarta.json.JsonArrayBuilder;
 import jakarta.persistence.NoResultException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.SortClause;
+import org.apache.solr.client.solrj.request.SolrQuery;
+import org.apache.solr.client.solrj.request.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.BaseHttpSolrClient.RemoteSolrException;
+import org.apache.solr.client.solrj.RemoteSolrException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.RangeFacet;
 import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+
 
 @Stateless
 @Named
@@ -87,6 +89,8 @@ public class SolrSearchServiceBean implements SearchService {
     SolrClientService solrClientService;
     @EJB
     PermissionServiceBean permissionService;
+    @EJB
+    SearchPermissionsServiceBean searchPermissionsService;
     @Inject
     ThumbnailServiceWrapper thumbnailServiceWrapper;
     
@@ -150,11 +154,18 @@ public class SolrSearchServiceBean implements SearchService {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, onlyDatatRelatedToMe, addFacets, avoidJoin);
         if(settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups==null, isAllGroups(permissionFilterGroups), avoidJoin);
+            query = SearchUtil.expandQuery(query, isPublicOnly(permissionFilterGroups), isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
-            String q1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
-            solrQuery.add("q1",  q1Query);
-            logger.fine("q1: " + q1Query);
+            String q1Query = buildPermissionGroupQuery(permissionFilterGroups);
+            if(StringUtils.isNotBlank(q1Query)) {
+                solrQuery.add("q1",  q1Query);
+                logger.fine("q1: " + q1Query);
+            }
+            
+            //Sanity check: if the query contains $q1 but no q1 query, log a warning.
+            if(query.contains("$q1") && StringUtils.isBlank(q1Query)) {
+                logger.warning("Query contains $q1 but no q1 query: " + query);
+            }
         }
         
         solrQuery.setQuery(query);
@@ -352,7 +363,7 @@ public class SolrSearchServiceBean implements SearchService {
 //        solrQuery.addNumericRangeFacet(SearchFields.PRODUCTION_DATE_YEAR_ONLY, citationYearRangeStart, citationYearRangeEnd, citationYearRangeSpan);
 //        solrQuery.addNumericRangeFacet(SearchFields.DISTRIBUTION_DATE_YEAR_ONLY, citationYearRangeStart, citationYearRangeEnd, citationYearRangeSpan);
         solrQuery.setRows(numResultsPerPage);
-        logger.fine("Solr query:" + solrQuery);
+        logger.fine("Solr query:" + solrQuery.toQueryString());
 
         // -----------------------------------
         // Make the solr query
@@ -778,12 +789,33 @@ public class SolrSearchServiceBean implements SearchService {
                         } catch (Exception e) {
                             localefriendlyName = facetFieldCount.getName();
                         }
+                    } else if (facetField.getName().equals(SearchFields.DATASET_TYPE)) {
+                        /**
+                         * For dataset types we use the machine readable name (e.g. "dataset" or
+                         * "software") rather than the display name (e.g. "Dataset" or "Software")
+                         * because otherwise the facet doesn't work in the SPA when you click it. The
+                         * SPA operates on the "labels" array (see below) and the keys of the objects in
+                         * this array are passed back into the Search API when clicked (e.g.
+                         * "fq=datasetType:dataset").
+                         *
+                         * "datasetType": {
+                         * "friendly": "Dataset Type",
+                         * "labels": [
+                         * {"dataset":8},
+                         * {"software":1}
+                         * ]
+                         * }
+                         * See also https://github.com/IQSS/dataverse-frontend/issues/809
+                         * and https://github.com/IQSS/dataverse/issues/11758 .
+                         *
+                         * We recognize that this will be a problem for internationalizing the SPA but
+                         * the SPA will likely have similar problems with facets like publicationStatus
+                         * where the labels are in English (e.g. {"Draft":42}). The Search API much use
+                         * the English string when faceting (e.g. "fq=publicationStatus:Draft").
+                         */
+                        localefriendlyName = facetFieldCount.getName();
                     } else {
                         try {
-                            // This is where facets are capitalized.
-                            // This will be a problem for the API clients because they get back a string like this from the Search API...
-                            // {"datasetType":{"friendly":"Dataset Type","labels":[{"Dataset":1},{"Software":1}]}
-                            // ... but they will need to use the lower case version (e.g. "software") to narrow results.
                            localefriendlyName = BundleUtil.getStringFromPropertyFile(facetFieldCount.getName(), "Bundle");
                         } catch (Exception e) {
                            localefriendlyName = facetFieldCount.getName();
@@ -981,11 +1013,18 @@ public class SolrSearchServiceBean implements SearchService {
         boolean avoidJoin = FeatureFlags.AVOID_EXPENSIVE_SOLR_JOIN.enabled();
         String permissionFilterGroups = getPermissionFilterGroups(dataverseRequest, solrQuery, false, !(facets == null || facets.isEmpty()), avoidJoin);
         if (settingsService.isTrueForKey(SettingsServiceBean.Key.SolrFullTextIndexing, false)) {
-            query = SearchUtil.expandQuery(query, permissionFilterGroups == null, isAllGroups(permissionFilterGroups), avoidJoin);
+            query = SearchUtil.expandQuery(query, isPublicOnly(permissionFilterGroups), isAllGroups(permissionFilterGroups), avoidJoin);
             logger.fine("Sanitized, Expanded Query: " + query);
-            String finalQ1Query = buildPermissionGroupQuery(avoidJoin,SearchFields.FULL_TEXT_SEARCHABLE_BY,permissionFilterGroups);
-            solrQuery.add("q1", finalQ1Query);
-            logger.fine("q1: " + finalQ1Query);
+            String finalQ1Query = buildPermissionGroupQuery(permissionFilterGroups);
+            if (StringUtils.isNotBlank(finalQ1Query)) {
+                solrQuery.add("q1", finalQ1Query);
+                logger.fine("q1: " + finalQ1Query);
+            }
+          //Sanity check: if the query contains $q1 but no q1 query, log a warning.
+            if(query.contains("$q1") && StringUtils.isBlank(finalQ1Query)) {
+                logger.warning("Simple search: Query contains $q1 but no q1 query: " + query);
+            }
+
         }
 
         solrQuery.setQuery(query);
@@ -1050,6 +1089,21 @@ public class SolrSearchServiceBean implements SearchService {
         return queryResponse;
     }
 
+    // Determine if the filter groups indicate a public-only search. That means no entries, or only public entries (group_public and/or group_buitlIn/all-users)
+    private boolean isPublicOnly(String permissionFilterGroups) {
+        if(StringUtils.isBlank(permissionFilterGroups)) {
+            return true;
+        }
+        List<String> groups = Arrays.asList(permissionFilterGroups.split(","));
+        int count = 0;
+        if(groups.contains(IndexServiceBean.getPublicGroupString())) { 
+            count++;
+        }
+        if(groups.contains(IndexServiceBean.getGroupPrefix() + AllUsers.get().getAlias())) { 
+            count++;
+        }
+        return groups.size() == count;
+    }
 
     public String getLocaleTitle(String title,  String controlledvoc , String propertyfile) {
 
@@ -1149,11 +1203,10 @@ public class SolrSearchServiceBean implements SearchService {
 
         for (Group group : groups) {
             String groupAlias = group.getAlias();
-            if (groupAlias != null && !groupAlias.isEmpty() && (!avoidJoin || !groupAlias.startsWith("builtIn"))) {
-                groupList.add(IndexServiceBean.getGroupPrefix() + groupAlias);
+            if (groupAlias != null && !groupAlias.isEmpty()) {
+                groupList.add(searchPermissionsService.getIndexableStringForUserOrGroup(group));
             }
         }
-
         if (!avoidJoin) {
             // Add the public group
             groupList.add(0, IndexServiceBean.getPublicGroupString());
@@ -1182,18 +1235,11 @@ public class SolrSearchServiceBean implements SearchService {
         return query;
     }
 
-    private String buildPermissionGroupQuery(boolean avoidJoin, String fullTextSearchableBy, String permissionFilterGroups) {
-        StringBuilder q1Query = new StringBuilder();
-        if(avoidJoin && !isAllGroups(permissionFilterGroups)) {
-            q1Query.append(SearchFields.PUBLIC_OBJECT + ":" + true);
-        }
+    private String buildPermissionGroupQuery(String permissionFilterGroups) {
         if (permissionFilterGroups != null && !isAllGroups(permissionFilterGroups)) {
-            if(!q1Query.isEmpty()) {
-                q1Query.append(" OR ");
-            }
-            q1Query.append(SearchFields.FULL_TEXT_SEARCHABLE_BY + ":" + permissionFilterGroups);
+            return SearchFields.FULL_TEXT_SEARCHABLE_BY + ":" + permissionFilterGroups;
         }
-        return q1Query.toString(); 
+        return null; 
     }
 
     private boolean isAllGroups(String groups) {

@@ -63,9 +63,11 @@
                         </p:tab>
                         <p:tab id="notifications" title="#{bundle['header.user.selectTab.notifications']}">
                             <div class="card" jsf:rendered="#{settingsWrapper.showMuteOptions}">
-                                <div data-bs-toggle="collapse" data-bs-target="#muteCollapse" aria-expanded="false" class="panel-heading text-info" role="button" aria-controls="muteCollapse">
+                            <div class="panel-title">
+                                <button type="button" class="panel-heading text-info btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#muteCollapse" aria-expanded="false" aria-controls="muteCollapse">
                                     #{bundle['notification.muteOptions']} <span class="bi bi-chevron-down" />
-                                </div>
+                                </button>
+                            </div>
                                 <div id="muteCollapse" class="collapse">
                                     <div class="card-body">
                                         <div class="row mb-3 text-start">
@@ -152,6 +154,20 @@
                                                 <ui:fragment rendered="#{item.type == 'DATASETCREATED'}">
                                                     <span class="bi bi-file-earmark text-muted"></span>
                                                     <h:outputFormat value="#{bundle['notification.datasetCreated']}" escape="false">
+                                                        <o:param>
+                                                            <a href="/dataset.xhtml?persistentId=#{item.theObject.getGlobalId()}" title="#{item.theObject.getDisplayName()}">#{item.theObject.getDisplayName()}</a>
+                                                        </o:param>
+                                                        <o:param>
+                                                            <a href="/dataverse/#{item.theObject.getOwner().getAlias()}" title="#{item.theObject.getOwner().getDisplayName()}">#{item.theObject.getOwner().getDisplayName()}</a>
+                                                        </o:param>
+                                                        <o:param>
+                                                            #{item.requestor.name}
+                                                        </o:param>
+                                                    </h:outputFormat>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{item.type == 'DATASETMOVED'}">
+                                                    <span class="icon-dataset text-icon-inline text-muted"></span>
+                                                    <h:outputFormat value="#{bundle['notification.datasetMoved']}" escape="false">
                                                         <o:param>
                                                             <a href="/dataset.xhtml?persistentId=#{item.theObject.getGlobalId()}" title="#{item.theObject.getDisplayName()}">#{item.theObject.getDisplayName()}</a>
                                                         </o:param>
@@ -593,7 +609,7 @@
                                                 </p>
                                                 &#160;
                                                 <!--QDR - disable local email verification-->
-                                                <p:commandLink rendered="false and #{DataverseUserPage.showVerifyEmailButton()}" styleClass="btn btn-secondary" 
+                                                <p:commandLink rendered="false and #{DataverseUserPage.showVerifyEmailButton()}" styleClass="btn btn-secondary"
                                                                 id="verifyEmailButton"
                                                                 action="#{DataverseUserPage.sendConfirmEmail()}"
                                                                 update="@([id$=verifyEmailButton]), :messagePanel"

@@ -67,7 +67,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
 
     /**
      * Creates/updates the {@link DatasetVersionUser} for our {@link #dataset}. After
-     * calling this method, there is a {@link DatasetUser} object connecting
+     * calling this method, there is a {@link DatasetVersionUser} object connecting
      * {@link #dataset} and the {@link AuthenticatedUser} who issued this
      * command, with the {@code lastUpdate} field containing {@link #timestamp}.
      *
@@ -108,6 +108,18 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
     protected void validateOrDie(DatasetVersion dsv, Boolean lenient) throws CommandException {
         Set<ConstraintViolation> constraintViolations = dsv.validate();
         if (!constraintViolations.isEmpty()) {
+            for (ConstraintViolation<T> violation : constraintViolations) {
+                logger.log(Level.WARNING,
+                        "Constraint violation found in FileMetadata: property={0}, invalidValue={1}, message={2}, leafBean={3}",
+                        new Object[]{
+                                violation.getPropertyPath(),
+                                violation.getInvalidValue(),
+                                violation.getMessage(),
+                                violation.getLeafBean().getClass().getSimpleName(),
+                                violation.getRootBean().getClass().getSimpleName()
+
+                        });
+            }
             if (lenient) {
                 // populate invalid fields with N/A
                 constraintViolations.stream()

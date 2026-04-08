@@ -3,8 +3,10 @@ package edu.harvard.iq.dataverse.search;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateHttp2SolrClient;
-import org.apache.solr.client.solrj.impl.Http2SolrClient;
+import org.apache.solr.client.solrj.jetty.HttpJettySolrClient;
+import org.apache.solr.client.solrj.jetty.ConcurrentUpdateJettySolrClient;
+
+
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -25,8 +27,10 @@ public class SolrClientIndexService extends AbstractSolrClientService {
 
     @PostConstruct
     public void init() {
-        solrClient = new ConcurrentUpdateHttp2SolrClient.Builder(
-            getSolrUrl(), new Http2SolrClient.Builder().build()).build();
+        HttpJettySolrClient httpClient = new HttpJettySolrClient.Builder(getSolrUrl()).build();
+        
+        solrClient = new ConcurrentUpdateJettySolrClient.Builder(
+            getSolrUrl(), httpClient).withDefaultCollection(getSolrCollection()).build();
     }
 
     @PreDestroy

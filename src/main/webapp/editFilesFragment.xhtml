@@ -88,41 +88,46 @@
                             <div class="card-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackagePublished" jsf:rendered="#{hasPackageFile and isDatasetReleased}">
                                 <p class="form-text">
                                     <span class="bi bi-exclamation-triangle-fill text-warning"></span>
-                                    <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.httpUploadDisabledDueToRsyncFileExistingAndPublished']}"/>
+                                    <h:outputText styleClass="text-warning" value=" #{bundle['file.rsyncUpload.httpUploadDisabledDueToRsyncFileExistingAndPublished']}"/>
                                 </p>
                             </div>
                             <div class="card-body" jsf:id="contentOfHttpPanel" jsf:rendered="#{!hasPackageFile}">
-                    <p class="form-text">
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipMoreInformation']}" escape="false">
-                            <f:param value="#{settingsWrapper.get(':QDRDrupalSiteURL')}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipMaxNumFiles']}" escape="false"
-                                        rendered="#{EditDatafilesPage.maxNumberOfFiles > 0}">
-                            <f:param value="#{EditDatafilesPage.maxNumberOfFiles}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipMaxNumFilesUploadsAvailable']}" escape="false"
-                                        rendered="#{EditDatafilesPage.fileUploadsAvailable > -1}">
-                            <f:param value="#{EditDatafilesPage.fileUploadsAvailable}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipLimit']}" escape="false"
-                                        rendered="#{!EditDatafilesPage.isUnlimitedUploadFileSize()}">
-                            <f:param value="#{EditDatafilesPage.getHumanMaxFileUploadSizeInBytes()}"/>
-                        </h:outputFormat>                      
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipQuotaRemaining']}" escape="false" 
-                              rendered="#{EditDatafilesPage.isStorageQuotaEnforced()}">
-                            <f:param value="#{EditDatafilesPage.getHumanMaxTotalUploadSizeInBytes()}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipTabularLimit']}" escape="false"
-                                        rendered="#{EditDatafilesPage.maxIngestSizeInBytes != -1}">
-                            <f:param value="#{systemConfig.guidesBaseUrl}"/>
-                            <f:param value="#{systemConfig.guidesVersion}"/>
-                            <f:param value="#{EditDatafilesPage.humanMaxIngestSizeInBytes}"/>
-                        </h:outputFormat>
-                        <h:outputFormat value=" #{bundle['file.selectToAdd.tipPerFileTabularLimit']}"
-                                         rendered="#{not empty EditDatafilesPage.humanPerFormatTabularLimits}">
-                            <f:param value="#{fn:replace(EditDatafilesPage.humanPerFormatTabularLimits, ' 1 B', ' disabled')}"/>
-                        </h:outputFormat>
-                    </p>
+                                <p class="form-text">
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipMoreInformation']}" escape="false">
+                                        <f:param value="#{settingsWrapper.get(':QDRDrupalSiteURL')}"/>
+                                    </h:outputFormat>
+            												<h:outputFormat value=" #{bundle['file.selectToAdd.tipTotalSizeUsed']}" escape="false">
+												                <f:param value="#{EditDatafilesPage.currentContainerStorageUse}"/>
+												            </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipMaxNumFiles']}" escape="false"
+                                                    rendered="#{EditDatafilesPage.maxNumberOfFiles > 0}">
+                                        <f:param value="#{EditDatafilesPage.maxNumberOfFiles}"/>
+                                    </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipMaxNumFilesUploadsAvailable']}" escape="false"
+                                                    rendered="#{EditDatafilesPage.fileUploadsAvailable > -1}">
+                                        <f:param value="#{EditDatafilesPage.fileUploadsAvailable}"/>
+                                    </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipLimit']}" escape="false"
+                                                    rendered="#{!EditDatafilesPage.isUnlimitedUploadFileSize()}">
+                                        <f:param value="#{EditDatafilesPage.getHumanMaxFileUploadSizeInBytes()}"/>
+                                    </h:outputFormat>
+
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipQuotaRemaining']}" escape="false"
+                                                    rendered="#{EditDatafilesPage.isStorageQuotaEnforced()}">
+                                        <f:param value="#{EditDatafilesPage.getHumanMaxTotalUploadSizeInBytes()}"/>
+                                    </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipTabularLimit']}" escape="false"
+                                                    rendered="#{EditDatafilesPage.maxIngestSizeInBytes != -1}">
+                                        <f:param value="#{systemConfig.guidesBaseUrl}"/>
+                                        <f:param value="#{systemConfig.guidesVersion}"/>
+                                        <f:param value="#{EditDatafilesPage.humanMaxIngestSizeInBytes}"/>
+                                    </h:outputFormat>
+                                    <h:outputFormat value=" #{bundle['file.selectToAdd.tipPerFileTabularLimit']}"
+                                                    rendered="#{not empty EditDatafilesPage.humanPerFormatTabularLimits}">
+                                        <f:param value="#{fn:replace(EditDatafilesPage.humanPerFormatTabularLimits, ' 1 B', ' disabled')}"/>
+                                    </h:outputFormat>
+                                </p>
+
                     <script>
                         //<![CDATA[
                         function uploadWidgetDropMsg() {
@@ -191,8 +196,8 @@
                                   invalidSizeMessage="#{bundle['file.edit.error.file_exceeds_limit']}" 
                                   sequential="true"
                                   previewWidth="-1"
+                                  ariaLabel="#{bundle['file.uploadFiles']}"
                                   widgetVar="fileUploadWidget">
-                        <f:passThroughAttribute name="aria-label" value="#{bundle['file.uploadFiles']}"/>
                     </p:fileUpload>
                               <ui:fragment rendered="#{!lockedFromEdits}">
                                 <div jsf:id="webloaderBlock" jsf:rendered="#{webloaderUploadSupported}"  class="ui-fileupload-buttonbar ui-widget-header ui-corner-top">
@@ -207,7 +212,6 @@
                                     <p:commandButton id="dropBoxButton" actionListener="#{EditDatafilesPage.handleDropBoxUpload}" oncomplete="javascript:dropBoxUploadFinished();" update="@none" style="display:none;" />
                                     <p:commandButton id="dropBoxUserButton" disabled="#{!(showFileUploadComponent)}" value="#{bundle['file.fromDropbox']}" onclick="openDropboxChooser();" icon="dropin-btn-status" />
                                     <p:message for="dropBoxButton" id="dropBoxUploadMessage" display="text" redisplay="false" />
-                                    
                                 </div>
                                 <div jsf:id="hypothesisBlock" jsf:rendered="#{settingsWrapper.isHasHypothesisKey() and !lockedFromEdits }"  class="margin-top">
                                     <!-- Hypothesis upload widget -->
@@ -310,13 +314,13 @@
                                     <ui:fragment rendered="#{hasNonPackageFile and !EditDatafilesPage.workingVersion.dataset.released}">
                                         <p class="form-text">
                                             <span class="bi bi-exclamation-triangle-fill text-warning"></span>
-                                            <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}"/>
+                                            <h:outputText styleClass="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}"/>
                                         </p>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{hasNonPackageFile and EditDatafilesPage.workingVersion.dataset.released}">
                                         <p class="form-text">
                                             <span class="bi bi-exclamation-triangle-fill text-warning"></span>
-                                            <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttpAndPublished']}"/>
+                                            <h:outputText styleClass="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttpAndPublished']}"/>
                                         </p>
                                     </ui:fragment>
                                     <!-- HTTP FILE ALREADY EXISTS. THERE CAN BE ONLY ONE. -->
@@ -329,7 +333,7 @@
                                     <ui:fragment rendered="#{empty EditDatafilesPage.workingVersion.fileMetadatas and !hasRsyncScript}">
                                         <p class="form-text">
                                             <span class="bi bi-exclamation-circle-fill text-danger"></span>
-                                            <h:outputFormat class="text-danger" value=" #{bundle['file.rsyncUpload.noScriptBroken']}" escape="false">
+                                            <h:outputFormat styleClass="text-danger" value=" #{bundle['file.rsyncUpload.noScriptBroken']}" escape="false">
                                                 <o:param>
                                                     <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
                                                         <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>
@@ -481,7 +485,7 @@
                                                 #{bundle.description}
                                             </label>
                                             <p:inputTextarea id="fileDescription" rows="2" cols="40" value="#{fileMetadata.description}" style="width:60%; margin-top:.5em;"
-                                                    placeholder="#{bundle['file.addDescription']}"/> 
+                                                    placeholder="#{bundle['file.addDescription']}"/>
                                             <p:message for="fileDescription"/>
                                         </div>
                                         <div class="file-tags-block margin-top-half">
@@ -657,7 +661,7 @@
     
     <p:dialog id="fileAlreadyExistsPopup" styleClass="smallPopUp" header="#{EditDatafilesPage.headerForAlreadyExistsPopUp}" widgetVar="fileAlreadyExistsPopup" modal="true">
         <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{EditDatafilesPage.warningMessageForAlreadyExistsPopUp}</p>
-            <p class="form-text no-margin-top">                                           
+            <p class="form-text no-margin-top">
                 <h:outputFormat value="#{bundle['dataset.file.upload.popup.explanation.tip']}" escape="false">
                     <f:param value="#{systemConfig.guidesBaseUrl}"/>
                     <f:param value="#{systemConfig.guidesVersion}"/>

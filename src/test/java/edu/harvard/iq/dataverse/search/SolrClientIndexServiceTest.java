@@ -7,7 +7,7 @@ import edu.harvard.iq.dataverse.util.testing.JvmSetting;
 import edu.harvard.iq.dataverse.util.testing.LocalJvmSettings;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateHttp2SolrClient;
+import org.apache.solr.client.solrj.jetty.ConcurrentUpdateJettySolrClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +40,7 @@ class SolrClientIndexServiceTest {
     @Test
     void testInitWithDefaults() {
         // given
-        String url = "http://localhost:8983/solr/collection1";
+        String url = "http://localhost:8983/solr";
 
         // when
         clientService.init();
@@ -48,8 +48,9 @@ class SolrClientIndexServiceTest {
         // then
         SolrClient client = clientService.getSolrClient();
         assertNotNull(client);
-        assertInstanceOf(ConcurrentUpdateHttp2SolrClient.class, client);
+        assertInstanceOf(ConcurrentUpdateJettySolrClient.class, client);
         assertEquals(url, clientService.getSolrUrl());
+        assertEquals("collection1", clientService.getSolrCollection());
     }
 
     @Test
@@ -58,7 +59,7 @@ class SolrClientIndexServiceTest {
     @JvmSetting(key = JvmSettings.SOLR_CORE, value = "test")
     void testInitWithConfig() {
         // given
-        String url = "http://foobar:1234/solr/test";
+        String url = "http://foobar:1234/solr";
 
         // when
         clientService.init();
@@ -66,7 +67,8 @@ class SolrClientIndexServiceTest {
         // then
         SolrClient client = clientService.getSolrClient();
         assertNotNull(client);
-        assertInstanceOf(ConcurrentUpdateHttp2SolrClient.class, client);
+        assertInstanceOf(ConcurrentUpdateJettySolrClient.class, client);
         assertEquals(url, clientService.getSolrUrl());
+        assertEquals("test", clientService.getSolrCollection());
     }
 }

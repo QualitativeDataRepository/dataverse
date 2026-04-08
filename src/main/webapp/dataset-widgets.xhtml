@@ -73,7 +73,7 @@
                                                 <span class="bi bi-question-circle tooltip-icon"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.uploadNew.title']}"></span>
                                             </label>
-                                            <p:fileUpload invalidFileMessage="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.upload.invalidMsg']}" id="changelogo" allowTypes="/(\.|\/)(jpg|jpeg|tff|png|gif)$/" update="@form" 
+                                            <p:fileUpload invalidFileMessage="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.upload.invalidMsg']}" id="changelogo" allowTypes="/(\.|\/)(jpg|jpeg|png)$/" update="@form" 
                                                           sizeLimit="#{systemConfig.uploadLogoSizeLimit}"
                                                           invalidSizeMessage="#{bundle['file.edit.error.file_exceeds_limit']}"
                                                           dragDropSupport="true" auto="true" multiple="false" 

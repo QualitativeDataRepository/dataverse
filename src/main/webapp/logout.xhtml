@@ -10,7 +10,8 @@
     </h:head>
 
     <h:body>
-        <f:metadata>            
+        <f:metadata>           
+            <f:viewParam name="token" value="#{dataverseHeaderFragment.token}" /> 
             <f:viewAction action="#{dataverseHeaderFragment.logout}"/>
         </f:metadata>
         <ui:composition template="/dataverse_template.xhtml">

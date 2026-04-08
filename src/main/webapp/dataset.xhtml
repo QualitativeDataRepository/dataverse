@@ -21,6 +21,7 @@
             <ui:param name="version" value="#{DatasetPage.workingVersion}"/>
             <ui:param name="deaccessioned" value="#{version.deaccessioned}"/>
             <ui:param name="locked" value="#{DatasetPage.locked}"/>
+            <ui:param name="showDataverseHeader" value="#{!DatasetPage.anonymizedAccess}"/>
             <ui:param name="anonymizedAccess" value="#{DatasetPage.anonymizedAccess}"/>
             <ui:param name="anonymizedAccessEnabled" value="#{DatasetPage.anonymizedAccessEnabled}"/>
             <ui:param name="canUpdateDataset" value="#{DatasetPage.canUpdateDataset()}"/>
@@ -49,6 +50,7 @@
             <ui:param name="thumbnailString" value="#{DatasetPage.thumbnailString}"/>
             <ui:param name="jsonLd" value="#{DatasetPage.jsonLd}"/>
             <ui:param name="croissant" value="#{DatasetPage.croissant}"/>
+            <ui:param name="legacyFormatInHead" value="#{DatasetPage.useLegacyFormatInHead}"/>
             <ui:param name="latestVersionInReview" value="#{DatasetPage.dataset.latestVersion.inReview}"/>
             <ui:param name="showSubmitForReviewLink" value="#{DatasetPage.editMode != 'CREATE' and version == DatasetPage.dataset.latestVersion
                                                               and !DatasetPage.datasetLockedInWorkflow
@@ -95,11 +97,11 @@
             <ui:define name="jsonld_header">
                 <ui:fragment rendered="#{!anonymizedAccess}">
                     <script type="application/ld+json">
-                        <ui:fragment rendered="#{croissant == null}">
-                            <h:outputText value="#{jsonLd}"/>
-                        </ui:fragment>
-                        <ui:fragment rendered="#{croissant != null}">
+                        <ui:fragment rendered="#{!legacyFormatInHead}">
                             <h:outputText value="#{croissant}"/>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{legacyFormatInHead}">
+                            <h:outputText value="#{jsonLd}"/>
                         </ui:fragment>
                     </script>
                 </ui:fragment>
@@ -200,7 +202,7 @@
                                         <!-- ActionButtonBlock -->
                                         <div id="actionButtonBlock" jsf:rendered="#{!widgetWrapper.widgetView}">
                                             <!-- DOWNLOAD/ACCESS DATASET -->
-                                            <div class="btn-group w-100" 
+                                            <div class="btn-group w-100"
                                                  jsf:rendered="#{showAccessDatasetButtonGroup}">
                                                 <div class="btn-group w-100">
                                                     <button type="button" class="btn btn-secondary btn-access-dataset dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -214,7 +216,7 @@
                                                                 <li class="dropdown-header">#{bundle['dataset.accessBtn.header.download']} <span class="bi bi-download"/></li>
                                                                 <!-- NORMAL DOWNLOAD BUTTON (NO TABULAR FILES) -->
                                                                 <li jsf:rendered="#{!  versionHasTabular}">
-                                                                    <p:commandLink update="@form" actionListener="#{DatasetPage.startDownloadAllOriginal()}" styleClass="dropdown-item btn-download" 
+                                                                    <p:commandLink update="@form" actionListener="#{DatasetPage.startDownloadAllOriginal()}" styleClass="dropdown-item btn-download"
                                                                                    oncomplete="showPopup(false);">
                                                                     #{bundle.download}
                                                                         <h:outputFormat value="#{bundle['dataset.accessBtn.download.size']}">
@@ -506,7 +508,7 @@
                                                     <ui:fragment rendered="#{DatasetPage.dataset.released and DatasetPage.existReleasedVersion and canIssuePublishDatasetCommand}">
                                                         <li role="separator" class="divider"></li>
                                                         <li>
-                                                            <p:commandLink styleClass="dropdown-item" id="deaccessionDatasetLink" 
+                                                            <p:commandLink styleClass="dropdown-item" id="deaccessionDatasetLink"
                                                                            action="#{DatasetPage.clickDeaccessionDataset}"
                                                                                oncomplete="PF('deaccessionBlock').show();"
                                                                            update="deaccessionBlock">
@@ -599,17 +601,17 @@
                                     <!-- END: ActionButtonBlock -->
                                   </div>
 
-                                  <div class="mb-3" 
+                                  <div class="mb-3"
                                      jsf:rendered="#{!(settingsWrapper.rsyncDownload or deaccessioned)}">
                                     <!-- Metrics -->
                                     <div id="metrics-block">
                                         <h:outputFormat  id="metrics-heading" value="#{settingsWrapper.makeDataCountDisplayEnabled ? bundle['metrics.dataset.makedatacount.title'] : bundle['metrics.dataset.title']}" escape = "false"/>
                                         <ui:fragment rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
-                                            <span class="bi bi-question-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                            <span class="bi bi-question-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 data-bs-trigger="hover" title="#{bundle['metrics.dataset.tip.default']}"></span>
                                         </ui:fragment>
                                         <ui:fragment rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
-                                            <span class="bi bi-question-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                            <span class="bi bi-question-circle tooltip-icon" data-bs-toggle="tooltip" data-bs-placement="top"
                                                 title="#{bundle['metrics.dataset.tip.makedatacount']}"></span>
                                                 <div id="metrics-heading-subtitle">#{bundle['metrics.dataset.makedatacount.since']} #{settingsWrapper.getMDCStartDate().toString()}</div>
                                         </ui:fragment>
@@ -923,7 +925,7 @@
                                         rendered="#{(!deaccessioned or (deaccessioned and canUpdateDataset)) 
                                              and (empty DatasetPage.editMode or DatasetPage.editMode == 'METADATA')}">
                                 <div class="button-block tab-header margin-bottom text-end" jsf:rendered="#{empty DatasetPage.editMode}">
-                                    <p:commandLink styleClass="btn btn-secondary btn-access" actionListener="#{DatasetPage.edit('METADATA')}" update="@form,:messagePanel" 
+                                    <p:commandLink styleClass="btn btn-secondary btn-access" actionListener="#{DatasetPage.edit('METADATA')}" update="@form,:messagePanel"
                                                    disabled="#{DatasetPage.lockedFromEdits or !DatasetPage.hasValidTermsOfAccess}" 
                                                    rendered="#{!widgetWrapper.widgetView 
                                                                and (sessionUserAuthenticated 
@@ -1123,7 +1125,7 @@
                         </table>
                         <div class="button-block">
                             <p class="form-text">#{bundle['dataset.downloadUnrestricted']}</p>
-                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('downloadMixed').hide()" 
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('downloadMixed').hide()"
                                              rendered="#{!DatasetPage.guestbookAndTermsPopupRequired}"
                                              action="#{DatasetPage.startMultipleFileDownload()}"/>
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('downloadMixed').hide();"
@@ -1145,7 +1147,7 @@
                         </table>
                         <div class="button-block">
                             <p class="form-text">#{bundle['dataset.transferUnrestricted']}</p>
-                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('globusTransferMixed').hide()" 
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('globusTransferMixed').hide()"
                                              rendered="#{!DatasetPage.guestbookAndTermsPopupRequired}"
                                              action="#{DatasetPage.startGlobusTransfer(false, true)}"/>
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('globusTransferMixed').hide();"
@@ -1159,8 +1161,12 @@
                     <p:dialog id="deleteConfirmation" styleClass="smallPopUp" header="#{bundle['file.deleteDialog.header']}" widgetVar="deleteConfirmation" modal="true">
                         <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deleteDialog.tip']}</p>
                         <div class="button-block">
-                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}" onclick="PF('deleteConfirmation').hide()" action="#{DatasetPage.deleteDataset()}"/>
-                            <button class="btn btn-link" onclick="PF('deleteConfirmation').hide();PF('blockDatasetForm').hide();" type="button">
+                            <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}"
+                                onstart="PF('deleteConfirmation').hide()"
+                                action="#{DatasetPage.deleteDataset()}"
+                                process="@this"
+                                onkeydown="if (event.keyCode === 13) { $(this).click(); return false; }"/>
+                            <button class="btn btn-link" onclick="PF('deleteConfirmation').hide();PF('blockDatasetForm').hide();" type="button" onkeydown="if (event.keyCode === 13) { $(this).click(); return false; }">
                                 #{bundle.cancel}
                             </button>
                         </div>
@@ -1189,9 +1195,9 @@
                             
                             <p>
                             <p>
-                            <h:outputText   styleClass="fw-bold" value="#{bundle['dataset.privateurl.general.title']}"></h:outputText></p>   
+                            <h:outputText   styleClass="fw-bold" value="#{bundle['dataset.privateurl.general.title']}"></h:outputText></p>
                             <p>#{bundle['dataset.privateurl.general.description']}</p>     
-                            <p:commandButton styleClass="btn btn-secondary" 
+                            <p:commandButton styleClass="btn btn-secondary"
                                              value="#{bundle['dataset.privateurl.general.button.label']}" 
                                              action="#{DatasetPage.createPrivateUrl(false)}" update="privateUrlPanel,:messagePanel,disablePrivateUrlConfirmation" 
                                              disabled="#{(!empty(DatasetPage.privateUrl) and DatasetPage.anonymizedPrivateUrl)}"
@@ -1234,7 +1240,7 @@
                             <p>#{bundle['dataset.privateurl.createPrivateUrl.anonymized.unavailable']}</p>
 
                                
-                            <p:commandButton styleClass="btn btn-secondary disabledTitle" 
+                            <p:commandButton styleClass="btn btn-secondary disabledTitle"
                                              value="#{bundle['dataset.privateurl.anonymous.button.label']}" 
                                              action="#{DatasetPage.createPrivateUrl(true)}" 
                                              update="privateUrlPanel,:messagePanel" 
@@ -1383,7 +1389,7 @@
                                     <p:message for="forwardURLForDeaccession"/>
                                 </div>
                                 <div class="button-block">
-                                    <p:commandButton styleClass="btn btn-secondary" value="#{bundle.deaccession}"  
+                                    <p:commandButton styleClass="btn btn-secondary" value="#{bundle.deaccession}"
                                                      oncomplete="if (args &amp;&amp; !args.validationFailed) PF('deaccessionConfirmation').show();">
                                         <f:param name="DO_DEACCESSION_VALIDATION" value="true"/>
                                     </p:commandButton>
@@ -1405,7 +1411,7 @@
                     <p:dialog id="deaccessionAllConfirmation" header="#{bundle['dataset.editBtn.itemLabel.deaccession']}" widgetVar="deaccessionAllConfirmation" modal="true">
                         <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deaccessionDialog.deaccessionDataset.tip']}</p>
                         <div class="button-block">
-                            <h:commandButton styleClass="btn btn-secondary" value="#{bundle.yes}" 
+                            <h:commandButton styleClass="btn btn-secondary" value="#{bundle.yes}"
                                             onclick="PF('deaccessionAllConfirmation').hide();PF('deaccessionBlock').hide();PF('blockDatasetForm').hide();" 
                                             action="#{DatasetPage.deaccessionVersions}"/>
                             <button class="btn btn-link" onclick="PF('deaccessionAllConfirmation').hide();PF('blockDatasetForm').hide();" type="button">
@@ -1776,7 +1782,7 @@
                             </p:fragment>
                         </div>
                         <div class="button-block">
-                            <p:commandButton id="saveLinkButton" styleClass="btn btn-secondary"    
+                            <p:commandButton id="saveLinkButton" styleClass="btn btn-secondary"
                                            update="linkNameContent @([id$=Messages])" 
                                            oncomplete="if (args &amp;&amp; !args.validationFailed) linkDatasetCommand();"
                                            value="#{bundle['dataset.link.save']}">
@@ -1896,7 +1902,7 @@
                             <ui:include src="datasetLicenseInfoFragment.xhtml"/>
                         </c:if>
                         <div class="button-block">
-                            <p:commandButton rendered="#{DatasetPage.validOrCanReviewIncomplete}" styleClass="btn btn-secondary" value="#{bundle.submit}" 
+                            <p:commandButton rendered="#{DatasetPage.validOrCanReviewIncomplete}" styleClass="btn btn-secondary" value="#{bundle.submit}"
                                              onclick="PF('inreview').hide();
                                                      PF('blockDatasetForm').hide();" action="#{DatasetPage.submitDataset}" immediate="true"/>
                             <button class="btn btn-link" onclick="PF('inreview').hide();PF('blockDatasetForm').hide();" type="button">
@@ -1978,8 +1984,18 @@
                                 <p class="col-sm-12 form-text">#{bundle['dataset.publish.terms.help.tip']}</p>
                             </div>
                         </ui:fragment>
+                        <ui:fragment rendered="#{valid and settingsWrapper.isHasPublishDatasetDisclaimerText()}">
+                            <div class="form-group">
+                                <p:selectBooleanCheckbox class="text-danger" id="publishDisclaimer"
+                                                         itemLabel="#{settingsWrapper.getPublishDatasetDisclaimerText()}"
+                                                         value="#{DatasetPage.publishDisclaimerAcknowledged}">
+                                    <p:ajax event="change" update="releaseDatasetButton"/>
+                                </p:selectBooleanCheckbox>
+                            </div>
+                        </ui:fragment>
                         <div class="button-block">
-                            <p:commandButton rendered="#{valid}" styleClass="btn btn-secondary" value="#{bundle.continue}" 
+                            <p:commandButton id="releaseDatasetButton" rendered="#{valid}" styleClass="btn btn-secondary" value="#{bundle.continue}"
+                                             disabled="#{!DatasetPage.publishDisclaimerAcknowledged}"
                                              onclick="PF('publishDataset').hide();
                                                      PF('blockDatasetForm').hide();" action="#{DatasetPage.releaseDataset}" />
                             <button class="btn btn-link" onclick="PF('publishDataset').hide();
@@ -2034,7 +2050,7 @@
                         <p class="text-warning">
                             <span class="bi bi-exclamation-triangle-fill"/> #{bundle['dataset.rejectMessage']} #{disableReasonField ? '':bundle['dataset.rejectMessageReason']}
                         </p>
-                        
+
                         <ui:fragment  rendered="#{!disableReasonField}">
                             <p:inputTextarea id="returnReason" rows="4" value="#{DatasetPage.returnReason}" title="#{bundle['dataset.rejectMessage.label']}" maxlength="2000" widgetVar="returnReason"
                                              cols="70" counter="display" counterTemplate="{0} characters remaining." autoResize="false"
@@ -2046,7 +2062,7 @@
                             </p>
                             <h:message for="returnReason" styleClass="bg-danger text-danger"/>
                         </ui:fragment>
-                        
+
                         <div class="button-block">
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle.continue}"
                                              update="@form"
@@ -2131,7 +2147,7 @@
                             <script>
                                 Cite.CSL.register.addTemplate("#{requestedCSL}",
                                         "#{CSLUtil:getCitationFormat((requestedCSL == '') ? 'apa' : requestedCSL)}");
-                                
+
                                 document.getElementById('datasetForm:cslOutput').innerHTML = cite.format("bibliography", {
                                     format: "html",
                                     template: "#{requestedCSL}",

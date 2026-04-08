@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import jakarta.json.Json;
 import jakarta.json.JsonObjectBuilder;
-import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.request.SolrQuery;
 import org.apache.solr.client.solrj.response.FacetField;
 
 public class SolrQueryResponse {

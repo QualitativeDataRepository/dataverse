@@ -10,7 +10,6 @@ import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.ExportService;
 import io.gdcc.spi.export.ExportException;
-import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import java.time.Instant;
 import java.util.Collection;
@@ -26,6 +25,7 @@ import jakarta.ejb.TransactionAttribute;
 import static jakarta.ejb.TransactionAttributeType.REQUIRES_NEW;
 import jakarta.inject.Named;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.TemporalType;
@@ -262,7 +262,9 @@ public class OAIRecordServiceBean implements java.io.Serializable {
         try {
             ExportService exportServiceInstance = ExportService.getInstance();
             exportServiceInstance.exportAllFormats(dataset);
-            dataset = datasetService.merge(dataset);
+            datasetService.setLastExportTimeInNewTransaction(dataset.getId(), dataset.getLastExportTime());
+        } catch (OptimisticLockException ole) {
+            datasetService.setLastExportTimeInNewTransaction(dataset.getId(), dataset.getLastExportTime());
         } catch (Exception e) {
             logger.log(Level.FINE, "Caught unknown exception while trying to export", e);
             throw new ExportException(e.getMessage());

@@ -39,9 +39,12 @@
                         <div class="button-block margin-bottom">
                             <p:commandButton styleClass="btn btn-secondary" value="#{bundle.find}" action="#{AdvancedSearchPage.find()}"/>
                         </div>
-                        <div class="card">
-                            <div  class="card-header text-info" id="headingDataversesFieldList" data-bs-toggle="collapse" data-bs-target="#panelCollapseDataversesFieldList" aria-expanded="true" aria-controls="panelCollapseDataversesFieldList">
-                                <h:outputText value="#{bundle['advanced.search.header.dataverses']}"/> &#160;<span class="bi bi-chevron-up"/>
+                        <div class="panel panel-default">
+                            <div class="panel-title">
+                                <button type="button" class="panel-heading btn" data-toggle="collapse" data-target="#panelCollapseDataversesFieldList" aria-expanded="true" aria-controls="panelCollapseDataversesFieldList">
+                                    <h:outputText value="#{bundle['advanced.search.header.dataverses']}"/> &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                                </button>
+                            </div>
                             </div>
                             <div id="panelCollapseDataversesFieldList" class="card-body collapse show" aria-labelledby="headingDataversesFieldList">
                                 <div class="row mb-3">
@@ -103,9 +106,12 @@
                         </div>
 
                         <ui:repeat id="block" value="#{AdvancedSearchPage.metadataBlocks}" var="mdb" varStatus="status">
-                            <div class="card" jsf:rendered="#{not empty AdvancedSearchPage.metadataFieldMap.get(mdb.getId())}">
-                                <div class="card-header text-info" id="headingCitationFieldList#{mdb.id}" data-bs-toggle="collapse" data-bs-target="#panelCollapseCitationFieldList#{mdb.id}" aria-expanded="true" aria-controls="panelCollapseCitationFieldList#{mdb.id}">
-                                    <h:outputText value="#{bundle['advanced.search.header.datasets']}: #{mdb.localeDisplayName}"/> &#160;<span class="bi bi-chevron-down"/>
+                            <div class="panel panel-default" jsf:rendered="#{not empty AdvancedSearchPage.metadataFieldMap.get(mdb.getId())}">
+                                <div class="panel-title">
+                                    <button type="button" class="panel-heading btn" data-toggle="collapse" data-target="#panelCollapseCitationFieldList#{mdb.id}" aria-expanded="false" aria-controls="panelCollapseCitationFieldList#{mdb.id}">
+                                        <h:outputText value="#{bundle['advanced.search.header.datasets']}: #{mdb.localeDisplayName}"/> &#160;<span class="glyphicon glyphicon-chevron-down"/>
+                                    </button>
+                                </div>
                                 </div>
                                 <div id="panelCollapseCitationFieldList#{mdb.id}" class="collapse show card-body" aria-labelledby="headingCitationFieldList#{mdb.id}">
                                     <ui:repeat id="field" value="#{AdvancedSearchPage.metadataFieldMap.get(mdb.getId())}" var="item" varStatus="fieldStatus">
@@ -169,9 +175,12 @@
                             </div>
                         </ui:repeat>
 
-                        <div class="card">
-                            <div class="card-header" id="headingFilesFieldList" data-bs-toggle="collapse" data-bs-target="#panelCollapseFilesFieldList" aria-expanded="true" aria-controls="panelCollapseFilesFieldList">
-                                <h:outputText value="#{bundle['advanced.search.header.files']}"/> &#160;<span class="bi bi-chevron-up"/>
+                        <div class="panel panel-default">
+                            <div class="panel-title">
+                                <button type="button" class="panel-heading btn" data-toggle="collapse" data-target="#panelCollapseFilesFieldList" aria-expanded="true" aria-controls="panelCollapseFilesFieldList">
+                                    <h:outputText value="#{bundle['advanced.search.header.files']}"/> &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                                </button>
+                            </div>
                             </div>
                             <div id="panelCollapseFilesFieldList" class="card-body collapse show" aria-labelledby="headingFilesFieldList">
                                 <div class="row mb-3">
@@ -247,7 +256,7 @@
                                 <div class="row mb-3">
                                     <label for="advancedSearchForm:fileFieldFullText" class="col-sm-4 col-form-label">
                                         #{bundle['advanced.search.files.fullText']}
-                                        <span data-bs-toggle="tooltip" data-bs-placement="right" 
+                                        <span data-bs-toggle="tooltip" data-bs-placement="right"
                                               class="bi bi-question-circle tooltip-icon" title="#{bundle['advanced.search.files.fullText.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">

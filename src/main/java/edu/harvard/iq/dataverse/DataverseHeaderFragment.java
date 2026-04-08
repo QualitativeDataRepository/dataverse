@@ -76,6 +76,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
     private List<BannerMessage> bannerMessages = null; 
 
     private Long unreadNotificationCount = null;
+    private String token;
     
     public List<Breadcrumb> getBreadcrumbs() {
         return breadcrumbs;
@@ -224,6 +225,16 @@ public class DataverseHeaderFragment implements java.io.Serializable {
      return null;
      }
      */
+    
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+    
     public void logout() throws IOException {
         ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
         
@@ -244,6 +255,9 @@ public class DataverseHeaderFragment implements java.io.Serializable {
         //Not a useful default but will avoid a 500 error if the setting isn't set
         String safeDefaultIfKeyNotFound = "https://idp.dev-aws.qdr.org/idp/profile/Logout";
         String ssoLogoutUrl = settingsService.getValueForKey(SettingsServiceBean.Key.SSOLogoutUrl, safeDefaultIfKeyNotFound);
+        if (token != null && !token.isEmpty()) {
+            ssoLogoutUrl += "?token=" + token;
+        }
         externalContext.redirect(ssoLogoutUrl);
     }
 

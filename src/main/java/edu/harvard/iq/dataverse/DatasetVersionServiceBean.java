@@ -28,11 +28,14 @@ import java.util.logging.Logger;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Named;
 import jakarta.json.Json;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -78,9 +81,12 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     /**
      * Response to a successful request from the DatasetPage
      * 
-     * Used to help display messages in the cases when: (1) A specific dataset version (including a DRAFT) is requested (2) A different dataset is returned b/c the first one doesn't exist
+     *  Used to help display messages in the cases when:
+     *      (1) A specific dataset version (including a DRAFT) is requested
+     *      (2) A different dataset is returned b/c the first one doesn't exist
      * 
-     * Simple example: "DRAFT" requested but no longer exists b/c it was published and is now version "1.0"
+     *  Simple example:  "DRAFT" requested but no longer exists b/c it
+     *      was published and is now version "1.0"
      */
     public class RetrieveDatasetVersionResponse {
 
@@ -181,18 +187,16 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
      * <li>Filtering by visibility (all, released only, or released + deaccessioned)</li>
      * </ul>
      * <p>
-     * It is recommended that individual software components utilize {@link edu.harvard.iq.dataverse.engine.command.impl.ListVersionsCommand}, instead of calling this service method directly.
+     * It is recommended that individual software components utilize
+     * {@link edu.harvard.iq.dataverse.engine.command.impl.ListVersionsCommand},
+     * instead of calling this service method directly.
      *
-     * @param datasetId
-     *            the dataset identifier
-     * @param offset
-     *            pagination offset (nullable)
-     * @param length
-     *            pagination length (nullable)
-     * @param includeAllVersions
-     *            if {@code true}, retrieves all versions (drafts, released, and deaccessioned)
-     * @param includeDeaccessioned
-     *            if {@code true}, includes deaccessioned versions when {@code includeAll} is {@code false}
+     * @param datasetId the dataset identifier
+     * @param offset    pagination offset (nullable)
+     * @param length    pagination length (nullable)
+     * @param includeAllVersions if {@code true}, retrieves all versions (drafts, released, and deaccessioned)
+     * @param includeDeaccessioned if {@code true}, includes deaccessioned versions
+     *                             when {@code includeAll} is {@code false}
      * @return a (possibly partial) list of dataset versions
      */
     public List<DatasetVersion> findVersions(Long datasetId,
@@ -208,7 +212,8 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
             query = em.createNamedQuery("DatasetVersion.findByDesiredStatesAndDataset", DatasetVersion.class);
             query.setParameter("states", List.of(
                     VersionState.RELEASED,
-                    VersionState.DEACCESSIONED));
+                    VersionState.DEACCESSIONED
+            ));
         } else {
             query = em.createNamedQuery("DatasetVersion.findReleasedByDataset", DatasetVersion.class);
         }
@@ -301,7 +306,8 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
      * Example: 1.0, 1.1. 3.4, etc.
      * 
      * @param version
-     * @return Long[] with [ major_version, minor_version ] - either or both may be null
+     * @return Long[] with [ major_version, minor_version ] 
+     *                  - either or both may be null
      */
     public Long[] parseVersionNumber(String version) {
         if (version == null) {
@@ -419,8 +425,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     /**
      * Query to return the last Released DatasetVersion by Persistent ID
      * 
-     * @param identifierClause
-     *            - query clause to retrieve via DatasetVersion.Id or DatasetVersion.persistentId
+     * @param identifierClause  - query clause to retrieve via DatasetVersion.Id or DatasetVersion.persistentId 
      * @return String fullQuery
      */
     private String getLatestReleasedDatasetVersionQuery(String identifierClause) {
@@ -437,8 +442,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     /**
      * Query to return a DatasetVersion by Specific Version
      * 
-     * @param identifierClause
-     *            - query clause to retrieve via DatasetVersion.Id or DatasetVersion.persistentId
+     * @param identifierClause  - query clause to retrieve via DatasetVersion.Id or DatasetVersion.persistentId 
      * @return String fullQuery
      */
     private String getNumericDatasetVersionQueryByIdentifier(String identifierClause, Long majorVersion, Long minorVersion) {
@@ -468,8 +472,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     /**
      * Query to return a Draft DatasetVersion by Persistent ID
      * 
-     * @param identifierClause
-     *            - query clause to retrieve via DatasetVersion.Id or DatasetVersion.persistentId
+     * @param identifierClause  - query clause to retrieve via DatasetVersion.Id or DatasetVersion.persistentId 
      * @return String fullQuery
      */
     private String getDraftDatasetVersionQuery(String identifierClause) {
@@ -486,8 +489,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     /**
      * Query to return a DEACCESSIONED DatasetVersion by Persistent ID
      * 
-     * @param identifierClause
-     *            - query clause to retrieve via DatasetVersion.Id or DatasetVersion.persistentId
+     * @param identifierClause  - query clause to retrieve via DatasetVersion.Id or DatasetVersion.persistentId 
      * @return String fullQuery
      */
     private String getDeaccessionedDatasetVersionQuery(String identifierClause) {
@@ -561,10 +563,12 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
 
         DatasetVersion chosenVersion;
 
-        /*
-         * -------------------------------------------- (1) Scenario: User asking for a DRAFT? - (1a) Look for draft - (1b) Not found: Get Latest Release - Permissions: check on DatasetPage
-         * --------------------------------------------
-         */
+        /* --------------------------------------------
+            (1) Scenario: User asking for a DRAFT?
+                - (1a) Look for draft
+                - (1b) Not found: Get Latest Release
+                - Permissions: check on DatasetPage
+        -------------------------------------------- */
         if (DatasetVersionServiceBean.this.isVersionAskingForDraft(version)) {
 
             // (1a) Try to retrieve a draft
@@ -587,12 +591,19 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
         }
         // END: User asking for a Draft
 
-        /*
-         * -------------------------------------------- (2) Scenario: Version specified - (2a) Look for major and minor version - RELEASE OR DEACCESSIONED - OR Look for major version - RELEASE - (2c) Not
-         * found: look for latest released version - (2c) Not found: look for DEACCESSIONED - (2d) Not found: look for draft - Permissions: check on DatasetPage
-         * 
-         * (3) Scenario: No version specified - Same as (2c)(2d) above - Permissions: check on DatasetPage --------------------------------------------
-         */
+        /* --------------------------------------------
+            (2) Scenario: Version specified
+                - (2a) Look for major and minor version - RELEASE OR DEACCESSIONED
+                    - OR Look for major version - RELEASE
+                - (2c) Not found: look for latest released version
+                - (2c) Not found: look for DEACCESSIONED
+                - (2d) Not found: look for draft
+                - Permissions: check on DatasetPage        
+        
+            (3) Scenario: No version specified
+                - Same as (2c)(2d) above
+                - Permissions: check on DatasetPage        
+        -------------------------------------------- */
         Long[] versionNumbers = parseVersionNumber(version);
         if (versionNumbers != null && versionNumbers.length == 2) { // At least a major version found
 
@@ -637,10 +648,8 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     /**
      * Find a DatasetVersion using the persisentID and version string
      * 
-     * @param persistentId
-     *            doi:10.5072/FK2/BYM3IW
-     * @param version
-     *            "DRAFT", 1.0, 2, 3.4, null, etc
+     * @param persistentId doi:10.5072/FK2/BYM3IW
+     * @param version  "DRAFT", 1.0, 2, 3.4, null, etc
      * @return
      */
     public RetrieveDatasetVersionResponse retrieveDatasetVersionByPersistentId(String persistentId, String version) {
@@ -651,7 +660,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
         }
 
         /*
-         * Parse the persistent id
+            Parse the persistent id
          */
         GlobalId parsedId;
         try {
@@ -738,8 +747,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
      * Find a DatasetVersion using the persisentID and version string
      * 
      * @param datasetId
-     * @param version
-     *            "DRAFT", 1.0, 2, 3.4, null, etc
+     * @param version  "DRAFT", 1.0, 2, 3.4, null, etc
      * @return
      */
     public RetrieveDatasetVersionResponse retrieveDatasetVersionById(Long datasetId, String version) {
@@ -782,8 +790,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     /**
      * Find a DatasetVersion using the dataset versionId
      * 
-     * @param versionId
-     *            DatasetVersion id
+     * @param versionId DatasetVersion id
      * @return
      */
     public RetrieveDatasetVersionResponse retrieveDatasetVersionByVersionId(Long versionId) {
@@ -1081,7 +1088,10 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
             rootFileIdClause = " OR rootdatafileid = " + df.getRootDataFileId();
         }
 
-        List<String> colsToRetrieve = Arrays.asList("df.id", "df.contenttype", "df.filesize", "df.checksumtype", "df.checksumvalue", "fm.label", "fm.description", "fm.version");
+        List<String> colsToRetrieve = Arrays.asList("df.id", "df.contenttype" 
+                 , "df.filesize", "df.checksumtype", "df.checksumvalue"
+                 , "fm.label", "fm.description", "fm.version"        
+        );
 
         String colsToRetrieveString = StringUtils.join(colsToRetrieve, ",");
 
@@ -1099,18 +1109,33 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
         List<HashMap> hashList = new ArrayList<>();
 
         /*
-         * HashMap mMap; List<String> hashKeys = colsToRetrieve.stream() .map(String :: trim)
+        HashMap mMap;
+        List<String> hashKeys = colsToRetrieve.stream()
+                                  .map(String :: trim)  
          */
 
         /*
-         * .map(x -> x.getTypeLabel()) w return tagsToCheck.stream() .filter(p -> p != null) // no nulls .map(String :: trim) // strip strings .filter(p -> p.length() > 0 ) // no empty strings .distinct() //
-         * distinct .collect(Collectors.toList());
+                                                        .map(x -> x.getTypeLabel())
+w
+                 return tagsToCheck.stream()
+                        .filter(p -> p != null)         // no nulls
+                        .map(String :: trim)            // strip strings
+                        .filter(p -> p.length() > 0 )   // no empty strings
+                        .distinct()                     // distinct
+                        .collect(Collectors.toList());
          */
         return null;/*
-                     * for (Object[] dvInf: infoList) {
-                     * 
-                     * mMap = new HashMap(); for(int idx=0; idx < colsToRetrieve.size(); idx++){ String keyName = colsToRetrieve.get(idx); if () mMap.put(colsToRetrieve.get(idx), dvInfo[idx]); } hashList.add(mMap); }
-                     * return hashList;
+        for (Object[] dvInf: infoList) {
+                        
+            mMap = new HashMap();
+            for(int idx=0; idx < colsToRetrieve.size(); idx++){
+                String keyName = colsToRetrieve.get(idx);
+                if ()
+                mMap.put(colsToRetrieve.get(idx), dvInfo[idx]);
+            }
+            hashList.add(mMap);
+        }
+        return hashList;
                      */
     }
 
@@ -1225,9 +1250,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
 
     /**
      * Merges the passed datasetversion to the persistence context.
-     * 
-     * @param ver
-     *            the DatasetVersion whose new state we want to persist.
+     * @param ver the DatasetVersion whose new state we want to persist.
      * @return The managed entity representing {@code ver}.
      */
     public DatasetVersion merge(DatasetVersion ver) {
@@ -1257,18 +1280,24 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     /**
      * Calculates the total number of versions for a specified dataset.
      * <p>
-     * This method provides a flexible way to count dataset versions. It can either return a total count of all versions or restrict the count to only those that are publicly visible (i.e.,
-     * {@code RELEASED} or {@code DEACCESSIONED}). This is particularly useful for displaying different counts to users with different permission levels.
+     * This method provides a flexible way to count dataset versions. It can either
+     * return a total count of all versions or restrict the count to only those
+     * that are publicly visible (i.e., {@code RELEASED} or {@code DEACCESSIONED}).
+     * This is particularly useful for displaying different counts to users with
+     * different permission levels.
      *
-     * @param datasetId
-     *            The unique identifier of the dataset for which to count versions. Must not be {@code null}.
-     * @param canViewUnpublishedVersions
-     *            A boolean flag that controls the scope of the count:
+     * @param datasetId The unique identifier of the dataset for which to count versions.
+     * Must not be {@code null}.
+     * @param canViewUnpublishedVersions A boolean flag that controls the scope of the count:
      *            <ul>
-     *            <li>{@code true} - All versions of the dataset are counted, regardless of their {@link VersionState}.</li>
-     *            <li>{@code false} - Only versions with a state of {@link VersionState#RELEASED} or {@link VersionState#DEACCESSIONED} are counted.</li>
+     * <li>{@code true} - All versions of the dataset are counted,
+     * regardless of their {@link VersionState}.</li>
+     * <li>{@code false} - Only versions with a state of
+     * {@link VersionState#RELEASED} or
+     * {@link VersionState#DEACCESSIONED} are counted.</li>
      *            </ul>
-     * @return A {@code Long} representing the total count of matching dataset versions. This will be {@code 0L} if the dataset has no versions or does not exist.
+     * @return A {@code Long} representing the total count of matching dataset versions.
+     * This will be {@code 0L} if the dataset has no versions or does not exist.
      */
     public Long getDatasetVersionCount(Long datasetId, boolean canViewUnpublishedVersions) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -1293,21 +1322,21 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     }
 
     /**
-     * Update the archival copy location for a specific version of a dataset. Archiving can be long-running and other parallel updates to the datasetversion have likely occurred
+     * Update the archival copy location for a specific version of a dataset.
+     * Archiving can be long-running and other parallel updates to the datasetversion have likely occurred
+     * so this method will just re-find the version rather than risking an
+     * OptimisticLockException and then having to retry in yet another transaction (since the OLE rolls this one back).
      *
      * @param dv
      *            The dataset version whose archival copy location we want to update. Must not be {@code null}.
-     * @param archivalStatusPending
-     *            the JSON status string, may be {@code null}.
      */
-    public void setArchivalCopyLocation(DatasetVersion dv, String archivalStatusPending) {
-        em.createNativeQuery(
-                "UPDATE datasetversion SET archivalcopylocation = ?1 WHERE id = ?2")
-                .setParameter(1, archivalStatusPending)
-                .setParameter(2, dv.getId())
-                .executeUpdate();
-
-        // Keep the in-memory object in sync
-        dv.setArchivalCopyLocation(archivalStatusPending);
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void persistArchivalCopyLocation(DatasetVersion dv) {
+        DatasetVersion currentVersion = find(dv.getId());
+        if (currentVersion != null) {
+            currentVersion.setArchivalCopyLocation(dv.getArchivalCopyLocation());
+        } else {
+            logger.log(Level.SEVERE, "Could not find DatasetVersion with id={0} to retry persisting archival copy location after OptimisticLockException.", dv.getId());
+        }
     }
 }

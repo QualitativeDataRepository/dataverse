@@ -83,7 +83,7 @@
         </div>
 
         <div class="button-block">
-            <p:commandLink id="restrictFileButton"  styleClass="btn btn-secondary" value="#{bundle.saveChanges}"                             
+            <p:commandLink id="restrictFileButton"  styleClass="btn btn-secondary" value="#{bundle.saveChanges}"
                              onclick="testTOA();"
                              update="popupWarning" />
             <button class="btn btn-link" onclick="PF('accessPopup').hide();PF('blockDatasetForm').hide();" type="button">
@@ -123,8 +123,9 @@
                                 maxdate="#{settingsWrapper.maxEmbargoDate}"
                                 disabled="#{bean.removeEmbargo}"
                                 validator="#{settingsWrapper.validateEmbargoDate}" >
-                                <p:ajax process="#{updateElements}"
+                                <p:ajax process="@this embargoCheckbox"
                                     update="#{updateElements}"
+                                    partialSubmit="true"
                                     />
                                 </p:datePicker>
                             <div>
@@ -132,13 +133,24 @@
                                     styleClass="bg-danger text-danger" />
                             </div>
                         </div>
-                        <div class="p-field p-col-12 p-md-4">
-                            <p class="form-text">#{bundle['file.editEmbargoDialog.reason.tip']}</p>
+                        <div class="field col-12 md:col-4">
+                            <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
+                            <ui:param name="embargoReasonRequired" value="#{FeatureFlags.REQUIRE_EMBARGO_REASON.enabled()}"/>
+                            <label class="form-text" for="datasetForm:fileEmbargoAddReason">
+                                #{bundle['file.editEmbargoDialog.reason.tip']} <span
+                                class="glyphicon glyphicon-asterisk text-danger"
+                                jsf:rendered="#{embargoReasonRequired and !bean.removeEmbargo}" />
+                            </label>
                             <p:inputText id="fileEmbargoAddReason" styleClass="form-control"
                                 disabled="#{bean.removeEmbargo}" type="text"
                                 value="#{bean.selectionEmbargo.reason}"
+                                validator="#{bean.validateEmbargoReason}"
                                 placeholder="#{bundle['file.editEmbargoDialog.newReason']}"
                                 onkeypress="if (event.keyCode == 13) { return false;}" />
+                            <div>
+                                <h:message for="fileEmbargoAddReason"
+                                    styleClass="bg-danger text-danger" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -153,8 +165,9 @@
                         <p:selectBooleanCheckbox value="#{bean.removeEmbargo}" id="embargoCheckbox"
                             itemLabel="#{bundle['file.editEmbargoDialog.remove']}"
                             disabled="#{facesContext.validationFailed}">
-                            <p:ajax process="#{updateElements}"
+                            <p:ajax process="@this fileEmbargoDate"
                                 update="#{updateElements}"
+                                partialSubmit="true"
                                 />
                         </p:selectBooleanCheckbox>
                     </div>
@@ -162,7 +175,7 @@
             </div>
         </h:panelGroup>
         <div class="button-block">
-            <p:commandButton rendered="#{bean.validEmbargoSelection}" styleClass="btn btn-secondary" id="fileEmbargoPopupSaveButton" value="#{bundle.saveChanges}" 
+            <p:commandButton rendered="#{bean.validEmbargoSelection}" styleClass="btn btn-secondary" id="fileEmbargoPopupSaveButton" value="#{bundle.saveChanges}"
             oncomplete="if (args &amp;&amp; !args.validationFailed) PF('fileEmbargoPopup').hide();return false;" update="#{updateElements}" action="#{bean[saveEmbargoAction]}"/>
             <p:commandButton styleClass="btn btn-link" id="fileEmbargoPopupCancelButton" value="#{bundle.cancel}" onclick="PF('fileEmbargoPopup').hide();
                     PF('blockDatasetForm').hide();" action="#{bean.clearEmbargoPopup()}" update="#{updateElements}" immediate="true"/>
@@ -208,7 +221,7 @@
                                            styleClass="bg-danger text-danger" />
                             </div>
                         </div>
-                        <div class="p-field p-col-12 p-md-4">
+                        <div class="field col-12 md:col-4">
                             <p class="form-text">#{bundle['file.editRetentionDialog.reason.tip']}</p>
                             <p:inputText id="fileRetentionAddReason" styleClass="form-control"
                                          disabled="#{bean.removeRetention}" type="text"
@@ -251,7 +264,7 @@
             <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deleteFileDialog.failed.tip']}</p>
         </ui:fragment>
         <div class="button-block">
-            <p:commandButton styleClass="btn btn-secondary" value="#{bundle['file.delete']}" onclick="PF('deleteFileConfirmation').hide()" 
+            <p:commandButton styleClass="btn btn-secondary" value="#{bundle['file.delete']}" onclick="PF('deleteFileConfirmation').hide()"
                              action="#{bean[deleteFileAction]}"/>
             <button class="btn btn-link" onclick="PF('deleteFileConfirmation').hide()" type="button">
                 #{bundle.cancel}

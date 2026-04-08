@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.StringUtils;
+
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
@@ -139,6 +141,9 @@ public class PidUtil {
      * @throws IllegalArgumentException if the passed string cannot be parsed.
      */
     public static GlobalId parseAsGlobalID(String identifier) {
+        if(StringUtils.isBlank(identifier)) {
+            throw new IllegalArgumentException("Blank identifier");
+        }
         logger.fine("In parseAsGlobalId: " + providerMap.size());
         for (PidProvider pidProvider : providerMap.values()) {
             logger.fine(" Checking " + String.join(",", pidProvider.getProviderInformation()));
