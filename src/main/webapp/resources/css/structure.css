@@ -79,7 +79,7 @@ footer {width:100%; z-index:498; height:60px; color:#666666;position:relative;}
 .highlightBold, a.highlightBold, .dropdown-menu > li > a.highlightBold {font-weight:bold;}
 tr.ui-state-highlight, .ui-widget-content tr.ui-state-highlight, .ui-widget-header tr.ui-state-highlight {background-color: #ffffcc; background-image: none; color: #333333;}
 tr.ui-state-highlight label, .ui-widget-content tr.ui-state-highlight label, .ui-widget-header tr.ui-state-highlight label {color: #333333;}
-tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:not(.btn), .ui-widget-header tr.ui-state-highlight a:not(.btn) {color: #428bca;}
+tr.ui-state-highlight a:not(.btn), .ui-widget-content tr.ui-state-highlight a:not(.btn), .ui-widget-header tr.ui-state-highlight a:not(.btn) {color: #3c7bb1;}
 tr.ui-state-highlight .ui-icon {
     background-image: url("/jakarta.faces.resource/images/ui-icons_333333_256x240.png.xhtml?ln=primefaces-bootstrap");
 }
@@ -578,7 +578,7 @@ a.facetLink {text-decoration:none; font-size:16px;}
 a.facetLink.facetSelected, a.facetTypeLink.facetSelected {font-weight:bold;}
 a.facetLink.facetSelected span.glyphicon-remove {vertical-align:text-top; margin-top:1px; margin-left:.25em;}
 
-#my_data_filter_column div.checkbox label:not(.facetTypeLabel) {color:#428bca;font-size:90%;}
+#my_data_filter_column div.checkbox label:not(.facetTypeLabel) {color:#3c7bb1;font-size:90%;}
 #my_data_filter_column div.checkbox.facetSelected label, #my_data_filter_column  div.checkbox label.facetSelected {font-weight: bold;}
 #my_data_filter_column div.checkbox label.facetSelected:hover {color: #23527c;}
 #div-card-results {
