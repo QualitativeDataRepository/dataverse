@@ -8,12 +8,14 @@ function bind_bsui_components(){
     });
     
     // Collapse Header Icons
-    $('div[id^="panelCollapse"]').on('shown.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
+    $('[id^="panelCollapse"]').on('shown.bs.collapse', function () {
+      $(this).siblings('div.panel-title').find('button').attr('aria-expanded', 'true').removeClass('collapsed');
+      $(this).siblings('div.panel-title').find('span.glyphicon').removeClass("glyphicon-chevron-down").addClass("glyphicon-chevron-up");
     });
 
-    $('div[id^="panelCollapse"]').on('hidden.bs.collapse', function () {
-      $(this).siblings('div.panel-heading').children('span.glyphicon').removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
+    $('[id^="panelCollapse"]').on('hidden.bs.collapse', function () {
+      $(this).siblings('div.panel-title').find('button').attr('aria-expanded', 'false').addClass('collapsed');
+      $(this).siblings('div.panel-title').find('span.glyphicon').removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down");
     });
     
     // Button dropdown menus 

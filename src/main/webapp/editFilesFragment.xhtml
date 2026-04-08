@@ -66,8 +66,10 @@
                       id="fileUploadFragment" jsf:rendered="#{showFileUploadFragment}">
                     
                     <div jsf:id="httpPanel" jsf:rendered="#{settingsWrapper.HTTPUpload}" class="panel panel-default">
-                        <div role="tab" id="headingHTTP" data-toggle="collapse" data-target="#panelCollapseHTTP" class="panel-heading text-info" aria-expanded="true" aria-controls="panelCollapseHTTP">
-                            #{bundle['file.fromHTTP']} &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                        <div class="panel-title">
+                            <button type="button" class="panel-heading text-info btn" data-toggle="collapse" data-target="#panelCollapseHTTP" aria-expanded="true" aria-controls="panelCollapseHTTP">
+                                #{bundle['file.fromHTTP']} &#160;<span class="glyphicon glyphicon-chevron-up"/>
+                            </button>
                         </div>
                         <div id="panelCollapseHTTP" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingHTTP">
                             <div class="panel-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackage" jsf:rendered="#{hasPackageFile and !isDatasetReleased}">
@@ -88,7 +90,7 @@
                             <div class="panel-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackagePublished" jsf:rendered="#{hasPackageFile and isDatasetReleased}">
                                 <p class="help-block">
                                     <span class="glyphicon glyphicon-warning-sign text-warning"></span>
-                                    <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.httpUploadDisabledDueToRsyncFileExistingAndPublished']}"/>
+                                    <h:outputText styleClass="text-warning" value=" #{bundle['file.rsyncUpload.httpUploadDisabledDueToRsyncFileExistingAndPublished']}"/>
                                 </p>
                             </div>
                             <div class="panel-body" jsf:id="contentOfHttpPanel" jsf:rendered="#{!hasPackageFile}">
@@ -196,8 +198,8 @@
                                   invalidSizeMessage="#{bundle['file.edit.error.file_exceeds_limit']}" 
                                   sequential="true"
                                   previewWidth="-1"
+                                  ariaLabel="#{bundle['file.uploadFiles']}"
                                   widgetVar="fileUploadWidget">
-                        <f:passThroughAttribute name="aria-label" value="#{bundle['file.uploadFiles']}"/>
                     </p:fileUpload>
                               <ui:fragment rendered="#{!lockedFromEdits}">
                                 <div jsf:id="webloaderBlock" jsf:rendered="#{webloaderUploadSupported}"  class="ui-fileupload-buttonbar ui-widget-header ui-corner-top">
@@ -248,8 +250,10 @@
                     
                     <div jsf:id="rsyncPanel" jsf:rendered="#{rsyncSupported and !EditDatafilesPage.fileReplaceOperation}" class="panel panel-default">
                         <!-- NOTE: conditional logic for 'glyphicon-chevron-up' icon in rsync header if HTTP is off, but isn't scalable when a third upload mode is added -->
-                        <div role="tab" id="headingRsync" data-toggle="collapse" data-target="#panelCollapseRsync" class="panel-heading text-info" aria-expanded="true" aria-controls="panelCollapseRsync">
-                            #{bundle['file.fromRsync']} &#160;<span class="glyphicon #{!settingsWrapper.HTTPUpload ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
+                        <div class="panel-title">
+                            <button type="button" class="panel-heading text-info btn #{!settingsWrapper.HTTPUpload ? '' : 'collapsed'}" data-toggle="collapse" data-target="#panelCollapseRsync" aria-expanded="#{!settingsWrapper.HTTPUpload ? 'true' : 'false'}" aria-controls="panelCollapseRsync">
+                                #{bundle['file.fromRsync']} &#160;<span class="glyphicon #{!settingsWrapper.HTTPUpload ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
+                            </button>
                         </div>
                         <!-- NOTE: conditional logic for 'in' style class opens the rsync panel if HTTP is off, but isn't scalable when a third upload mode is added -->
                         <div id="panelCollapseRsync" class="panel-collapse collapse #{!settingsWrapper.HTTPUpload ? 'in' : ''}" role="tabpanel" aria-labelledby="headingRsync">
@@ -314,13 +318,13 @@
                                     <ui:fragment rendered="#{hasNonPackageFile and !EditDatafilesPage.workingVersion.dataset.released}">
                                         <p class="help-block">
                                             <span class="glyphicon glyphicon-warning-sign text-warning"></span>
-                                            <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}"/>
+                                            <h:outputText styleClass="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttp']}"/>
                                         </p>
                                     </ui:fragment>
                                     <ui:fragment rendered="#{hasNonPackageFile and EditDatafilesPage.workingVersion.dataset.released}">
                                         <p class="help-block">
                                             <span class="glyphicon glyphicon-warning-sign text-warning"></span>
-                                            <h:outputText class="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttpAndPublished']}"/>
+                                            <h:outputText styleClass="text-warning" value=" #{bundle['file.rsyncUpload.rsyncUploadDisabledDueFileUploadedViaHttpAndPublished']}"/>
                                         </p>
                                     </ui:fragment>
                                     <!-- HTTP FILE ALREADY EXISTS. THERE CAN BE ONLY ONE. -->
@@ -333,7 +337,7 @@
                                     <ui:fragment rendered="#{empty EditDatafilesPage.workingVersion.fileMetadatas and !hasRsyncScript}">
                                         <p class="help-block">
                                             <span class="glyphicon glyphicon-exclamation-sign text-danger"></span>
-                                            <h:outputFormat class="text-danger" value=" #{bundle['file.rsyncUpload.noScriptBroken']}" escape="false">
+                                            <h:outputFormat styleClass="text-danger" value=" #{bundle['file.rsyncUpload.noScriptBroken']}" escape="false">
                                                 <o:param>
                                                     <p:commandLink value="#{settingsWrapper.supportTeamName}" oncomplete="PF('contactForm').show()" update=":contactDialog" actionListener="#{sendFeedbackDialog.initUserInput}">
                                                         <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>

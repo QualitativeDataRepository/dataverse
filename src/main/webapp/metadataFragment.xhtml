@@ -25,8 +25,17 @@
         <ui:repeat value="#{metadataBlocks}"
                    var="metadataBlockVal" varStatus="block">
             <div class="panel panel-default">
-                <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info #{(block.first and block.last) ? 'hidden':''}">
-                    #{metadataBlockVal.key.localeDisplayName} &#160;<span class="glyphicon #{block.first?'glyphicon-chevron-up':'glyphicon-chevron-down'}"/>
+                <div class="panel-title">
+                    <button type="button"
+                            class="panel-heading text-info btn #{block.first ? '' : 'collapsed'}"
+                            data-toggle="collapse"
+                            data-target="#panelCollapse#{block.index}"
+                            aria-expanded="#{block.first ? 'true':'false'}"
+                            aria-controls="panelCollapse#{block.index}">
+                        #{metadataBlockVal.key.localeDisplayName}
+                        <span class="glyphicon #{block.first?'glyphicon-chevron-up':'glyphicon-chevron-down'}"
+                              aria-hidden="true"></span>
+                    </button>
                 </div>
                 <div id="panelCollapse#{block.index}" class="collapse #{block.first?'in':''}">
                     <div class="panel-body metadata-container">
@@ -253,8 +262,17 @@
                 <div class="panel panel-default" jsf:rendered="#{(editMode == 'METADATA' or metadataBlockVal.key.displayOnCreate or !metadataBlockVal.key.isEmpty()
                                                                  or metadataBlockVal.key.isHasRequired())
                                                                  or (!datasetPage)}">
-                    <div data-toggle="collapse" data-target="#panelCollapse#{block.index}" class="panel-heading text-info #{(block.first and block.last) ? 'hidden':''}">
-                        #{metadataBlockVal.key.localeDisplayName} <span class="glyphicon #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
+                    <div class="panel-title">
+                        <button type="button"
+                                class="panel-heading text-info btn #{block.first ? '' : 'collapsed'} #{(block.first and block.last) ? 'hidden':''}"
+                                data-toggle="collapse"
+                                data-target="#panelCollapse#{block.index}"
+                                aria-expanded="#{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'true':'false'}"
+                                aria-controls="panelCollapse#{block.index}">
+                            #{metadataBlockVal.key.localeDisplayName}
+                            <span class="glyphicon #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ?'glyphicon-chevron-up':'glyphicon-chevron-down'}"
+                                  aria-hidden="true"></span>
+                        </button>
                     </div>
                     <div id="panelCollapse#{block.index}" class="collapse #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'in' : ''}">
                         <div class="panel-body">
@@ -465,7 +483,25 @@
           $('#panelCollapse'+i).collapse('hide');
         }
       }
+      fixPrimeFacesFocusSentinels();
     });
+
+    // A11y fix for PrimeFaces sentinel inputs focusable inside aria-hidden containers
+    function fixPrimeFacesFocusSentinels() {
+        document
+            .querySelectorAll('#datasetForm input[id$="_focus"]')
+            .forEach((el) => {
+                el.setAttribute('tabindex', '-1');
+                el.setAttribute('aria-hidden', 'true');
+            });
+    }
+
+    // Re-apply after AJAX updates
+    if (window.PrimeFaces && PrimeFaces.onAjaxComplete) {
+        PrimeFaces.onAjaxComplete(function () {
+            fixPrimeFacesFocusSentinels();
+        });
+    }
     //]]>
-    </script>
+ </script>
 </ui:composition>
