@@ -894,9 +894,11 @@ The most common of our containers, the `Panels component <https://getbootstrap.c
 
         <div class="panel-group">
             <div class="panel panel-default">
-                <div data-toggle="collapse" data-target="#panelCollapse0" class="panel-heading">
+            <div class="panel-title">
+                <button type="button" class="panel-heading btn btn-link" data-toggle="collapse" data-target="#panelCollapse0" aria-expanded="true" aria-controls="panelCollapse0">
                     <span class="text-info">Panel Heading &nbsp;<span class="glyphicon glyphicon-chevron-up"></span></span>
-                </div>
+                </button>
+            </div>
                 <div id="panelCollapse0" class="collapse in">
                     <div class="panel-body metadata-panel-body">
                         <div class="form-group col-sm-12">
@@ -922,8 +924,10 @@ The most common of our containers, the `Panels component <https://getbootstrap.c
   </div>
 
   <div class="panel panel-default">
-    <div data-toggle="collapse" data-target="#panelCollapse0" class="panel-heading">
-      <span class="text-info">Panel Heading &#160;<span class="glyphicon glyphicon-chevron-up"/></span>
+    <div class="panel-title">
+      <button type="button" class="panel-heading btn btn-link" data-toggle="collapse" data-target="#panelCollapse0" aria-expanded="true" aria-controls="panelCollapse0">
+        <span class="text-info">Panel Heading &#160;<span class="glyphicon glyphicon-chevron-up"/></span>
+      </button>
     </div>
     <div id="panelCollapse0" class="panel-body form-horizontal collapse in">
       <div class="form-group">

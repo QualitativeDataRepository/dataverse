@@ -63,9 +63,11 @@
                         </p:tab>
                         <p:tab id="notifications" title="#{bundle['header.user.selectTab.notifications']}">
                             <div class="panel panel-default" jsf:rendered="#{settingsWrapper.showMuteOptions}">
-                                <div data-toggle="collapse" data-target="#muteCollapse" aria-expanded="false" class="panel-heading text-info" role="button" aria-controls="muteCollapse">
+                            <div class="panel-title">
+                                <button type="button" class="panel-heading text-info btn btn-link collapsed" data-toggle="collapse" data-target="#muteCollapse" aria-expanded="false" aria-controls="muteCollapse">
                                     #{bundle['notification.muteOptions']} <span class="glyphicon glyphicon-chevron-down" />
-                                </div>
+                                </button>
+                            </div>
                                 <div id="muteCollapse" class="collapse">
                                     <div class="panel-body">
                                         <div class="form-group text-left">
