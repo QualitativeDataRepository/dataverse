@@ -314,13 +314,13 @@
                                                         </div>
                                                         <!-- Add / Remove buttons -->
                                                         <div class="col-xs-3 field-add-delete" jsf:rendered="#{dsf.datasetFieldType.allowMultiples and !dsf.datasetFieldType.controlledVocabulary}">
-                                                            <p:commandLink title="#{bundle.add}"
+                                                            <p:commandLink aria-label="#{bundle.add}" title="#{bundle.add}"
                                                                            styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                            actionListener="#{dsf.addDatasetFieldValue(valCount.index + 1)}"
                                                                            update=":#{p:resolveClientIds('@id(editPrimitiveValueFragment)', view)}">
                                                                 <span class="glyphicon glyphicon-plus no-text"/>
                                                             </p:commandLink>
-                                                            <p:commandLink title="#{bundle.delete}"
+                                                            <p:commandLink aria-label="#{bundle.delete}" title="#{bundle.delete}"
                                                                            styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                            rendered="#{dsf.datasetFieldValues.size() > 1}"
                                                                            actionListener="#{dsf.removeDatasetFieldValue(valCount.index)}"
