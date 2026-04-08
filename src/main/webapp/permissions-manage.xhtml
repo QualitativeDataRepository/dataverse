@@ -30,7 +30,7 @@
                             <c:if test="#{managePermissionsPage.dvObject.instanceofDataverse}">
                                 <div class="panel panel-default">
                                     <div class="panel-title">
-                                        <button type="button" class="panel-heading text-info btn btn-link" data-toggle="collapse" data-target="#panelCollapsePermissions" aria-expanded="true" aria-controls="panelCollapsePermissions">
+                                        <button type="button" class="panel-heading text-info btn" data-toggle="collapse" data-target="#panelCollapsePermissions" aria-expanded="true" aria-controls="panelCollapsePermissions">
                                             #{bundle['dataverse.permissions.title']} <span class="glyphicon glyphicon-chevron-up"/>
                                             
                                             <span class="text-muted small pull-right">#{bundle['dataverse.permissions.description']}</span>
@@ -92,7 +92,7 @@
                         <!-- Role Assignments Panel -->
                         <div class="panel panel-default">
                             <div class="panel-title">
-                                <button type="button" class="panel-heading text-info btn btn-link #{!managePermissionsPage.dvObject.instanceofDataverse ? '' : 'collapsed'}" data-toggle="collapse" data-target="#panelCollapseUsersGroups" aria-expanded="#{!managePermissionsPage.dvObject.instanceofDataverse ? 'true' : 'false'}" aria-controls="panelCollapseUsersGroups">
+                                <button type="button" class="panel-heading text-info btn #{!managePermissionsPage.dvObject.instanceofDataverse ? '' : 'collapsed'}" data-toggle="collapse" data-target="#panelCollapseUsersGroups" aria-expanded="#{!managePermissionsPage.dvObject.instanceofDataverse ? 'true' : 'false'}" aria-controls="panelCollapseUsersGroups">
                                     #{bundle['dataverse.permissions.usersOrGroups']} <span class="glyphicon #{!managePermissionsPage.dvObject.instanceofDataverse ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
                                     
                                     <span class="text-muted small pull-right">#{bundle['dataverse.permissions.usersOrGroups.description']}</span>
@@ -153,7 +153,7 @@
                         <!-- Roles Panel -->
                         <div class="panel panel-default">
                             <div class="panel-title">
-                            <button type="button" class="panel-heading text-info btn btn-link collapsed" data-toggle="collapse" data-target="#panelCollapseRoles" aria-expanded="false" aria-controls="panelCollapseRoles">
+                            <button type="button" class="panel-heading text-info btn collapsed" data-toggle="collapse" data-target="#panelCollapseRoles" aria-expanded="false" aria-controls="panelCollapseRoles">
                                 #{bundle['dataverse.permissions.roles']} <span class="glyphicon glyphicon-chevron-down"/>
                                 
                                 <span class="text-muted small pull-right">#{bundle['dataverse.permissions.roles.description']}</span>
@@ -209,7 +209,7 @@
                         <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
                         <div class="panel panel-default" jsf:rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
                           <div class="panel-title">
-                            <button type="button" class="panel-heading text-info btn btn-link collapsed" data-toggle="collapse" data-target="#panelCollapseHistory" aria-expanded="false" aria-controls="panelCollapseHistory">
+                            <button type="button" class="panel-heading text-info btn collapsed" data-toggle="collapse" data-target="#panelCollapseHistory" aria-expanded="false" aria-controls="panelCollapseHistory">
                                 #{bundle['dataverse.permissions.history']} <span class="glyphicon glyphicon-chevron-down" /> <span class="text-muted small pull-right">#{bundle['dataverse.permissions.history.description']}</span>
                             </button>
                           </div>

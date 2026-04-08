@@ -28,7 +28,7 @@
                         <!-- Users/Groups Access Panel -->
                         <div class="panel panel-default">
                             <div class="panel-title">
-                                <button type="button" class="panel-heading text-info btn btn-link" data-toggle="collapse" data-target="#panelCollapseUsersGroups" aria-expanded="true" aria-controls="panelCollapseUsersGroups">
+                                <button type="button" class="panel-heading text-info btn" data-toggle="collapse" data-target="#panelCollapseUsersGroups" aria-expanded="true" aria-controls="panelCollapseUsersGroups">
                                     #{bundle['dataverse.permissionsFiles.usersOrGroups']} <span class="glyphicon glyphicon-chevron-up"/>
 
                                     <span class="text-muted small pull-right">#{bundle['dataverse.permissionsFiles.usersOrGroups.description']}</span>
@@ -153,7 +153,7 @@
                         <!-- Files (Restricted) Panel -->
                         <div class="panel panel-default">
                             <div class="panel-title">
-                                <button type="button" class="panel-heading text-info btn btn-link collapsed" data-toggle="collapse" data-target="#panelCollapseFiles" aria-expanded="false" aria-controls="panelCollapseFiles">
+                                <button type="button" class="panel-heading text-info btn collapsed" data-toggle="collapse" data-target="#panelCollapseFiles" aria-expanded="false" aria-controls="panelCollapseFiles">
                                     #{bundle['dataverse.permissionsFiles.files']} <span class="glyphicon glyphicon-chevron-down"/>
 
                                     <span class="text-muted small pull-right">#{bundle['dataverse.permissionsFiles.files.description']}</span>
@@ -227,7 +227,7 @@
                     <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
                     <div class="panel panel-default" jsf:rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
                       <div class="panel-title">
-                        <button type="button" class="panel-heading text-info btn btn-link collapsed" data-toggle="collapse" data-target="#panelCollapseHistory" aria-expanded="false" aria-controls="panelCollapseHistory">
+                        <button type="button" class="panel-heading text-info btn collapsed" data-toggle="collapse" data-target="#panelCollapseHistory" aria-expanded="false" aria-controls="panelCollapseHistory">
                             #{bundle['dataverse.permissions.history']} <span class="glyphicon glyphicon-chevron-down" /> <span class="text-muted small pull-right">#{bundle['dataverse.permissions.history.description']}</span>
                         </button>
                       </div>

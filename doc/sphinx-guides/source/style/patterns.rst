@@ -895,7 +895,7 @@ The most common of our containers, the `Panels component <https://getbootstrap.c
         <div class="panel-group">
             <div class="panel panel-default">
             <div class="panel-title">
-                <button type="button" class="panel-heading btn btn-link" data-toggle="collapse" data-target="#panelCollapse0" aria-expanded="true" aria-controls="panelCollapse0">
+                <button type="button" class="panel-heading btn" data-toggle="collapse" data-target="#panelCollapse0" aria-expanded="true" aria-controls="panelCollapse0">
                     <span class="text-info">Panel Heading &nbsp;<span class="glyphicon glyphicon-chevron-up"></span></span>
                 </button>
             </div>
