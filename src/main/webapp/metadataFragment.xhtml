@@ -27,7 +27,7 @@
             <div class="panel panel-default">
                 <div class="panel-title">
                     <button type="button"
-                            class="panel-heading text-info btn btn-link #{block.first ? '' : 'collapsed'}"
+                            class="panel-heading text-info btn #{block.first ? '' : 'collapsed'}"
                             data-toggle="collapse"
                             data-target="#panelCollapse#{block.index}"
                             aria-expanded="#{block.first ? 'true':'false'}"
@@ -264,7 +264,7 @@
                                                                  or (!datasetPage)}">
                     <div class="panel-title">
                         <button type="button"
-                                class="panel-heading text-info btn btn-link #{block.first ? '' : 'collapsed'} #{(block.first and block.last) ? 'hidden':''}"
+                                class="panel-heading text-info btn #{block.first ? '' : 'collapsed'} #{(block.first and block.last) ? 'hidden':''}"
                                 data-toggle="collapse"
                                 data-target="#panelCollapse#{block.index}"
                                 aria-expanded="#{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'true':'false'}"

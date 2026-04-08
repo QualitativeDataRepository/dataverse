@@ -67,7 +67,7 @@
                     
                     <div jsf:id="httpPanel" jsf:rendered="#{settingsWrapper.HTTPUpload}" class="panel panel-default">
                         <div class="panel-title">
-                            <button type="button" class="panel-heading text-info btn btn-link" data-toggle="collapse" data-target="#panelCollapseHTTP" aria-expanded="true" aria-controls="panelCollapseHTTP">
+                            <button type="button" class="panel-heading text-info btn" data-toggle="collapse" data-target="#panelCollapseHTTP" aria-expanded="true" aria-controls="panelCollapseHTTP">
                                 #{bundle['file.fromHTTP']} &#160;<span class="glyphicon glyphicon-chevron-up"/>
                             </button>
                         </div>
@@ -251,7 +251,7 @@
                     <div jsf:id="rsyncPanel" jsf:rendered="#{rsyncSupported and !EditDatafilesPage.fileReplaceOperation}" class="panel panel-default">
                         <!-- NOTE: conditional logic for 'glyphicon-chevron-up' icon in rsync header if HTTP is off, but isn't scalable when a third upload mode is added -->
                         <div class="panel-title">
-                            <button type="button" class="panel-heading text-info btn btn-link #{!settingsWrapper.HTTPUpload ? '' : 'collapsed'}" data-toggle="collapse" data-target="#panelCollapseRsync" aria-expanded="#{!settingsWrapper.HTTPUpload ? 'true' : 'false'}" aria-controls="panelCollapseRsync">
+                            <button type="button" class="panel-heading text-info btn #{!settingsWrapper.HTTPUpload ? '' : 'collapsed'}" data-toggle="collapse" data-target="#panelCollapseRsync" aria-expanded="#{!settingsWrapper.HTTPUpload ? 'true' : 'false'}" aria-controls="panelCollapseRsync">
                                 #{bundle['file.fromRsync']} &#160;<span class="glyphicon #{!settingsWrapper.HTTPUpload ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'}"/>
                             </button>
                         </div>

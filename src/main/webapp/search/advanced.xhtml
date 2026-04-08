@@ -41,7 +41,7 @@
                         </div>
                         <div class="panel panel-default">
                             <div class="panel-title">
-                                <button type="button" class="panel-heading btn btn-link" data-toggle="collapse" data-target="#panelCollapseDataversesFieldList" aria-expanded="true" aria-controls="panelCollapseDataversesFieldList">
+                                <button type="button" class="panel-heading btn" data-toggle="collapse" data-target="#panelCollapseDataversesFieldList" aria-expanded="true" aria-controls="panelCollapseDataversesFieldList">
                                     <h:outputText value="#{bundle['advanced.search.header.dataverses']}"/> &#160;<span class="glyphicon glyphicon-chevron-up"/>
                                 </button>
                             </div>
@@ -107,7 +107,7 @@
                         <ui:repeat id="block" value="#{AdvancedSearchPage.metadataBlocks}" var="mdb" varStatus="status">
                             <div class="panel panel-default" jsf:rendered="#{not empty AdvancedSearchPage.metadataFieldMap.get(mdb.getId())}">
                                 <div class="panel-title">
-                                    <button type="button" class="panel-heading btn btn-link" data-toggle="collapse" data-target="#panelCollapseCitationFieldList#{mdb.id}" aria-expanded="false" aria-controls="panelCollapseCitationFieldList#{mdb.id}">
+                                    <button type="button" class="panel-heading btn" data-toggle="collapse" data-target="#panelCollapseCitationFieldList#{mdb.id}" aria-expanded="false" aria-controls="panelCollapseCitationFieldList#{mdb.id}">
                                         <h:outputText value="#{bundle['advanced.search.header.datasets']}: #{mdb.localeDisplayName}"/> &#160;<span class="glyphicon glyphicon-chevron-down"/>
                                     </button>
                                 </div>
@@ -175,7 +175,7 @@
 
                         <div class="panel panel-default">
                             <div class="panel-title">
-                                <button type="button" class="panel-heading btn btn-link" data-toggle="collapse" data-target="#panelCollapseFilesFieldList" aria-expanded="true" aria-controls="panelCollapseFilesFieldList">
+                                <button type="button" class="panel-heading btn" data-toggle="collapse" data-target="#panelCollapseFilesFieldList" aria-expanded="true" aria-controls="panelCollapseFilesFieldList">
                                     <h:outputText value="#{bundle['advanced.search.header.files']}"/> &#160;<span class="glyphicon glyphicon-chevron-up"/>
                                 </button>
                             </div>
