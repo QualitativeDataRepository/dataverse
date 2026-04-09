@@ -399,27 +399,36 @@
             </div>
         </f:facet>
 
-        <p:column selectionMode="multiple" selectionBox="true" class="text-center" ariaHeaderText="#{bundle['file.select.tooltip']}"/>
-        <p:column class="col-file-metadata">
+        <p:column
+                selectionMode="multiple"
+                selectionBox="true"
+                class="text-center"
+                ariaHeaderText="#{bundle['file.select.tooltip']}"
+                rendered="#{fileMetadataCount gt 0}"/>
+        <p:column class="col-file-metadata" rendered="#{fileMetadataCount gt 0}">
             <f:facet name="header">
                 <div jsf:id="filesHeaderCount">
                     <!-- Files Count -->
                     <h:outputFormat value="#{DatasetPage.fileMetadatasSearch.size() == 1 ? bundle['file.count.one'] : bundle['file.count']}" styleClass="fw-bold" rendered="#{DatasetPage.fileMetadatasSearch.size() gt 0}">
                         <f:param value="#{(DatasetPage.filePaginatorPage * DatasetPage.rowsPerPage) + 1}"/>
-                        <f:param value="#{Math:min((DatasetPage.filePaginatorPage + 1) * DatasetPage.rowsPerPage,DatasetPage.fileMetadatasSearch.size()) }"/>
+                        <f:param
+                                value="#{Math:min((DatasetPage.filePaginatorPage + 1) * DatasetPage.rowsPerPage,fileMetadataCount) }"/>
                         <f:param value="#{DatasetPage.fileMetadatasSearch.size()}"/>
                     </h:outputFormat>
                 </div>
             </f:facet>
             <ui:include src="file-info-fragment.xhtml">
-                <c:if test="#{fileMetadata != null}">
-                    <ui:param name="fileMetadata" value="#{fileMetadata}" />
-                </c:if>
-            </ui:include>
+                <c:if test="#{fileMetadata != null}">
+                    <ui:param name="fileMetadata" value="#{fileMetadata}"/>
+                </c:if>
+            </ui:include>
         </p:column>
 
-
-        <p:column class="col-file-action button-block text-end" style="width:40%;">
+        <p:column
+                class="col-file-action button-block text-right"
+                style="width:40%;"
+                ariaHeaderText="#{bundle['file.actionsBlock']}"
+                rendered="#{fileMetadataCount gt 0}">
             <f:facet name="header">
                 <div class="d-flex justify-content-end align-items-center gap-2">
                   <script type="text/javascript">
@@ -601,7 +610,7 @@
                                                         and DatasetPage.canUpdateDataset()
                                                         and hasValidTermsOfAccess
                                                         and DatasetPage.isFileDeleted(fileMetadata.dataFile)}">
-                    <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}" disabled="#{lockedFromEdits}"
+                    <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}"
                         title="#{bundle['file.optionsBtn']}" onclick="PF('fileAlreadyDeletedPrevious').show()" tabindex="0"> <span class="bi bi-three-dots-vertical" /><span
                         class="sr-only">#{bundle['file.optionsBtn']}</span>
                     </a>
@@ -613,7 +622,7 @@
                                                         and hasValidTermsOfAccess
                                                         and !DatasetPage.isFileDeleted(fileMetadata.dataFile)}">
                     <!-- Kebab / Edit / File Options Dropdown -->
-                    <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}" disabled="#{lockedFromEdits}"
+                    <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}"
                         title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tabindex="0"> <span class="bi bi-three-dots-vertical" /><span
                         class="sr-only">#{bundle['file.optionsBtn']}</span>
                     </a>
