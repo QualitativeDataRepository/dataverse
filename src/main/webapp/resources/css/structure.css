@@ -1556,7 +1556,7 @@ padding-right:0px;
 .text-muted {
         color: #636363;
 }
-a {
+a, #content a {
   color: #0039f5;
 }
 
