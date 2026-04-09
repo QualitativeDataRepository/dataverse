@@ -35,10 +35,17 @@
                         <h:form id="newAccountForm">
                             <p:focus context="newAccountForm"/>
                             <div class="row mb-3">
-                                <label for="position" class="col-sm-3 form-label">
+                                <label
+                                        for="username"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="usernameHelpText">
                                     #{bundle['user.username']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <span id="usernameHelpText" class="visually-hidden">
+                                        #{bundle['user.username.illegal.tip']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.username.illegal.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">
@@ -52,10 +59,17 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="givenName" class="col-sm-3 form-label">
+                                <label
+                                        for="givenName"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="givenNameHelpText">
                                     #{bundle['user.firstName']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <span id="givenNameHelpText" class="visually-hidden">
+                                        #{bundle['user.firstName.tip']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.firstName.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">
@@ -64,10 +78,17 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="familyName" class="col-sm-3 form-label">
+                                <label
+                                        for="familyName"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="familyNameHelpText">
                                     #{bundle['user.lastName']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <span id="familyNameHelpText" class="visually-hidden">
+                                        #{bundle['user.lastName.tip']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.lastName.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">
@@ -76,10 +97,17 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="selectedEmail" class="col-sm-3 form-label">
+                                <label
+                                        for="selectedEmail"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="selectedEmailHelpText">
                                     #{bundle['email']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <span id="selectedEmailHelpText" class="visually-hidden">
+                                        #{bundle['user.email.tip']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.email.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4" jsf:rendered="#{OAuth2FirstLoginPage.getEmailsToPickFrom().size() lt 2}">
@@ -97,9 +125,16 @@
                                 </div>
                             </div>
                             <div class="row mb-3" jsf:rendered="#{OAuth2FirstLoginPage.newUser.displayInfo.orcid != null}">
-                                <label for="authenticatedOrcid" class="col-sm-3 form-label">
+                                <label
+                                        for="authenticatedOrcid"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="orcidHelpText">
                                     #{bundle['user.orcid']}
+                                    <span id="orcidHelpText" class="visually-hidden">
+                                        ORCID
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="ORCID"></span>
                                 </label>
                                 <div class="col-sm-4" id="authenticatedOrcid">
@@ -113,10 +148,17 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="affiliation" class="col-sm-3 form-label">
+                                <label
+                                        for="affiliation"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="affiliationHelpText">
                                     #{bundle['affiliation']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <span id="affiliationHelpText" class="visually-hidden">
+                                        #{bundle['user.affiliation.tip']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.affiliation.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">
@@ -124,10 +166,17 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="position" class="col-sm-3 form-label">
+                                <label
+                                        for="position"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="positionHelpText">
                                     #{bundle['user.position']} 
                                     <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <span id="positionHelpText" class="visually-hidden">
+                                        #{bundle['user.position.tip']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['user.position.tip']}"></span>
                                 </label>
                                 <div class="col-sm-4">

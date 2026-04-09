@@ -14,9 +14,16 @@
                     <!-- Dataverse Theme Panel -->
                     <div class="row">
                         <div class="row mb-3" jsf:rendered="#{themeWidgetFragment.editDv.owner!=null}">
-                            <label class="col-sm-3 form-label" for="inheritCustomization">
+                            <label
+                                    class="col-sm-3 form-label"
+                                    for="inheritCustomization"
+                                    aria-describedby="inheritCustomizationHelpText">
                                 #{bundle['dataverse.theme.inheritCustomization.label']}
+                                <span id="inheritCustomizationHelpText" class="visually-hidden">
+                                    #{bundle['dataverse.theme.inheritCustomization.title']}
+                                </span>
                                 <span class="bi bi-question-circle tooltip-icon"
+                                      aria-hidden="true"
                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.inheritCustomization.title']}"></span>
                             </label>
                             <div class="col-sm-9">
@@ -35,9 +42,16 @@
                             </div>
                         </div>
                         <div class="row mb-3" jsf:rendered="#{themeWidgetFragment.editDv.themeRoot}">
-                            <label class="col-sm-3 form-label" for="logoFormat">
+                            <label
+                                    class="col-sm-3 form-label"
+                                    for="logoFormat"
+                                    aria-describedby="logoImageHelpText">
                                 #{bundle['dataverse.theme.logo.image']}
+                                <span id="logoImageHelpText" class="visually-hidden">
+                                    #{bundle['dataverse.theme.logo.image.title']}
+                                </span>
                                 <span class="bi bi-question-circle tooltip-icon"
+                                      aria-hidden="true"
                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.image.title']}"></span>
                             </label>
                             <div class="col-sm-9">
@@ -59,9 +73,16 @@
                                 </p:panelGrid>
                                 <ui:fragment rendered="#{not empty themeWidgetFragment.editDv.dataverseTheme.logo}">
                                     <div class="form-col-container col-sm-4">
-                                        <label for="logoFormat" class="form-label">
+                                        <label
+                                                for="logoFormat"
+                                                class="form-label"
+                                                aria-describedby="logoFormatHelpText">
                                             #{bundle['dataverse.theme.logo.format']}
+                                            <span id="logoFormatHelpText" class="visually-hidden">
+                                                #{bundle['dataverse.theme.logo.format.title']}
+                                            </span>
                                             <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.format.title']}"></span>
                                         </label>
                                         <div>
@@ -75,9 +96,16 @@
                                     </div>
                                     <ui:fragment rendered="#{themeWidgetFragment.editDv.dataverseTheme.logoFormat=='RECTANGLE'}">
                                         <div class="form-col-container col-sm-3">
-                                            <label for="logoAlignment" class="form-label">
+                                            <label
+                                                    for="logoAlignment"
+                                                    class="form-label"
+                                                    aria-describedby="logoAlignmentHelpText">
                                                 #{bundle['dataverse.theme.logo.alignment']}
+                                                <span id="logoAlignmentHelpText" class="visually-hidden">
+                                                    #{bundle['dataverse.theme.logo.alignment.title']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.alignment.title']}"></span>
                                             </label>
                                             <div>
@@ -90,9 +118,16 @@
                                             </div>
                                         </div>
                                         <div class="form-col-container col-sm-4">
-                                            <label for="logoBackgroundColor" class="form-label">
+                                            <label
+                                                    for="logoBackgroundColor"
+                                                    class="form-label"
+                                                    aria-describedby="logoBackgroundColorHelpText">
                                                 #{bundle['dataverse.theme.logo.backColor']}
+                                                <span id="logoBackgroundColorHelpText" class="visually-hidden">
+                                                    #{bundle['dataverse.theme.logo.backColor.title']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.backColor.title']}"></span>
                                             </label>
                                             <div>
@@ -105,9 +140,16 @@
                             </div>
                         </div>
                         <div class="row mb-3" jsf:rendered="#{themeWidgetFragment.editDv.themeRoot}">
-                            <label class="col-sm-3 form-label" for="thumbnailFormat">
+                            <label
+                                    class="col-sm-3 form-label"
+                                    for="thumbnailFormat"
+                                    aria-describedby="logoThumbnailHelpText">
                                 #{bundle['dataverse.theme.logo.imageThumbnail']}
+                                <span id="logoThumbnailHelpText" class="visually-hidden">
+                                    #{bundle['dataverse.theme.logo.image.thumbnail']}
+                                </span>
                                 <span class="bi bi-question-circle tooltip-icon"
+                                      aria-hidden="true"
                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.image.thumbnail']}"></span>
                             </label>
                             <div class="col-sm-9">
@@ -134,16 +176,29 @@
                         <div class="row">
                           <div class="col-12">
                             <div class="row mb-3">
-                                <label class="col-sm-3 form-label">
+                                <label
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="headerColorHelpText">
                                     #{bundle['dataverse.theme.headerColor']}
+                                    <span id="headerColorHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.theme.headerColor.tip']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.headerColor.tip']}"></span>
                                 </label>
                                 <div class="row mb-3 col-sm-9">
                                     <div class="form-col-container col-sm-4">
-                                        <label for="backgroundColor" class="form-label">
+                                        <label
+                                                for="backgroundColor"
+                                                class="form-label"
+                                                aria-describedby="backgroundColorHelpText">
                                             #{bundle['dataverse.theme.backColor']}
+                                            <span id="backgroundColorHelpText" class="visually-hidden">
+                                                #{bundle['dataverse.theme.backColor.title']}
+                                            </span>
                                             <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.backColor.title']}"></span>
                                         </label>
                                         <div>
@@ -152,9 +207,16 @@
                                         </div>
                                     </div>
                                     <div class="form-col-container col-sm-4">
-                                        <label for="linkColor" class="form-label">
+                                        <label
+                                                for="linkColor"
+                                                class="form-label"
+                                                aria-describedby="linkColorHelpText">
                                             #{bundle['dataverse.theme.linkColor']}
+                                            <span id="linkColorHelpText" class="visually-hidden">
+                                                #{bundle['dataverse.theme.linkColor.title']}
+                                            </span>
                                             <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.linkColor.title']}"></span>
                                         </label>
                                         <div>
@@ -163,9 +225,16 @@
                                         </div>
                                     </div>
                                     <div class="form-col-container col-sm-4">
-                                        <label for="textColor" class="form-label">
+                                        <label
+                                                for="textColor"
+                                                class="form-label"
+                                                aria-describedby="textColorHelpText">
                                             #{bundle['dataverse.theme.txtColor']}
+                                            <span id="textColorHelpText" class="visually-hidden">
+                                                #{bundle['dataverse.theme.txtColor.title']}
+                                            </span>
                                             <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.txtColor.title']}"></span>
                                         </label>
                                         <div>
@@ -176,9 +245,16 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label class="col-sm-3 form-label" for="tagline">
+                                <label
+                                        class="col-sm-3 form-label"
+                                        for="tagline"
+                                        aria-describedby="taglineHelpText">
                                     #{bundle['dataverse.theme.tagline']}
+                                    <span id="taglineHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.theme.tagline.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.tagline.title']}"></span>
                                 </label>
                                 <h:inputHidden id="linkAndUrl" value="true">
@@ -193,9 +269,16 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label class="col-sm-3 form-label" for="website">
+                                <label
+                                        class="col-sm-3 form-label"
+                                        for="website"
+                                        aria-describedby="websiteHelpText">
                                     #{bundle['dataverse.theme.website']}
+                                    <span id="websiteHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.theme.website.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.website.title']}"></span>
                                 </label>
                                 <div class="col-sm-6">
@@ -212,9 +295,15 @@
                             </div>
                             <!-- Dataverse footer logo -->
                             <div class="row mb-3" jsf:rendered="#{themeWidgetFragment.editDv.themeRoot}">
-                                <label class="col-sm-3 form-label">
+                                <label
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="logoFooterHelpText">
                                     #{bundle['dataverse.theme.logo.imageFooter']}
+                                    <span id="logoFooterHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.theme.logo.image.footer']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.image.footer']}"></span>
                                 </label>
                                 <div class="col-sm-9">
@@ -236,9 +325,16 @@
                                     </p:panelGrid>
                                     <ui:fragment rendered="#{not empty themeWidgetFragment.editDv.dataverseTheme.logoFooter}">
                                         <div class="form-col-container col-sm-3">
-                                            <label for="logoAlignment" class="form-label">
+                                            <label
+                                                    for="logoAlignment"
+                                                    class="form-label"
+                                                    aria-describedby="logoFooterAlignmentHelpText">
                                                 #{bundle['dataverse.theme.logo.alignment']}
+                                                <span id="logoFooterAlignmentHelpText" class="visually-hidden">
+                                                    #{bundle['dataverse.theme.logo.alignment.title']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.alignment.title']}"></span>
                                             </label>
                                             <div>
@@ -251,9 +347,16 @@
                                             </div>
                                         </div>
                                         <div class="form-col-container col-sm-4">
-                                            <label for="logoBackgroundColor" class="form-label">
+                                            <label
+                                                    for="logoBackgroundColor"
+                                                    class="form-label"
+                                                    aria-describedby="logoFooterBackgroundColorHelpText">
                                                 #{bundle['dataverse.theme.logo.backColor']}
+                                                <span id="logoFooterBackgroundColorHelpText" class="visually-hidden">
+                                                    #{bundle['dataverse.theme.logo.backColor.title']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.theme.logo.backColor.title']}"></span>
                                             </label>
                                             <div>

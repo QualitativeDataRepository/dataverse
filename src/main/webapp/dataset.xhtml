@@ -641,31 +641,51 @@
                                             <div class="metrics-count-block" jsf:rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
                                                 <h:outputFormat value="{0} #{bundle['metrics.downloads']}">
                                                     <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id)}"/>
+                                                    <f:passThroughAttribute name="aria-describedby" value="metricsDownloadsDefaultTip"/>
                                                 </h:outputFormat>
+                                                <span id="metricsDownloadsDefaultTip" class="visually-hidden">
+                                                    #{bundle['metrics.dataset.downloads.default.tip']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.default.tip']}"></span>
+                                                      aria-hidden="true"
+                                                      data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.default.tip']}"></span>
                                             </div>
                                             <!-- Make Data Count views -->
                                             <div class="metrics-count-block" jsf:rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
                                                 <h:outputFormat value="{0} #{bundle['metrics.views']}">
                                                     <f:param value="#{datasetMetricsServiceBean.getMetrics(DatasetPage.dataset).getViewsTotal()}"/>
+                                                    <f:passThroughAttribute name="aria-describedby" value="metricsViewsTip"/>
                                                 </h:outputFormat>
+                                                <span id="metricsViewsTip" class="visually-hidden">
+                                                    #{bundle['metrics.dataset.views.tip']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.views.tip']}"></span>
+                                                      aria-hidden="true"
+                                                      data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.views.tip']}"></span>
                                             </div>
                                             <!-- Make Data Count downloads -->
                                             <div class="metrics-count-block" jsf:rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
                                                 <h:outputFormat value="{0} #{bundle['metrics.downloads']}">
                                                     <f:param value="#{datasetMetricsServiceBean.getMetrics(DatasetPage.dataset).getDownloadsTotal()}"/>
+                                                    <f:passThroughAttribute name="aria-describedby" value="metricsDownloadsMdcTip"/>
                                                 </h:outputFormat>
+                                                <span id="metricsDownloadsMdcTip" class="visually-hidden">
+                                                    #{bundle['metrics.dataset.downloads.makedatacount.tip']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.makedatacount.tip']}"></span>
+                                                      aria-hidden="true"
+                                                      data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.makedatacount.tip']}"></span>
                                                 <span jsf:rendered="#{(settingsWrapper.getMDCStartDate()!=null) and (guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id, settingsWrapper.getMDCStartDate()) > 0)}">        
                                                     <h:outputFormat value="#{bundle['metrics.downloads.nonMDC']}">
                                                         <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id, settingsWrapper.getMDCStartDate())}"/>
+                                                        <f:passThroughAttribute name="aria-describedby" value="metricsDownloadsPreMdcTip"/>
                                                     </h:outputFormat>
+                                                    <span id="metricsDownloadsPreMdcTip" class="visually-hidden">
+                                                        #{bundle['metrics.dataset.downloads.premakedatacount.tip']}
+                                                    </span>
                                                     <span class="bi bi-question-circle tooltip-icon"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.premakedatacount.tip']}"></span>)
+                                                          aria-hidden="true"
+                                                          data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.premakedatacount.tip']}"></span>)
                                                 </span>
                                             </div>
                                             <!-- Make Data Count citations (DOIs only, not Handles) -->
@@ -673,10 +693,15 @@
                                                 <p:commandLink oncomplete="PF('citationsDialog').show();">
                                                     <h:outputFormat value="{0} #{bundle['metrics.citations']}">
                                                         <f:param value="#{fn:length(datasetExternalCitationsServiceBean.getDatasetExternalCitationsByDataset(DatasetPage.dataset))}"/>
+                                                        <f:passThroughAttribute name="aria-describedby" value="metricsCitationsTip"/>
                                                     </h:outputFormat>
                                                 </p:commandLink>
+                                                <span id="metricsCitationsTip" class="visually-hidden">
+                                                    #{bundle['metrics.dataset.citations.tip']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.citations.tip']}"></span>
+                                                      aria-hidden="true"
+                                                      data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.citations.tip']}"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -704,18 +729,28 @@
                                         <tbody>
                                             <ui:repeat value="#{DatasetPage.datasetSummaryFields}" var="dsf">
                                                 <tr id="keywords" jsf:rendered="#{!empty DatasetPage.datasetVersionUI.keywordDisplay and dsf.datasetFieldType.id==DatasetPage.datasetVersionUI.keyword.datasetFieldType.id}">
-                                                    <th scope="row">
+                                                    <th scope="row" aria-describedby="keywordHelpText">
                                                         #{bundle['dataset.keywordDisplay.title']}
+                                                        <span id="keywordHelpText" class="visually-hidden">
+                                                            #{DatasetPage.datasetVersionUI.keyword.datasetFieldType.localeDescription}
+                                                        </span>
                                                         <span class="bi bi-question-circle tooltip-icon"
-                                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{DatasetPage.datasetVersionUI.keyword.datasetFieldType.localeDescription}"></span>
+                                                              aria-hidden="true"
+                                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{DatasetPage.datasetVersionUI.keyword.datasetFieldType.localeDescription}">
+                                                        </span>
                                                     </th>
                                                     <td>#{DatasetPage.datasetVersionUI.keywordDisplay}</td>
                                                 </tr>
                                                 <tr id="publication" jsf:rendered="#{!empty DatasetPage.datasetVersionUI.relPublicationCitation and dsf.datasetFieldType.name=='publication'}">
-                                                    <th scope="row">
+                                                    <th scope="row" aria-describedby="publicationHelpText">
                                                         #{DatasetPage.datasetVersionUI.datasetRelPublications.get(0).title}
+                                                        <span id="publicationHelpText" class="visually-hidden">
+                                                            #{DatasetPage.datasetVersionUI.datasetRelPublications.get(0).description}
+                                                        </span>
                                                         <span class="bi bi-question-circle tooltip-icon"
-                                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{DatasetPage.datasetVersionUI.datasetRelPublications.get(0).description}"></span>
+                                                              aria-hidden="true"
+                                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{DatasetPage.datasetVersionUI.datasetRelPublications.get(0).description}">
+                                                        </span>
                                                     </th>
                                                     <td jsf:rendered="#{!anonymizedAccess or !settingsWrapper.shouldBeAnonymized(dsf)}">
                                                         <h:outputText value="#{DatasetPage.datasetVersionUI.relPublicationRelationType}#{MarkupChecker:sanitizeBasicHTML(DatasetPage.datasetVersionUI.relPublicationCitation)}" escape="false"/>
@@ -728,10 +763,15 @@
                                                     </td>
                                                 </tr>
                                                 <tr id="#{dsf.datasetFieldType.name}" jsf:rendered="#{dsf.datasetFieldType.name!='publication' and dsf.datasetFieldType.name!='keyword'}">
-                                                    <th scope="row">
+                                                    <th scope="row" aria-describedby="#{dsf.datasetFieldType.name}HelpText">
                                                         #{dsf.datasetFieldType.localeTitle}
+                                                        <span id="#{dsf.datasetFieldType.name}HelpText" class="visually-hidden">
+                                                            #{dsf.datasetFieldType.localeDescription}
+                                                        </span>
                                                         <span class="bi bi-question-circle tooltip-icon"
-                                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{dsf.datasetFieldType.localeDescription}"></span>
+                                                              aria-hidden="true"
+                                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{dsf.datasetFieldType.localeDescription}">
+                                                        </span>
                                                     </th>
                                                     <td jsf:rendered="#{!anonymizedAccess or !settingsWrapper.shouldBeAnonymized(dsf)}">
                                                         <!-- Primitive datasetFields -->
@@ -1248,8 +1288,14 @@
                             <p:fragment rendered="#{anonymizedAccessEnabled}">
                             <p>
                              <p>
-                                 <h:outputText  styleClass="fw-bold" value="#{bundle['dataset.privateurl.anonymous.title']}"></h:outputText>
+                                 <h:outputText id="privateUrlAnonymousTitle" styleClass="fw-bold" value="#{bundle['dataset.privateurl.anonymous.title']}">
+                                     <f:passThroughAttribute name="aria-describedby" value="privateUrlAnonymousHelpText"/>
+                                 </h:outputText>
+                                 <span id="privateUrlAnonymousHelpText" class="visually-hidden">
+                                     #{bundle['dataset.privateurl.anonymous.tooltip.preface']} #{DatasetPage.getAnonymizedFieldTypeNames()}
+                                 </span>
                                  <span class="bi bi-question-circle tooltip-icon"
+                                       aria-hidden="true"
                                        data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.privateurl.anonymous.tooltip.preface']} #{DatasetPage.getAnonymizedFieldTypeNames()} "></span>
                              </p>   
                             <p>#{bundle['dataset.privateurl.anonymous.description']}</p>  

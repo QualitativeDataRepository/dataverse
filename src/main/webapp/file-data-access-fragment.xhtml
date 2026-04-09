@@ -29,9 +29,15 @@
             </div>
         </div>
         <div class="row mb-3 row">
-            <label class="col-12 col-lg-3 form-label">
+            <label
+                    class="col-12 col-lg-3 form-label"
+                    aria-describedby="localDataAccessHelpText">
                 #{bundle['file.dataFilesTab.dataAccess.local.label']}
+                <span id="localDataAccessHelpText" class="visually-hidden">
+                    #{bundle['file.dataFilesTab.dataAccess.local.tooltip']}
+                </span>
                 <span class="bi bi-question-circle tooltip-icon"
+                      aria-hidden="true"
                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.dataAccess.local.tooltip']}"></span>
             </label>
             <div class="col-sm-9">
@@ -41,9 +47,15 @@
             </div>
         </div>
         <div class="row mb-3 row">
-            <label class="col-12 col-lg-3 form-label">
+            <label
+                    class="col-12 col-lg-3 form-label"
+                    aria-describedby="downloadDataAccessHelpText">
                 #{bundle['file.dataFilesTab.dataAccess.download.label']}
+                <span id="downloadDataAccessHelpText" class="visually-hidden">
+                    #{bundle['file.dataFilesTab.dataAccess.download.tooltip']}
+                </span>
                 <span class="bi bi-question-circle tooltip-icon"
+                      aria-hidden="true"
                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.dataAccess.download.tooltip']}"></span>
             </label>
             <div class="col-12 col-lg-9 row">
@@ -56,9 +68,16 @@
             </div>
         </div>
         <div class="row mb-3 row">
-            <label class="col-12 col-lg-3 form-label">
+            <label
+                    class="col-12 col-lg-3 form-label"
+                    aria-describedby="verifyDataAccessHelpText">
                 #{bundle['file.dataFilesTab.dataAccess.verify.label']}
+
+                <span id="verifyDataAccessHelpText" class="visually-hidden">
+                    #{bundle['file.dataFilesTab.dataAccess.verify.tooltip']}
+                </span>
                 <span class="bi bi-question-circle tooltip-icon"
+                      aria-hidden="true"
                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.dataAccess.verify.tooltip']}"></span>
             </label>
             <div class="col-sm-9">

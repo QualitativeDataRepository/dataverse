@@ -217,16 +217,32 @@
                                     <!-- Hypothesis upload widget -->
                                     <p class="form-text"><span class="bi bi-info-circle-fill"/> #{bundle['file.fromHypothesis.tip']}</p>
                                     <div>
-                                      <label for="datasetForm:hypothesisUrlInput" class="col-sm-1 form-label">
-                                        <span data-bs-toggle="tooltip" data-bs-placement="right" class="tooltiplabel text-info" title="#{bundle['dataset.hypothesis.url.tip']}">
+                                      <label
+                                              for="datasetForm:hypothesisUrlInput"
+                                              class="col-sm-1 form-label"
+                                              aria-describedby="hypothesisUrlHelpText">
+                                        <span id="hypothesisUrlHelpText" class="visually-hidden">
+                                            #{bundle['dataset.hypothesis.url.tip']}
+                                        </span>
+                                        <span data-bs-toggle="tooltip" data-bs-placement="right" class="tooltiplabel text-info tooltip-icon"
+                                              aria-hidden="true"
+                                              title="#{bundle['dataset.hypothesis.url.tip']}">
                                           #{bundle['dataset.hypothesis.url']}
                                         </span>
                                       </label>
                                       <h:inputText id="hypothesisUrlInput"  value="#{EditDatafilesPage.hypothesisUrlSelection}"/>
                                     </div>
                                     <div>
-                                      <label for="datasetForm:hypothesisGroupInput" class="col-sm-1 form-label">
-                                        <span data-bs-toggle="tooltip" data-bs-placement="right" class="tooltiplabel text-info" title="#{bundle['dataset.hypothesis.group.tip']}">
+                                      <label
+                                              for="datasetForm:hypothesisGroupInput"
+                                              class="col-sm-1 form-label"
+                                              aria-describedby="hypothesisGroupHelpText">
+                                        <span id="hypothesisGroupHelpText" class="visually-hidden">
+                                            #{bundle['dataset.hypothesis.group.tip']}
+                                        </span>
+                                        <span data-bs-toggle="tooltip" data-bs-placement="right" class="tooltiplabel text-info tooltip-icon"
+                                              aria-hidden="true"
+                                              title="#{bundle['dataset.hypothesis.group.tip']}">
                                           #{bundle['dataset.hypothesis.group']}
                                         </span>
                                       </label>
@@ -456,9 +472,17 @@
                                         <h:outputText value="#{fileMetadata.originalExtension}"/>
                                         <p:message for="datasetForm:filesTable:#{rowNum}:fileName"/>
 
-                                        <label class="form-label" jsf:for="fileDirectoryName" style="margin-right:1em;margin-bottom:.5em;">
+                                        <label
+                                                class="form-label"
+                                                for="fileDirectoryName"
+                                                style="margin-right:1em;margin-bottom:.5em;"
+                                                aria-describedby="fileDirectoryHelpText">
                                             #{bundle['file.metadataTab.fileMetadata.hierarchy.label']}    
+                                            <span id="fileDirectoryHelpText" class="visually-hidden">
+                                                #{bundle['file.metadataTab.fileMetadata.hierarchy.tip']}
+                                            </span>
                                             <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.metadataTab.fileMetadata.hierarchy.tip']}"></span>
                                         </label>
                                         <p:inputText id="fileDirectoryName" value="#{fileMetadata.directoryLabel}"                                            

@@ -81,81 +81,137 @@
                        <!-- Additional Information -->
                         <ui:fragment rendered="#{empty editMode and empty termsOfUseAndAccess.license}">
                             <div class="row mb-3" jsf:rendered="#{!empty termsOfUseAndAccess.termsOfUse}">
-                                <label for="datasetForm:tabView:metadata_TermsUse" class="col-sm-3 form-label">
-                                    #{bundle['file.dataFilesTab.terms.list.termsOfUse.termsOfUse']}
-                                    <span class="bi bi-question-circle tooltip-icon"
-                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.termsOfUse.title']}"></span>
-                                </label>
+                                <label
+                                        for="datasetForm:tabView:metadata_TermsUse"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="termsOfUseHelpText">
+                                   #{bundle['file.dataFilesTab.terms.list.termsOfUse.termsOfUse']}
+                                   <span id="termsOfUseHelpText" class="visually-hidden">
+                                       #{bundle['file.dataFilesTab.terms.list.termsOfUse.termsOfUse.title']}
+                                   </span>
+                                   <span class="bi bi-question-circle tooltip-icon"
+                                         aria-hidden="true"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.termsOfUse.title']}"></span>
+                               </label>
                                 <div class="col-sm-9">
                                     <h:outputText value="#{MarkupChecker:sanitizeBasicHTML(termsOfUseAndAccess.termsOfUse)}" escape="false"/>
                                </div>
                             </div>
                             <div class="row mb-3" jsf:rendered="#{!empty termsOfUseAndAccess.confidentialityDeclaration}">
-                                <label for="datasetForm:tabView:confidentialityDeclarationText" class="col-sm-3 form-label">
-                                    #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.declaration']}
-                                    <span class="bi bi-question-circle tooltip-icon"
-                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.declaration.title']}"></span>
-                                </label>
+                                <label
+                                        for="datasetForm:tabView:confidentialityDeclarationText"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="confidentialityHelpText">
+                                   #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.declaration']}
+                                   <span id="confidentialityHelpText" class="visually-hidden">
+                                       #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.declaration.title']}
+                                   </span>
+                                   <span class="bi bi-question-circle tooltip-icon"
+                                         aria-hidden="true"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.declaration.title']}"></span>
+                               </label>
                                 <div class="col-sm-9">
                                     <h:outputText id="confidentialityDeclarationText" value="#{MarkupChecker:sanitizeBasicHTML(termsOfUseAndAccess.confidentialityDeclaration)}" escape="false"/>
                                 </div>
                             </div>
                             <div class="row mb-3" jsf:rendered="#{!empty termsOfUseAndAccess.specialPermissions}">
-                                <label for="datasetForm:tabView:specialPermissionsText" class="col-sm-3 form-label">
-                                    #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.permissions']}
-                                    <span class="bi bi-question-circle tooltip-icon"
-                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.permissions.title']}"></span>
-                                </label>
+                                <label
+                                        for="datasetForm:tabView:specialPermissionsText"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="specialPermissionsHelpText">
+                                   #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.permissions']}
+                                   <span id="specialPermissionsHelpText" class="visually-hidden">
+                                       #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.permissions.title']}
+                                   </span>
+                                   <span class="bi bi-question-circle tooltip-icon"
+                                         aria-hidden="true"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.permissions.title']}"></span>
+                               </label>
                                 <div class="col-sm-9">
                                     <h:outputText id="specialPermissionsText" value="#{MarkupChecker:sanitizeBasicHTML(termsOfUseAndAccess.specialPermissions)}" escape="false"/>
                                 </div>
                             </div>
                             <div class="row mb-3" jsf:rendered="#{!empty termsOfUseAndAccess.restrictions}">
-                                <label for="datasetForm:tabView:restrictionsText" class="col-sm-3 form-label">
-                                    #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.restrictions']}
-                                    <span class="bi bi-question-circle tooltip-icon"
-                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.restrictions.title']}"></span>
-                                </label>
+                                <label
+                                        for="datasetForm:tabView:restrictionsText"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="restrictionsHelpText">
+                                   #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.restrictions']}
+                                   <span id="restrictionsHelpText" class="visually-hidden">
+                                       #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.restrictions.title']}
+                                   </span>
+                                   <span class="bi bi-question-circle tooltip-icon"
+                                         aria-hidden="true"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.restrictions.title']}"></span>
+                               </label>
                                 <div class="col-sm-9">
                                     <h:outputText id="restrictionsText" value="#{MarkupChecker:sanitizeBasicHTML(termsOfUseAndAccess.restrictions)}" escape="false"/>
                                 </div>
                             </div>
                             <div class="row mb-3" jsf:rendered="#{!empty termsOfUseAndAccess.citationRequirements}">
-                                <label for="datasetForm:tabView:citationRequirementsText" class="col-sm-3 form-label">
-                                    #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.citationRequirements']}
-                                    <span class="bi bi-question-circle tooltip-icon"
-                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.citationRequirements.title']}"></span>
-                                </label>
+                                <label
+                                        for="datasetForm:tabView:citationRequirementsText"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="citationRequirementsHelpText">
+                                   #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.citationRequirements']}
+                                   <span id="citationRequirementsHelpText" class="visually-hidden">
+                                       #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.citationRequirements.title']}
+                                   </span>
+                                   <span class="bi bi-question-circle tooltip-icon"
+                                         aria-hidden="true"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.citationRequirements.title']}"></span>
+                               </label>
                                 <div class="col-sm-9">
                                     <h:outputText id="citationRequirementsText" value="#{MarkupChecker:sanitizeBasicHTML(termsOfUseAndAccess.citationRequirements)}" escape="false"/>
                                 </div>
                             </div>
                             <div class="row mb-3" jsf:rendered="#{!empty termsOfUseAndAccess.depositorRequirements}">
-                                <label for="datasetForm:tabView:depositorRequirementsText" class="col-sm-3 form-label">
-                                    #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.depositorRequirements']}
-                                    <span class="bi bi-question-circle tooltip-icon"
-                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.depositorRequirements.title']}"></span>
-                                </label>
+                                <label
+                                        for="datasetForm:tabView:depositorRequirementsText"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="depositorRequirementsHelpText">
+                                   #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.depositorRequirements']}
+                                   <span id="depositorRequirementsHelpText" class="visually-hidden">
+                                       #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.depositorRequirements.title']}
+                                   </span>
+                                   <span class="bi bi-question-circle tooltip-icon"
+                                         aria-hidden="true"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.depositorRequirements.title']}"></span>
+                               </label>
                                 <div class="col-sm-9">
                                     <h:outputText id="depositorRequirementsText" value="#{MarkupChecker:sanitizeBasicHTML(termsOfUseAndAccess.depositorRequirements)}" escape="false"/>
                                 </div>
                             </div>
                             <div class="row mb-3" jsf:rendered="#{!empty termsOfUseAndAccess.conditions}">
-                                <label for="datasetForm:tabView:conditionsText" class="col-sm-3 form-label">
-                                    #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.conditions']}
-                                    <span class="bi bi-question-circle tooltip-icon"
-                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.conditions.title']}"></span>
-                                </label>
+                                <label
+                                        for="datasetForm:tabView:conditionsText"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="conditionsHelpText">
+                                   #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.conditions']}
+                                   <span id="conditionsHelpText" class="visually-hidden">
+                                       #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.conditions.title']}
+                                   </span>
+                                   <span class="bi bi-question-circle tooltip-icon"
+                                         aria-hidden="true"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.conditions.title']}"></span>
+                               </label>
                                 <div class="col-sm-9">
                                     <h:outputText id="conditionsText" value="#{MarkupChecker:sanitizeBasicHTML(termsOfUseAndAccess.conditions)}" escape="false"/>
                                 </div>
                             </div>
                             <div class="row mb-3" jsf:rendered="#{!empty termsOfUseAndAccess.disclaimer}">
-                                <label for="datasetForm:tabView:disclaimerText" class="col-sm-3 form-label">
-                                    #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.disclaimer']}
-                                    <span class="bi bi-question-circle tooltip-icon"
-                                          data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.disclaimer.title']}"></span>
-                                </label>
+                                <label
+                                        for="datasetForm:tabView:disclaimerText"
+                                        class="col-sm-3 form-label"
+                                        aria-describedby="disclaimerHelpText">
+                                   #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.disclaimer']}
+                                   <span id="disclaimerHelpText" class="visually-hidden">
+                                       #{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.disclaimer.title']}
+                                   </span>
+                                   <span class="bi bi-question-circle tooltip-icon"
+                                         aria-hidden="true"
+                                         data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['file.dataFilesTab.terms.list.termsOfUse.addInfo.disclaimer.title']}"></span>
+                               </label>
                                 <div class="col-sm-9">
                                     <h:outputText id="disclaimerText" value="#{MarkupChecker:sanitizeBasicHTML(termsOfUseAndAccess.disclaimer)}" escape="false"/>
                                 </div>

@@ -48,9 +48,15 @@
                             </div>
                             <div id="panelCollapseDataversesFieldList" class="card-body collapse show" aria-labelledby="headingDataversesFieldList">
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:dvFieldName" class="col-sm-4 col-form-label">
+                                    <label for="advancedSearchForm:dvFieldName"
+                                           class="col-sm-4 col-form-label"
+                                           aria-describedby="dvFieldNameHelpText">
                                         #{bundle.name}
+                                        <span id="dvFieldNameHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.dataverses.name.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.dataverses.name.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -58,9 +64,15 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:dvFieldAlias" class="col-sm-4 col-form-label">
+                                    <label for="advancedSearchForm:dvFieldAlias"
+                                           class="col-sm-4 col-form-label"
+                                           aria-describedby="dvFieldAliasHelpText">
                                         #{bundle.identifier}
+                                        <span id="dvFieldAliasHelpText" class="visually-hidden">
+                                            #{bundle['dataverse.identifier.title']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.identifier.title']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -68,9 +80,15 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:dvFieldAffiliation" class="col-sm-4 col-form-label">
+                                    <label for="advancedSearchForm:dvFieldAffiliation"
+                                           class="col-sm-4 col-form-label"
+                                           aria-describedby="dvFieldAffiliationHelpText">
                                         #{bundle.affiliation}
+                                        <span id="dvFieldAffiliationHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.dataverses.affiliation.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.dataverses.affiliation.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -78,9 +96,15 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:dvFieldDescription" class="col-sm-4 col-form-label">
+                                    <label for="advancedSearchForm:dvFieldDescription"
+                                           class="col-sm-4 col-form-label"
+                                           aria-describedby="dvFieldDescriptionHelpText">
                                         #{bundle.description}
+                                        <span id="dvFieldDescriptionHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.dataverses.description.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.dataverses.description.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -88,9 +112,15 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label class="col-sm-4 col-form-label">
+                                    <label
+                                            class="col-sm-4 col-form-label"
+                                            aria-describedby="dvFieldSubjectHelpText">
                                         #{bundle.subject}
+                                        <span id="dvFieldSubjectHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.dataverses.subject.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.dataverses.subject.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -116,9 +146,16 @@
                                 <div id="panelCollapseCitationFieldList#{mdb.id}" class="collapse show card-body" aria-labelledby="headingCitationFieldList#{mdb.id}">
                                     <ui:repeat id="field" value="#{AdvancedSearchPage.metadataFieldMap.get(mdb.getId())}" var="item" varStatus="fieldStatus">
                                         <div class="row mb-3">
-                                            <label for="advancedSearchForm:block:#{status.index}:field:#{fieldStatus.index}:#{cvoc==null ? 'searchValue':'searchValue2'}" class="col-sm-4 col-form-label">
+                                            <label
+                                                    for="advancedSearchForm:block:#{status.index}:field:#{fieldStatus.index}:#{cvoc==null ? 'searchValue':'searchValue2'}"
+                                                    class="col-sm-4 col-form-label"
+                                                    aria-describedby="advancedSearchHelpText_#{status.index}_#{fieldStatus.index}">
                                                 #{item.displayName}
+                                                <span id="advancedSearchHelpText_#{status.index}_#{fieldStatus.index}" class="visually-hidden">
+                                                    #{item.localeDescription}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{item.localeDescription}"></span>
                                             </label>
                                             <div class="col-sm-6">
@@ -151,9 +188,16 @@
                                     </ui:repeat>
                                     <ui:fragment rendered="#{mdb.id == '1'}">
                                         <div class="row mb-3">
-                                            <label for="advancedSearchForm:block:0:dvFieldNamez" class="col-sm-4 col-form-label">
+                                            <label
+                                                    for="advancedSearchForm:block:0:dvFieldNamez"
+                                                    class="col-sm-4 col-form-label"
+                                                    aria-describedby="dvFieldNamezHelpText">
                                                 #{bundle['dataset.metadata.publicationYear']}
+                                                <span id="dvFieldNamezHelpText" class="visually-hidden">
+                                                    #{bundle['dataset.metadata.publicationYear.tip']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.publicationYear.tip']}"></span>
                                             </label>
                                             <div class="col-sm-6">
@@ -161,9 +205,16 @@
                                             </div>
                                         </div>
                                         <div class="row mb-3">
-                                            <label for="advancedSearchForm:block:0:dsPersistentIdentifier" class="col-sm-4 col-form-label">
+                                            <label
+                                                    for="advancedSearchForm:block:0:dsPersistentIdentifier"
+                                                    class="col-sm-4 col-form-label"
+                                                    aria-describedby="dsPersistentIdentifierHelpText">
                                                 #{bundle['dataset.metadata.persistentId']}
+                                                <span id="dsPersistentIdentifierHelpText" class="visually-hidden">
+                                                    #{bundle['dataset.metadata.persistentId.tip']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.persistentId.tip']}"></span>
                                             </label>
                                             <div class="col-sm-6">
@@ -184,9 +235,16 @@
                             </div>
                             <div id="panelCollapseFilesFieldList" class="card-body collapse show" aria-labelledby="headingFilesFieldList">
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:fileFieldName" class="col-sm-4 col-form-label">
+                                    <label
+                                            for="advancedSearchForm:fileFieldName"
+                                            class="col-sm-4 col-form-label"
+                                            aria-describedby="fileFieldNameHelpText">
                                         #{bundle.name}
+                                        <span id="fileFieldNameHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.files.name.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.files.name.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -194,9 +252,16 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:fileFieldDescription" class="col-sm-4 col-form-label">
+                                    <label
+                                            for="advancedSearchForm:fileFieldDescription"
+                                            class="col-sm-4 col-form-label"
+                                            aria-describedby="fileFieldDescriptionHelpText">
                                         #{bundle.description}
+                                        <span id="fileFieldDescriptionHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.files.description.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.files.description.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -204,9 +269,15 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:fileFieldFiletype" class="col-sm-4 col-form-label">
+                                    <label for="advancedSearchForm:fileFieldFiletype"
+                                           class="col-sm-4 col-form-label"
+                                           aria-describedby="fileFieldFiletypeHelpText">
                                         #{bundle['advanced.search.files.fileType']}
+                                        <span id="fileFieldFiletypeHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.files.fileType.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.files.fileType.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -214,9 +285,16 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:fileFieldPersistentId" class="col-sm-4 col-form-label">
+                                    <label
+                                            for="advancedSearchForm:fileFieldPersistentId"
+                                            class="col-sm-4 col-form-label"
+                                            aria-describedby="fileFieldPersistentIdHelpText">
                                         #{bundle['advanced.search.files.persistentId']}
+                                        <span id="fileFieldPersistentIdHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.files.persistentId.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.files.persistentId.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -224,9 +302,16 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:fileFieldVariableName" class="col-sm-4 col-form-label">
+                                    <label
+                                            for="advancedSearchForm:fileFieldVariableName"
+                                            class="col-sm-4 col-form-label"
+                                            aria-describedby="fileFieldVariableNameHelpText">
                                         #{bundle['advanced.search.files.variableName']}
+                                        <span id="fileFieldVariableNameHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.files.variableName.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.files.variableName.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -234,9 +319,16 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:fileFieldVariableLabel" class="col-sm-4 col-form-label">
+                                    <label
+                                            for="advancedSearchForm:fileFieldVariableLabel"
+                                            class="col-sm-4 col-form-label"
+                                            aria-describedby="fileFieldVariableLabelHelpText">
                                         #{bundle['advanced.search.files.variableLabel']}
+                                        <span id="fileFieldVariableLabelHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.files.variableLabel.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.files.variableLabel.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -244,9 +336,16 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:fileFieldFileTags" class="col-sm-4 col-form-label">
+                                    <label
+                                            for="advancedSearchForm:fileFieldFileTags"
+                                            class="col-sm-4 col-form-label"
+                                            aria-describedby="fileFieldFileTagsHelpText">
                                         #{bundle['advanced.search.files.fileTags']}
+                                        <span id="fileFieldFileTagsHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.files.fileTags.tip']}
+                                        </span>
                                         <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
                                               data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.files.fileTags.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
@@ -254,10 +353,17 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-                                    <label for="advancedSearchForm:fileFieldFullText" class="col-sm-4 col-form-label">
+                                    <label
+                                           for="advancedSearchForm:fileFieldFullText"
+                                           class="col-sm-4 col-form-label"
+                                           aria-describedby="fileFieldFullTextHelpText">
                                         #{bundle['advanced.search.files.fullText']}
-                                        <span data-bs-toggle="tooltip" data-bs-placement="right"
-                                              class="bi bi-question-circle tooltip-icon" title="#{bundle['advanced.search.files.fullText.tip']}"></span>
+                                        <span id="fileFieldFullTextHelpText" class="visually-hidden">
+                                            #{bundle['advanced.search.files.fullText.tip']}
+                                        </span>
+                                        <span class="bi bi-question-circle tooltip-icon"
+                                              aria-hidden="true"
+                                              data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['advanced.search.files.fullText.tip']}"></span>
                                     </label>
                                     <div class="col-sm-6">
                                         <p:inputText id="fileFieldFullText" styleClass="form-control" value="#{AdvancedSearchPage.fileFieldFullText}"/>

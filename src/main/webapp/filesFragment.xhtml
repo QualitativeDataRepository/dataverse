@@ -85,9 +85,13 @@
                             </h:outputFormat>
                         </p>
                     </div>
-                    <label class="col-sm-3 form-label">
+                    <label class="col-sm-3 form-label" aria-describedby="cloudStorageHelpText">
                         #{bundle['file.cloudStorageAccess']}
+                        <span id="cloudStorageHelpText" class="visually-hidden">
+                            #{bundle['file.cloudStorageAccess.tip']}
+                        </span>
                         <span class="bi bi-question-circle tooltip-icon"
+                              aria-hidden="true"
                               data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['file.cloudStorageAccess.tip']}"></span>
                     </label>
                     <div class="col-md-4 col-sm-5 col-6 input-group">

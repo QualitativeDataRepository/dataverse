@@ -29,9 +29,16 @@
                     <p:tab id="thumbnailsTab" title="#{bundle['dataset.thumbnailsAndWidget.thumbnails.title']}">
 
                             <div class="row mb-3" jsf:rendered="#{true or themeWidgetFragment.editDv.themeRoot}">
-                                <label class="col-sm-3 form-label" for="logoFormat">
+                                <label
+                                        class="col-sm-3 form-label"
+                                        for="logoFormat"
+                                        aria-describedby="thumbnailImageHelpText">
                                     #{bundle['dataset.thumbnailsAndWidget.thumbnailImage']}
+                                    <span id="thumbnailImageHelpText" class="visually-hidden">
+                                        #{bundle['dataset.thumbnailsAndWidget.thumbnailImage.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.title']}"></span>
                                 </label>
                                 <div class="col-sm-9">
@@ -56,9 +63,16 @@
                                     </div>
                                     <div class="col-sm-8">
                                         <div class="row mb-3" jsf:rendered="#{not empty DatasetWidgetsPage.datasetThumbnails}">
-                                            <label for="selectThumbnail" class="form-label">
+                                            <label
+                                                    for="selectThumbnail"
+                                                    aria-describedby="selectAvailableHelpText"
+                                                    class="form-label">
                                                 #{bundle['dataset.thumbnailsAndWidget.thumbnailImage.selectAvailable']}
+                                                <span id="selectAvailableHelpText" class="visually-hidden">
+                                                    #{bundle['dataset.thumbnailsAndWidget.thumbnailImage.selectAvailable.title']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.selectAvailable.title']}"></span>
                                             </label>
                                             <div>
@@ -68,9 +82,16 @@
                                             </div>
                                         </div>
                                         <div class="row mb-3">
-                                            <label for="uploadThumbnail" class="form-label">
+                                            <label
+                                                    for="uploadThumbnail"
+                                                    class="form-label"
+                                                    aria-describedby="uploadNewHelpText">
                                                 #{bundle['dataset.thumbnailsAndWidget.thumbnailImage.uploadNew']}
+                                                <span id="uploadNewHelpText" class="visually-hidden">
+                                                    #{bundle['dataset.thumbnailsAndWidget.thumbnailImage.uploadNew.title']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.uploadNew.title']}"></span>
                                             </label>
                                             <p:fileUpload invalidFileMessage="#{bundle['dataset.thumbnailsAndWidget.thumbnailImage.upload.invalidMsg']}" id="changelogo" allowTypes="/(\.|\/)(jpg|jpeg|png)$/" update="@form" 

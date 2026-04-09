@@ -63,9 +63,14 @@
                         <!-- Edit Info Panel -->
                         <div class="row" jsf:rendered="#{DataversePage.ownerId != null}">
                             <div class="col-md-6 row mb-3">
-                                <p:outputLabel for="#{DataversePage.editMode == 'CREATE' ? 'selectHostDataverse' : 'hostDataverseStatic'}" styleClass="form-label">
+                                <p:outputLabel id="hostDataverseLabel" for="#{DataversePage.editMode == 'CREATE' ? 'selectHostDataverse' : 'hostDataverseStatic'}" styleClass="form-label">
                                     #{bundle.hostDataverse}
+                                    <f:passThroughAttribute name="aria-describedby" value="hostDataverseHelpText"/>
+                                    <span id="hostDataverseHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.host.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.host.title']}"></span>
                                 </p:outputLabel>
                                 <div class="form-col-container">
@@ -106,9 +111,14 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 row mb-3">
-                                <h:outputLabel for="name" styleClass="form-label">
+                                <h:outputLabel id="dataverseNameLabel" for="name" styleClass="form-label">
                                     #{bundle['dataverse.name']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <f:passThroughAttribute name="aria-describedby" value="dataverseNameHelpText"/>
+                                    <span id="dataverseNameHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.name.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.name.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -119,9 +129,14 @@
                                 </div>
                             </div>
                             <div class="col-md-6 row mb-3">
-                                <h:outputLabel for="affiliation" styleClass="form-label">
+                                <h:outputLabel id="affiliationLabel" for="affiliation" styleClass="form-label">
                                     #{bundle.affiliation}
+                                    <f:passThroughAttribute name="aria-describedby" value="affiliationHelpText"/>
+                                    <span id="affiliationHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.affiliation.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.affiliation.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -132,9 +147,14 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 row mb-3">
-                                <h:outputLabel for="identifier" styleClass="form-label">
+                                <h:outputLabel id="identifierLabel" for="identifier" styleClass="form-label">
                                     #{bundle.identifier} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                    <f:passThroughAttribute name="aria-describedby" value="identifierHelpText"/>
+                                    <span id="identifierHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.identifier.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.identifier.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -149,9 +169,14 @@
                                 </div>
                             </div>
                             <div class="col-md-6 row mb-3" jsf:rendered="#{dataverseSession.user.superuser}">
-                                <h:outputLabel for="dataverseStorage" styleClass="form-label">
+                                <h:outputLabel id="dataverseStorageLabel" for="dataverseStorage" styleClass="form-label">
                                     #{bundle.storage} 
+                                    <f:passThroughAttribute name="aria-describedby" value="dataverseStorageHelpText"/>
+                                    <span id="dataverseStorageHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.storage.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.storage.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -162,9 +187,14 @@
                                 </div>
                             </div>
                             <div class="col-md-6 row mb-3" jsf:rendered="#{dataverseSession.user.superuser and DataversePage.getCurationLabelSetOptions().size() >0}">
-                                <h:outputLabel for="dataverseCurationLabels" styleClass="form-label">
+                                <h:outputLabel id="dataverseCurationLabelsLabel" for="dataverseCurationLabels" styleClass="form-label">
                                     #{bundle.curationLabels} 
+                                    <f:passThroughAttribute name="aria-describedby" value="dataverseCurationLabelsHelpText"/>
+                                    <span id="dataverseCurationLabelsHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.curationLabels.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.curationLabels.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -179,9 +209,14 @@
                             <div class="col-md-6 row mb-3">
                                 <div class="row">
                                     <div class="col-12 row mb-3">
-                                        <h:outputLabel for="dataverseCategory" styleClass="form-label">
+                                        <h:outputLabel id="dataverseCategoryLabel" for="dataverseCategory" styleClass="form-label">
                                             #{bundle['dataverse.category']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                            <f:passThroughAttribute name="aria-describedby" value="dataverseCategoryHelpText"/>
+                                            <span id="dataverseCategoryHelpText" class="visually-hidden">
+                                                #{bundle['dataverse.category.title']}
+                                            </span>
                                             <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.category.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
@@ -206,7 +241,12 @@
                                             <p:autoUpdate/>
                                             <p:outputLabel id="contactEmailLabel" styleClass="form-label">
                                                 #{bundle['dataverse.email']} <span class="bi bi-asterisk text-danger" title="#{bundle.requiredField}"/>
+                                                <f:passThroughAttribute name="aria-describedby" value="contactEmailHelpText"/>
+                                                <span id="contactEmailHelpText" class="visually-hidden">
+                                                    #{bundle['dataverse.email.title']}
+                                                </span>
                                                 <span class="bi bi-question-circle tooltip-icon"
+                                                      aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.email.title']}"></span>
                                             </p:outputLabel>
                                             <div class="form-col-container edit-compound-field">
@@ -239,9 +279,14 @@
                                         </p:fragment>
                                     </div>
                                     <div class="col-md-6 row mb-3" jsf:rendered="#{DataversePage.getMetadataLanguages().size()>2}">
-                                        <h:outputLabel for="dsMetadataLanguage" styleClass="form-label">
+                                        <h:outputLabel id="dsMetadataLanguageLabel" for="dsMetadataLanguage" styleClass="form-label">
                                             #{bundle.metadataLanguage} 
+                                            <f:passThroughAttribute name="aria-describedby" value="dsMetadataLanguageHelpText"/>
+                                            <span id="dsMetadataLanguageHelpText" class="visually-hidden">
+                                                #{bundle['dataverse.metadatalanguage.title']}
+                                            </span>
                                             <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.metadatalanguage.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
@@ -256,9 +301,14 @@
                             <div class="col-md-6 row mb-3">
                                 <div class="row">
                                     <div class="col-12 row mb-3">
-                                <h:outputLabel for="description" styleClass="form-label">
+                                <h:outputLabel id="descriptionLabel" for="description" styleClass="form-label">
                                     #{bundle.description}
+                                    <f:passThroughAttribute name="aria-describedby" value="descriptionHelpText"/>
+                                    <span id="descriptionHelpText" class="visually-hidden">
+                                        #{bundle['dataverse.description.title']}
+                                    </span>
                                     <span class="bi bi-question-circle tooltip-icon"
+                                          aria-hidden="true"
                                           data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.description.title']}"></span>
                                 </h:outputLabel>
                                 <div class="form-col-container">
@@ -273,9 +323,14 @@
                                 </div>
                                 </div>
                                     <div class="col-12 row mb-3" jsf:rendered="#{DataversePage.getGuestbookEntryOptions().size()>2}">
-                                        <h:outputLabel for="dsGuestbookEntryOption" styleClass="form-label">
+                                        <h:outputLabel id="dsGuestbookEntryOptionLabel" for="dsGuestbookEntryOption" styleClass="form-label">
                                             #{bundle.guestbookEntryOption} 
+                                            <f:passThroughAttribute name="aria-describedby" value="dsGuestbookEntryOptionHelpText"/>
+                                            <span id="dsGuestbookEntryOptionHelpText" class="visually-hidden">
+                                                #{bundle['dataverse.guestbookentryatrequest.title']}
+                                            </span>
                                             <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.guestbookentryatrequest.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
@@ -286,9 +341,14 @@
                                         </div>
                                     </div>
                                     <div class="col-12 row mb-3" jsf:rendered="#{dataverseSession.user.superuser and DataversePage.getPidProviderOptions().size()>2}">
-                                        <h:outputLabel for="dsPidProviderOption" styleClass="form-label">
+                                        <h:outputLabel id="dsPidProviderOptionLabel" for="dsPidProviderOption" styleClass="form-label">
                                             #{bundle.pidProviderOption} 
+                                            <f:passThroughAttribute name="aria-describedby" value="dsPidProviderOptionHelpText"/>
+                                            <span id="dsPidProviderOptionHelpText" class="visually-hidden">
+                                                #{bundle['dataverse.pidProvider.title']}
+                                            </span>
                                             <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.pidProvider.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
