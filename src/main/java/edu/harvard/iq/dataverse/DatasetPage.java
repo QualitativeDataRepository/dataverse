@@ -106,10 +106,7 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.json.Json;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
-import jakarta.json.JsonValue;
 import jakarta.persistence.OptimisticLockException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -166,7 +163,6 @@ import edu.harvard.iq.dataverse.search.SearchConstants;
 import edu.harvard.iq.dataverse.search.SearchException;
 import edu.harvard.iq.dataverse.search.SearchFields;
 import edu.harvard.iq.dataverse.search.SolrClientService;
-import edu.harvard.iq.dataverse.settings.FeatureFlags;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SignpostingResources;
 import edu.harvard.iq.dataverse.util.FileMetadataUtil;
@@ -4735,16 +4731,10 @@ public class DatasetPage implements java.io.Serializable {
         this.downloadType = downloadType;
     }
 
-    public void initGuestbookMultipleResponse(String selectedFileIds){
-         initGuestbookResponse(null, "download", selectedFileIds);
-    }
-
     public void initGuestbookResponse(FileMetadata fileMetadata, String downloadFormat, String selectedFileIds) {
 
         this.guestbookResponse = guestbookResponseService.initGuestbookResponse(fileMetadata, downloadFormat, selectedFileIds, session);
     }
-
-
 
     public void compareVersionDifferences() {
         if (this.selectedVersions.size() != 2) {
