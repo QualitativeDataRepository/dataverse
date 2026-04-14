@@ -588,10 +588,10 @@
                             <h:outputText value="#{bundle['incomplete']}" styleClass="label label-danger" rendered="#{!result.harvested and !SearchIncludeFragment.isValid(result)}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
-                            <a rel="nofollow" href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? result.datasetUrl : widgetWrapper.wrapURL(result.datasetUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}" aria-label="#{result.title}">
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl and !result.deaccessionedState}" alt="#{result.title}"/>
+                            <span>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl and !result.deaccessionedState}" role="presentation"/>
                                 <span class="icon-dataset" jsf:rendered="#{empty result.imageUrl or result.deaccessionedState}"/>
-                            </a>
+                            </span>
                         </div>
 
                         <div>
