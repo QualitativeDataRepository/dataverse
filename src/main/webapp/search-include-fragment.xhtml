@@ -522,7 +522,7 @@
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <h:outputLink rel="nofollow" value="#{!SearchIncludeFragment.rootDv and !result.isInTree ? dvUrl : widgetWrapper.wrapURL(dvUrl)}" target="#{!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView ? '_blank' : ''}">
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt="#{of:format1(bundle['alt.logo'], result.name)}"/>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt=""/>
                                 <span class="icon-dataverse text-brand" jsf:rendered="#{empty result.imageUrl}"/>
                                 <f:passThroughAttribute name="aria-label" value="#{of:format1(bundle['alt.logo'], result.name)}"/>
                             </h:outputLink>
@@ -589,7 +589,7 @@
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <span>
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl and !result.deaccessionedState}" role="presentation"/>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl and !result.deaccessionedState}" alt=""/>
                                 <span class="icon-dataset" jsf:rendered="#{empty result.imageUrl or result.deaccessionedState}"/>
                             </span>
                         </div>
@@ -668,7 +668,7 @@
 
                         <div class="card-preview-icon-block text-center">
                             <a rel="nofollow" href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? (result.harvested ? result.fileDatasetUrl : result.fileUrl) : widgetWrapper.wrapURL(result.harvested ? result.fileDatasetUrl : result.fileUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}" aria-label="#{result.name}">
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt="#{result.name}"/>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt=""/>
                                 <span class="icon-#{dataFileServiceBean.getFileThumbnailClass(result.entity)} text-muted h1"
                                       jsf:rendered="#{empty result.imageUrl}"/>
                             </a>
