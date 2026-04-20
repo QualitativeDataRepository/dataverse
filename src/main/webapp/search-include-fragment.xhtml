@@ -519,7 +519,7 @@
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <span>
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" role="presentation"/>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt=""/>
                                 <span class="icon-dataverse text-brand" jsf:rendered="#{empty result.imageUrl}"/>
                             </span>
                         </div>
@@ -585,7 +585,7 @@
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <span>
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl and !result.deaccessionedState}" role="presentation"/>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl and !result.deaccessionedState}" alt=""/>
                                 <span class="icon-dataset" jsf:rendered="#{empty result.imageUrl or result.deaccessionedState}"/>
                             </span>
                         </div>
@@ -664,7 +664,7 @@
 
                         <div class="card-preview-icon-block text-center">
                             <span>
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" role="presentation"/>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt=""/>
                                 <span class="icon-#{dataFileServiceBean.getFileThumbnailClass(result.entity)} text-muted h1"
                                       jsf:rendered="#{empty result.imageUrl}"/>
                             </span>
