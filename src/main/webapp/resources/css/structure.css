@@ -1401,8 +1401,9 @@ span.label-primary { background-color: #0039f5; }
 
 .pagination > li.active > a,
 .pagination > li.active > a:focus,
-.pagination > li.active > a:hover{
+.pagination > li.active > a:hover {
   background-color: #0039f5;
+  color: #ffffff !important;
 }
 
 .pagination > li > a {
