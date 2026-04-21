@@ -43,22 +43,19 @@
                 <ui:fragment rendered="#{!dataverseSession.user.authenticated and (permissionsWrapper.authUsersCanCreateDataversesInDataverse(SearchIncludeFragment.dataverse)
                                          or permissionsWrapper.authUsersCanCreateDatasetsInDataverse(SearchIncludeFragment.dataverse))}">
                     <button type="button" class="add-data-plus-wrapper" onclick="PF('addData_popup').show()">
-                        <div></div>
                         <span> #{bundle['dataverse.results.btn.addData']} </span>
                     </button>
                 </ui:fragment>
-                <h:form id="altAddDataForm" class="btn-form"
+                <h:form id="altAddDataForm" styleClass="btn-form"
                         rendered="#{dataverseSession.user.authenticated and (!permissionsWrapper.canIssueCreateDataverseCommand(SearchIncludeFragment.dataverse)) and permissionsWrapper.canIssueCreateDatasetCommand(SearchIncludeFragment.dataverse)}">
                         <button type="button" class="add-data-plus-wrapper" onclick = "location.href='/dataset.xhtml?ownerId=#{SearchIncludeFragment.dataverse.id}'">
-                          <div></div>
                           <span>#{bundle['dataverse.results.btn.addData.newDataset']}</span>
                         </button>
                 </h:form>
-                <h:form id="addDataForm" class="btn-form"
+                <h:form id="addDataForm" styleClass="btn-form"
                         rendered="#{dataverseSession.user.authenticated and permissionsWrapper.canIssueCreateDataverseCommand(SearchIncludeFragment.dataverse)}">
                     <div class="btn-group">
                         <button type="button" class="add-data-plus-wrapper dropdown-toggle" data-toggle="dropdown">
-                          <div></div>
                           <span>#{bundle['dataverse.results.btn.addData']}</span>
                         </button>
                         <ul class="dropdown-menu pull-right text-left">
@@ -521,11 +518,10 @@
                             <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{result.unpublishedState}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
-                            <h:outputLink rel="nofollow" value="#{!SearchIncludeFragment.rootDv and !result.isInTree ? dvUrl : widgetWrapper.wrapURL(dvUrl)}" target="#{!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView ? '_blank' : ''}">
+                            <span>
                                 <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt=""/>
                                 <span class="icon-dataverse text-brand" jsf:rendered="#{empty result.imageUrl}"/>
-                                <f:passThroughAttribute name="aria-label" value="#{of:format1(bundle['alt.logo'], result.name)}"/>
-                            </h:outputLink>
+                            </span>
                         </div>
 
                         <div>
@@ -667,11 +663,11 @@
                         </div>
 
                         <div class="card-preview-icon-block text-center">
-                            <a rel="nofollow" href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? (result.harvested ? result.fileDatasetUrl : result.fileUrl) : widgetWrapper.wrapURL(result.harvested ? result.fileDatasetUrl : result.fileUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}" aria-label="#{result.name}">
+                            <span>
                                 <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt=""/>
                                 <span class="icon-#{dataFileServiceBean.getFileThumbnailClass(result.entity)} text-muted h1"
                                       jsf:rendered="#{empty result.imageUrl}"/>
-                            </a>
+                            </span>
                         </div>
 
                         <div class="text-muted">
