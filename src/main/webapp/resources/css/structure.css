@@ -1263,7 +1263,7 @@ div.container {
 	outline:none;
 }
 
-.add-data-plus-wrapper div {
+.add-data-plus-icon {
   background-image: url(/resources/images/new-project.svg);
   background-size: contain;
   height: 70px;

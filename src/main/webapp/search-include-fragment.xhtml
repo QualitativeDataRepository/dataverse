@@ -43,12 +43,14 @@
                 <ui:fragment rendered="#{!dataverseSession.user.authenticated and (permissionsWrapper.authUsersCanCreateDataversesInDataverse(SearchIncludeFragment.dataverse)
                                          or permissionsWrapper.authUsersCanCreateDatasetsInDataverse(SearchIncludeFragment.dataverse))}">
                     <button type="button" class="add-data-plus-wrapper" onclick="PF('addData_popup').show()">
+                        <span class="add-data-plus-icon" aria-hidden="true"></span>
                         <span> #{bundle['dataverse.results.btn.addData']} </span>
                     </button>
                 </ui:fragment>
                 <h:form id="altAddDataForm" styleClass="btn-form"
                         rendered="#{dataverseSession.user.authenticated and (!permissionsWrapper.canIssueCreateDataverseCommand(SearchIncludeFragment.dataverse)) and permissionsWrapper.canIssueCreateDatasetCommand(SearchIncludeFragment.dataverse)}">
                         <button type="button" class="add-data-plus-wrapper" onclick = "location.href='/dataset.xhtml?ownerId=#{SearchIncludeFragment.dataverse.id}'">
+                          <span class="add-data-plus-icon" aria-hidden="true"></span>
                           <span>#{bundle['dataverse.results.btn.addData.newDataset']}</span>
                         </button>
                 </h:form>
@@ -56,6 +58,7 @@
                         rendered="#{dataverseSession.user.authenticated and permissionsWrapper.canIssueCreateDataverseCommand(SearchIncludeFragment.dataverse)}">
                     <div class="btn-group">
                         <button type="button" class="add-data-plus-wrapper dropdown-toggle" data-toggle="dropdown">
+                          <span class="add-data-plus-icon" aria-hidden="true"></span>
                           <span>#{bundle['dataverse.results.btn.addData']}</span>
                         </button>
                         <ul class="dropdown-menu pull-right text-left">
