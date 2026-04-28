@@ -7,8 +7,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -751,17 +753,17 @@ public class XmlMetadataTemplate {
                 for (DatasetField subField : collectionDateFieldValue.getChildDatasetFields()) {
                     switch (subField.getDatasetFieldType().getName()) {
                     case DatasetFieldConstant.dateOfCollectionStart:
-                        startDate = subField.getValue();
+                        startDate = subField.getValue().trim();
                         break;
                     case DatasetFieldConstant.dateOfCollectionEnd:
-                        endDate = subField.getValue();
+                        endDate = subField.getValue().trim();
                         break;
                     }
                 }
-                // Minimal clean-up - useful? Parse/format would remove unused chars, and an
-                // exception would clear the date so we don't send nonsense
-                startDate = cleanUpDate(startDate);
-                endDate = cleanUpDate(endDate);
+                // Verify valid date format
+
+                startDate = isValidYearMonthOrDay(startDate) ? startDate:"";
+                endDate = isValidYearMonthOrDay(endDate) ? endDate:"";
                 if (StringUtils.isNotBlank(startDate) || StringUtils.isNotBlank(endDate)) {
                     datesWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "dates", datesWritten);
                     attributes.put("dateType", "Collected");
@@ -777,17 +779,16 @@ public class XmlMetadataTemplate {
                 for (DatasetField subField : timePeriodFieldValue.getChildDatasetFields()) {
                     switch (subField.getDatasetFieldType().getName()) {
                     case DatasetFieldConstant.timePeriodCoveredStart:
-                        startDate = subField.getValue();
+                        startDate = subField.getValue().trim();
                         break;
                     case DatasetFieldConstant.timePeriodCoveredEnd:
-                        endDate = subField.getValue();
+                        endDate = subField.getValue().trim();
                         break;
                     }
                 }
-                // Minimal clean-up - useful? Parse/format would remove unused chars, and an
-                // exception would clear the date so we don't send nonsense
-                startDate = cleanUpDate(startDate);
-                endDate = cleanUpDate(endDate);
+                // Verify valid date format
+                startDate = isValidYearMonthOrDay(startDate) ? startDate:"";
+                endDate = isValidYearMonthOrDay(endDate) ? endDate:"";
                 if (StringUtils.isNotBlank(startDate) || StringUtils.isNotBlank(endDate)) {
                     datesWritten = XmlWriterUtil.writeOpenTagIfNeeded(xmlw, "dates", datesWritten);
                     attributes.put("dateType", "Other");
@@ -801,18 +802,35 @@ public class XmlMetadataTemplate {
         }
     }
 
-    private String cleanUpDate(String date) {
-        String newDate = null;
-        if (!StringUtils.isBlank(date)) {
-            try {
-                SimpleDateFormat sdf = Util.getDateFormat();
-                Date start = sdf.parse(date);
-                newDate = sdf.format(start);
-            } catch (ParseException e) {
-                logger.warning("Could not parse date: " + date);
-            }
+    /** Checks for yyyy, yyyy-MM, or yyyy-MM-dd format
+     * @param value
+     * @return true if valid date format, false otherwise
+     */
+    private boolean isValidYearMonthOrDay(String value) {
+        if (StringUtils.isBlank(value)) {
+            return false;
         }
-        return newDate;
+
+        try {
+            if (value.matches("\\d{4}")) {
+                Year.parse(value);
+                return true;
+            }
+
+            if (value.matches("\\d{4}-\\d{2}")) {
+                YearMonth.parse(value);
+                return true;
+            }
+
+            if (value.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                LocalDate.parse(value);
+                return true;
+            }
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+
+        return false;
     }
 
     // 9, Language (MA), language
@@ -1346,7 +1364,7 @@ public class XmlMetadataTemplate {
                                 }
                             }
                         } else {
-                            
+
                             // No label or notice info - we'll still add a pointer to the project
                             xmlw.writeStartElement("rights"); // <rights>
                             xmlw.writeAttribute("rightsURI", projectUrl); // repeated in @id in evv
@@ -1397,7 +1415,7 @@ public class XmlMetadataTemplate {
         }
         xmlw.writeEndElement(); // </rights>
     }
-    
+
     private void writeLocalContextLabelRightsElement(XMLStreamWriter xmlw, String projectUrl, JsonObject labelObject) throws XMLStreamException {
         xmlw.writeStartElement("rights"); // <rights>
         xmlw.writeAttribute("rightsURI", projectUrl); // repeated in @id in evv
@@ -1712,7 +1730,7 @@ public class XmlMetadataTemplate {
                                     }
                                 }
                             }
-                            
+
                             xmlw.writeStartElement("fundingReference"); // <fundingReference>
                             XmlWriterUtil.writeFullElement(xmlw, "funderName", StringEscapeUtils.escapeXml10(funder));
                             if (isROR) {
