@@ -447,14 +447,14 @@
                                                     </ui:repeat>
                                                 </div>
                                                 <div class="col-sm-3 field-add-delete" jsf:rendered="#{dsf.datasetFieldType.allowMultiples and !dsf.datasetFieldType.controlledVocabulary}">
-                                                    <p:commandLink ariaLabel="#{bundle.add}" title="#{bundle.add}"
+                                                    <p:commandLink title="#{bundle.add}"
                                                                    ariaLabel="#{bundle.add}"
                                                                    styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                    actionListener="#{dsf.addDatasetFieldCompoundValue(valCount.index + 1)}"   
                                                                    update=":#{p:resolveClientIds('@id(editCompoundValueFragment)', view)}">
                                                         <span class="glyphicon glyphicon-plus no-text"/>
                                                     </p:commandLink>
-                                                    <p:commandLink ariaLabel="#{bundle.delete}" title="#{bundle.delete}"
+                                                    <p:commandLink title="#{bundle.delete}"
                                                                    ariaLabel="#{bundle.delete}"
                                                                    styleClass="btn btn-default btn-sm bootstrap-button-tooltip #{dsf.datasetFieldType.compound ? 'compound-field-btn' : ''}"
                                                                    rendered="#{dsf.datasetFieldCompoundValues.size() > 1}"
