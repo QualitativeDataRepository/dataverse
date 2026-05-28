@@ -935,11 +935,11 @@ Connection Validation
      - Default
    * - dataverse.db.is-connection-validation-required
      - ``true``: Validate connections, allow server to reconnect in case of failure.
-     - false
+     - true
    * - dataverse.db.connection-validation-method
      - | The method of connection validation:
-       | ``table|autocommit|meta-data|custom-validation``.
-     - *Empty string*
+       | ``table|auto-commit|meta-data|custom-validation``.
+     - ``auto-commit``
    * - dataverse.db.validation-table-name
      - The name of the table used for validation if the validation method is set to ``table``.
      - *Empty string*
