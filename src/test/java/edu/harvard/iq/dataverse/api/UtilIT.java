@@ -1461,11 +1461,6 @@ public class UtilIT {
         return request.get("/api/files/" + fileId + "/versionDifferences");
     }
 
-    static Response testIngest(String fileName, String fileType) {
-        return given()
-                .get("/api/ingest/test/file?fileName=" + fileName + "&fileType=" + fileType);
-    }
-
     static Response redetectFileType(String fileId, boolean dryRun, String apiToken) {
         return given()
                 .header(API_TOKEN_HTTP_HEADER, apiToken)
@@ -2048,7 +2043,7 @@ public class UtilIT {
      * superUserApiToken Note 2 : sortKey exists in API call but not currently
      * used
      *
-     * @param apiToken
+     * @param superUserApiToken
      * @return
      */
     static Response filterAuthenticatedUsers(String superUserApiToken,
@@ -3869,7 +3864,7 @@ public class UtilIT {
     /**
      * Determine the "payload" storage size of a dataverse
      *
-     * @param dataverseId
+     * @param datasetId
      * @param apiToken
      * @return response
      */
