@@ -282,6 +282,17 @@ public class ShapefileHandler{
             return false;
         }
 
+        String canonicalTargetDir;
+        try {
+            canonicalTargetDir = target_directory.getCanonicalPath();
+            if (!canonicalTargetDir.endsWith(File.separator)) {
+                canonicalTargetDir += File.separator;
+            }
+        } catch (IOException e) {
+            this.addErrorMessage("Failed to get canonical path for target directory: " + target_directory.getAbsolutePath());
+            return false;
+        }
+
        List<String> unzippedFileNames = new ArrayList<>();
 
 
@@ -289,6 +300,19 @@ public class ShapefileHandler{
             for(var origEntry : Collections.list(zipfileInput.entries())){
                 
                 String zentryFileName = origEntry.getName();
+
+                // Zip Slip Protection
+                try {
+                    File targetFile = new File(target_directory, zentryFileName);
+                    if (!targetFile.getCanonicalPath().startsWith(canonicalTargetDir)) {
+                        logger.warning("Potentially malicious zip entry ignored: " + zentryFileName);
+                        continue;
+                    }
+                } catch (IOException e) {
+                    logger.warning("Failed to get canonical path for zip entry: " + zentryFileName);
+                    continue;
+                }
+
                 logger.fine("\nOriginal entry name: " + origEntry);
                 
                  if (this.isFileToSkip(zentryFileName)){
@@ -661,6 +685,13 @@ public class ShapefileHandler{
            for(var entry : Collections.list(zip_file.entries())){
 
                 String zentryFileName = entry.getName();
+
+                // Zip Slip Protection
+                if (zentryFileName.contains("..") || zentryFileName.startsWith("/") || zentryFileName.startsWith("\\") || new File(zentryFileName).isAbsolute()) {
+                    logger.warning("Potentially malicious zip entry ignored: " + zentryFileName);
+                    continue;
+                }
+
                 boolean isDirectory = entry.isDirectory();
 
                 Boolean skip = isDirectory || this.isFileToSkip(zentryFileName);
