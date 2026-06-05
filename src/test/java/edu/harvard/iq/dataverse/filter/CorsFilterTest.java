@@ -44,6 +44,7 @@ class CorsFilterTest {
         backupAndClear("dataverse.cors.methods");
         backupAndClear("dataverse.cors.headers.allow");
         backupAndClear("dataverse.cors.headers.expose");
+        backupAndClear("dataverse.cors.allow-private-network");
         sut = new CorsFilter();
 
     }
@@ -54,6 +55,7 @@ class CorsFilterTest {
         restore("dataverse.cors.methods");
         restore("dataverse.cors.headers.allow");
         restore("dataverse.cors.headers.expose");
+        restore("dataverse.cors.allow-private-network");
     }
 
     @Test
@@ -220,6 +222,58 @@ class CorsFilterTest {
         verify(res, never()).setHeader(eq("Access-Control-Allow-Methods"), anyString());
         verify(res, never()).setHeader(eq("Access-Control-Allow-Headers"), anyString());
         verify(res, never()).setHeader(eq("Access-Control-Expose-Headers"), anyString());
+        verify(res, never()).setHeader(eq("Access-Control-Allow-Private-Network"), anyString());
+    }
+
+    @Test
+    void privateNetwork_addsHeaderWhenEnabled() throws Exception {
+        System.setProperty("dataverse.cors.origin", "*");
+        System.setProperty("dataverse.cors.allow-private-network", "true");
+
+        MockitoAnnotations.openMocks(this);
+        sut.init(null);
+
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        when(req.getHeader("Origin")).thenReturn("https://a.example");
+        HttpServletResponse res = mock(HttpServletResponse.class);
+
+        sut.doFilter(req, res, mock(FilterChain.class));
+
+        verify(res).setHeader("Access-Control-Allow-Private-Network", "true");
+    }
+
+    @Test
+    void privateNetwork_skipsHeaderWhenDisabled() throws Exception {
+        System.setProperty("dataverse.cors.origin", "*");
+        System.setProperty("dataverse.cors.allow-private-network", "false");
+
+        MockitoAnnotations.openMocks(this);
+        sut.init(null);
+
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        when(req.getHeader("Origin")).thenReturn("https://a.example");
+        HttpServletResponse res = mock(HttpServletResponse.class);
+
+        sut.doFilter(req, res, mock(FilterChain.class));
+
+        verify(res, never()).setHeader(eq("Access-Control-Allow-Private-Network"), anyString());
+    }
+
+    @Test
+    void privateNetwork_skipsHeaderWhenMissing() throws Exception {
+        System.setProperty("dataverse.cors.origin", "*");
+        // dataverse.cors.allow-private-network not set
+
+        MockitoAnnotations.openMocks(this);
+        sut.init(null);
+
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        when(req.getHeader("Origin")).thenReturn("https://a.example");
+        HttpServletResponse res = mock(HttpServletResponse.class);
+
+        sut.doFilter(req, res, mock(FilterChain.class));
+
+        verify(res, never()).setHeader(eq("Access-Control-Allow-Private-Network"), anyString());
     }
 
     private void backupAndClear(String key) {

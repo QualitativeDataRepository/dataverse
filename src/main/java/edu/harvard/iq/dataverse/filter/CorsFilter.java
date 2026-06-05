@@ -53,6 +53,7 @@ public class CorsFilter implements Filter {
     private String methods;
     private String allowHeaders;
     private String exposeHeaders;
+    private boolean allowPrivateNetwork;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -75,6 +76,7 @@ public class CorsFilter implements Filter {
             exposeHeaders = JvmSettings.CORS_EXPOSE_HEADERS.lookupSplittedListOptional()
                     .map(values -> String.join(", ", values))
                     .orElse("Accept-Ranges, Content-Range, Content-Encoding");
+            allowPrivateNetwork = JvmSettings.CORS_ALLOW_PRIVATE_NETWORK.lookupOptional(Boolean.class).orElse(false);
         }
     }
 
@@ -103,6 +105,9 @@ public class CorsFilter implements Filter {
             response.setHeader("Access-Control-Allow-Methods", methods);
             response.setHeader("Access-Control-Allow-Headers", allowHeaders);
             response.setHeader("Access-Control-Expose-Headers", exposeHeaders);
+            if (allowPrivateNetwork) {
+                response.setHeader("Access-Control-Allow-Private-Network", "true");
+            }
         }
         chain.doFilter(servletRequest, servletResponse);
     }

@@ -299,6 +299,7 @@ public enum JvmSettings {
     SCOPE_CORS(PREFIX, "cors"),
     CORS_ORIGIN(SCOPE_CORS, "origin"),
     CORS_METHODS(SCOPE_CORS, "methods"),
+    CORS_ALLOW_PRIVATE_NETWORK(SCOPE_CORS, "allow-private-network"),
     SCOPE_CORS_HEADERS(SCOPE_CORS, "headers"),
     CORS_ALLOW_HEADERS(SCOPE_CORS_HEADERS, "allow"),
     CORS_EXPOSE_HEADERS(SCOPE_CORS_HEADERS, "expose"),
