@@ -14,6 +14,8 @@ External tools are additional applications the user can access or open from your
 .. note::
   Browser-based tools must have CORS explicitly enabled via :ref:`dataverse.cors.origin <dataverse.cors.origin>`. List every origin that will host your tool (or use ``*`` when a wildcard is acceptable). If an origin is not listed, the browser will block that tool's API requests even if the tool page itself loads.
 
+  If your Dataverse installation is on a private/internal network and the tool is hosted on a public network (e.g. ``gdcc.github.io``), you may also need to enable :ref:`dataverse.cors.allow-private-network <dataverse.cors.allow-private-network>`.
+
 Once you have created the external tool itself (which is most of the work!), you need to teach a Dataverse installation how to construct URLs that your tool needs to operate. For example, if you've deployed your tool to fabulousfiletool.com your tool might want the ID of a file and the siteUrl of the Dataverse installation like this: https://fabulousfiletool.com?fileId=42&siteUrl=https://demo.dataverse.org
 
 In short, you will be creating a manifest in JSON format that describes not only how to construct URLs for your tool, but also what types of files your tool operates on, where it should appear in the Dataverse installation web interfaces, etc. 

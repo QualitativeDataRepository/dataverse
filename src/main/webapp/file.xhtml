@@ -487,8 +487,9 @@
                                     </div>
                                 </div>
                                 <!-- FRAME EXTERNAL TOOL EMBED -->
+                                    <!-- TODO: only add local-network with a flag - not useful for a public, production instance -->
                                 <div id="previewPresentation" class="embed-responsive embed-responsive-16by9" jsf:rendered="#{(FilePage.toolsWithPreviews.size() > 0  or FilePage.queryTools.size() > 0)}">
-                                    <iframe role="presentation" allowfullscreen="true" title="#{bundle['file.previewTab.presentation']}" src="#{FilePage.preview(FilePage.selectedTool)}"></iframe>
+                                    <iframe role="presentation"  allow="local-network" allowfullscreen="true" title="#{bundle['file.previewTab.presentation']}" src="#{FilePage.preview(FilePage.selectedTool)}"></iframe>
                                 </div>
                                 </ui:fragment>
                             </p:tab>

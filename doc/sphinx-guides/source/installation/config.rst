@@ -3854,8 +3854,26 @@ Example:
 ``./asadmin create-jvm-options '-Ddataverse.cors.headers.expose=Accept-Ranges,Content-Range,X-Custom-Header'``
 
 Can also be set via any `supported MicroProfile Config API source`_, e.g. the environment variable ``DATAVERSE_CORS_HEADERS_EXPOSE``.
-
-
+ 
+ 
+.. _dataverse.cors.allow-private-network:
+ 
+dataverse.cors.allow-private-network
+++++++++++++++++++++++++++++++++++++
+ 
+When set to ``true``, Dataverse adds the ``Access-Control-Allow-Private-Network: true`` header to CORS responses. This is required when a website on a public network (such as ``gdcc.github.io``) needs to make requests to a Dataverse installation on a private/internal network.
+ 
+.. caution::
+ 
+   This setting should only be used when strictly necessary, such as when using browser-based previewers from ``gdcc.github.io`` with an internal test server.
+ 
+Example:
+ 
+``./asadmin create-jvm-options '-Ddataverse.cors.allow-private-network=true'``
+ 
+Can also be set via any `supported MicroProfile Config API source`_, e.g. the environment variable ``DATAVERSE_CORS_ALLOW_PRIVATE_NETWORK``.
+ 
+ 
 .. _dataverse.api.mdc.min-delay-ms:
 
 dataverse.api.mdc.min-delay-ms
