@@ -50,7 +50,7 @@
     </h:head>
     <h:body styleClass="#{widgetWrapper.widgetView ? 'widget-view' : ''}">
         <f:loadBundle basename="propertyFiles.Bundle" var="bundle"/>
-  <a href="#content" class="sr-only">#{bundle['body.skip']}</a>                
+  <a href="#content" class="visually-hidden-focusable">#{bundle['body.skip']}</a>
         <ui:include src="dataverse_header.xhtml">
             <ui:param name="dataverse" value="#{dataverse != null ? dataverse : settingsWrapper.rootDataverse}"/>
             <ui:param name="editModeDataverse" value="#{editModeDataverse}"/>

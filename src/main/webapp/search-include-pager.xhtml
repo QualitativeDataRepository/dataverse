@@ -50,7 +50,7 @@
                                 <h:outputText value="#{pageStatus.index}">
                                     <f:convertNumber pattern="###,###" />
                                 </h:outputText>
-                                <span class="#{SearchIncludeFragment.page == pageStatus.index ? 'sr-only' : ''}">
+                                <span class="#{SearchIncludeFragment.page == pageStatus.index ? 'visually-hidden' : ''}">
                                     <h:outputText value="#{SearchIncludeFragment.page == pageStatus.index ? bundle['dataverse.results.paginator.current'] : ''}"/>
                                 </span>
                                 <f:param name="q" value="#{SearchIncludeFragment.query}"/>

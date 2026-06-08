@@ -108,7 +108,7 @@
                 <div class="col-5">
                     <!-- FILE SEARCH -->
                     <div class="input-group" jsf:rendered="#{fileMetadataCount gt 1}">
-                        <label id="searchLabel" class="sr-only" jsf:for="searchFiles">#{bundle.search}</label>
+                        <label id="searchLabel" class="visually-hidden" jsf:for="searchFiles">#{bundle.search}</label>
                         <p:inputText id="searchFiles" title="#{bundle.search}" styleClass="form-control  advsearchlink" value="#{DatasetPage.fileLabelSearchTerm}" widgetVar="inputSearchTerm"
                                      onkeypress="if (event.keyCode == 13) {
                                                  submitsearch();
@@ -557,7 +557,7 @@
                                              and fileDownloadHelper.canDownloadFile(fileMetadata)}">
                         <a class="btn-preview btn btn-link bootstrap-button-tooltip" title="#{DatasetPage.getQueryToolsForDataFile(fileMetadata.dataFile).get(0).getDisplayNameLang()}"
                             href="#{widgetWrapper.wrapURL('/file.xhtml?'.concat(!empty fileMetadata.dataFile.globalId ? 'persistentId=' : 'fileId=').concat(!empty fileMetadata.dataFile.globalId ? fileMetadata.dataFile.globalId.asString() : fileMetadata.dataFile.id).concat('&amp;version=').concat(fileMetadata.datasetVersion.friendlyVersionNumber)).concat('&amp;toolType=QUERY')}">
-                            <img src="#{resource['images/Robot-Icon_2.png']}" width="32" height="32" /><span class="sr-only">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ?
+                            <img src="#{resource['images/Robot-Icon_2.png']}" width="32" height="32" /><span class="visually-hidden">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ?
                                 "":fileMetadata.directoryLabel.concat("/")}#{fileMetadata.label}"</span>
                         </a>
                     </ui:fragment>
@@ -565,7 +565,7 @@
                     <ui:fragment rendered="#{DatasetPage.isShowPreviewButton(fileMetadata)}">
                         <a class="btn-preview btn btn-link bootstrap-button-tooltip" title="#{DatasetPage.getPreviewToolsForDataFile(fileMetadata.dataFile).get(0).getDisplayNameLang()}"
                             href="#{widgetWrapper.wrapURL('/file.xhtml?'.concat(!empty fileMetadata.dataFile.globalId ? 'persistentId=' : 'fileId=').concat(!empty fileMetadata.dataFile.globalId ? fileMetadata.dataFile.globalId.asString() : fileMetadata.dataFile.id).concat('&amp;version=').concat(fileMetadata.datasetVersion.friendlyVersionNumber)).concat('&amp;toolType=PREVIEW')}">
-                            <span class="bi bi-eye" /><span class="sr-only">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ?
+                            <span class="bi bi-eye" /><span class="visually-hidden">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ?
                                 "":fileMetadata.directoryLabel.concat("/")}#{fileMetadata.label}"</span>
                         </a>
                     </ui:fragment>
@@ -578,7 +578,7 @@
                             tabindex="0"
                         disabled="#{lockedFromEdits ? 'disabled' : ''}">
                         <span class="bi bi-download" style="pointer-events: none;" ></span>
-                        <span class="sr-only">#{bundle['file.accessBtn']}</span>
+                        <span class="visually-hidden">#{bundle['file.accessBtn']}</span>
 
                     </button>
 
@@ -622,7 +622,7 @@
                                                         and DatasetPage.isFileDeleted(fileMetadata.dataFile)}">
                     <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}"
                         title="#{bundle['file.optionsBtn']}" onclick="PF('fileAlreadyDeletedPrevious').show()" tabindex="0"> <span class="bi bi-three-dots-vertical" /><span
-                        class="sr-only">#{bundle['file.optionsBtn']}</span>
+                        class="visually-hidden">#{bundle['file.optionsBtn']}</span>
                     </a>
                 </div>
                 <div class="btn-group"
@@ -635,7 +635,7 @@
                     <button type="button"
                                 class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}"
                         title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tabindex="0"disabled="#{lockedFromEdits ? 'disabled' : ''}"> <span class="bi bi-three-dots-vertical" /><span
-                        class="sr-only">#{bundle['file.optionsBtn']}</span>
+                        class="visually-hidden">#{bundle['file.optionsBtn']}</span>
                         </button>
                     <ul class="dropdown-menu multi-level float-end text-start">
                         <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="bi bi-pencil" /></li>

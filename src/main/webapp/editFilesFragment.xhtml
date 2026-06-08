@@ -435,7 +435,7 @@
                             <p:column selectionMode="multiple" class="col-select-width text-center" style="width:40px !important;" ariaHeaderText="#{bundle['file.select.tooltip']}"/>
                             <p:column class="col-file-metadata">
                                 <f:facet name="header">
-                                    <h:outputText styleClass="sr-only" value="#{bundle['file.tableheader.info']}"/>
+                                    <h:outputText styleClass="visually-hidden" value="#{bundle['file.tableheader.info']}"/>
                                 </f:facet>
                                 <div id="fileInfoInclude-filesTable-#{fileMetadata.label}" class="col-sm-12 row">
                                     <div class="float-start col-file-thumb">
@@ -582,7 +582,7 @@
                                 <div style="margin-right:14px;" class="btn-group">
                                     <button class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle" title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                             disabled="#{DatasetPage.lockedFromEdits}">
-                                        <span class="bi bi-three-dots-vertical"/><span class="sr-only">#{bundle['file.optionsBtn']}</span>
+                                        <span class="bi bi-three-dots-vertical"/><span class="visually-hidden">#{bundle['file.optionsBtn']}</span>
                                     </button>
                                     <ul class="dropdown-menu multi-level float-end text-start">
                                         <!-- Edit Options -->
