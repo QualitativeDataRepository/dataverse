@@ -1284,7 +1284,7 @@ div.container {
 	outline:none;
 }
 
-.add-data-plus-wrapper div {
+.add-data-plus-icon {
   background-image: url(/resources/images/new-project.svg);
   background-size: contain;
   height: 70px;
@@ -1422,9 +1422,9 @@ span.bg-primary { background-color: #0039f5; }
 
 .pagination > li.active > a,
 .pagination > li.active > a:focus,
-.pagination > li.active > a:hover{
+.pagination > li.active > a:hover {
   background-color: #0039f5;
-  color: white;
+  color: white !important;
   height: 44px;
   display: flex;
   align-items: center;
@@ -1584,7 +1584,7 @@ padding-right:0px;
 .text-muted {
         color: #636363;
 }
-a {
+a, #content a {
   color: #0039f5;
 }
 

@@ -13,7 +13,7 @@ import javax.sql.DataSource;
         // The app server (Payara) deploys a managed pool for this data source for us.
         // We don't need to deal with this on our own.
 
-        className = "org.postgresql.ds.PGSimpleDataSource",
+        className = "org.postgresql.ds.PGConnectionPoolDataSource",
         
         // BEWARE: as this resource is created before defaults are read from META-INF/microprofile-config.properties,
         // defaults must be provided in this Payara-proprietary manner.
@@ -41,8 +41,8 @@ import javax.sql.DataSource;
             // The following options are documented here:
             // https://docs.payara.fish/community/docs/documentation/payara-server/jdbc/advanced-connection-pool-properties.html
             // VALIDATION
-            "fish.payara.is-connection-validation-required=${MPCONFIG=dataverse.db.is-connection-validation-required:false}",
-            "fish.payara.connection-validation-method=${MPCONFIG=dataverse.db.connection-validation-method:}",
+            "fish.payara.is-connection-validation-required=${MPCONFIG=dataverse.db.is-connection-validation-required:true}",
+            "fish.payara.connection-validation-method=${MPCONFIG=dataverse.db.connection-validation-method:auto-commit}",
             "fish.payara.validation-table-name=${MPCONFIG=dataverse.db.validation-table-name:}",
             "fish.payara.validation-classname=${MPCONFIG=dataverse.db.validation-classname:}",
             "fish.payara.validate-atmost-once-period-in-seconds=${MPCONFIG=dataverse.db.validate-atmost-once-period-in-seconds:0}",
@@ -56,7 +56,7 @@ import javax.sql.DataSource;
             "fish.payara.slow-query-threshold-in-seconds=${MPCONFIG=dataverse.db.slow-query-threshold-in-seconds:-1}",
             "fish.payara.log-jdbc-calls=${MPCONFIG=dataverse.db.log-jdbc-calls:false}",
             // OTHER OPTIONS
-            "fish.payara.fail-all-connections=${MPCONFIG=dataverse.db.fail-all-connections:true}"
+            "fish.payara.fail-all-connections=${MPCONFIG=dataverse.db.fail-all-connections:false}"
         })
 public class DataSourceProducer {
 

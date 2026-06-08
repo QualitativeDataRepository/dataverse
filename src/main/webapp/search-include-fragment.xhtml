@@ -20,8 +20,8 @@
     <div class="row panelSearchForm" jsf:rendered="#{!SearchIncludeFragment.solrIsDown}">
         <div class="col-12">
             <h:form> 
-                <p:inputText id="searchBasic" title="#{bundle.search}" styleClass="form-control search-input" size="35" 
-                        value="#{SearchIncludeFragment.query}" onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }" 
+                <p:inputText id="searchBasic" title="#{bundle.search}" styleClass="form-control search-input" size="35"
+                        value="#{SearchIncludeFragment.query}" onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }"
                         placeholder="#{dataverseRedirectPage == 'dataverseuser.xhtml' ? bundle['account.search.input.watermark'] : bundle['dataverse.search.input.watermark']}">
                     <f:passThroughAttribute name="aria-label" value="#{bundle.search}"/>
                 </p:inputText>
@@ -44,22 +44,22 @@
                 <ui:fragment rendered="#{!dataverseSession.user.authenticated and (permissionsWrapper.authUsersCanCreateDataversesInDataverse(SearchIncludeFragment.dataverse)
                                          or permissionsWrapper.authUsersCanCreateDatasetsInDataverse(SearchIncludeFragment.dataverse))}">
                     <button type="button" class="add-data-plus-wrapper" onclick="PF('addData_popup').show()">
-                        <div></div>
+                        <span class="add-data-plus-icon" aria-hidden="true"></span>
                         <span> #{bundle['dataverse.results.btn.addData']} </span>
                     </button>
                 </ui:fragment>
-                <h:form id="altAddDataForm" class="btn-form"
+                <h:form id="altAddDataForm" styleClass="btn-form"
                         rendered="#{dataverseSession.user.authenticated and (!permissionsWrapper.canIssueCreateDataverseCommand(SearchIncludeFragment.dataverse)) and permissionsWrapper.canIssueCreateDatasetCommand(SearchIncludeFragment.dataverse)}">
                         <button type="button" class="add-data-plus-wrapper" onclick = "location.href='/dataset.xhtml?ownerId=#{SearchIncludeFragment.dataverse.id}'">
-                          <div></div>
+                          <span class="add-data-plus-icon" aria-hidden="true"></span>
                           <span>#{bundle['dataverse.results.btn.addData.newDataset']}</span>
                         </button>
                 </h:form>
-                <h:form id="addDataForm" class="btn-form"
+                <h:form id="addDataForm" styleClass="btn-form"
                         rendered="#{dataverseSession.user.authenticated and permissionsWrapper.canIssueCreateDataverseCommand(SearchIncludeFragment.dataverse)}">
                     <div class="btn-group">
                         <button type="button" class="add-data-plus-wrapper dropdown-toggle" data-bs-toggle="dropdown">
-                          <div></div>
+                          <span class="add-data-plus-icon" aria-hidden="true"></span>
                           <span>#{bundle['dataverse.results.btn.addData']}</span>
                         </button>
                         <ul class="dropdown-menu float-end text-start">
@@ -289,12 +289,12 @@
 
             <!--toggle sidebar button-->
             <p class="d-block d-md-none">
-                <button type="button" 
-                    class="btn btn-secondary btn-sm" 
-                    data-bs-toggle="offcanvas" 
-                    data-bs-target="#dv-sidebar" 
-                    aria-controls="dv-sidebar" 
-                    aria-expanded="false" 
+                <button type="button"
+                    class="btn btn-secondary btn-sm"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#dv-sidebar"
+                    aria-controls="dv-sidebar"
+                    aria-expanded="false"
                     aria-label="#{bundle['dataverse.results.btn.filterResults']}">
                     <span class="bi bi-chevron-left " aria-hidden="true"></span> #{bundle['dataverse.results.btn.filterResults']}
                 </button>
@@ -530,11 +530,10 @@
                             <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="badge bg-warning" rendered="#{result.unpublishedState}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
-                            <h:outputLink rel="nofollow" value="#{!SearchIncludeFragment.rootDv and !result.isInTree ? dvUrl : widgetWrapper.wrapURL(dvUrl)}" target="#{!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView ? '_blank' : ''}">
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt="#{of:format1(bundle['alt.logo'], result.name)}"/>
+                            <span>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt=""/>
                                 <span class="icon-dataverse text-brand" jsf:rendered="#{empty result.imageUrl}"/>
-                                <f:passThroughAttribute name="aria-label" value="#{of:format1(bundle['alt.logo'], result.name)}"/>
-                            </h:outputLink>
+                            </span>
                         </div>
 
                         <div>
@@ -597,10 +596,10 @@
                             <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!result.harvested and !SearchIncludeFragment.isValid(result)}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
-                            <a rel="nofollow" href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? result.datasetUrl : widgetWrapper.wrapURL(result.datasetUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}" aria-label="#{result.title}">
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl and !result.deaccessionedState}" alt="#{result.title}"/>
+                            <span>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl and !result.deaccessionedState}" alt=""/>
                                 <span class="icon-dataset" jsf:rendered="#{empty result.imageUrl or result.deaccessionedState}"/>
-                            </a>
+                            </span>
                         </div>
 
                         <div>
@@ -676,11 +675,11 @@
                         </div>
 
                         <div class="card-preview-icon-block text-center">
-                            <a rel="nofollow" href="#{!SearchIncludeFragment.rootDv and !result.isInTree ? (result.harvested ? result.fileDatasetUrl : result.fileUrl) : widgetWrapper.wrapURL(result.harvested ? result.fileDatasetUrl : result.fileUrl)}" target="#{(!SearchIncludeFragment.rootDv and !result.isInTree and widgetWrapper.widgetView) or result.harvested ? '_blank' : ''}" aria-label="#{result.name}">
-                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt="#{result.name}"/>
+                            <span>
+                                <img src="#{result.imageUrl}" jsf:rendered="#{!empty result.imageUrl}" alt=""/>
                                 <span class="icon-#{dataFileServiceBean.getFileThumbnailClass(result.entity)} text-muted h1"
                                       jsf:rendered="#{empty result.imageUrl}"/>
-                            </a>
+                            </span>
                         </div>
 
                         <div class="text-muted">
