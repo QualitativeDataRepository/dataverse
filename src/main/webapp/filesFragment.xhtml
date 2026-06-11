@@ -448,7 +448,7 @@
                         rendered="#{DatasetPage.sessionUserAuthenticated
                                      and DatasetPage.canUpdateDataset() and !widgetWrapper.widgetView
                                      and (DatasetPage.fileMetadatasSearch.size() gt 0)}">
-                        <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown" disabled="#{uploadButtonDisabled}">
+                        <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown" jsf:disabled="#{uploadButtonDisabled}">
                             <span class="bi bi-pencil" /> #{bundle['file.editFiles']}
                         </button>
                         <ul class="dropdown-menu multi-level float-end text-start">

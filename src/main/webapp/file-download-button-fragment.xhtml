@@ -28,7 +28,7 @@
                              and !dataFileServiceBean.isRetentionExpired(fileMetadata)}">
         <p:outputPanel id="requestPanel" styleClass="iq-dropdown-list-item #{fileMetadata.dataFile.containsActiveFileAccessRequestFromUser(dataverseSession.user) ? 'disabled' : ''}"
                        rendered="#{fileDownloadHelper.session.user.authenticated}">
-            <p:commandLink styleClass="btn-request #{fileMetadata.dataFile.containsActiveFileAccessRequestFromUser(dataverseSession.user) ? 'italic'  : ''}"
+            <p:commandLink styleClass="dropdown-item btn-request #{fileMetadata.dataFile.containsActiveFileAccessRequestFromUser(dataverseSession.user) ? 'italic'  : ''}"
                         actionListener="#{fileDownloadHelper.handleCommandLinkClick(fileMetadata)}"
                         update="@([id$=requestAccessConsolidated]), @([id$=requestPanel]),  @([id$=filesTable]), @([id$=messagePanel]), @([id$=guestbookAndTermsPopup])"
                         id="requestAccessConsolidated"
@@ -38,7 +38,7 @@
             </p:commandLink>
         </p:outputPanel>
         <li jsf:rendered="#{!fileDownloadHelper.session.user.authenticated}">
-            <p:commandLink styleClass="btn-request" 
+            <p:commandLink styleClass="dropdown-item btn-request" 
                         process="@this"
                         onclick="PF('accessSignUpLogIn_popup').show()">
                 #{bundle['file.requestAccess']}

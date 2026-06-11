@@ -260,7 +260,7 @@
                                                                          and FilePage.hasValidTermsOfAccess
                                                                          and !FilePage.deletedFile}">
                                                     <button type="button" id="editFile" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{FilePage.lockedFromEdits ? 'disabled' : ''}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                                            disabled="#{FilePage.lockedFromEdits}">
+                                                            jsf:disabled="#{FilePage.lockedFromEdits}">
                                                         #{bundle['file.editBtn']}
                                                     </button>
                                                     <ul class="dropdown-menu float-end text-start">
@@ -535,7 +535,7 @@
                                                          and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                          and (FilePage.deletedFile))}">
                                         <button class="btn btn-secondary btn-access #{FilePage.lockedFromEdits ? 'disabled' : ''}" onclick="PF('fileAlreadyDeletedPrevious').show()" type="button"
-                                                disabled="#{FilePage.lockedFromEdits}">
+                                                jsf:disabled="#{FilePage.lockedFromEdits}">
                                             <span class="bi bi-pencil"/> #{bundle['file.dataFilesTab.metadata.addBtn']}
                                         </button>
                                     </div>

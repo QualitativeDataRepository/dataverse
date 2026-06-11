@@ -581,7 +581,7 @@
                                                 </button>
                                                 <ul class="dropdown-menu float-end text-start">
                                                     <li class="#{DataversePage.dataverse.owner != null ? '' : 'disabled'}">
-                                                        <p:commandLink action="#{DataversePage.setupLinkingPopup('link')}"
+                                                        <p:commandLink styleClass="dropdown-item" action="#{DataversePage.setupLinkingPopup('link')}"
                                                                        oncomplete="PF('linkDataverseForm').show()"
                                                                        update=":linkDataverseForm"
                                                                        >
@@ -589,7 +589,7 @@
                                                         </p:commandLink>
                                                     </li>
                                                     <li class="#{SearchIncludeFragment.mode == 'search' ? '' : 'disabled'}">
-                                                        <p:commandLink action="#{DataversePage.setupLinkingPopup('savedSearch')}"
+                                                        <p:commandLink styleClass="dropdown-item" action="#{DataversePage.setupLinkingPopup('savedSearch')}"
                                                                        oncomplete="PF('linkDataverseForm').show()"
                                                                        update=":linkDataverseForm"
                                                                        >
@@ -618,19 +618,19 @@
                                                     </li>
                                                     <li class="divider" role="presentation"></li>
                                                     <li>
-                                                        <p:commandLink id="editInfo" actionListener="#{DataversePage.edit('INFO')}" update=":dataverseForm,:searchResults,:messagePanel">
+                                                        <p:commandLink id="editInfo" styleClass="dropdown-item" actionListener="#{DataversePage.edit('INFO')}" update=":dataverseForm,:searchResults,:messagePanel">
                                                             <h:outputText value="#{bundle['dataverse.option.generalInfo']}" />
                                                         </p:commandLink>
                                                     </li>
                                                     <li>
-                                                        <h:link outcome="ThemeAndWidgets" id="themeWidgetsOpts">
+                                                        <h:link outcome="ThemeAndWidgets" styleClass="dropdown-item" id="themeWidgetsOpts">
                                                             <f:param name="id" value="#{DataversePage.dataverse.id}" />
                                                             <h:outputText value="#{bundle['dataverse.option.themeAndWidgets']}" />
                                                         </h:link>
                                                     </li>
                                                     <ui:fragment rendered="#{permissionsWrapper.canManagePermissions(DataversePage.dataverse)}">
                                                         <li>
-                                                            <h:link id="managePermissions" styleClass="ui-commandlink ui-widget" outcome="permissions-manage">
+                                                            <h:link id="managePermissions" styleClass="dropdown-item" outcome="permissions-manage">
                                                                 <h:outputText value="#{bundle['dataverse.option.permissions']}" />
                                                                 <f:param name="id" value="#{DataversePage.dataverse.id}" />
                                                             </h:link>
@@ -638,26 +638,26 @@
                                                     </ui:fragment>
                                                     <ui:fragment rendered="#{permissionsWrapper.canManagePermissions(DataversePage.dataverse)}">
                                                         <li>
-                                                            <h:link id="manageGroups" styleClass="ui-commandlink ui-widget" outcome="manage-groups">
+                                                            <h:link id="manageGroups" styleClass="dropdown-item" outcome="manage-groups">
                                                                 <h:outputText value="#{bundle['dataverse.option.dataverseGroups']}" />
                                                                 <f:param name="dataverseId" value="#{DataversePage.dataverse.id}" />
                                                             </h:link>
                                                         </li>
                                                     </ui:fragment>
                                                     <li>
-                                                        <h:link id="manageTemplates" styleClass="ui-commandlink ui-widget" outcome="manage-templates">
+                                                        <h:link id="manageTemplates" styleClass="dropdown-item" outcome="manage-templates">
                                                             <h:outputText value="#{bundle['dataverse.option.datasetTemplates']}" />
                                                             <f:param name="dataverseId" value="#{DataversePage.dataverse.id}" />
                                                         </h:link>
                                                     </li>
                                                     <li jsf:rendered="#{!settingsWrapper.rsyncOnly}">
-                                                        <h:link id="manageGuestbooks" styleClass="ui-commandlink ui-widget" outcome="manage-guestbooks">
+                                                        <h:link id="manageGuestbooks" styleClass="dropdown-item" outcome="manage-guestbooks">
                                                             <h:outputText value="#{bundle['dataverse.option.datasetGuestbooks']}" />
                                                             <f:param name="dataverseId" value="#{DataversePage.dataverse.id}" />
                                                         </h:link>
                                                     </li>
                                                     <li>
-                                                        <p:commandLink id="browseOpts" actionListener="#{DataversePage.edit('FEATURED')}" oncomplete="PF('browseOptsForm').show()"
+                                                        <p:commandLink id="browseOpts" styleClass="dropdown-item" actionListener="#{DataversePage.edit('FEATURED')}" oncomplete="PF('browseOptsForm').show()"
                                                                        update="dataverseForm:browseOptsForm">
                                                             <h:outputText value="#{bundle['dataverse.option.featuredDataverse']}" />
                                                         </p:commandLink>
@@ -666,7 +666,7 @@
                                                                              and permissionsWrapper.canIssueDeleteDataverseCommand(DataversePage.dataverse)}">
                                                         <li class="divider"></li>
                                                         <li>
-                                                            <p:commandLink id="deleteDataset" onclick="PF('deleteConfirmation').show()">
+                                                            <p:commandLink id="deleteDataset" styleClass="dropdown-item" onclick="PF('deleteConfirmation').show()">
                                                                 <h:outputText value="#{bundle['dataverse.option.deleteDataverse']}" />
                                                             </p:commandLink>
                                                         </li>

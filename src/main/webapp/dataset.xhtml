@@ -410,7 +410,7 @@
                                                                                                     and canUpdateDataset}">
                                             <div class="btn-group w-100">
                                                 <button type="button" id="editDataSet" class="btn btn-secondary btn-access btn-edit dropdown-toggle #{DatasetPage.lockedFromEdits ? 'disabled' : ''}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                                        disabled="#{DatasetPage.lockedFromEdits}">
+                                                        jsf:disabled="#{DatasetPage.lockedFromEdits}">
                                                     #{bundle['dataset.editBtn']}
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end text-start">

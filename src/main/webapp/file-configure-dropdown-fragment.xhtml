@@ -15,7 +15,7 @@
         <li class="dropdown-header">#{bundle['file.optionsBtn.header.configure']} <span class="bi bi-gear"/></li>
         <ui:repeat value="#{configureTools}" var="tool">
             <li>
-                <p:commandLink update="@([id$=configureToolPopup])"
+                <p:commandLink styleClass="dropdown-item" update="@([id$=configureToolPopup])"
                                 action="#{configureFragmentBean.setConfigurePopupTool(tool)}"
                                 oncomplete="PF('configureToolPopup').show()">
                         <f:actionListener binding="#{configureFragmentBean.setConfigureIds(fileId,fileMetadata.id)}"/>
