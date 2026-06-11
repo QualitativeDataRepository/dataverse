@@ -709,7 +709,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             ListObjectsV2Response listResponse;
             String nextToken = null;
             do {
-                ListObjectsV2Request req = listRequest.toBuilder().continuationToken(nextToken).build();
+                ListObjectsV2Request.Builder reqBuilder = listRequest.toBuilder();
+                if(nextToken != null) {
+                    reqBuilder.continuationToken(nextToken);
+                }
+                ListObjectsV2Request req = reqBuilder.build();
                 listResponse = s3.listObjectsV2(req).get();
                 for (S3Object item : listResponse.contents()) {
                     String destinationKey = item.key();
@@ -767,7 +771,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             ListObjectsV2Response listResponse;
             String nextToken = null;
             do {
-                ListObjectsV2Request req = listRequest.toBuilder().continuationToken(nextToken).build();
+                ListObjectsV2Request.Builder reqBuilder = listRequest.toBuilder();
+                if(nextToken != null) {
+                    reqBuilder.continuationToken(nextToken);
+                }
+                ListObjectsV2Request req = reqBuilder.build();
                 listResponse = s3.listObjectsV2(req).get();
                 storedAuxFilesSummary.addAll(listResponse.contents());
                 nextToken = listResponse.nextContinuationToken();
@@ -1451,7 +1459,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             ListObjectsV2Response listResponse;
             String nextToken = null;
             do {
-                ListObjectsV2Request req = listRequest.toBuilder().continuationToken(nextToken).build();
+                ListObjectsV2Request.Builder reqBuilder = listRequest.toBuilder();
+                if(nextToken != null) {
+                    reqBuilder.continuationToken(nextToken);
+                }
+                ListObjectsV2Request req = reqBuilder.build();
                 listResponse = s3.listObjectsV2(req).get();
                 for (S3Object item : listResponse.contents()) {
                     String fileName = item.key().substring(prefix.length());
