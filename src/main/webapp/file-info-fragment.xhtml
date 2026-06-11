@@ -47,7 +47,8 @@
     <p:outputPanel id="fileInfoInclude-filesTable" styleClass="d-flex" rendered="#{fileMetadata != null}">
         <div class="flex-shrink-0 col-file-thumb" style="padding-top:4px;">
             <div class="thumbnail-block text-center">
-                <span class="bi bi-#{dataFileServiceBean.getFileThumbnailClass(dataFile)} file-thumbnail-icon text-muted" jsf:rendered="#{!canDownloadFile or !hasThumbnail}"/>
+                <span class="bi bi-#{dataFileServiceBean.getFileThumbnailClass(dataFile)} file-thumbnail-icon text-muted" jsf:rendered="#{!canDownloadFile or !hasThumbnail}"
+                      title="#{dataFile.originalFormatLabel}" data-bs-toggle="tooltip" data-bs-placement="top"/>
                 <span class="file-thumbnail-preview-img" jsf:rendered="#{showThumbnail}"
                       data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="hover" data-bs-html="true" data-bs-content="&lt;img src=&#34;/api/access/datafile/#{dataFile.id}?imageThumb=400&#34; alt=&#34;#{bundle['file.preview']} #{fileMetadata.label}&#34; /&gt;">
                     <p:graphicImage value="/api/access/datafile/#{dataFile.id}?imageThumb=true" alt="#{fileMetadata.label}"/>

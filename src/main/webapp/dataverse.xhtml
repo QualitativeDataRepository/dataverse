@@ -7,6 +7,7 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:o="http://omnifaces.org/ui"
       xmlns:of="http://omnifaces.org/functions"
+      xmlns:pt="http://java.sun.com/jsf/passthrough"
       xmlns:jsf="http://xmlns.jcp.org/jsf">
     <h:head>
     </h:head>
@@ -262,11 +263,13 @@
                                                         <!-- Add / Remove buttons -->
                                                         <div class="col-3 form-col-container field-add-delete">
                                                             <p:commandLink styleClass="btn btn-secondary btn-sm bootstrap-button-tooltip" title="#{bundle.add}"
+                                                                             pt:data-bs-toggle="tooltip" pt:data-bs-placement="top"
                                                                              actionListener="#{DataversePage.dataverse.addDataverseContact(valCount.index + 1)}">
                                                                 <f:param name="SKIP_VALIDATION" value="true"/>
                                                                 <h:outputText styleClass="bi bi-plus no-text"/>
                                                             </p:commandLink>
                                                             <p:commandLink styleClass="btn btn-secondary btn-sm bootstrap-button-tooltip" title="#{bundle.delete}"
+                                                                             pt:data-bs-toggle="tooltip" pt:data-bs-placement="top"
                                                                              rendered="#{DataversePage.dataverse.dataverseContacts.size() > 1}"
                                                                              actionListener="#{DataversePage.dataverse.removeDataverseContact(valCount.index)}">
                                                                 <f:param name="SKIP_VALIDATION" value="true"/>
@@ -543,6 +546,7 @@
                                     <!-- Email/Link/Share Button Group -->
                                     <div class="btn-group" role="group">
                                         <p:commandLink type="button" styleClass="text-button btn-contact bootstrap-button-tooltip" title="#{bundle['dataverse.contact']}"
+                                                       pt:data-bs-toggle="tooltip" pt:data-bs-placement="top"
                                                        update=":contactDialog" oncomplete="PF('contactForm').show()" actionListener="#{sendFeedbackDialog.initUserInput}">
                                             <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
                                             <f:setPropertyActionListener target="#{sendFeedbackDialog.userEmail}" value=""/>
@@ -552,6 +556,7 @@
                                                 <span class="bi bi-envelope"/> #{bundle['contact.contact']}
                                         </p:commandLink>
                                         <p:commandLink type="button" styleClass="text-button btn-share bootstrap-button-tooltip"
+                                           pt:data-bs-toggle="tooltip" pt:data-bs-placement="top"
                                            title="#{bundle['dataverse.share.dataverseShare']}"
                                            oncomplete="PF('shareDialog').show();sharrre();">
                                             <span class="bi bi-share"/> #{bundle['share']}

@@ -282,6 +282,7 @@
                                             <!-- Contact/Share Button Group -->
                                             <div class="btn-group w-100" jsf:rendered="#{!widgetWrapper.widgetView}">
                                                 <p:commandLink class="btn btn-secondary btn-sm btn-contact" title="#{bundle['dataset.email.datasetContactTitle']}"
+                                                               pt:data-bs-toggle="tooltip" pt:data-bs-placement="top"
                                                                update=":contactDialog" oncomplete="PF('contactForm').show()" actionListener="#{sendFeedbackDialog.initUserInput}">
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
                                                     <f:setPropertyActionListener target="#{sendFeedbackDialog.userEmail}" value=""/>
@@ -290,6 +291,7 @@
                                                     #{bundle['file.contactBtn']}
                                                 </p:commandLink>
                                                 <p:commandLink styleClass="btn btn-secondary btn-sm btn-share" rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}"
+                                                               pt:data-bs-toggle="tooltip" pt:data-bs-placement="top"
                                                                title="#{bundle['file.share.fileShare']}"
                                                                oncomplete="PF('shareDialog').show();sharrre();">
                                                     #{bundle['file.shareBtn']}

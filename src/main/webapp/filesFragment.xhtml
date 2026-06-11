@@ -46,7 +46,7 @@
         </div>
     </div>
 
-    <p:remoteCommand name="rebindCommand" process="@this" update="filesTable"/>
+    <p:remoteCommand name="rebindCommand" process="@this" update="filesTable" oncomplete="bind_bsui_components()"/>
 
     <!-- Files Table -->
     <!-- TABLESTYLE + WIDTH:AUTO FIX COL WIDTH OVERFLOW HIDDEN, MIN-WIDTH 100% ADDED FOR TABLE CONTENT LESS THAN 100% https://stackoverflow.com/a/38582318 -->
@@ -117,10 +117,12 @@
                                      placeholder="#{bundle['file.search.placeholder']}">
                             <f:passThroughAttribute name="aria-labelledby" value="searchLabel"/>
                         </p:inputText>
-                        <p:remoteCommand name="submitsearch" action="#{DatasetPage.updateFileSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true"/>
+                        <p:remoteCommand name="submitsearch" action="#{DatasetPage.updateFileSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true" oncomplete="bind_bsui_components()"/>
 
                         <span class="input-group-btn">
-                            <p:commandLink title="#{bundle['dataverse.search.btn.find']}" styleClass="btn searchbutton-file bootstrap-button-tooltip" action="#{DatasetPage.updateFileSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true" ariaLabel="#{bundle['dataverse.search.btn.find']}" >
+                            <p:commandLink title="#{bundle['dataverse.search.btn.find']}" styleClass="btn searchbutton-file bootstrap-button-tooltip" 
+                                           pt:data-bs-toggle="tooltip" pt:data-bs-placement="top"
+                                           action="#{DatasetPage.updateFileSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true" ariaLabel="#{bundle['dataverse.search.btn.find']}" >
                                 <span class="bi bi-search no-text"/>
                             </p:commandLink>
                         </span>
@@ -277,11 +279,11 @@
                     <div class="file-group-by text-muted small d-inline-block me-3" jsf:rendered="#{DatasetPage.allowUserManagementOfOrder()}">
                         <p:selectBooleanCheckbox id="fps" value="#{DatasetPage.folderPresort}" itemLabel="#{bundle['file.results.presort.folder']}"
                             title="#{bundle['file.results.presort.folder.desc']}" rendered="#{DatasetPage.orderByFolder()}">
-                            <p:ajax update="filesTable, messagePanel" process="fps, tps" listener="#{DatasetPage.sort()}" />
+                            <p:ajax update="filesTable, messagePanel" process="fps, tps" listener="#{DatasetPage.sort()}" oncomplete="bind_bsui_components()"/>
                         </p:selectBooleanCheckbox>
                         <p:selectBooleanCheckbox id="tps" value="#{DatasetPage.tagPresort}" itemLabel="#{bundle['file.results.presort.tag']}"
                             title="#{bundle['file.results.presort.tag.desc']}" rendered="#{null != DatasetPage.getSortOrder()}">
-                            <p:ajax update="filesTable, messagePanel" process="fps, tps" listener="#{DatasetPage.sort()}" />
+                            <p:ajax update="filesTable, messagePanel" process="fps, tps" listener="#{DatasetPage.sort()}" oncomplete="bind_bsui_components()"/>
                         </p:selectBooleanCheckbox>
                     </div>
 
@@ -427,7 +429,7 @@
         </p:column>
 
         <p:column
-                class="col-file-action button-block text-right"
+                class="col-file-action button-block text-end"
                 style="width:40%;"
                 ariaHeaderText="#{bundle['file.actionsBlock']}"
                 rendered="#{fileMetadataCount gt 0}">
@@ -556,6 +558,7 @@
                         rendered="#{DatasetPage.isShowQueryButton(fileMetadata.dataFile)
                                              and fileDownloadHelper.canDownloadFile(fileMetadata)}">
                         <a class="btn-preview btn btn-link bootstrap-button-tooltip" title="#{DatasetPage.getQueryToolsForDataFile(fileMetadata.dataFile).get(0).getDisplayNameLang()}"
+                           data-bs-toggle="tooltip" data-bs-placement="top"
                             href="#{widgetWrapper.wrapURL('/file.xhtml?'.concat(!empty fileMetadata.dataFile.globalId ? 'persistentId=' : 'fileId=').concat(!empty fileMetadata.dataFile.globalId ? fileMetadata.dataFile.globalId.asString() : fileMetadata.dataFile.id).concat('&amp;version=').concat(fileMetadata.datasetVersion.friendlyVersionNumber)).concat('&amp;toolType=QUERY')}">
                             <img src="#{resource['images/Robot-Icon_2.png']}" width="32" height="32" /><span class="visually-hidden">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ?
                                 "":fileMetadata.directoryLabel.concat("/")}#{fileMetadata.label}"</span>
@@ -564,6 +567,7 @@
 
                     <ui:fragment rendered="#{DatasetPage.isShowPreviewButton(fileMetadata)}">
                         <a class="btn-preview btn btn-link bootstrap-button-tooltip" title="#{DatasetPage.getPreviewToolsForDataFile(fileMetadata.dataFile).get(0).getDisplayNameLang()}"
+                           data-bs-toggle="tooltip" data-bs-placement="top"
                             href="#{widgetWrapper.wrapURL('/file.xhtml?'.concat(!empty fileMetadata.dataFile.globalId ? 'persistentId=' : 'fileId=').concat(!empty fileMetadata.dataFile.globalId ? fileMetadata.dataFile.globalId.asString() : fileMetadata.dataFile.id).concat('&amp;version=').concat(fileMetadata.datasetVersion.friendlyVersionNumber)).concat('&amp;toolType=PREVIEW')}">
                             <span class="bi bi-eye" /><span class="visually-hidden">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ?
                                 "":fileMetadata.directoryLabel.concat("/")}#{fileMetadata.label}"</span>
@@ -621,6 +625,7 @@
                                                         and hasValidTermsOfAccess
                                                         and DatasetPage.isFileDeleted(fileMetadata.dataFile)}">
                     <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
                         title="#{bundle['file.optionsBtn']}" onclick="PF('fileAlreadyDeletedPrevious').show()" tabindex="0"> <span class="bi bi-three-dots-vertical" /><span
                         class="visually-hidden">#{bundle['file.optionsBtn']}</span>
                     </a>
