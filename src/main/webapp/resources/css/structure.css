@@ -16,8 +16,9 @@ body.widget-view {margin-bottom:44px;}
 body .ui-widget {font-size: inherit;}
 body .ui-widget .ui-widget-content:not(.ui-picklist-list, .ui-dialog, .ui-panel-content, .ui-selectcheckboxmenu-items, .ui-dialog-content, .ui-fileupload-content, .ui-progressbar, .ui-tabs, .ui-tabs-panel, .ui-datatable-data, .ui-datatable-even, .ui-datatable-odd, .ui-tree, .ui-selectonemenu-items) :not(.ui-dialog-titlebar, .ui-dialog-content, .dropdown-menu, .bg-default, .ui-selectonemenu-item){background: none;}
 .ui-widget-content a {color: #0039f5;}
+a:hover, a:focus {text-decoration: underline;}
 .ui-datalist-item .ui-widget-content td > a { font-size: 18px !important;}
-.ui-widget-content a:hover, .ui-widget-content a:focus {color: #337ab7;}
+.ui-widget-content a:hover, .ui-widget-content a:focus {color: #337ab7; text-decoration: underline;}
 .ui-tabs.ui-widget-content .ui-tabs-nav li a {color: #333;}
 
 /* -------- TEMPLATE -------- */
@@ -1700,6 +1701,7 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
     width: auto;
 }
 .dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
+    text-decoration: none;
     background-image: -webkit-linear-gradient(top, #f5f5f5 0, #e8e8e8 100%);
     background-image: -o-linear-gradient(top,#f5f5f5 0,#e8e8e8 100%);
     background-image: -webkit-gradient(linear, left top, left bottom, from(#f5f5f5), to(#e8e8e8));
@@ -1716,4 +1718,11 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
     line-height: 1.42857143;
     color: #333;
     white-space: nowrap;
+}
+
+/* Remove underline from specific icon-based buttons (e.g. previewer icon, menus) */
+.btn-preview:hover, .btn-preview:focus, .btn-preview:active,
+.btn-access-file:hover, .btn-access-file:focus, .btn-access-file:active,
+.btn-file-options:hover, .btn-file-options:focus, .btn-file-options:active {
+    text-decoration: none !important;
 }
