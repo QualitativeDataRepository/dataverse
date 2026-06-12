@@ -417,6 +417,7 @@
                                      rendered="#{hasFileMetadatas or !EditDatafilesPage.showFileUploadFragment()}"
                                      rowIndexVar="rowNum" 
                                      rowKey="#{fileMetadata.dataFile.storageIdentifier}"
+                                     rowClickSelect="false"
                                      selection="#{EditDatafilesPage.selectedFiles}" 
                                      var="fileMetadata" 
                                      widgetVar="filesTable"
@@ -579,9 +580,9 @@
                                 </div>
                                 <!-- END: FILE LEVEL MSGs -->
                                 
-                                <div style="margin-right:14px;" class="btn-group" onclick="event.stopPropagation();">
+                                <div style="margin-right:14px;" class="btn-group">
                                     <button class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle" title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" data-bs-trigger="hover" aria-haspopup="true" aria-expanded="false"
-                                            jsf:disabled="#{DatasetPage.lockedFromEdits}" onclick="event.stopPropagation();">
+                                            jsf:disabled="#{DatasetPage.lockedFromEdits}">
                                         <span class="bi bi-three-dots-vertical"/><span class="visually-hidden">#{bundle['file.optionsBtn']}</span>
                                     </button>
                                     <ul class="dropdown-menu multi-level float-end text-start">
