@@ -534,6 +534,7 @@
                 <!-- Ingest failed -->
                 <span class="bi bi-info-circle-fill" /> <span> #{bundle['file.ingestFailed.header']}&#160;</span> <span> <a tabindex="0" role="button"
                     class="bi bi-question-circle tooltip-icon" data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="focus" data-bs-html="true"
+                    onclick="event.stopPropagation();"
                     data-bs-content="#{DatasetPage.ingestMessage} #{fileMetadata.dataFile.ingestReportMessage}" />
                 </span>
             </div>
@@ -548,7 +549,7 @@
                 <span jsf:rendered="#{empty fileMetadata.dataFile.storageIO.remoteStoreUrl}">#{fileMetadata.dataFile.storageIO.remoteStoreName}</span>
             </div>
             <!-- END: FILE LEVEL MSGs -->
-            <div class="btn-group" role="group" aria-label="#{bundle['file.actionsBlock']}" jsf:rendered="#{showAccessFileButtonGroup}">
+            <div class="btn-group" role="group" aria-label="#{bundle['file.actionsBlock']}" jsf:rendered="#{showAccessFileButtonGroup}" onclick="event.stopPropagation();">
                 <!-- Access File - Download, Explore, Compute -->
                 <div class="btn-group" jsf:rendered="#{showAccessFileButtonGroup}">
 
@@ -558,7 +559,7 @@
                         rendered="#{DatasetPage.isShowQueryButton(fileMetadata.dataFile)
                                              and fileDownloadHelper.canDownloadFile(fileMetadata)}">
                         <a class="btn-preview btn btn-link bootstrap-button-tooltip" title="#{DatasetPage.getQueryToolsForDataFile(fileMetadata.dataFile).get(0).getDisplayNameLang()}"
-                           data-bs-toggle="tooltip" data-bs-placement="top"
+                           data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" onclick="event.stopPropagation();"
                             href="#{widgetWrapper.wrapURL('/file.xhtml?'.concat(!empty fileMetadata.dataFile.globalId ? 'persistentId=' : 'fileId=').concat(!empty fileMetadata.dataFile.globalId ? fileMetadata.dataFile.globalId.asString() : fileMetadata.dataFile.id).concat('&amp;version=').concat(fileMetadata.datasetVersion.friendlyVersionNumber)).concat('&amp;toolType=QUERY')}">
                             <img src="#{resource['images/Robot-Icon_2.png']}" width="32" height="32" /><span class="visually-hidden">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ?
                                 "":fileMetadata.directoryLabel.concat("/")}#{fileMetadata.label}"</span>
@@ -567,7 +568,7 @@
 
                     <ui:fragment rendered="#{DatasetPage.isShowPreviewButton(fileMetadata)}">
                         <a class="btn-preview btn btn-link bootstrap-button-tooltip" title="#{DatasetPage.getPreviewToolsForDataFile(fileMetadata.dataFile).get(0).getDisplayNameLang()}"
-                           data-bs-toggle="tooltip" data-bs-placement="top"
+                           data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" onclick="event.stopPropagation();"
                             href="#{widgetWrapper.wrapURL('/file.xhtml?'.concat(!empty fileMetadata.dataFile.globalId ? 'persistentId=' : 'fileId=').concat(!empty fileMetadata.dataFile.globalId ? fileMetadata.dataFile.globalId.asString() : fileMetadata.dataFile.id).concat('&amp;version=').concat(fileMetadata.datasetVersion.friendlyVersionNumber)).concat('&amp;toolType=PREVIEW')}">
                             <span class="bi bi-eye" /><span class="visually-hidden">#{bundle.preview} "#{empty(fileMetadata.directoryLabel) ?
                                 "":fileMetadata.directoryLabel.concat("/")}#{fileMetadata.label}"</span>
@@ -576,7 +577,8 @@
 
                     <button type="button" style="padding: 6px 8px;" class="btn-access-file btn btn-link bootstrap-button-tooltip dropdown-toggle#{lockedFromEdits ? 'disabled' : ''}"
                         title="#{((not empty DatasetPage.getExploreToolsForDataFile(fileMetadata.dataFile)) or (DatasetPage.showComputeButton(fileMetadata))) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']}"
-                        data-bs-toggle="dropdown"
+                        data-bs-toggle="dropdown" data-bs-trigger="hover"
+                        onclick="event.stopPropagation();"
                             aria-haspopup="true"
                             aria-expanded="false"
                             tabindex="0"
@@ -625,8 +627,8 @@
                                                         and hasValidTermsOfAccess
                                                         and DatasetPage.isFileDeleted(fileMetadata.dataFile)}">
                     <a type="button" class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}"
-                        data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="#{bundle['file.optionsBtn']}" onclick="PF('fileAlreadyDeletedPrevious').show()" tabindex="0"> <span class="bi bi-three-dots-vertical" /><span
+                        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover"
+                        title="#{bundle['file.optionsBtn']}" onclick="PF('fileAlreadyDeletedPrevious').show(); event.stopPropagation();" tabindex="0"> <span class="bi bi-three-dots-vertical" /><span
                         class="visually-hidden">#{bundle['file.optionsBtn']}</span>
                     </a>
                 </div>
@@ -639,7 +641,8 @@
                     <!-- Kebab / Edit / File Options Dropdown -->
                     <button type="button"
                                 class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}"
-                        title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tabindex="0" disabled="#{lockedFromEdits ? 'disabled' : ''}"> <span class="bi bi-three-dots-vertical" /><span
+                        title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" data-bs-trigger="hover"
+                        onclick="event.stopPropagation();" aria-haspopup="true" aria-expanded="false" tabindex="0" disabled="#{lockedFromEdits ? 'disabled' : ''}"> <span class="bi bi-three-dots-vertical" /><span
                         class="visually-hidden">#{bundle['file.optionsBtn']}</span>
                         </button>
                     <ul class="dropdown-menu multi-level float-end text-start">
