@@ -51,9 +51,9 @@
             #{level = fn:split(msg.severity,' ')[0]; "" }
             #{bsClass = (level eq 'INFO' ? 'info' : (level eq 'WARN' ? 'warning' : 'danger')); ""}
             #{bsIcon = (level eq 'INFO' ? 'info-circle' : (level eq 'WARN' ? 'exclamation-circle' : 'exclamation-triangle')); ""}
-            <div class="alert #{cc.attrs.collapsible ? 'alert-dismissable' :''} alert-#{bsClass}">
+            <div class="alert #{cc.attrs.collapsible ? 'alert-dismissible' :''} alert-#{bsClass}">
                 <ui:fragment rendered="#{cc.attrs.collapsible}">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </ui:fragment>
                 <span class="bi bi-#{bsIcon}-fill"></span>&#160;<strong>#{msg.summary}</strong> – <h:outputText escape="false" value="#{msg.detail}" rendered="#{!empty msg.detail and (msg.detail != msg.summary)}"/>
                 <ui:fragment rendered="#{level eq 'FATAL'}">

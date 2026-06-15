@@ -18,7 +18,7 @@
     <div id="dataverse-header-block" role="banner">
         <!-- Navbar Panel -->
         <nav id="navbarFixed" class="navbar navbar-expand-lg navbar-light fixed-top" jsf:rendered="#{!widgetWrapper.widgetView}">
-            <div class="container">
+            <div class="container-xl">
                 <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#topNavBar" aria-controls="topNavBar" aria-expanded="false" aria-label="#{bundle.toggleNavigation}">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -35,7 +35,7 @@
         <!-- Noscript Error -->
         <noscript>
             <div id="noscript-alert" class="bg-danger">
-                <div class="alert container text-danger no-margin-bottom">
+                <div class="alert container-xl text-danger no-margin-bottom">
                     <h:outputText value="#{bundle['header.noscript']}"/>
                 </div>
             </div>
@@ -45,8 +45,8 @@
             <ui:fragment rendered="#{!empty dataverseHeaderFragment.bannerMessages}">
                 <ui:repeat value="#{dataverseHeaderFragment.bannerMessages}" var="message" varStatus="status">                
                     <div id="status-alert" class="bg-warning" jsf:rendered="#{!empty message.displayValue }">
-                        <div class="alert alert-dismissible container text-warning">
-                            <p:commandButton class="close" id="closeButton" actionListener="#{dataverseSession.dismissMessage(message)}" update="@form" value="&#215;"/>
+                        <div class="alert alert-dismissible container-xl text-warning">
+                            <p:commandButton styleClass="btn-close" id="closeButton" actionListener="#{dataverseSession.dismissMessage(message)}" update="@form" ariaLabel="Close"/>
                             <h:outputText rendered="#{!empty message.displayValue }" value=" #{message.displayValue }" escape="false"/>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
         
         <!-- Header Panel -->
         <!-- FIXME: Rather than hard-coding "FFFFFF", get it from the backend (ThemeWidgetFragment.DEFAULT_BACKGROUND_COLOR). -->
-        <div id="dataverseHeader" class="container bg-muted"
+        <div id="dataverseHeader" class="container-xl bg-muted"
                 style="background:##{!empty dataverse.dataverseTheme.backgroundColor ? dataverse.dataverseTheme.backgroundColor : 'FFFFFF'};"
                 jsf:rendered="#{showDataverseHeader and !widgetWrapper.widgetView and !dataverseHeaderFragment.isRootDataverseThemeDisabled(dataverse)}">
             <o:importFunctions type="org.apache.commons.text.StringEscapeUtils"/>
@@ -100,7 +100,7 @@
             </div>
         </div>
         <p:fragment id="breadCrumbPanel" rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1 and showDataverseHeader}">
-        <div id="breadcrumbNavBlock" class="container row" jsf:rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1}">
+        <div id="breadcrumbNavBlock" class="container-xl row" jsf:rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1}">
           <div class="col-12 p-0">
             <ui:repeat value="#{dataverseHeaderFragment.breadcrumbs}" var="breadcrumb" varStatus="status">
                 <h:outputText value=" > " styleClass="breadcrumbCarrot" rendered="#{!status.first}"/>
@@ -173,7 +173,7 @@
         </ui:remove>
         <!-- Message Panel -->
         <p:fragment id="messagePanel" rendered="#{showMessagePanel}">
-            <div class="container messagePanel">
+            <div class="container-xl messagePanel">
                 <ui:remove>
                     <!--change this to <h:messages id="messages"/> to see otherwise hidden errors such as `Conversion Error setting value 'foo.jpg' for 'null Converter'`-->
                 </ui:remove>

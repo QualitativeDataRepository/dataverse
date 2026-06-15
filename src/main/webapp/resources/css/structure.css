@@ -1206,8 +1206,13 @@ span.ui-autocomplete input.ui-autocomplete-input {width:100%;}
 
 /* Schema Dataverse Additional Classes */
 
-div.container {
+div.container, div.container-xl {
   overflow: visible;
+}
+@media (min-width: 1400px) {
+    .container-xl {
+        max-width: 1170px;
+    }
 }
 
 #search-row-panel {
