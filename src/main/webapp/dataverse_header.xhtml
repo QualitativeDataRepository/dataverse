@@ -99,48 +99,64 @@
                 </div>
             </div>
         </div>
-        <p:fragment id="breadCrumbPanel" styleClass="container-xl" rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1 and showDataverseHeader}">
-        <div id="breadcrumbNavBlock" class="container-xl row" jsf:rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1}">
-          <div class="col-12 p-0">
-            <ui:repeat value="#{dataverseHeaderFragment.breadcrumbs}" var="breadcrumb" varStatus="status">
-                <h:outputText value=" > " styleClass="breadcrumbCarrot" rendered="#{!status.first}"/>
-                <div class="breadcrumbBlock">
-                    
-                    <!-- TO-DO, REMOVED HIGHLIGHTED CURRENT PAGE TITLE WITH false RENDER, NEED TO MOVE TO PGS...??? -->
-                    <h:outputText value="#{breadcrumb.breadcrumbText}" styleClass="#{'breadcrumbActive'}" rendered="#{false}"/>
-                    
-                    <ui:fragment rendered="#{!status.last}">
-                        <h:outputText value="#{breadcrumb.breadcrumbText}" rendered="#{!breadcrumb.dvObject.instanceofDataverse and !breadcrumb.dvObject.instanceofDataset and !breadcrumb.dvObject.instanceofDataFile and empty breadcrumb.url}"/>
-                        <ui:fragment rendered="#{breadcrumb.dvObject == null and !empty breadcrumb.url}">
-                            <ui:remove><!-- No widget code for admin pgs that would never display in widget --></ui:remove>
-                            <a id="breadcrumbLnk#{status.index}" href="${breadcrumb.url}">
-                                <h:outputText value="#{breadcrumb.breadcrumbText}"/>
-                            </a>
-                        </ui:fragment>
-                        <ui:fragment rendered="#{breadcrumb.dvObject.instanceofDataverse}">
-                            <c:set var="dvUrl" value="/dataverse/#{breadcrumb.dvObject.alias}"/>
-                            <a id="breadcrumbLnk#{status.index}" href="#{widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? widgetWrapper.wrapURL(dvUrl) : dvUrl}" target="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : '_blank'}" rel="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : 'noopener'}">
-                                <h:outputText value="#{breadcrumb.breadcrumbText}"/>
-                            </a>
-                        </ui:fragment>
-                        <ui:fragment rendered="#{breadcrumb.dvObject.instanceofDataset}">
-                            <c:set var="dsUrl" value="/dataset.xhtml?persistentId=#{breadcrumb.dvObject.globalId.asString()}#{breadcrumb.optionalUrlExtension }"/>
-                            <a id="breadcrumbLnk#{status.index}" href="#{widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? widgetWrapper.wrapURL(dsUrl) : dsUrl}" target="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : '_blank'}" rel="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : 'noopener'}">
-                                <h:outputText value="#{breadcrumb.breadcrumbText}"/>
-                            </a>
-                        </ui:fragment>
-                        <ui:fragment rendered="#{breadcrumb.dvObject.instanceofDataFile}">
-                            <c:set var="dsUrl" value="/file.xhtml?fileId=#{breadcrumb.dvObject.id}#{breadcrumb.optionalUrlExtension }"/>
-                            <a id="breadcrumbLnk#{status.index}" href="#{widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? widgetWrapper.wrapURL(dsUrl) : dsUrl}" target="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : '_blank'}" rel="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : 'noopener'}">
-                                <h:outputText value="#{breadcrumb.breadcrumbText}"/>
-                            </a>
-                        </ui:fragment>
-                    </ui:fragment>
+        <p:outputPanel id="breadCrumbPanel"
+                       layout="block"
+                       styleClass="container-xl"
+                       rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1 and showDataverseHeader}">
+            <div id="breadcrumbNavBlock" class="row" jsf:rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1}">
+                <div class="col-12">
+                    <ui:repeat value="#{dataverseHeaderFragment.breadcrumbs}" var="breadcrumb" varStatus="status">
+                        <h:outputText value=" > " styleClass="breadcrumbCarrot" rendered="#{!status.first}"/>
+                        <div class="breadcrumbBlock">
+
+                            <!-- TO-DO, REMOVED HIGHLIGHTED CURRENT PAGE TITLE WITH false RENDER, NEED TO MOVE TO PGS...??? -->
+                            <h:outputText value="#{breadcrumb.breadcrumbText}" styleClass="#{'breadcrumbActive'}"
+                                          rendered="#{false}"/>
+
+                            <ui:fragment rendered="#{!status.last}">
+                                <h:outputText value="#{breadcrumb.breadcrumbText}"
+                                              rendered="#{!breadcrumb.dvObject.instanceofDataverse and !breadcrumb.dvObject.instanceofDataset and !breadcrumb.dvObject.instanceofDataFile and empty breadcrumb.url}"/>
+                                <ui:fragment rendered="#{breadcrumb.dvObject == null and !empty breadcrumb.url}">
+                                    <ui:remove><!-- No widget code for admin pgs that would never display in widget --></ui:remove>
+                                    <a id="breadcrumbLnk#{status.index}" href="${breadcrumb.url}">
+                                        <h:outputText value="#{breadcrumb.breadcrumbText}"/>
+                                    </a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{breadcrumb.dvObject.instanceofDataverse}">
+                                    <c:set var="dvUrl" value="/dataverse/#{breadcrumb.dvObject.alias}"/>
+                                    <a id="breadcrumbLnk#{status.index}"
+                                       href="#{widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? widgetWrapper.wrapURL(dvUrl) : dvUrl}"
+                                       target="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : '_blank'}"
+                                       rel="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : 'noopener'}">
+                                        <h:outputText value="#{breadcrumb.breadcrumbText}"/>
+                                    </a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{breadcrumb.dvObject.instanceofDataset}">
+                                    <c:set var="dsUrl"
+                                           value="/dataset.xhtml?persistentId=#{breadcrumb.dvObject.globalId.asString()}#{breadcrumb.optionalUrlExtension }"/>
+                                    <a id="breadcrumbLnk#{status.index}"
+                                       href="#{widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? widgetWrapper.wrapURL(dsUrl) : dsUrl}"
+                                       target="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : '_blank'}"
+                                       rel="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : 'noopener'}">
+                                        <h:outputText value="#{breadcrumb.breadcrumbText}"/>
+                                    </a>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{breadcrumb.dvObject.instanceofDataFile}">
+                                    <c:set var="dsUrl"
+                                           value="/file.xhtml?fileId=#{breadcrumb.dvObject.id}#{breadcrumb.optionalUrlExtension }"/>
+                                    <a id="breadcrumbLnk#{status.index}"
+                                       href="#{widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? widgetWrapper.wrapURL(dsUrl) : dsUrl}"
+                                       target="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : '_blank'}"
+                                       rel="#{!widgetWrapper.widgetView or widgetWrapper.isWidgetTarget(breadcrumb.dvObject) ? '' : 'noopener'}">
+                                        <h:outputText value="#{breadcrumb.breadcrumbText}"/>
+                                    </a>
+                                </ui:fragment>
+                            </ui:fragment>
+                        </div>
+                    </ui:repeat>
                 </div>
-            </ui:repeat>
-          </div>
-        </div>
-	</p:fragment>
+            </div>
+        </p:outputPanel>
         <ui:remove>
             <!-- Removing this temporarily until we can fix the performance issues with it;
                  replaced with generic bookmarks; will have to see how to best make this work
@@ -155,12 +171,12 @@
                     </a>
                 </ui:fragment>
                 <ui:fragment rendered="#{dataverseHeaderFragment.hasVisibleChildren(dv)}">
-                    <a id="dataverse" styleClass="#{dataverse.id == dv.id ? 'breadcrumbActive' : ''}" role="button">
+                    <a id="dataverse" class="#{dataverse.id == dv.id ? 'breadcrumbActive' : ''}" role="button">
                         <span class="bi bi-chevron-down"></span>
                     </a>
                 </ui:fragment>
             </div>
-            <div class="dropdown-menu" aria-labelledby="breadcrumbLnk#{status.index}" rendered="#{dataverseHeaderFragment.hasVisibleChildren(dv)}">
+            <div class="dropdown-menu" aria-labelledby="breadcrumbLnk#{status.index}" jsf:rendered="#{dataverseHeaderFragment.hasVisibleChildren(dv)}">
                 <p:tree value="#{dataverseHeaderFragment.getDataverseTree(dv)}" var="node"  cache="true" id="tree">
                     <p:treeNode>
                         <h:outputText value="#{node.name}" styleClass="breadcrumbActive" rendered="#{dataverse.id == node.id and dataset == null}"/>
