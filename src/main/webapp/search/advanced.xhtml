@@ -45,7 +45,6 @@
                                     <h:outputText value="#{bundle['advanced.search.header.dataverses']}"/> &#160;<span class="glyphicon glyphicon-chevron-up"/>
                                 </button>
                             </div>
-                            </div>
                             <div id="panelCollapseDataversesFieldList" class="card-body collapse show" aria-labelledby="headingDataversesFieldList">
                                 <div class="row mb-3">
                                     <label for="advancedSearchForm:dvFieldName"
@@ -142,7 +141,6 @@
                                         <h:outputText value="#{bundle['advanced.search.header.datasets']}: #{mdb.localeDisplayName}"/> &#160;<span class="glyphicon glyphicon-chevron-down"/>
                                     </button>
                                 </div>
-                                </div>
                                 <div id="panelCollapseCitationFieldList#{mdb.id}" class="collapse show card-body" aria-labelledby="headingCitationFieldList#{mdb.id}">
                                     <ui:repeat id="field" value="#{AdvancedSearchPage.metadataFieldMap.get(mdb.getId())}" var="item" varStatus="fieldStatus">
                                         <div class="row mb-3">
@@ -231,7 +229,6 @@
                                 <button type="button" class="panel-heading btn" data-toggle="collapse" data-target="#panelCollapseFilesFieldList" aria-expanded="true" aria-controls="panelCollapseFilesFieldList">
                                     <h:outputText value="#{bundle['advanced.search.header.files']}"/> &#160;<span class="glyphicon glyphicon-chevron-up"/>
                                 </button>
-                            </div>
                             </div>
                             <div id="panelCollapseFilesFieldList" class="card-body collapse show" aria-labelledby="headingFilesFieldList">
                                 <div class="row mb-3">
