@@ -99,7 +99,7 @@
                 </div>
             </div>
         </div>
-        <p:fragment id="breadCrumbPanel" rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1 and showDataverseHeader}">
+        <p:fragment id="breadCrumbPanel" class="container-xl" rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1 and showDataverseHeader}">
         <div id="breadcrumbNavBlock" class="container-xl row" jsf:rendered="#{dataverseHeaderFragment.breadcrumbs.size() > 1}">
           <div class="col-12 p-0">
             <ui:repeat value="#{dataverseHeaderFragment.breadcrumbs}" var="breadcrumb" varStatus="status">
