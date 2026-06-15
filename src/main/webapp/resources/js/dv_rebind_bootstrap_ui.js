@@ -3,17 +3,17 @@
  */
 function bind_bsui_components(){
     // Facet panel Filter Results btn toggle
-    $(document).on('click', '[data-bs-toggle=offcanvas]', function() {
+    $(document).off('click', '[data-bs-toggle=offcanvas]').on('click', '[data-bs-toggle=offcanvas]', function() {
         $('.row-offcanvas').toggleClass('active', 200);
     });
     
     // Collapse Header Icons
-    $('[id^="panelCollapse"]').on('shown.bs.collapse', function () {
+    $('[id^="panelCollapse"]').off('shown.bs.collapse').on('shown.bs.collapse', function () {
       $(this).siblings('div.panel-title').find('button').attr('aria-expanded', 'true').removeClass('collapsed');
       $(this).siblings('div.panel-title').find('span.bi').removeClass("bi-chevron-down").addClass("bi-chevron-up");
     });
 
-    $('[id^="panelCollapse"]').on('hidden.bs.collapse', function () {
+    $('[id^="panelCollapse"]').off('hidden.bs.collapse').on('hidden.bs.collapse', function () {
       $(this).siblings('div.panel-title').find('button').attr('aria-expanded', 'false').addClass('collapsed');
       $(this).siblings('div.panel-title').find('span.bi').removeClass("bi-chevron-up").addClass("bi-chevron-down");
     });
@@ -26,6 +26,7 @@ function bind_bsui_components(){
         var tooltip = bootstrap.Tooltip.getInstance(this);
         if (tooltip) {
             tooltip.hide();
+            tooltip.dispose();
         }
     });
 
@@ -33,6 +34,7 @@ function bind_bsui_components(){
         var popover = bootstrap.Popover.getInstance(this);
         if (popover) {
             popover.hide();
+            popover.dispose();
         }
     });
 
@@ -68,21 +70,17 @@ function bind_tooltip_popover(){
     // Initialize all tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll(".bootstrap-button-tooltip, [data-bs-toggle='tooltip']"));
     tooltipTriggerList.forEach(function(tooltipTriggerEl) {
-        new bootstrap.Tooltip(tooltipTriggerEl, {
-            container: 'body'
-        });
+        new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
     // Initialize all popovers
     var popoverTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle='popover']"));
     popoverTriggerList.forEach(function(popoverTriggerEl) {
-        new bootstrap.Popover(popoverTriggerEl, {
-            container: 'body'
-        });
+        new bootstrap.Popover(popoverTriggerEl);
     });
     
     // CLOSE OPEN TOOLTIPS + POPOVERS ON BODY CLICKS
-    $('body').on("touchstart", function(e){
+    $('body').off("touchstart").on("touchstart", function(e){
         $(".bootstrap-button-tooltip, [data-bs-toggle='tooltip']").each(function () {
             // hide any open tooltips when anywhere else in body is clicked
             if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('div.tooltip').has(e.target).length === 0) {
@@ -105,7 +103,7 @@ function bind_tooltip_popover(){
     });
     
     // CLOSE OPEN TOOLTIPS ON BUTTON CLICKS
-    $('.bootstrap-button-tooltip').on('click', function () {
+    $(document).off('click', '.bootstrap-button-tooltip').on('click', '.bootstrap-button-tooltip', function () {
         var tooltip = bootstrap.Tooltip.getInstance(this);
         if (tooltip) {
             tooltip.hide();
@@ -118,7 +116,7 @@ function toggle_dropdown(){
 }
 
 function disabledLinks(){
-    $('ul.pagination li').on('click', 'a', function (e) {
+    $(document).off('click', 'ul.pagination li a').on('click', 'ul.pagination li a', function (e) {
         if ($(this).parent().hasClass('disabled')){
             e.preventDefault();
         }
@@ -226,9 +224,7 @@ function contentTruncate(truncSelector, truncMoreBtn, truncMoreTip, truncLessBtn
             $(this).append(moreBlock);
 
             // Initialize tooltip on the new button
-            new bootstrap.Tooltip(document.querySelector('.more-block button'), {
-                container: 'body'
-            });
+            new bootstrap.Tooltip(document.querySelector('.more-block button'));
 
             // show full description in summary block on "Read full desc [+]" btn click
             $(document).on('click', 'button.desc-more-link', function() {
@@ -241,9 +237,7 @@ function contentTruncate(truncSelector, truncMoreBtn, truncMoreTip, truncLessBtn
                 $(this).parent('div.more-block').replaceWith(lessBlock);
 
                 // Initialize tooltip on the new button
-                new bootstrap.Tooltip(document.querySelector('.less-block button'), {
-                    container: 'body'
-                });
+                new bootstrap.Tooltip(document.querySelector('.less-block button'));
             });
             
             // truncate description in summary block on "Collapse desc [-]" btn click
@@ -258,9 +252,7 @@ function contentTruncate(truncSelector, truncMoreBtn, truncMoreTip, truncLessBtn
                 $('html, body').animate({scrollTop: $('#' + truncSelector).offset().top - 60}, 500);
 
                 // Initialize tooltip on the new button
-                new bootstrap.Tooltip(document.querySelector('.more-block button'), {
-                    container: 'body'
-                });
+                new bootstrap.Tooltip(document.querySelector('.more-block button'));
             });
         }
     });

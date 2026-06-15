@@ -450,10 +450,10 @@
                         rendered="#{DatasetPage.sessionUserAuthenticated
                                      and DatasetPage.canUpdateDataset() and !widgetWrapper.widgetView
                                      and (DatasetPage.fileMetadatasSearch.size() gt 0)}">
-                        <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown" jsf:disabled="#{uploadButtonDisabled}">
+                        <button type="button" class="btn btn-secondary btn-access dropdown-toggle" data-bs-toggle="dropdown" data-bs-container="body" jsf:disabled="#{uploadButtonDisabled}">
                             <span class="bi bi-pencil" /> #{bundle['file.editFiles']}
                         </button>
-                        <ul class="dropdown-menu multi-level float-end text-start">
+                        <ul class="dropdown-menu multi-level dropdown-menu-end text-start">
                             <ui:include src="file-edit-button-fragment.xhtml">
                                 <ui:param name="datasetVersion" value="#{DatasetPage.workingVersion}" />
                                 <ui:param name="fileMetadataForAction" value="#{DatasetPage.fileMetadataForAction}" />
@@ -482,10 +482,10 @@
                                      and fileMetadataCount > 1) and DatasetPage.downloadButtonAvailable
                                      and (DatasetPage.isVersionHasTabular()||DatasetPage.isVersionHasGlobus())}">
                         <button type="button" class="btn btn-secondary btn-download dropdown-toggle"
-                            data-bs-toggle="dropdown">
+                            data-bs-toggle="dropdown" data-bs-container="body">
                             <span class="bi bi-download" /> #{bundle.download}
                         </button>
-                        <ul id="downloadDropdownOptions" class="dropdown-menu multi-level float-end text-start">
+                        <ul id="downloadDropdownOptions" class="dropdown-menu dropdown-menu-end multi-level text-start">
                             <li jsf:rendered="#{DatasetPage.canDownloadFiles()}"><p:commandLink styleClass="dropdown-item" disabled="#{false and DatasetPage.lockedFromDownload}"
                                     update="@form" oncomplete="showPopup(false);" onclick="if (!testFilesSelected()) return false;"
                                     actionListener="#{DatasetPage.startDownloadSelectedOriginal()}">
@@ -576,7 +576,7 @@
 
                     <button type="button" style="padding: 6px 8px;" class="btn-access-file btn btn-link bootstrap-button-tooltip dropdown-toggle#{lockedFromEdits ? 'disabled' : ''}"
                         title="#{((not empty DatasetPage.getExploreToolsForDataFile(fileMetadata.dataFile)) or (DatasetPage.showComputeButton(fileMetadata))) ? bundle['file.accessBtn'] : bundle['file.downloadBtn']}"
-                        data-bs-toggle="dropdown" data-bs-trigger="hover"
+                        data-bs-toggle="dropdown" data-bs-container="body" data-bs-trigger="hover"
                             aria-haspopup="true"
                             aria-expanded="false"
                             tabindex="0"
@@ -586,7 +586,7 @@
 
                     </button>
 
-                    <ul class="dropdown-menu float-end text-start">
+                    <ul class="dropdown-menu dropdown-menu-end text-start">
                         <!-- Explore/Download/Request Button Block -->
                         <ui:include src="file-download-button-fragment.xhtml">
                             <ui:param name="fileMetadata" value="#{fileMetadata}" />
@@ -639,11 +639,11 @@
                     <!-- Kebab / Edit / File Options Dropdown -->
                     <button type="button"
                                 class="btn-file-options btn btn-link bootstrap-button-tooltip dropdown-toggle #{lockedFromEdits ? 'disabled' : ''}"
-                        title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" data-bs-trigger="hover"
+                        title="#{bundle['file.optionsBtn']}" data-bs-toggle="dropdown" data-bs-container="body" data-bs-trigger="hover"
                         aria-haspopup="true" aria-expanded="false" tabindex="0" disabled="#{lockedFromEdits ? 'disabled' : ''}"> <span class="bi bi-three-dots-vertical" /><span
                         class="visually-hidden">#{bundle['file.optionsBtn']}</span>
                         </button>
-                    <ul class="dropdown-menu multi-level float-end text-start">
+                    <ul class="dropdown-menu dropdown-menu-end multi-level text-start">
                         <li class="dropdown-header">#{bundle['file.optionsBtn.header.edit']} <span class="bi bi-pencil" /></li>
                         <!-- TO-DO NEW FILE-LEVEL EDIT OPTIONS... RENDER LOGIC, LINKS, DISABLED LOGIC -->
                         <!-- Edit Options -->
