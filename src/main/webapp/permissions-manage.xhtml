@@ -95,8 +95,8 @@
                         <div class="card">
                             <div data-bs-toggle="collapse" data-bs-target="#panelCollapseUsersGroups"
                                  class="card-header text-info"
-                                 aria-expanded="#{!managePermissionsPage.dvObject.instanceofDataverse ? 'true' : 'false'}"
                                  aria-controls="panelCollapseUsersGroups">
+                                <f:passThroughAttribute name="aria-expanded" value="#{!managePermissionsPage.dvObject.instanceofDataverse}"/>
                                 #{bundle['dataverse.permissions.usersOrGroups']} <span class="bi #{!managePermissionsPage.dvObject.instanceofDataverse ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
 
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissions.usersOrGroups.description']}</span>
@@ -159,11 +159,10 @@
                                  class="card-header text-info"
                                  aria-expanded="false"
                                  aria-controls="panelCollapseRoles">
-                                #{bundle['dataverse.permissions.roles']} <span class="bi bi-chevron-down"/>
-                                
+                                #{bundle['dataverse.permissions.roles']}
+                                <span class="bi bi-chevron-down"/>
                                 <span class="text-muted small float-end">#{bundle['dataverse.permissions.roles.description']}</span>
-                            </button>
-                        </div>
+                            </div>
                             <div id="panelCollapseRoles" class="collapse" aria-labelledby="panelCollapseRoles">
                                 <div class="card-body">
                                     <p:fragment id="roleMessages">
@@ -212,7 +211,7 @@
                         </div>
                         <!-- Role Assignment History Panel -->
                         <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
-                        <div id="panelCollapseHistoryHeader" class="card" rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
+                        <div id="panelCollapseHistoryHeader" class="card" jsf:rendered="#{FeatureFlags.ROLE_ASSIGNMENT_HISTORY.enabled()}">
                             <div data-bs-toggle="collapse" data-bs-target="#panelCollapseHistory"
                                  class="card-header text-info"
                                  aria-expanded="false"
