@@ -1726,8 +1726,8 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
 }
 
 /* Remove underline from specific icon-based buttons (e.g. previewer icon, menus) */
-.btn-preview:hover, .btn-preview:focus, .btn-preview:active,
-.btn-access-file:hover, .btn-access-file:focus, .btn-access-file:active,
-.btn-file-options:hover, .btn-file-options:focus, .btn-file-options:active {
+.btn-preview,
+.btn-access-file,
+.btn-file-options {
     text-decoration: none !important;
 }
