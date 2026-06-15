@@ -1,8 +1,8 @@
-<ui:composition xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
+<ui:composition xmlns:h="jakarta.faces.html"
+    xmlns:f="jakarta.faces.core"
+    xmlns:ui="jakarta.faces.facelets"
     xmlns:p="http://primefaces.org/ui"
-    xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
+    xmlns:iqbs="jakarta.faces.composite/iqbs">
     
     <p:dialog id="explicitGroupNewDialog" width="65%" header="#{bundle['dataverse.permissions.explicitGroupEditDialog.title.new']}" widgetVar="explicitGroupForm" modal="true">
         <p:focus for="explicitGroupName"/>
@@ -100,3 +100,4 @@
         </p:fragment>
     </p:dialog>
 </ui:composition>
+
