@@ -1955,7 +1955,8 @@ public class Access extends AbstractApiBean {
 
     private boolean checkGuestbookRequiredResponse(ContainerRequestContext crc, UriInfo uriInfo, DataFile df, String gbrids) throws WebApplicationException {
         // Check if guestbook response is required
-        boolean required = df.getOwner().hasEnabledGuestbook();
+        Dataset d = df.getOwner();
+        boolean required = df.getOwner().hasEnabledGuestbook() && !d.getEffectiveGuestbookEntryAtRequest();
         boolean wasWrittenInPost = false;
         if (required) {
             User requestor = getRequestor(crc);
