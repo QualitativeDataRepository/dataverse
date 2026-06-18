@@ -862,7 +862,6 @@ public class XmlMetadataTemplate {
             }
         }
         return;
-
     }
 
     // 10, ResourceType (with mandatory general type

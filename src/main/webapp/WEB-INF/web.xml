@@ -269,6 +269,13 @@
     <filter-mapping>
         <filter-name>CorsFilter</filter-name>
         <url-pattern>/*</url-pattern>
+        <!-- * The broader dispatcher set is intentional:
+             *  - REQUEST applies CORS to direct client requests.
+             *  - FORWARD covers internal forwards, including API paths rewritten by
+             *    {@link edu.harvard.iq.dataverse.api.ApiRouter} from {@code /api/...} to {@code /api/v1/...}.
+             *  - ERROR ensures error responses also carry CORS headers, so browser clients can read error details.
+             *  - ASYNC keeps behavior consistent for asynchronous servlet/JAX-RS processing.
+        -->
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>ERROR</dispatcher>

@@ -33,7 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 
 public class CorsFilter implements Filter {
-    
+
     @EJB
     SettingsServiceBean settingsService;
 
