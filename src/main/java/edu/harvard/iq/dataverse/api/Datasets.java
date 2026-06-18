@@ -3095,7 +3095,7 @@ public class Datasets extends AbstractApiBean {
              * under the hood in Jersey here. So this should be considered a practical rather than final fix.
              */
 
-            newFilename = contentDispositionHeader.getFileName();
+            newFilename = FileUtil.decodeFileName(contentDispositionHeader.getFileName());
             // Let's see if the form data part has the mime (content) type specified.
             // Note that we don't want to rely on formDataBodyPart.getMediaType() -
             // because that defaults to "text/plain" when no "Content-Type:" header is
