@@ -1071,7 +1071,7 @@ public class Access extends AbstractApiBean {
             }
         }
 
-       List<DataFile> authorizedDatafiles = new ArrayList<>();
+       List<DataFile> authorizedDataFiles = new ArrayList<>();
 
         // Get DataFiles, check authorized access, and check for required guestbook response
         //  ToDo - cache dataset perms, e.g. editdataset let's you get all files (assuming one dataset)
@@ -1086,33 +1086,34 @@ public class Access extends AbstractApiBean {
         } catch (FileDownloadServiceBean.MultipleDatasetsException e) {
             return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.download.failure.multipleDatasets"));
         }
-        if(!selectedDataFiles.isEmpty()) {
+        for (DataFile df : selectedDataFiles) {
+            if (isAccessAuthorized(user, df)) {
+                authorizedDataFiles.add(df);
+            }
+        }
+        if(!authorizedDataFiles.isEmpty()) {
 
             Boolean guestbookResponseRequired = checkGuestbookRequiredResponse(user, uriInfo, selectedDataFiles.getFirst(), gbrids);
             logger.fine("Downloading" + fileIdParams.length + " files. GBR required: " + guestbookResponseRequired);
 
-            for (DataFile df : selectedDataFiles) {
-                if (isAccessAuthorized(user, df)) {
-                    authorizedDatafiles.add(df);
-                }
-            }
-            if (!donotwriteGBResponse) {
+
+            if (!donotwriteGBResponse && !authorizedDataFiles.isEmpty()) {
                 if (guestbookResponseRequired) {
                     try {
-                        GuestbookResponse gbr = getGuestbookResponseFromBody(authorizedDatafiles.getFirst(), GuestbookResponse.DOWNLOAD, body, user);
+                        GuestbookResponse gbr = getGuestbookResponseFromBody(authorizedDataFiles.getFirst(), GuestbookResponse.DOWNLOAD, body, user);
                         if (gbr != null) {
-                            fileDownloadService.writeGuestbookResponseRecords(gbr, authorizedDatafiles);
+                            fileDownloadService.writeGuestbookResponseRecords(gbr, authorizedDataFiles);
                         } else {
-                            return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.download.failure.guestbookResponseMissing", getGuestbookIdFromDatafile(authorizedDatafiles.getFirst())));
+                            return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.download.failure.guestbookResponseMissing", getGuestbookIdFromDatafile(authorizedDataFiles.getFirst())));
                         }
                     } catch (JsonParseException ex) {
-                        List<String> args = Arrays.asList(authorizedDatafiles.getFirst().getDisplayName(), ex.getLocalizedMessage());
+                        List<String> args = Arrays.asList(authorizedDataFiles.getFirst().getDisplayName(), ex.getLocalizedMessage());
                         return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.download.failure.guestbook.commandError", args));
                     }
 
                 } else {
-                    GuestbookResponse gbr = guestbookResponseService.initAPIGuestbookResponse(authorizedDatafiles.getFirst().getOwner(), authorizedDatafiles.getFirst(), session, user);
-                    fileDownloadService.writeGuestbookResponseRecords(gbr, authorizedDatafiles);
+                    GuestbookResponse gbr = guestbookResponseService.initAPIGuestbookResponse(authorizedDataFiles.getFirst().getOwner(), authorizedDataFiles.getFirst(), session, user);
+                    fileDownloadService.writeGuestbookResponseRecords(gbr, authorizedDataFiles);
                 }
                 //We've written the gb responses if needed
                 donotwriteGBResponse = true;
@@ -1151,7 +1152,7 @@ public class Access extends AbstractApiBean {
                     long sizeTotal = 0L;
 
                     for (DataFile file : allSelectedDataFiles) {
-                        if (authorizedDatafiles.contains(file)) {
+                        if (authorizedDataFiles.contains(file)) {
                             logger.fine("adding datafile (id=" + file.getId() + ") to the download list of the ZippedDownloadInstance.");
                             //downloadInstance.addDataFile(file);
 
