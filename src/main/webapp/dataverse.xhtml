@@ -9,7 +9,7 @@
       xmlns:of="http://omnifaces.org/functions"
       xmlns:pt="jakarta.faces.passthrough"
       xmlns:jsf="jakarta.faces"
-      xmlns:dataverse="http://xmlns.jcp.org/jsf/composite/dataverse">
+      xmlns:dataverse="jakarta.faces.composite/dataverse">
     <h:head>
     </h:head>
     <h:body>
@@ -364,11 +364,16 @@
                                     </div>
                                     <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
                                     <ui:param name="allowLocallyFAIR" value="#{FeatureFlags.ALLOW_LOCALLY_FAIR_DATA.enabled()}"/>
-                                    <div class="col-xs-12 form-group" jsf:rendered="#{dataverseSession.user.superuser and (allowLocallyFAIR or not empty DataversePage.locallyFAIRRoleAssigneesList)}">
-                                        <h:outputLabel for="locallyFAIRRoleAssignees" styleClass="control-label">
+                                    <div class="col-12 row mb-3" jsf:rendered="#{dataverseSession.user.superuser and (allowLocallyFAIR or not empty DataversePage.locallyFAIRRoleAssigneesList)}">
+                                        <h:outputLabel id="locallyFAIRRoleAssigneesLabel" for="userGroupNameAssign" styleClass="form-label">
                                             #{bundle['dataverse.locallyfair.label']}
-                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
-                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.locallyfair.title']}"></span>
+                                            <f:passThroughAttribute name="aria-describedby" value="locallyFAIRRoleAssigneesHelpText"/>
+                                            <span id="locallyFAIRRoleAssigneesHelpText" class="visually-hidden">
+                                                #{bundle['dataverse.locallyfair.title']}
+                                            </span>
+                                            <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
+                                                  data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.locallyfair.title']}"></span>
                                         </h:outputLabel>
                                         <div class="form-col-container">
                                             <dataverse:userGroupSelect id="userGroupNameAssign"
@@ -416,9 +421,9 @@
                                             <div class="checkbox">
                                                 <label for="#{mdb.idString}">
                                                     <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}" jsf:value="#{mdb.selected}"
-                                                           name="mdbSelectRequired" disabled="true" checked="checked" jsf:rendered="#{mdb.required and !DataversePage.inheritMetadataBlockFromParent}" />
+                                                           name="mdbSelectRequired" disabled="disabled" checked="checked" jsf:rendered="#{mdb.required and !DataversePage.inheritMetadataBlockFromParent}" />
                                                     <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}" jsf:value="#{mdb.selected}"
-                                                           name="mdbSelectRequiredInherited" disabled="true" jsf:rendered="#{DataversePage.inheritMetadataBlockFromParent}">
+                                                           name="mdbSelectRequiredInherited" disabled="disabled" jsf:rendered="#{DataversePage.inheritMetadataBlockFromParent}">
                                                         <p:ajax update="@widgetVar(optionBlock)" />
                                                     </input>
                                                     <input type="checkbox" jsf:itemValue="#{mdb}" id="#{mdb.idString}" jsf:value="#{mdb.selected}"
@@ -453,7 +458,7 @@
                                                                     <tr>
                                                                         <td>
                                                                             <p:selectBooleanCheckbox rendered="#{!dsft.hasParent}" value="#{dsft.include}" itemLabel="#{dsft.displayName}"
-                                                                                                      onchange="scrollPos=document.getElementById('metadataFieldOptionsPanel-Body').scrollTop;#{DataversePage.updateInclude(mdb.id, dsft.id)}"
+                                                                                                      onchange="scrollPos=document.getElementById('metadataFieldOptionsPanel-Body').scrollTop; #{DataversePage.updateInclude(mdb.id, dsft.id)}"
                                                                                                      disabled="#{(!dsft.hasParent and (dsft.hasRequiredChildren or dsft.required)) or DataversePage.editInputLevel == false }">
                                                                                 <p:ajax update="@widgetVar(OptButton#{dsft.id}), @widgetVar(optionBlock)" />
                                                                             </p:selectBooleanCheckbox>
@@ -738,25 +743,28 @@
                     </ui:fragment>
                     <!-- POPUPS -->
                     <!-- Featured Dataverses Popup -->
-                    <p:dialog id="browseOptsForm" header="#{bundle['dataverse.option.featuredDataverse']}" widgetVar="browseOptsForm" modal="true">
+                    <p:dialog id="browseOptsForm" header="#{bundle['dataverse.option.featuredDataverse']}" widgetVar="browseOptsForm" modal="true" responsive="true">
                         <ui:fragment rendered="#{!empty DataversePage.featuredDataverses.source or !empty DataversePage.featuredDataverses.target}">
                             <p:focus for="featuredDataverseList"/>
-                            <div class="row mb-3">
-                                <p class="form-text">#{bundle['dataverse.selectToFeature']}</p>
+                            <div class="mb-3">
+                                <p class="form-text mb-2">#{bundle['dataverse.selectToFeature']}</p>
                                 <p:pickList id="featuredDataverseList" value="#{DataversePage.featuredDataverses}" var="featureddataverse"
                                             itemLabel="#{featureddataverse.name}"
                                             itemValue="#{featureddataverse}" converter="dataverseConverter"
-                                            showSourceFilter="true" showTargetFilter="true" />
+                                            showSourceFilter="true" showTargetFilter="true"
+                                            filterMatchMode="contains" responsive="true">
+                                    <f:facet name="targetCaption">#{bundle['dataverse.selected']}</f:facet>
+                                </p:pickList>
                             </div>
                             <div class="button-block">
                                 <p:commandButton styleClass="btn btn-secondary" value="#{bundle.saveChanges}" action="#{DataversePage.save}"/>
-                                <button class="btn btn-link" onclick="PF('browseOptsForm').hide();" type="button">                              
+                                <button class="btn btn-link" onclick="PF('browseOptsForm').hide();" type="button">
                                     #{bundle.cancel}
                                 </button>
                             </div>
                         </ui:fragment>
                         <ui:fragment rendered="#{empty DataversePage.featuredDataverses.source and empty DataversePage.featuredDataverses.target}">
-                            <p class="text-danger">
+                            <p class="text-danger d-flex align-items-start gap-2">
                                 <span class="bi bi-exclamation-circle-fill"/> #{bundle['dataverse.nopublished.tip']}
                             </p>
                             <div class="button-block">

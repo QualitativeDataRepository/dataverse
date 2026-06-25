@@ -1,9 +1,9 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://java.sun.com/jsf/html"
-                xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:cc="http://xmlns.jcp.org/jsf/composite">
+                xmlns:cc="jakarta.faces.composite">
 
     <!-- Component Interface: Defines the attributes you can pass to this component -->
     <cc:interface>
@@ -14,6 +14,7 @@
         <cc:attribute name="required" type="java.lang.Boolean" default="false"/>
         <cc:attribute name="requiredMessage" type="java.lang.String"/>
         <cc:attribute name="multiple" type="java.lang.Boolean" default="true"/>
+        <cc:attribute name="disabled" type="java.lang.Boolean" default="false"/>
     </cc:interface>
 
     <!-- Component Implementation: The actual UI and logic -->
@@ -27,6 +28,7 @@
                         placeholder="#{cc.attrs.placeholder}"
                         required="#{cc.attrs.required}"
                         requiredMessage="#{cc.attrs.requiredMessage}"
+                        disabled="#{cc.attrs.disabled}"
                         scrollHeight="180"
                         forceSelection="true"
                         minQueryLength="2"
