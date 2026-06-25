@@ -67,7 +67,7 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
 
     /**
      * Creates/updates the {@link DatasetVersionUser} for our {@link #dataset}. After
-     * calling this method, there is a {@link DatasetUser} object connecting
+     * calling this method, there is a {@link DatasetVersionUser} object connecting
      * {@link #dataset} and the {@link AuthenticatedUser} who issued this
      * command, with the {@code lastUpdate} field containing {@link #timestamp}.
      *
@@ -108,11 +108,27 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
     protected void validateOrDie(DatasetVersion dsv, Boolean lenient) throws CommandException {
         Set<ConstraintViolation> constraintViolations = dsv.validate();
         if (!constraintViolations.isEmpty()) {
+            for (ConstraintViolation<T> violation : constraintViolations) {
+                logger.log(Level.WARNING,
+                        "Constraint violation found in FileMetadata: property={0}, invalidValue={1}, message={2}, leafBean={3}",
+                        new Object[]{
+                                violation.getPropertyPath(),
+                                violation.getInvalidValue(),
+                                violation.getMessage(),
+                                violation.getLeafBean().getClass().getSimpleName(),
+                                violation.getRootBean().getClass().getSimpleName()
+
+                        });
+            }
             if (lenient) {
-                // populate invalid fields with N/A
+                // populate invalid primitive fields with N/A
+                // Note: controlled vocabulary fields should NOT get N/A values in datasetfieldvalue,
+                // as this creates an inconsistent state where the CV field appears valid but is empty.
+                // See https://github.com/IQSS/dataverse/issues/11900
                 constraintViolations.stream()
                     .filter(cv -> cv.getRootBean() instanceof DatasetField)
                     .map(cv -> ((DatasetField) cv.getRootBean()))
+                    .filter(f -> !f.getDatasetFieldType().isControlledVocabulary())
                     .forEach(f -> f.setSingleValue(DatasetField.NA_VALUE));
 
             } else {
@@ -315,6 +331,16 @@ public abstract class AbstractDatasetCommand<T> extends AbstractCommand<T> {
             if (ctxt.dsField().getCVocConf(true).containsKey(df.getDatasetFieldType().getId())) {
                 ctxt.dsField().registerExternalVocabValues(df);
             }
+        }
+    }
+
+    // To block Publishing dataset or Submitting dataset for review
+    protected boolean getEffectiveRequiresFilesToPublishDataset() {
+        if (getUser().isSuperuser()) {
+            return false;
+        } else {
+            Dataverse dv = getDataset().getOwner();
+            return dv != null &&  dv.getEffectiveRequiresFilesToPublishDataset();
         }
     }
 }

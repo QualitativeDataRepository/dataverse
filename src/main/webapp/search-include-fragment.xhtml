@@ -519,6 +519,7 @@
                             <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="label label-primary" rendered="#{result.draftState}"/>
                             <h:outputText value="#{result.userRole}" styleClass="label label-primary" rendered="#{!empty result.userRole}"/>
                             <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{result.unpublishedState}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.locallyFAIR']}"  title="#{bundle['dataset.versionUI.locallyFAIR.tip']}"  styleClass="label label-primary" rendered="#{result.locallyFAIR}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <span>
@@ -585,6 +586,7 @@
                             <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabelFromString(result.curationStatus)}" styleClass="label curation-status" rendered="#{result.draftState and SearchIncludeFragment.canSeeCurationStatus(result.entityId)}"/>
                             <h:outputText value="#{result.userRole}" styleClass="label label-primary" rendered="#{!empty result.userRole}"/>
                             <h:outputText value="#{bundle['incomplete']}" styleClass="label label-danger" rendered="#{!result.harvested and !SearchIncludeFragment.isValid(result)}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.locallyFAIR']}"  title="#{bundle['dataset.versionUI.locallyFAIR.tip']}"  styleClass="label label-primary" rendered="#{result.locallyFAIR}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <span>
@@ -663,6 +665,7 @@
                             <h:outputText value="#{bundle['embargoed']}" styleClass="label label-primary" rendered="#{SearchIncludeFragment.isActivelyEmbargoed(result)}"/>
                             <h:outputText value="#{bundle['retentionExpired']}" styleClass="label label-danger" rendered="#{SearchIncludeFragment.isRetentionExpired(result)}"/>
                             <h:outputText value="#{result.userRole}" styleClass="label label-primary" rendered="#{!empty result.userRole}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.locallyFAIR']}"  title="#{bundle['dataset.versionUI.locallyFAIR.tip']}"  styleClass="label label-primary" rendered="#{result.locallyFAIR}"/>
                         </div>
 
                         <div class="card-preview-icon-block text-center">

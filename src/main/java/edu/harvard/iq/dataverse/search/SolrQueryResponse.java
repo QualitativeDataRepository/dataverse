@@ -7,16 +7,16 @@ import java.util.Map;
 import java.util.logging.Logger;
 import jakarta.json.Json;
 import jakarta.json.JsonObjectBuilder;
-import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.request.SolrQuery;
 import org.apache.solr.client.solrj.response.FacetField;
 
 public class SolrQueryResponse {
 
     private static final Logger logger = Logger.getLogger(SolrQueryResponse.class.getCanonicalName());
 
-    private List<SolrSearchResult> solrSearchResults;
-    private Long numResultsFound;
-    private Long resultsStart;
+    private List<SolrSearchResult> solrSearchResults = List.of();
+    private Long numResultsFound = 0L;
+    private Long resultsStart = 0L;
     private Map<String, List<String>> spellingSuggestionsByToken;
     private List<FacetCategory> facetCategoryList;
     private List<FacetCategory> typeFacetCategories;

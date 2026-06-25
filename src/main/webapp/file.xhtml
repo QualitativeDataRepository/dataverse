@@ -15,7 +15,7 @@
 
     <h:body>
         <ui:composition template="/dataverse_template.xhtml">
-            <ui:param name="pageTitle" value="#{FilePage.fileMetadata.dataFile.displayName} - #{FilePage.file.owner.owner.displayName}"/>
+            <ui:param name="pageTitle" value="#{FilePage.fileMetadata.labelForOriginal} - #{FilePage.file.owner.owner.displayName}"/>
             <ui:param name="dataverse" value="#{FilePage.file.owner.owner}"/>
             <ui:param name="showDataverseHeader" value="#{!FilePage.isAnonymizedAccess()}"/>
             <ui:param name="showMessagePanel" value="#{true}"/>
@@ -71,8 +71,8 @@
                                     <div id="title-label-block" class="margin-top-half">
 
                                         <!-- Restricted File Icon -->
-                                        <span class="glyphicon glyphicon-lock text-danger" title="#{bundle['restricted']}" data-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted and !(fileDownloadHelper.canDownloadFile(FilePage.fileMetadata))}" />
-                                        <span class="icon-unlock text-success" title="#{bundle['restrictedaccess']}" data-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted  and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata) }" />
+                                        <span class="glyphicon glyphicon-lock text-danger" title="#{bundle['restricted']}" data-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted and !(fileDownloadHelper.canDownloadFile(FilePage.fileMetadata))}"/>
+                                        <span class="icon-unlock text-success" title="#{bundle['restrictedaccess']}" data-toggle="tooltip" jsf:rendered="#{FilePage.fileMetadata.restricted  and fileDownloadHelper.canDownloadFile(FilePage.fileMetadata) }"/>
                                         <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
                                         
                                         <!-- DATASET Publication Status -->
@@ -82,6 +82,7 @@
                                         <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="label label-success" rendered="#{FilePage.fileMetadata.datasetVersion.inReview}"/>
                                         <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"/>
                                         <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="label label-danger" rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"/>
+                                        <h:outputText value="#{bundle['dataset.versionUI.locallyFAIR']}"  title="#{bundle['dataset.versionUI.locallyFAIR.tip']}"  styleClass="label label-primary" rendered="#{FilePage.file.locallyFAIR}"/>
                                         <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabel(FilePage.fileMetadata.datasetVersion.currentCurationStatus)}" styleClass="label curation-status" rendered="#{FilePage.canSeeCurationStatus()}"/>
                                         <h:outputText value="#{bundle['incomplete']}" styleClass="label label-danger" rendered="#{!FilePage.valid}"/>
                                         <!-- DATASET VERSION NUMBER -->
@@ -254,7 +255,6 @@
                                                         <ui:include src="file-edit-button-fragment.xhtml">
                                                             <ui:param name="datasetVersion" value="#{FilePage.fileMetadata.datasetVersion}"/>
                                                             <ui:param name="fileMetadata" value="#{FilePage.fileMetadata}"/>
-                                                            <ui:param name="isDraftReplacementFile" value="#{FilePage.draftReplacementFile}"/>
                                                             <ui:param name="configureTools" value="#{FilePage.configureTools}"/>
                                                             <ui:param name="bean" value="#{FilePage}"/>
                                                             <ui:param name="unrestrictFileAction" value="restrictFile"/>

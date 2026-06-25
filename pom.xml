@@ -6,7 +6,7 @@
     <parent>
         <groupId>edu.harvard.iq</groupId>
         <artifactId>dataverse-parent</artifactId>
-        <version>6.10.1-qdr</version>
+        <version>6.11-qdr-dev</version>
         <relativePath>modules/dataverse-parent</relativePath>
     </parent>
     
@@ -304,11 +304,11 @@
     <version>3.2.0</version>
     <scope>provided</scope>
 </dependency>
-        
-        
-        
-        
-        
+
+
+
+
+
         <!-- Jakarta Activation, MIME support etc -->
         <!-- Runtime implementation here only, as necessary for testing. -->
         <dependency>
@@ -362,7 +362,7 @@
         <dependency>
             <groupId>org.omnifaces</groupId>
             <artifactId>omnifaces</artifactId>
-            <version>4.0-M13</version>
+            <version>4.7.5</version>
         </dependency>
         
         <!-- Jakarta Validation API & runtime -->
@@ -415,7 +415,12 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>9.10.0</version>
+            <version>10.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj-jetty</artifactId>
+            <version>10.0.0</version>
         </dependency>
         <dependency>
             <groupId>colt</groupId>
@@ -660,7 +665,7 @@
         <dependency>
             <groupId>org.apache.opennlp</groupId>
             <artifactId>opennlp-tools</artifactId>
-            <version>1.9.1</version>
+            <version>2.5.9</version>
         </dependency>
         <dependency>
             <groupId>org.xmlunit</groupId>
@@ -767,6 +772,18 @@
             <groupId>org.dbunit</groupId>
             <artifactId>dbunit</artifactId>
             <version>3.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.ttddyy</groupId>
+            <artifactId>datasource-proxy</artifactId>
+            <version>1.11.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-dbcp2</artifactId>
+            <version>2.14.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

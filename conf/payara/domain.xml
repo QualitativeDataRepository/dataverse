@@ -76,6 +76,7 @@
         <jdbc-connection-pool is-isolation-level-guaranteed="false" name="H2Pool" datasource-classname="org.h2.jdbcx.JdbcDataSource" res-type="javax.sql.DataSource">
             <property name="URL" value="jdbc:h2:${com.sun.aas.instanceRoot}/lib/databases/embedded_default;AUTO_SERVER=TRUE" />
         </jdbc-connection-pool>
+        <!-- Dataverse-specific -->
         <managed-executor-service object-type="system-all" jndi-name="concurrent/__defaultManagedExecutorService" />
         <managed-scheduled-executor-service object-type="system-all" jndi-name="concurrent/__defaultManagedScheduledExecutorService" />
         <connector-connection-pool max-pool-size="250" resource-adapter-name="jmsra" steady-pool-size="1" name="jms/__defaultConnectionFactory-Connection-Pool" connection-definition-name="jakarta.jms.ConnectionFactory" />
@@ -83,6 +84,7 @@
         <context-service object-type="system-all" jndi-name="concurrent/__defaultContextService" />
         <managed-thread-factory object-type="system-all" jndi-name="concurrent/__defaultManagedThreadFactory" />
         <managed-executor-service core-pool-size="1" task-queue-capacity="1000" thread-lifetime-seconds="300" maximum-pool-size="1" jndi-name="CitationUpdateExecutor"></managed-executor-service>
+        <!-- End Dataverse-specific -->
     </resources>
     <servers>
         <server name="server" config-ref="server-config">
@@ -629,7 +631,7 @@
         </config>
     </configs>
     <property name="administrative.domain.name" value="domain1" />
-    <secure-admin special-admin-indicator="c23c3656-ff47-4f63-acde-a3e63b3e351f">
+    <secure-admin special-admin-indicator="58d12824-8e2c-442e-90d3-bd318d38acdd">
         <secure-admin-principal dn="CN=localhost,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
         <secure-admin-principal dn="CN=localhost-instance,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
     </secure-admin>

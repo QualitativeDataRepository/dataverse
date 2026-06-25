@@ -44,10 +44,10 @@ import jakarta.json.JsonArrayBuilder;
 import jakarta.persistence.NoResultException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.SortClause;
+import org.apache.solr.client.solrj.request.SolrQuery;
+import org.apache.solr.client.solrj.request.SolrQuery.SortClause;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.BaseHttpSolrClient.RemoteSolrException;
+import org.apache.solr.client.solrj.RemoteSolrException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.RangeFacet;
@@ -493,7 +493,9 @@ public class SolrSearchServiceBean implements SearchService {
             Boolean datasetValid = (Boolean) solrDocument.getFieldValue(SearchFields.DATASET_VALID);
             Long fileCount = (Long) solrDocument.getFieldValue(SearchFields.FILE_COUNT);
             Long datasetCount = (Long) solrDocument.getFieldValue(SearchFields.DATASET_COUNT);
-            
+
+            Boolean locallyFAIR = (Boolean) solrDocument.getFieldValue(SearchFields.LOCALLY_FAIR);
+
             List<String> matchedFields = new ArrayList<>();
             
             SolrSearchResult solrSearchResult = new SolrSearchResult(query, name);
@@ -576,6 +578,7 @@ public class SolrSearchServiceBean implements SearchService {
             solrSearchResult.setEmbargoEndDate(embargoEndDate);
             solrSearchResult.setRetentionEndDate(retentionEndDate);
 
+            solrSearchResult.setLocallyFAIR(locallyFAIR);
             /**
              * @todo start using SearchConstants class here
              */

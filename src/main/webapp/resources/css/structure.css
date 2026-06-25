@@ -244,7 +244,7 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
   text-align: center;
   display: block;
   font-weight: bold;
-  color: #101010; 
+  color: #101010;
 }
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName h1 {
     font-weight: inherit;
@@ -253,8 +253,8 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
     margin-bottom: 10px;
 }
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:hover,
-#dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:focus {text-decoration: none;} 
-#dataverseHeader .dataverseHeaderName span.label.label-unpublished {vertical-align:text-top; line-height: normal; margin-left:1em;}
+#dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:focus {text-decoration: none;}
+#dataverseHeader .dataverseHeaderName span.label {line-height: normal; margin-left:.5em;}
 #dataverseHeader .dataverseHeaderTagline {padding-left:2em; font-size:1.3em;}
 #dataverseHeader .dataverseHeaderLink {padding-left:2em;}
 /*QDR*/
@@ -400,7 +400,7 @@ div.ui-state-focus span.ui-chkbox-icon {outline: -webkit-focus-ring-color auto 5
 .button-block {margin-top:1em;}
 #datasetForm .button-block:not(.col-file-action) {margin-top:1em;z-index:500;position:relative;}
 .button-block .btn {position:relative;}
-.form-group > .button-block, 
+.form-group > .button-block,
 .panel-body > .button-block, 
 td.col-file-action > .button-block, .col-manage-action > .button-block,
 div.ui-datatable-header > .button-block, .button-block.tab-header, #actionButtonBlock > .button-block, .inline-buttons > .button-block {margin-top:0;}
