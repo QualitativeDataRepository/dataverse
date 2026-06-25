@@ -253,6 +253,38 @@
         <servlet-name>edu.harvard.iq.dataverse.api.datadeposit.SWORDv2ContainerServlet</servlet-name>
         <url-pattern>/dvn/api/data-deposit/v1.1/swordv2/edit/*</url-pattern>
     </servlet-mapping>
+    <!-- 
+        Filter ordering is important! 
+        CorsFilter must run before AuthFilter to ensure CORS headers are added 
+        even if AuthFilter returns early (e.g., for /ssoreset).
+    -->
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>edu.harvard.iq.dataverse.filter.CorsFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>edu.harvard.iq.dataverse.authorization.AuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <!-- * The broader dispatcher set is intentional:
+             *  - REQUEST applies CORS to direct client requests.
+             *  - FORWARD covers internal forwards, including API paths rewritten by
+             *    {@link edu.harvard.iq.dataverse.api.ApiRouter} from {@code /api/...} to {@code /api/v1/...}.
+             *  - ERROR ensures error responses also carry CORS headers, so browser clients can read error details.
+             *  - ASYNC keeps behavior consistent for asynchronous servlet/JAX-RS processing.
+        -->
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+        <dispatcher>ASYNC</dispatcher>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <filter>
         <filter-name>edu.harvard.iq.dataverse.api.datadeposit.SwordFilter</filter-name>
         <filter-class>edu.harvard.iq.dataverse.api.datadeposit.SwordFilter</filter-class>

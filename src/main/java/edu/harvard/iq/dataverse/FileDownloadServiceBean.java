@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
 import edu.harvard.iq.dataverse.dataaccess.StorageIO;
+import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateGuestbookResponseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.RequestAccessCommand;
@@ -36,7 +37,6 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.logging.Logger;
 import java.io.FileNotFoundException;
-//import org.primefaces.context.RequestContext;
 
 /**
  *
@@ -72,6 +72,9 @@ public class FileDownloadServiceBean implements java.io.Serializable {
     SettingsServiceBean settingsService;
     @EJB
     MailServiceBean mailService;
+
+    @EJB
+    FileDownloadServiceBean self;
 
     @Inject
     DataverseSession session;
@@ -135,7 +138,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
         List<DataFile> selectedDataFiles = new ArrayList<>();
         //Should not be getting exceptions with Dataverse generating the fileIds
         try {
-            selectedDataFiles = resolveSelectedDataFilesInDataset(fileIdsList);
+            selectedDataFiles = resolveSelectedDataFilesInDataset(fileIdsList, dvRequestService.getDataverseRequest());
         } catch (FileNotFoundException e) {
             PrimeFaces.current().dialog().showMessageDynamic(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
             return;
@@ -226,7 +229,10 @@ public class FileDownloadServiceBean implements java.io.Serializable {
 
         int countRequestAccessSuccess = 0;
 
+        // ToDo - rewrite to avoid 1 transaction per guestbookresponse/file
         for(DataFile dataFile : selectedDataFiles){
+            // The guestbookResponse can be reused because the final save() of
+            // the guestbookResponse is in a new transaction. (Otherwise we'd need to make a copy)
             guestbookResponse.setDataFile(dataFile);
             writeGuestbookResponseRecordForRequestAccess(guestbookResponse);
             if(requestAccess(dataFile,guestbookResponse)){
@@ -265,11 +271,11 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             perFileResponse.setDataFile(dataFile);
             responsesToPersist.add(perFileResponse);
         }
-        List<String> savedIds = saveGuestbookResponseRecordsAndMDCLogEntries(responsesToPersist);
+        List<String> savedIds = self.saveGuestbookResponseRecordsAndMDCLogEntries(responsesToPersist);
         return savedIds;
     }
 
-    public List<DataFile> resolveSelectedDataFilesInDataset(List<String> rawFileIds)
+    public List<DataFile> resolveSelectedDataFilesInDataset(List<String> rawFileIds, DataverseRequest req)
             throws FileNotFoundException, MultipleDatasetsException {
 
         List<DataFile> selectedDataFiles = new ArrayList<>(rawFileIds.size());
@@ -290,6 +296,12 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             DataFile dataFile = datafileService.find(fileId);
             if (dataFile == null) {
                 throw new FileNotFoundException("No file found for id: " + fileId);
+            }
+
+            if (selectedDataFiles.isEmpty()) {
+                if (dataFile.isLocallyFAIR() && !permissionService.hasLocallyFAIRAccess(req, dataFile)) {
+                    throw new FileNotFoundException("No file found for id: " + fileId);
+                }
             }
 
             Long currentDatasetId = dataFile.getOwner().getId();

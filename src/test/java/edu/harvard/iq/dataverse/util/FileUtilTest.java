@@ -436,4 +436,12 @@ public class FileUtilTest {
         assertEquals("withcomma", FileUtil.sanitizeFileName("with,comma"));
         assertEquals("with.txt", FileUtil.sanitizeFileName("with,\\?:;,.txt"));
     }
+
+    @Test
+    public void testDecodeFileName() {
+        // "test-á.txt" encoded as UTF-8 but interpreted as ISO-8859-1
+        String mangledName = "test-Ã¡.txt";
+        assertEquals("test-á.txt", FileUtil.decodeFileName(mangledName));
+        assertEquals(null, FileUtil.decodeFileName(null));
+    }
 }

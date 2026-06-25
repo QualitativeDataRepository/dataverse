@@ -8,7 +8,8 @@
       xmlns:o="http://omnifaces.org/ui"
       xmlns:of="http://omnifaces.org/functions"
       xmlns:pt="jakarta.faces.passthrough"
-      xmlns:jsf="jakarta.faces">
+      xmlns:jsf="jakarta.faces"
+      xmlns:dataverse="http://xmlns.jcp.org/jsf/composite/dataverse">
     <h:head>
     </h:head>
     <h:body>
@@ -361,6 +362,22 @@
                                             <p:message for="dsPidProviderOption" display="text"/>
                                         </div>
                                     </div>
+                                    <o:importConstants type="edu.harvard.iq.dataverse.settings.FeatureFlags" />
+                                    <ui:param name="allowLocallyFAIR" value="#{FeatureFlags.ALLOW_LOCALLY_FAIR_DATA.enabled()}"/>
+                                    <div class="col-xs-12 form-group" jsf:rendered="#{dataverseSession.user.superuser and (allowLocallyFAIR or not empty DataversePage.locallyFAIRRoleAssigneesList)}">
+                                        <h:outputLabel for="locallyFAIRRoleAssignees" styleClass="control-label">
+                                            #{bundle['dataverse.locallyfair.label']}
+                                            <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                                  data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.locallyfair.title']}"></span>
+                                        </h:outputLabel>
+                                        <div class="form-col-container">
+                                            <dataverse:userGroupSelect id="userGroupNameAssign"
+                                                   value="#{DataversePage.locallyFAIRRoleAssigneesList}"
+                                                   completeMethod="#{DataversePage.completeRoleAssignee}"
+                                                   disabled="#{!allowLocallyFAIR}"
+                                                   requiredMessage="#{bundle['dataverse.permissions.usersOrGroups.assignDialog.userOrGroup.requiredMsg']}"/>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -461,7 +478,7 @@
                                                         </table>
                                                     </div>
                                                 </div>
-                                                <p:commandLink id="hideDSFT" styleClass="btn btn-secondary" 
+                                                <p:commandLink id="hideDSFT" styleClass="btn btn-secondary"
                                                                process="@this @widgetVar(optionBlock)"
                                                                update="@widgetVar(optionBlock)" actionListener="#{DataversePage.hideDatasetFieldTypes(mdb.id)}" 
                                                                rendered="#{mdb.showDatasetFieldTypes}">
@@ -743,7 +760,7 @@
                                 <span class="bi bi-exclamation-circle-fill"/> #{bundle['dataverse.nopublished.tip']}
                             </p>
                             <div class="button-block">
-                                <button class="btn btn-secondary" onclick="PF('browseOptsForm').hide();" type="button">                              
+                                <button class="btn btn-secondary" onclick="PF('browseOptsForm').hide();" type="button">
                                     #{bundle.close}
                                 </button>
                             </div>
@@ -766,7 +783,7 @@
                             <span class="bi bi-exclamation-circle-fill"/> #{bundle['dataverse.publish.failed.tip']}
                         </p>
                         <div class="button-block">
-                            <button class="btn btn-secondary" onclick="PF('mayNotRelease').hide();" type="button">                              
+                            <button class="btn btn-secondary" onclick="PF('mayNotRelease').hide();" type="button">
                                 #{bundle.close}
                             </button>
                         </div>
@@ -792,7 +809,7 @@
                 <!-- END Search/Browse Facets Panel -->
                 <!-- POPUPS -->
                     <p:dialog id="shareDialog" header="#{bundle['dataverse.share.dataverseShare']}" widgetVar="shareDialog" modal="true">
-                        <h:form> 
+                        <h:form>
                         <p class="form-text">#{bundle['dataverse.share.dataverseShare.tip']}</p>
                         <div id="sharrre-widget" data-url="#{settingsWrapper.dataverseSiteUrl}/dataverse/#{DataversePage.dataverse.alias}" data-text="#{bundle['dataverse.share.dataverseShare.shareText']}"></div>
                         <div class="button-block">
@@ -804,7 +821,7 @@
                     </p:dialog>
                     <!-- Link Dataverse Popup -->
                     <p:dialog id="linkDataverseForm" header="#{DataversePage.linkMode == 'SAVEDSEARCH' ? bundle['dataverse.savedsearch.link'] : bundle['dataverse.link']}" widgetVar="linkDataverseForm" modal="true">
-                        <h:form> 
+                        <h:form>
                             <ui:fragment rendered="#{DataversePage.dataversesForLinking.size() > 1}">
                                 <p:focus for="dvNameSelect"/>
                                 <ui:fragment rendered="#{DataversePage.linkMode == 'LINKDATAVERSE'}">
@@ -899,7 +916,7 @@
                                     <span class="bi bi-exclamation-circle-fill"/> #{bundle['dataverse.link.no.linkable']}
                                 </p>
                                 <div class="button-block">
-                                    <button class="btn btn-secondary" onclick="PF('linkDataverseForm').hide();" type="button">                              
+                                    <button class="btn btn-secondary" onclick="PF('linkDataverseForm').hide();" type="button">
                                     #{bundle.close}
                                     </button>
                                 </div>

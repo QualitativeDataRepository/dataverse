@@ -528,6 +528,7 @@
                             <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="badge bg-primary" rendered="#{result.draftState}"/>
                             <h:outputText value="#{result.userRole}" styleClass="badge bg-primary" rendered="#{!empty result.userRole}"/>
                             <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="badge bg-warning" rendered="#{result.unpublishedState}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.locallyFAIR']}"  title="#{bundle['dataset.versionUI.locallyFAIR.tip']}"  styleClass="badge bg-primary" rendered="#{result.locallyFAIR}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <span>
@@ -594,6 +595,7 @@
                             <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabelFromString(result.curationStatus)}" styleClass="badge curation-status" rendered="#{result.draftState and SearchIncludeFragment.canSeeCurationStatus(result.entityId)}"/>
                             <h:outputText value="#{result.userRole}" styleClass="badge bg-primary" rendered="#{!empty result.userRole}"/>
                             <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!result.harvested and !SearchIncludeFragment.isValid(result)}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.locallyFAIR']}"  title="#{bundle['dataset.versionUI.locallyFAIR.tip']}"  styleClass="badge bg-primary" rendered="#{result.locallyFAIR}"/>
                         </div>
                         <div class="card-preview-icon-block text-center">
                             <span>
@@ -672,6 +674,7 @@
                             <h:outputText value="#{bundle['embargoed']}" styleClass="badge bg-primary" rendered="#{SearchIncludeFragment.isActivelyEmbargoed(result)}"/>
                             <h:outputText value="#{bundle['retentionExpired']}" styleClass="badge bg-danger" rendered="#{SearchIncludeFragment.isRetentionExpired(result)}"/>
                             <h:outputText value="#{result.userRole}" styleClass="badge bg-primary" rendered="#{!empty result.userRole}"/>
+                            <h:outputText value="#{bundle['dataset.versionUI.locallyFAIR']}"  title="#{bundle['dataset.versionUI.locallyFAIR.tip']}"  styleClass="badge bg-primary" rendered="#{result.locallyFAIR}"/>
                         </div>
 
                         <div class="card-preview-icon-block text-center">
@@ -772,4 +775,3 @@
     <ui:include src="addDataFormFragment.xhtml"></ui:include>
 
 </ui:composition>
-

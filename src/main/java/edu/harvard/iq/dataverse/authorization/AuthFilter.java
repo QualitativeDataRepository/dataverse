@@ -15,9 +15,7 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Logger;
-import org.apache.commons.lang3.StringUtils;
 
-import jakarta.annotation.Priority;
 import jakarta.ejb.EJB;
 import jakarta.inject.Inject;
 import jakarta.servlet.Filter;
@@ -26,16 +24,14 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.HttpMethod;
 
 import com.nimbusds.openid.connect.sdk.Prompt;
+import org.apache.commons.lang3.Strings;
 
-@WebFilter("/*")
-@Priority(100) // Lower number means higher priority
 public class AuthFilter implements Filter {
 
     private static final Logger logger = Logger.getLogger(AuthFilter.class.getCanonicalName());
@@ -54,14 +50,13 @@ public class AuthFilter implements Filter {
     Clock clock;
     
 
-    //QDR setting for the Drupal URL
-    private String drupalUrl;
+
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         logger.fine(AuthFilter.class.getName() + "initialized. filterConfig.getServletContext().getServerInfo(): " + filterConfig.getServletContext().getServerInfo());
-        drupalUrl = settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL);
-        logger.fine("Setting Drupal URl to : " + drupalUrl);
+        //QDR setting for the Drupal URL
+        logger.fine("Setting Drupal URl to : " + settingsService.getValueForKey(SettingsServiceBean.Key.QDRDrupalSiteURL));
     }
 
     @Override
@@ -72,7 +67,7 @@ public class AuthFilter implements Filter {
             String path = httpServletRequest.getRequestURI();
             String uaHeader = httpServletRequest.getHeader("user-agent");
             //Nagios uses a user-agent starting with check_http and we don't want to do a passive login check in that case.
-            boolean isCheck = (uaHeader != null) && (uaHeader.contains("check_http") || StringUtils.containsIgnoreCase(uaHeader, "bot") || StringUtils.containsIgnoreCase(uaHeader, "google"));
+            boolean isCheck = (uaHeader != null) && (uaHeader.contains("check_http") || Strings.CI.contains(uaHeader, "bot") || Strings.CI.contains(uaHeader, "google"));
             //boolean hasAuthToken = httpServletRequest.getParameter("key") != null) || (httpServletRequest.getParameter("token")!= null)  || httpServletRequest.getHeader('X-Dataverse-key');
             //~QDR specific - a means to reset the passiveChecked flag so the next access will try passive login again
             //If the origin were configurable, this might be useful in general
@@ -94,7 +89,7 @@ public class AuthFilter implements Filter {
                 httpServletResponse.setStatus(204);
                 return;
             }
-            if ((httpServletRequest.getMethod() == HttpMethod.GET) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
+            if ((httpServletRequest.getMethod().equals(HttpMethod.GET)) && !isCheck && (path.equals("/") || path.endsWith(".xhtml") && !(path.endsWith("logout.xhtml")|| path.endsWith("privateurl.xhtml") || path.contains("jakarta.faces.resource") || path.contains("/oauth2/callback")))) {
                 logger.fine("Path: " + path);
                 String sso = httpServletRequest.getParameter("sso");
                 //Going to /
@@ -130,7 +125,7 @@ public class AuthFilter implements Filter {
 
                     StringBuilder sb = new StringBuilder();
                     for (String string : Arrays.asList(remoteAddr, requestUri, userAgent)) {
-                        sb.append(string + separator);
+                        sb.append(string).append(separator);
                     }
 
                     logger.fine(sb.toString());
@@ -153,9 +148,9 @@ public class AuthFilter implements Filter {
      * Create a randomized unique state string to be used while crafting the
      * authorization request
      * 
-     * @param idp
-     * @param redirectPage
-     * @return Random state string, composed from system time, random numbers and
+     * @param idp the Oauth2 provider
+     * @param redirectPage where redirects should go
+     * @return Random state string, created from system time, random numbers, and
      *         redirectPage parameter
      */
     private String createState(AbstractOAuth2AuthenticationProvider idp, Optional<String> redirectPage) {
@@ -169,8 +164,7 @@ public class AuthFilter implements Filter {
                 + redirectPage.map(page -> "~" + page).orElse("");
 
         String encrypted = StringUtil.encrypt(base, idp.getClientSecret());
-        final String state = idp.getId() + "~" + encrypted;
-        return state;
+        return idp.getId() + "~" + encrypted;
     }
 
 }

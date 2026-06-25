@@ -159,7 +159,7 @@ public class FileMetadata implements Serializable {
     @Transient
     @ValidateDataFileLabel(message = "{filename.illegalCharacters}")
     String labelNoExtension;
-    
+
     // Initialize the labelNoExtension from label after loading the entity
     @PostLoad
     public void postLoad() {
@@ -216,7 +216,7 @@ public class FileMetadata implements Serializable {
             this.label = name + this.label.substring(last);
         }
     }
-    
+
     public String getLabelForOriginal() {
         if(dataFile.isTabularData()) {
             return dataFile.getDerivedOriginalFileName();
@@ -224,7 +224,7 @@ public class FileMetadata implements Serializable {
             return label;
         }
     }
-    
+
     public FileMetadata() {
         variableMetadatas = new ArrayList<VariableMetadata>();
         varGroups = new ArrayList<VarGroup>();
@@ -469,15 +469,15 @@ public class FileMetadata implements Serializable {
     }
 
     public String getFileCitation(){
-         return getFileCitation(false, false);
-     }
+        return getFileCitation(false, false);
+    }
 
     public String getFileCitation(boolean html, boolean anonymized){
          return new DataCitation(this).toString(html, anonymized);
     }
-    
+
     public String getDirectFileCitation(boolean html, boolean anonymized){
-    	return new DataCitation(this, true).toString(html, anonymized);
+        return new DataCitation(this, true).toString(html, anonymized);
     }
 
     public DatasetVersion getDatasetVersion() {
@@ -682,7 +682,6 @@ public class FileMetadata implements Serializable {
             return folder1.concat(o1.getLabel().toUpperCase()).compareTo(folder2.concat(o2.getLabel().toUpperCase()));
         }
     };
-    
     
     
     public String toPrettyJSON(){

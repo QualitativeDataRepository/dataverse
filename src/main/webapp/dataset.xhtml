@@ -27,7 +27,8 @@
             <ui:param name="canUpdateDataset" value="#{DatasetPage.canUpdateDataset()}"/>
             <ui:param name="canDownloadFiles" value="#{DatasetPage.canDownloadFiles()}"/>
             <ui:param name="canIssuePublishDatasetCommand" value="#{permissionsWrapper.canIssuePublishDatasetCommand(DatasetPage.dataset)}"/>
-            <ui:param name="showPublishLink" value="#{version == DatasetPage.dataset.latestVersion 
+            <ui:param name="canIssueSubmitDatasetForReviewCommand" value="#{permissionsWrapper.canIssueSubmitDatasetForReviewCommand(DatasetPage.dataset)}"/>
+            <ui:param name="showPublishLink" value="#{version == DatasetPage.dataset.latestVersion
                                                       and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                       and canIssuePublishDatasetCommand}"/>
             <ui:param name="versionHasTabular" value="#{DatasetPage.versionHasTabular}"/>
@@ -56,7 +57,8 @@
                                                               and !DatasetPage.datasetLockedInWorkflow
                                                               and DatasetPage.dataset.latestVersion.versionState=='DRAFT'
                                                               and canUpdateDataset
-                                                              and !canIssuePublishDatasetCommand}"/>
+                                                              and !canIssuePublishDatasetCommand
+                                                              and canIssueSubmitDatasetForReviewCommand}"/>
             <ui:param name="showReturnToAuthorLink" value="#{DatasetPage.dataset.latestVersion.versionState=='DRAFT' and latestVersionInReview
                                                              and canIssuePublishDatasetCommand}"/>
             <ui:param name="showAccessDatasetButtonGroup" value="#{(canDownloadFiles or versionHasGlobus)
@@ -173,6 +175,7 @@
                                             <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="badge bg-success" rendered="#{version.inReview}"/>
                                             <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="badge bg-warning" rendered="#{!DatasetPage.dataset.released}"/>
                                             <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="badge bg-danger" rendered="#{deaccessioned}"/>
+                                            <h:outputText value="#{bundle['dataset.versionUI.locallyFAIR']}"  title="#{bundle['dataset.versionUI.locallyFAIR.tip']}"  styleClass="badge bg-primary" rendered="#{DatasetPage.dataset.locallyFAIR}"/>
                                             <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!valid}"/>
                                             <o:importFunctions type="edu.harvard.iq.dataverse.dataset.DatasetUtil" />
                                             <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabel(version.currentCurationStatus)}" styleClass="badge curation-status" rendered="#{canSeeCurationStatus}"/>
@@ -280,7 +283,7 @@
                                                                     </p:commandLink>
                                                             </li>
                                                         </ui:fragment>
-                                                            
+
                                                                                                             
                                                     <!-- END: DOWNLOAD -->
 
@@ -358,16 +361,16 @@
                                         <!-- END: DOWNLOAD/ACCESS DATASET -->
 
                                         <!-- PUBLISH DATASET -->
-                                        <div class="btn-group w-100" jsf:rendered="#{showPublishLink or showSubmitForReviewLink}">
+                                        <div class="btn-group w-100" jsf:rendered="#{showSubmitForReviewLink or showReturnToAuthorLink or showPublishLink or latestVersionInReview}">
                                             <div class="btn-group w-100">
                                                 <!-- Publish BTN -->
                                                 <h:outputLink value="#" disabled="#{DatasetPage.lockedFromPublishing or !DatasetPage.hasValidTermsOfAccess or !valid}">
                                                     <c:if test="#{!((showSubmitForReviewLink or showReturnToAuthorLink) and showPublishLink )}">
-                                                            <f:passThroughAttribute name="class" value="btn btn-secondary btn-access btn-publish #{DatasetPage.lockedFromPublishing or !DatasetPage.hasValidTermsOfAccess or !valid ? 'disabled' : ''}"/>
+                                                        <f:passThroughAttribute name="class" value="btn btn-secondary btn-access btn-publish #{DatasetPage.lockedFromPublishing or !DatasetPage.hasValidTermsOfAccess or !valid ? 'disabled' : ''}"/>
                                                         <f:passThroughAttribute name="onclick" value="$(this).parent().find( 'li > a' ).trigger( 'click' );"/>
                                                     </c:if>
                                                     <c:if test="#{(showSubmitForReviewLink or showReturnToAuthorLink) and showPublishLink}">
-                                                            <f:passThroughAttribute name="class" value="btn btn-secondary btn-access btn-publish dropdown-toggle #{DatasetPage.lockedFromPublishing or !DatasetPage.hasValidTermsOfAccess  or !valid ? 'disabled' : ''}"/>
+                                                        <f:passThroughAttribute name="class" value="btn btn-secondary btn-access btn-publish dropdown-toggle #{DatasetPage.lockedFromPublishing or !DatasetPage.hasValidTermsOfAccess  or !valid ? 'disabled' : ''}"/>
                                                         <f:passThroughAttribute name="data-bs-toggle" value="dropdown"/>
                                                         <f:passThroughAttribute name="aria-haspopup" value="true"/>
                                                         <f:passThroughAttribute name="aria-expanded" value="false"/>
@@ -376,17 +379,17 @@
                                                 </h:outputLink>
                                                 <!-- Publish BTN DROPDOWN-MENU OPTIONS -->
                                                 <ul class="dropdown-menu float-end text-start">
-                                                        <li jsf:rendered="#{showPublishLink}" class="#{!DatasetPage.hasValidTermsOfAccess or ( DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}">
-                                                        <!-- Publish LINK -->
-                                                            <p:commandLink styleClass="#{!DatasetPage.hasValidTermsOfAccess or (DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}" 
-                                                                           disabled="#{!DatasetPage.hasValidTermsOfAccess or (DatasetPage.locked and !latestVersionInReview)}"
-                                                                       action="#{DatasetPage.processPublishButton()}">
-                                                            #{bundle['dataset.publish.btn']}
-                                                        </p:commandLink>
+                                                    <li jsf:rendered="#{showPublishLink}" class="#{!DatasetPage.hasValidTermsOfAccess or ( DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}">
+                                                    <!-- Publish LINK -->
+                                                    <p:commandLink styleClass="#{!DatasetPage.hasValidTermsOfAccess or (DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}"
+                                                                   disabled="#{!DatasetPage.hasValidTermsOfAccess or (DatasetPage.locked and !latestVersionInReview)}"
+                                                                   action="#{DatasetPage.processPublishButton()}">
+                                                        #{bundle['dataset.publish.btn']}
+                                                    </p:commandLink>
                                                     </li>
                                                     <li jsf:rendered="#{showSubmitForReviewLink}" class="#{latestVersionInReview or DatasetPage.dataset.locked ? 'disabled' : ''}">
                                                         <!-- Submit for Review LINK -->
-                                                        <p:commandLink class="#{latestVersionInReview or DatasetPage.dataset.locked ? 'disabled' : ''}" 
+                                                        <p:commandLink class="#{latestVersionInReview or DatasetPage.dataset.locked ? 'disabled' : ''}"
                                                                        disabled="#{latestVersionInReview or DatasetPage.dataset.locked}"
                                                                        onclick="PF('inreview').show()">
                                                             #{latestVersionInReview ? bundle['dataset.disabledSubmittedBtn'] : bundle['dataset.submitBtn']}
@@ -394,7 +397,7 @@
                                                     </li>
                                                     <li jsf:rendered="#{showReturnToAuthorLink}" class="#{(DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}">
                                                         <!-- Return to Author LINK -->
-                                                        <p:commandLink class="#{(DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}" 
+                                                        <p:commandLink class="#{(DatasetPage.locked and !latestVersionInReview) ? 'disabled' : ''}"
                                                                        disabled="#{DatasetPage.locked and !latestVersionInReview}"
                                                                        onclick="PF('sendBackToContributor').show()">
                                                             #{bundle['dataset.rejectBtn']}
@@ -604,38 +607,38 @@
                                   <div class="mb-3"
                                      jsf:rendered="#{!(settingsWrapper.rsyncDownload or deaccessioned)}">
                                     <!-- Metrics -->
-                                        <div id="metrics-block">
-                                            <h:outputFormat id="metrics-heading"
-                                                            value="#{settingsWrapper.makeDataCountDisplayEnabled ? bundle['metrics.dataset.makedatacount.title'] : bundle['metrics.dataset.title']}"
-                                                            escape="false">
-                                                <f:passThroughAttribute name="aria-describedby" value="metricsHelpText"/>
-                                            </h:outputFormat>
+                                    <div id="metrics-block">
+                                        <h:outputFormat id="metrics-heading"
+                                                        value="#{settingsWrapper.makeDataCountDisplayEnabled ? bundle['metrics.dataset.makedatacount.title'] : bundle['metrics.dataset.title']}"
+                                                        escape="false">
+                                            <f:passThroughAttribute name="aria-describedby" value="metricsHelpText"/>
+                                        </h:outputFormat>
 
-                                            <ui:fragment rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
-                                                <span id="metricsHelpText" class="visually-hidden">
-                                                    #{bundle['metrics.dataset.tip.default']}
-                                                </span>
-                                                <span class="bi bi-question-circle tooltip-icon"
-                                                      aria-hidden="true"
-                                                      data-bs-toggle="tooltip"
-                                                      data-bs-placement="top"
-                                                      data-bs-trigger="hover"
-                                                      title="#{bundle['metrics.dataset.tip.default']}"></span>
-                                            </ui:fragment>
+                                        <ui:fragment rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
+                                            <span id="metricsHelpText" class="visually-hidden">
+                                                #{bundle['metrics.dataset.tip.default']}
+                                            </span>
+                                            <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
+                                                  data-bs-toggle="tooltip"
+                                                  data-bs-placement="top"
+                                                  data-bs-trigger="hover"
+                                                  title="#{bundle['metrics.dataset.tip.default']}"></span>
+                                        </ui:fragment>
 
-                                            <ui:fragment rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
-                                                <span id="metricsHelpText" class="visually-hidden">
-                                                    #{bundle['metrics.dataset.tip.makedatacount']}
-                                                </span>
-                                                <span class="bi bi-question-circle tooltip-icon"
-                                                      aria-hidden="true"
-                                                      data-bs-toggle="tooltip"
-                                                      data-bs-placement="top"
-                                                      title="#{bundle['metrics.dataset.tip.makedatacount']}"></span>
-                                                <div id="metrics-heading-subtitle">
-                                                    #{bundle['metrics.dataset.makedatacount.since']} #{settingsWrapper.getMDCStartDate().toString()}
-                                                </div>
-                                            </ui:fragment>
+                                        <ui:fragment rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
+                                            <span id="metricsHelpText" class="visually-hidden">
+                                                #{bundle['metrics.dataset.tip.makedatacount']}
+                                            </span>
+                                            <span class="bi bi-question-circle tooltip-icon"
+                                                  aria-hidden="true"
+                                                  data-bs-toggle="tooltip"
+                                                  data-bs-placement="top"
+                                                  title="#{bundle['metrics.dataset.tip.makedatacount']}"></span>
+                                            <div id="metrics-heading-subtitle">
+                                                #{bundle['metrics.dataset.makedatacount.since']} #{settingsWrapper.getMDCStartDate().toString()}
+                                            </div>
+                                        </ui:fragment>
                                         <div id="metrics-body">
                                             <!-- Classic downloads -->
                                             <div class="metrics-count-block" jsf:rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
@@ -675,7 +678,7 @@
                                                 <span class="bi bi-question-circle tooltip-icon"
                                                       aria-hidden="true"
                                                       data-bs-toggle="tooltip" data-bs-placement="top" title="#{bundle['metrics.dataset.downloads.makedatacount.tip']}"></span>
-                                                <span jsf:rendered="#{(settingsWrapper.getMDCStartDate()!=null) and (guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id, settingsWrapper.getMDCStartDate()) > 0)}">        
+                                                <span jsf:rendered="#{(settingsWrapper.getMDCStartDate()!=null) and (guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id, settingsWrapper.getMDCStartDate()) > 0)}">
                                                     <h:outputFormat value="#{bundle['metrics.downloads.nonMDC']}">
                                                         <f:param value="#{guestbookResponseServiceBean.getDownloadCountByDatasetId(DatasetPage.dataset.id, settingsWrapper.getMDCStartDate())}"/>
                                                         <f:passThroughAttribute name="aria-describedby" value="metricsDownloadsPreMdcTip"/>
@@ -829,7 +832,7 @@
                     </p:fragment>
                     <!-- END Top Button/Citation Blocks -->
                     <!-- END View infoMode -->
-                    
+
                     <!-- Create/Edit editMode -->
                     <ui:fragment rendered="#{DatasetPage.editMode == 'METADATA' or DatasetPage.editMode == 'CREATE'}">
                         <p:focus context="datasetForm"/>
@@ -948,7 +951,7 @@
                             <p:remoteCommand name="refreshAllLocksCommand" process="@this" update=":#{p:resolveClientId('datasetForm:pageRefreshFragment', view)},:messagePanel" actionListener="#{DatasetPage.refreshAllLocks()}"/>
                             <p:remoteCommand name="refreshAllCommand" process="@this" update=":datasetForm:topDatasetBlockFragment,:datasetForm:tabView:filesTable,:messagePanel" action="#{DatasetPage.refresh()}"/>
                             <p:remoteCommand name="reportEditContinues" process="@this" update=":datasetForm,:messagePanel" actionListener="#{DatasetPage.reportEditContinues}"/>
-                            
+
                             <script>
                                 //<![CDATA[
                                 // javascript for refreshing page when locks
@@ -983,7 +986,7 @@
                             <!-- 4.2.1: the 3 tabs below - metadata, terms and versions: these account for ~100 queries total -->
                             <!-- a lot of these however, are repeated queries on AuthenticatedUser and RoleAssignment; once these are optimized, the tabs will become very cheap. -->
                             <p:tab id="metadataMapTab" title="#{bundle['file.dataFilesTab.metadata.header']}"
-                                        rendered="#{(!deaccessioned or (deaccessioned and canUpdateDataset)) 
+                                        rendered="#{(!deaccessioned or (deaccessioned and canUpdateDataset))
                                              and (empty DatasetPage.editMode or DatasetPage.editMode == 'METADATA')}">
                                 <div class="button-block tab-header margin-bottom text-end" jsf:rendered="#{empty DatasetPage.editMode}">
                                     <p:commandLink styleClass="btn btn-secondary btn-access" actionListener="#{DatasetPage.edit('METADATA')}" update="@form,:messagePanel"
@@ -1079,7 +1082,7 @@
                         <ui:param name="fileMetadataForAction" value="#{DatasetPage.fileMetadataForAction}"/>
                         <ui:param name="bean" value="#{DatasetPage}"/>
                         <ui:param name="restrictFileAction" value="restrictFiles"/>
-                        <ui:param name="deleteFileAction" value="deleteFiles"/> 
+                        <ui:param name="deleteFileAction" value="deleteFiles"/>
                         <ui:param name="saveEmbargoAction" value="saveEmbargo"/>
                         <ui:param name="saveRetentionAction" value="saveRetention"/>
                         <ui:param name="updateElements" value=":datasetForm:embargoInputs"/>
@@ -1965,11 +1968,25 @@
                         <p jsf:rendered="#{!valid}" class="text-warning">
                             <span class="bi bi-exclamation-triangle-fill"/><b style="color:red;"> #{bundle['dataset.message.incomplete.warning']}</b>
                         </p>
+                        <div class="well terms-agreement-block" jsf:rendered="#{DatasetPage.displaySubmitForReviewPopupCustomText}">
+                            <h:outputText value="#{DatasetPage.datasetSubmitForReviewCustomText}" escape="false"/>
+                        </div>
                         <c:if test="#{showSubmitForReviewLink}">
                             <ui:include src="datasetLicenseInfoFragment.xhtml"/>
                         </c:if>
+                        <ui:fragment rendered="#{valid and settingsWrapper.isHasSubmitForReviewDatasetDisclaimerText()}">
+                            <div class="form-group">
+                                <p:selectBooleanCheckbox class="text-danger" id="submitForReviewDisclaimer"
+                                                         itemLabel="#{MarkupChecker:sanitizeAdvancedHTML(settingsWrapper.getSubmitForReviewDatasetDisclaimerText())}"
+                                                         escape="false"
+                                                         value="#{DatasetPage.submitForReviewDisclaimerAcknowledged}">
+                                    <p:ajax event="change" update="submitReviewDatasetButton"/>
+                                </p:selectBooleanCheckbox>
+                            </div>
+                        </ui:fragment>
                         <div class="button-block">
-                            <p:commandButton rendered="#{DatasetPage.validOrCanReviewIncomplete}" styleClass="btn btn-secondary" value="#{bundle.submit}"
+                            <p:commandButton id="submitReviewDatasetButton" rendered="#{DatasetPage.validOrCanReviewIncomplete}" styleClass="btn btn-secondary" value="#{bundle.submit}"
+                                             disabled="#{!DatasetPage.submitForReviewDisclaimerAcknowledged}"
                                              onclick="PF('inreview').hide();
                                                      PF('blockDatasetForm').hide();" action="#{DatasetPage.submitDataset}" immediate="true"/>
                             <button class="btn btn-link" onclick="PF('inreview').hide();PF('blockDatasetForm').hide();" type="button">
@@ -2054,7 +2071,8 @@
                         <ui:fragment rendered="#{valid and settingsWrapper.isHasPublishDatasetDisclaimerText()}">
                             <div class="form-group">
                                 <p:selectBooleanCheckbox class="text-danger" id="publishDisclaimer"
-                                                         itemLabel="#{settingsWrapper.getPublishDatasetDisclaimerText()}"
+                                                         itemLabel="#{MarkupChecker:sanitizeAdvancedHTML(settingsWrapper.getPublishDatasetDisclaimerText())}"
+                                                         escape="false"
                                                          value="#{DatasetPage.publishDisclaimerAcknowledged}">
                                     <p:ajax event="change" update="releaseDatasetButton"/>
                                 </p:selectBooleanCheckbox>
@@ -2295,7 +2313,7 @@
                             $('button[id$="compareVersions"]').trigger('click');
                         }
                     }
-                                      
+
                     function testFilesSelected() {
                         var count = PF('filesTable').getSelectedRowsCount();
                         if (count == 0) {
@@ -2353,18 +2371,18 @@
                         // backing bean; i.e., check, if the ingest has
                         // already completed in the background:
                         refreshAllLocksCommand();
-                        
+
                         // Increase the interval exponentially for the next check
                         currentInterval = Math.min(currentInterval * backoffFactor, maxInterval);
                       }, currentInterval);
                     }
-                    
+
                     function updateCSLCitation() {
                         $('button[id$="updateCSL"]').trigger('click');
                     }
                     function updateOwnerDataverse() {
                         $('button[id$="updateOwnerDataverse"]').trigger('click');
-                    } 
+                    }
                     
                     function showPopup(isTransfer) {
                         var outcome = document.getElementById("datasetForm:validateFilesOutcome").value;

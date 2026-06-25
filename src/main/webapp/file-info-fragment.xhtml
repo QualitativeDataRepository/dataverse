@@ -76,7 +76,7 @@
             </div>
             <!-- HIERARCHY + TYPE + SIZE + DATE + CHECKSUM -->
             <div class="text-muted small">
-                <!-- id:#{dataFile.id} -->
+                <!-- id:#{fileMetadata.dataFile.id} -->
                 <h:outputText id="fileHierarchy" styleClass="show" value="#{fileMetadata.directoryLabel}/" rendered="#{hasDirectoryLabel}"/>
                 <h:outputText id="fileType" value="#{dataFile.originalFormatLabel}"/>
                 <h:outputText id="fileSize" value=" - #{dataFile.friendlyOriginalFileSize}"/>

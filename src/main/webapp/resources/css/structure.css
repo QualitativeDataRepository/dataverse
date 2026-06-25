@@ -246,7 +246,7 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
   text-align: center;
   display: block;
   font-weight: bold;
-  color: #101010; 
+  color: #101010;
 }
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName h1 {
     font-weight: inherit;
@@ -256,7 +256,7 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
 }
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:hover,
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:focus {text-decoration: none;} 
-#dataverseHeader .dataverseHeaderName span.badge.bg-unpublished {vertical-align:text-top; line-height: normal; margin-left:1em;}
+#dataverseHeader .dataverseHeaderName span.badge {line-height: normal; margin-left:.5em;}
 #dataverseHeader .dataverseHeaderTagline {padding-left:2em; font-size:1.3em;}
 #dataverseHeader .dataverseHeaderLink {padding-left:2em;}
 /*QDR*/
