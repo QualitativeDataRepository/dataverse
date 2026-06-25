@@ -155,8 +155,8 @@
         <postgresql.version>42.7.11</postgresql.version>
         <solr.version>9.10.0</solr.version>
         <postgresql.server.version>16</postgresql.server.version>
-        <aws.version>2.41.4</aws.version>
-        <google.library.version>26.30.0</google.library.version>
+        <aws.version>2.46.17</aws.version>
+        <google.library.version>26.69.0</google.library.version>
     
         <!-- Basic libs, logging -->
         <slf4j.version>1.7.35</slf4j.version>
@@ -420,7 +420,7 @@
         <repository>
             <id>unidata-all</id>
             <name>Unidata All</name>
-            <url>https://artifacts.unidata.ucar.edu/repository/unidata-all/</url>
+            <url>https://artifacts.unidata.ucar.edu/repository/unidata-all</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
