@@ -478,19 +478,8 @@
             <version>${jhove.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.openpreservation.jhove.modules</groupId>
-            <artifactId>jhove-modules</artifactId>
-            <version>${jhove.version}</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
             <groupId>org.openpreservation.jhove</groupId>
             <artifactId>jhove-ext-modules</artifactId>
-            <!-- One of the ext-modules includes an old version of commons-compress
-                 (1.21) as of jhove 1.34.0.
-                 This dependency has to go after the commons-compress depenency to
-                 compile against the correct version. See
-                  https://github.com/openpreserve/jhove/issues/1033 for status -->
             <version>${jhove.version}</version>
         </dependency>
         <!-- JAI (Java Advanced Imaging) jars: -->
