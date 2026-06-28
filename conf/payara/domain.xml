@@ -41,7 +41,7 @@
     holder.
 
 -->
-<!-- Portions Copyright 2017-2025 Payara Foundation and/or its affiliates -->
+<!-- Portions Copyright 2017-2026 Payara Foundation and/or its affiliates -->
 
 <domain log-root="${com.sun.aas.instanceRoot}/logs" application-root="${com.sun.aas.instanceRoot}/applications" version="10.0">
     <hazelcast-runtime-configuration start-port="5900" das-port="4900" auto-increment-port="true"></hazelcast-runtime-configuration>
@@ -144,14 +144,14 @@
             </notification-service-configuration>
             <hazelcast-config-specific-configuration></hazelcast-config-specific-configuration>
             <monitoring-service-configuration>
-              <notifier>log-notifier</notifier>
+                <notifier>log-notifier</notifier>
             </monitoring-service-configuration>
             <microprofile-metrics-configuration></microprofile-metrics-configuration>
             <health-check-service-configuration>
-              <notifier>log-notifier</notifier>
+                <notifier>log-notifier</notifier>
             </health-check-service-configuration>
             <admin-audit-configuration>
-              <notifier>log-notifier</notifier>
+                <notifier>log-notifier</notifier>
             </admin-audit-configuration>
             <diagnostic-service />
             <ejb-container max-pool-size="128">
@@ -172,10 +172,8 @@
                 <auth-realm classname="com.sun.enterprise.security.auth.realm.certificate.CertificateRealm" name="certificate">
                     <property value="true" name="certificate-validation"/>
                 </auth-realm>
-                <jacc-provider policy-provider="org.glassfish.exousia.modules.def.DefaultPolicy" name="default" policy-configuration-factory-provider="org.glassfish.exousia.modules.def.DefaultPolicyConfigurationFactory"></jacc-provider>
-                <audit-module classname="com.sun.enterprise.security.ee.Audit" name="default">
-                    <property value="false" name="auditOn" />
-                </audit-module>
+                <jacc-provider policy-provider="org.glassfish.exousia.modules.def.DefaultPolicy" name="default" policy-configuration-factory-provider="org.glassfish.exousia.modules.def.DefaultPolicyConfigurationFactory">
+                </jacc-provider>
                 <message-security-config auth-layer="SOAP">
                     <provider-config provider-id="XWS_ClientProvider" class-name="com.sun.xml.wss.provider.ClientSecurityAuthModule" provider-type="client">
                         <request-policy auth-source="content" />
@@ -246,10 +244,10 @@
                 <jvm-options>--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</jvm-options>
                 <jvm-options>--add-opens=java.base/java.io=ALL-UNNAMED</jvm-options>
                 <jvm-options>--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</jvm-options>
+                <jvm-options>--add-opens=java.base/java.lang.reflect=ALL-UNNAMED</jvm-options>
                 <jvm-options>[24|]--sun-misc-unsafe-memory-access=allow</jvm-options>
                 <jvm-options>[24|]--enable-native-access=ALL-UNNAMED</jvm-options>
                 <jvm-options>[25|]-XX:+EnableDynamicAgentLoading</jvm-options>
-                <jvm-options>-XX:NewRatio=2</jvm-options>
                 <jvm-options>-XX:+UnlockDiagnosticVMOptions</jvm-options>
                 <jvm-options>-XX:+UseG1GC</jvm-options>
                 <jvm-options>-XX:MaxGCPauseMillis=200</jvm-options>
@@ -464,14 +462,14 @@
             </notification-service-configuration>
             <hazelcast-config-specific-configuration config-specific-data-grid-start-port="${HZ_LISTENER_PORT}"></hazelcast-config-specific-configuration>
             <monitoring-service-configuration>
-              <notifier>log-notifier</notifier>
+                <notifier>log-notifier</notifier>
             </monitoring-service-configuration>
             <microprofile-metrics-configuration></microprofile-metrics-configuration>
             <health-check-service-configuration>
-              <notifier>log-notifier</notifier>
+                <notifier>log-notifier</notifier>
             </health-check-service-configuration>
             <admin-audit-configuration>
-              <notifier>log-notifier</notifier>
+                <notifier>log-notifier</notifier>
             </admin-audit-configuration>
             <diagnostic-service />
             <java-config debug-options="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${JAVA_DEBUGGER_PORT}" system-classpath="" classpath-suffix="">
@@ -631,7 +629,7 @@
         </config>
     </configs>
     <property name="administrative.domain.name" value="domain1" />
-    <secure-admin special-admin-indicator="58d12824-8e2c-442e-90d3-bd318d38acdd">
+    <secure-admin special-admin-indicator="ac65c6fa-e505-461e-9bac-27b649a6d254">
         <secure-admin-principal dn="CN=localhost,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
         <secure-admin-principal dn="CN=localhost-instance,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
     </secure-admin>
