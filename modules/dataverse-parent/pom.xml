@@ -151,7 +151,7 @@
         <argLine>-Duser.timezone=${project.timezone} -Dfile.encoding=${project.build.sourceEncoding} -Duser.language=${project.language} -Duser.region=${project.region}</argLine>
     
         <!-- Major system components and dependencies -->
-        <payara.version>7.2026.3</payara.version>
+        <payara.version>7.2026.6</payara.version>
         <postgresql.version>42.7.11</postgresql.version>
         <solr.version>9.10.0</solr.version>
         <postgresql.server.version>16</postgresql.server.version>
