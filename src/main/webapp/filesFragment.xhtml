@@ -60,7 +60,7 @@
                  style="margin-right:1px;" tableStyle="min-width:100%;width:auto;"
                  value="#{DatasetPage.fileMetadatasSearch}"
                  rowIndexVar="rowNum" rowKey="#{fileMetadata.dataFile.storageIdentifier}"
-                 rowSelectMode="checkbox" rowClickSelect="false" selection="#{DatasetPage.selectedFiles}" var="fileMetadata" widgetVar="filesTable"
+                 rowSelectMode="checkbox" selectionRowMode="none" selection="#{DatasetPage.selectedFiles}" var="fileMetadata" widgetVar="filesTable"
                  rendered="#{DatasetPage.fileDisplayTable and (DatasetPage.workingVersion != null)}"
                  emptyMessage="#{fileMetadataCount == 0 ? bundle['file.notFound.tip'] : bundle['file.notFound.search']}"
                  ariaRowLabel="#{bundle['file.select.action']} #{fileMetadata.label}">
