@@ -58,16 +58,16 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
 
     @EJB
     DatasetServiceBean datasetService;
-
+    
     @EJB
     DataFileServiceBean datafileService;
-
+    
     @EJB
     SettingsServiceBean settingsService;
-
+    
     @EJB
     AuthenticationServiceBean authService;
-
+    
     @EJB
     SystemConfig systemConfig;
 
@@ -78,7 +78,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
     private EntityManager em;
 
     /**
-     * Response to a successful request from the DatasetPage
+     *  Response to a successful request from the DatasetPage
      * 
      *  Used to help display messages in the cases when:
      *      (1) A specific dataset version (including a DRAFT) is requested
@@ -102,7 +102,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
             // logger.fine("RetrieveDatasetVersionResponse: datasetVersion: " + datasetVersion.getSemanticVersion() + " requestedVersion: " + requestedVersion);
             // logger.fine("chosenVersion id: " + datasetVersion.getId() + " getFriendlyVersionNumber: " + datasetVersion.getFriendlyVersionNumber());
             this.datasetVersionForResponse = datasetVersion;
-
+            
             this.actualVersion = datasetVersion.getSemanticVersion();
             this.requestedVersion = requestedVersion;
             this.checkVersion();
@@ -123,7 +123,7 @@ public class DatasetVersionServiceBean implements java.io.Serializable {
                 } else {
                     userMsg += BundleUtil.getStringFromBundle("file.viewDiffDialog.msg.versionFound", Arrays.asList(this.actualVersion));
                 }
-
+                
                 return userMsg;
             }
             return null;
@@ -1321,6 +1321,16 @@ w
                 .where(predicates.toArray(new Predicate[0]));
 
         return em.createQuery(cq).getSingleResult();
+    }
+
+    public boolean hasFiles(Long datasetVersionId) {
+        Query query = em.createNativeQuery("SELECT id FROM fileMetadata WHERE datasetversion_id="+datasetVersionId+" LIMIT 1");
+        try {
+            query.getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
     }
 
     /**

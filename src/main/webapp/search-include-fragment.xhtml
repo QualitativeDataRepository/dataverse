@@ -19,13 +19,13 @@
     <!-- Search Form + Add Data Button -->
     <div class="row panelSearchForm" jsf:rendered="#{!SearchIncludeFragment.solrIsDown}">
         <div class="col-12">
-            <h:form> 
+            <h:form>
                 <p:inputText id="searchBasic" title="#{bundle.search}" styleClass="form-control search-input" size="35"
                         value="#{SearchIncludeFragment.query}" onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }"
                         placeholder="#{dataverseRedirectPage == 'dataverseuser.xhtml' ? bundle['account.search.input.watermark'] : bundle['dataverse.search.input.watermark']}">
                     <f:passThroughAttribute name="aria-label" value="#{bundle.search}"/>
                 </p:inputText>
-                <p:commandLink id="searchbutton" title="#{bundle['dataverse.search.btn.find']}" ariaLabel="#{bundle['dataverse.search.btn.find']}" styleClass="searchbutton bootstrap-button-tooltip" 
+                <p:commandLink id="searchbutton" title="#{bundle['dataverse.search.btn.find']}" ariaLabel="#{bundle['dataverse.search.btn.find']}" styleClass="searchbutton bootstrap-button-tooltip"
                     action="#{SearchIncludeFragment.searchRedirect(dataverseRedirectPage, DataversePage.dataverse)}">
                     <span class="bi bi-search no-text"/>
                 </p:commandLink>
@@ -572,7 +572,7 @@
                                 </div>
                             </ui:repeat>
                           </ui:repeat>
-                        </div>  
+                        </div>
                     </div>
                     <!--DATASET CARDS-->
                     <div class="datasetResult clearfix" jsf:rendered="#{result.type == 'datasets'}">
@@ -592,7 +592,7 @@
                             <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="badge bg-danger" rendered="#{result.deaccessionedState}"/>
                             <h:outputText value="#{bundle['embargoed']}" styleClass="badge bg-primary" rendered="#{SearchIncludeFragment.isActivelyEmbargoed(result)}"/>
                             <h:outputText value="#{bundle['retentionExpired']}" styleClass="badge bg-warning" rendered="#{SearchIncludeFragment.isRetentionExpired(result)}"/>
-                            <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabelFromString(result.curationStatus)}" styleClass="badge curation-status" rendered="#{result.draftState and SearchIncludeFragment.canSeeCurationStatus(result.entityId)}"/>
+                            <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabelFromString(result.curationStatus)}" styleClass="badge curation-status" rendered="#{!empty result.curationStatus and SearchIncludeFragment.canSeeCurationStatus(result.entity)}"/>
                             <h:outputText value="#{result.userRole}" styleClass="badge bg-primary" rendered="#{!empty result.userRole}"/>
                             <h:outputText value="#{bundle['incomplete']}" styleClass="badge bg-danger" rendered="#{!result.harvested and !SearchIncludeFragment.isValid(result)}"/>
                             <h:outputText value="#{bundle['dataset.versionUI.locallyFAIR']}"  title="#{bundle['dataset.versionUI.locallyFAIR.tip']}"  styleClass="badge bg-primary" rendered="#{result.locallyFAIR}"/>
@@ -620,7 +620,7 @@
                         <div>
                             <h:outputText value="#{Strings:abbreviate(result.descriptionNoSnippet, descriptionAbbreviationThreshold)}" rendered="#{result.descriptionSnippets.size() eq 0}"/>
                         </div>
-                        <div>  
+                        <div>
                           <ui:repeat value="#{result.descriptionSnippets}" var="snippet" varStatus="varStatus"
                                    rendered="#{result.descriptionSnippets.size() gt 0}">
                             <h:outputText value="... #{snippet} ..." escape="false"/>
@@ -741,7 +741,7 @@
                             <h:outputText value="... " rendered="#{varStatus.last != true}"/>
                           </ui:repeat>
                         </div>
-                        
+
                         <div jsf:rendered="#{result.highlightsAsList.size() > 0}">
                             <ui:repeat value="#{result.highlightsAsList}" var="highlight">
                                 <ui:repeat value="#{highlight.snippets}" var="snippet">
