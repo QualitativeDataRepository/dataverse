@@ -47,7 +47,7 @@ a:hover, a:focus {text-decoration: underline;}
 #navbarFixed .dropdown-menu.navbar-language .disabled a.language-menu-link:focus {color: #424242;}
 #navbarFixed .dropdown-menu.navbar-language .disabled a.language-menu-link:hover,
 #navbarFixed .dropdown-menu.navbar-language .disabled a.language-menu-link:focus {text-decoration: none; cursor: not-allowed; background-color: transparent; background-image: none; filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);}
-#navbarFixed #navbar-search-toggle, #navbarFixed #dataverseSupportLink, #navbarFixed #lnk_header_account_dropdown {cursor: pointer; cursor: hand;}
+#navbarFixed #navbar-search-toggle, #navbarFixed #dataverseSupportLink, #navbarFixed #lnk_header_account_dropdown {cursor: pointer;}
 #navbarFixed .dropdown.accountName #lnk_header_account_dropdown span.bi {margin-right:8px;}
 #navbarFixed .dropdown.accountName .badge.bg-danger {margin-left:.5em; line-height:normal; vertical-align:text-top;}
 #navbarFixed .dropdown.accountName .logout form {margin:0; padding:0; width:100%;}
@@ -255,7 +255,7 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
     margin-bottom: 10px;
 }
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:hover,
-#dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:focus {text-decoration: none;} 
+#dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName:focus {text-decoration: none;}
 #dataverseHeader .dataverseHeaderName span.badge {line-height: normal; margin-left:.5em;}
 #dataverseHeader .dataverseHeaderTagline {padding-left:2em; font-size:1.3em;}
 #dataverseHeader .dataverseHeaderLink {padding-left:2em;}
@@ -276,7 +276,7 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
 #breadcrumbNavBlock {margin-top:.5em;}
 #breadcrumbNavBlock .breadcrumbBlock {float:left; position:relative;}
 #breadcrumbNavBlock .breadcrumbActive {font-weight:bold;}
-#breadcrumbNavBlock a[id^='breadcrumbLnkTree'] {cursor: pointer; cursor: hand;}
+#breadcrumbNavBlock a[id^='breadcrumbLnkTree'] {cursor: pointer;}
 #breadcrumbNavBlock a[id^='breadcrumbLnkTree'] span.bi-chevron-down {vertical-align:middle;padding-bottom:2px;}
 #breadcrumbNavBlock > .ui-panel-content {overflow:hidden;}
 #breadcrumbNavBlock.panelLayoutBlock > .ui-widget-content {border-bottom: 0;}
@@ -696,7 +696,7 @@ span[id$='editDataSet'] .ui-button-text {white-space: nowrap;}
 #replicationDataButton {margin-top:5px;}
 
 div.row .bi.bi-asterisk {font-size:.5em; vertical-align:text-top;}
-//#datasetForm .row, #templateForm .row {overflow: hidden;}
+/* #datasetForm .row, #templateForm .row {overflow: hidden;} */
 #datasetCitationActionSummaryBlock .citation-block .row {overflow:visible;}
 div.form-col-container div.form-col-container {padding-left:0;}
 div.row .ui-selectonemenu {display:block;}
@@ -725,7 +725,7 @@ div.edit-field div.ui-message {margin:6px 0;}
 }
 .card-body.metadata-container {padding:15px 0;}
 .metadata-logo {max-width:180px;max-height:40px;}
-.metadata-container .truncate-more-link, .metadata-container .collapse-less-link {color: #337AB7; cursor: pointer; cursor: hand;}
+.metadata-container .truncate-more-link, .metadata-container .collapse-less-link {color: #337AB7; cursor: pointer;}
 
 /* METADATA LONG STRINGS */
 .metadata-container table.metadata td > div {
@@ -801,7 +801,7 @@ table.ui-picklist div.ui-picklist-filter-container {padding-bottom:5px;}
 #contentTabs .ui-tabs .ui-tabs-panel {padding-left:0; padding-right:0;}
 #contentTabs {position: relative;}
 
-button.card-header[data-bs-toggle="collapse"] {cursor: pointer; cursor: hand;}
+button.card-header[data-bs-toggle="collapse"] {cursor: pointer;}
 button.card-header.text-info[data-bs-toggle="collapse"] {color: #31708F;font-size:14px;}
 
 /* overwrite Bootstrap code red style */
@@ -849,6 +849,7 @@ div[id$="filesTable"] div.file-tags-block a.ui-commandlink {font-size:12px;}
 div[id$="filesTable"] div.file-tags-block span.badge {display:inline-block;}
 div[id$="filesTable"] div.file-tags-block span.badge, div[id$="filesTable"] div.file-tags-block a.ui-commandlink {margin-right:.5em;}
 div[id$="filesTable"] div.file-tags-block span.badge:last-of-type {margin-right:0;}
+div[id$="filesTable"] td:focus {outline:none;}
 div[id$="filesTable"] td.col-file-action {padding-left:0; border-left:0;}
 div[id$="filesTable"] td.col-file-action .btn-group .btn-link {font-size:2em !important;}
 div[id$="filesTable"] div.ui-datatable-header.ui-widget-header {padding:0 10px;}
@@ -858,7 +859,7 @@ div[id$="cloudStorageBlock"] div.row.col-12 {border-bottom:1px solid #ddd;margin
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-state-default {border:0; box-shadow:none; border-radius:0; background-image:none; border-top: 1px solid #e6e6e6; border-bottom: 1px solid #e6e6e6;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-state-default:first-of-type {border-left:1px solid #e6e6e6; border-top-left-radius:4px;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-state-default:last-of-type {border-right: 1px solid #e6e6e6; border-top-right-radius: 4px;}
-div[id$="filesTable"] thead[id$="filesTable_head"] tr {background-color: #f5f5f5; background-image: -moz-linear-gradient(center top , #ffffff, #e6e6e6); background-repeat: repeat-x;}
+div[id$="filesTable"] thead[id$="filesTable_head"] tr {background-color: #f5f5f5; background-image: linear-gradient(to bottom, #ffffff, #e6e6e6); background-repeat: repeat-x;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-selection-column {/*width:40px !important;*/ padding:4px 10px;}
 div[id$="filesTable"] thead[id$="filesTable_head"] th.ui-selection-column .ui-chkbox-box.ui-widget {margin-top:0 !important;}
 #file-replace-original-block div[id$="filesTable"].col-sm-10 {border:1px solid #ddd;padding:0;}
@@ -1071,7 +1072,6 @@ div.ui-dialog.ui-widget-content {
     -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
     -webkit-background-clip: padding-box;
-    -moz-background-clip: padding-box;
     background-clip: padding-box;
 }
 
@@ -1497,7 +1497,7 @@ span.curation-status {
         padding-right:5px!important;
 }
 .select2-selection__clear, .select2-selection__rendered {
-        vertical-align: -webkit-baseline-middle;
+        vertical-align: middle;
 }
 .select2-results ul > li {
         font-weight:400;
@@ -1707,9 +1707,6 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
 }
 .dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
     text-decoration: none;
-    background-image: -webkit-linear-gradient(top, #f5f5f5 0, #e8e8e8 100%);
-    background-image: -o-linear-gradient(top,#f5f5f5 0,#e8e8e8 100%);
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#f5f5f5), to(#e8e8e8));
     background-image: linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5', endColorstr='#ffe8e8e8', GradientType=0);
     background-repeat: repeat-x;

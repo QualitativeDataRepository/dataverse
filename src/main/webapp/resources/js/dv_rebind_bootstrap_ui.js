@@ -64,6 +64,79 @@ function bind_bsui_components(){
     
     //Fly-out sub-menu accessibility
     enableSubMenus();
+
+    // Modal-like behavior for file action dropdown menus
+    enableModalDropdowns();
+}
+
+/*
+ * Make dropdown menus in the col-file-action column act ~modally:
+ * a click outside the open menu only closes the menu, rather than
+ * triggering any other action on the page underneath it.
+ */
+function enableModalDropdowns(){
+    var backdropClass = 'file-action-dropdown-backdrop';
+
+    // Always clear out any stray backdrop left over from a prior table render
+    // (e.g. PrimeFaces replacing the dataTable markup while a menu was open).
+    $('.' + backdropClass).remove();
+
+    // These handlers are delegated on document (not bound directly to the menu
+    // triggers), so they keep working for menus re-rendered by PrimeFaces ajax
+    // updates (e.g. an update that only refreshes the filesTable) without
+    // needing to be re-applied to the new DOM elements. That means we don't
+    // need a "was this already set up" flag that could get out of sync with
+    // reality - instead we just unbind + rebind unconditionally every time
+    // bind_bsui_components() runs. Since document itself is never replaced,
+    // this is idempotent and never results in stacked/duplicate handlers.
+    $(document).off('show.bs.dropdown.fileActionModal hide.bs.dropdown.fileActionModal');
+
+    $(document).on('show.bs.dropdown.fileActionModal', '.col-file-action .btn-group, .col-file-action .dropdown', function () {
+        // Make sure there is never more than one backdrop at a time
+        $('.' + backdropClass).remove();
+
+        // NOTE: the backdrop is intentionally appended inside the same
+        // .col-file-action cell (the trigger's own container) rather than to
+        // <body>. The surrounding markup (e.g. datasetForm:tabView) creates
+        // its own stacking context via z-index (currently 499), which means
+        // an element appended to <body> is compared against that whole
+        // ancestor block - not against the .dropdown-menu inside it - so no
+        // z-index on a body-level backdrop can ever appear both above the
+        // rest of the page and below the menu at the same time. Appending
+        // the backdrop as a descendant of that same ancestor puts it in the
+        // same local stacking context as the menu, so its z-index can be
+        // compared directly/fairly against the menu's z-index, while
+        // position:fixed still makes it cover the full viewport visually.
+        var $container = $(this).closest('.col-file-action');
+
+        // Add a transparent backdrop that sits above the page but below the menu
+        var $backdrop = $('<div class="' + backdropClass + '"></div>').css({
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 999 // just below .dropdown-menu (1000) so the menu itself stays clickable
+        });
+        $container.append($backdrop);
+
+        // Clicking (or touching) the backdrop closes the menu and swallows the event
+        $backdrop.on('click touchstart', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $('.col-file-action .show').removeClass('show');
+            $backdrop.remove();
+            // The backdrop click still lands on (and focuses) the containing
+            // table cell, which isn't normally a focusable/selectable element.
+            // Move focus back to the menu's toggle button instead of leaving
+            // it (visibly, via outline/highlight) on the <td>.
+            $container.find('[data-toggle="dropdown"]').first().trigger('focus');
+        });
+    });
+
+    $(document).on('hide.bs.dropdown.fileActionModal', '.col-file-action .btn-group, .col-file-action .dropdown', function () {
+        $('.' + backdropClass).remove();
+    });
 }
 
 function bind_tooltip_popover(){
