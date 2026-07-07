@@ -142,7 +142,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
     private String adjustFacetName = null; 
     private int adjustFacetNumber = 0; 
     /**
-     * @throws UnsupportedEncodingException 
+     * @throws UnsupportedEncodingException
      * @todo:
      *
      * better style and icons for facets
@@ -531,7 +531,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
                     }
                 }
             }
-            
+
             dataversePage.setQuery(query);
             dataversePage.setFacetCategoryList(facetCategoryList);
             dataversePage.setFilterQueries(filterQueriesFinal);
@@ -1406,10 +1406,6 @@ public class SearchIncludeFragment implements java.io.Serializable {
 
     }
 
-    public boolean canPublishDataset(Long datasetId){
-        return permissionsWrapper.canIssuePublishDatasetCommand(dvObjectService.findDvObject(datasetId));
-    }
-    
     public void setDisplayCardValues() {
 
         Set<Long> harvestedDatasetIds = null;
@@ -1546,19 +1542,18 @@ public class SearchIncludeFragment implements java.io.Serializable {
             return true;
         });
     }
-    
-    private Map<Long, Boolean> seesStatus = new HashMap<>();
-    
-    public boolean canSeeCurationStatus(Long datasetId) {
-        if (!seesStatus.containsKey(datasetId)) {
+
+    public boolean canSeeCurationStatus(DvObject dvo) {
+        if (dvo != null && dvo instanceof Dataset) {
             boolean creatorsCanSeeStatus = JvmSettings.UI_SHOW_CURATION_STATUS_TO_ALL.lookupOptional(Boolean.class).orElse(false);
             if (creatorsCanSeeStatus) {
-                seesStatus.put(datasetId, permissionsWrapper.canViewUnpublishedDataset(getDataverseRequest(), (Dataset) dvObjectService.findDvObject(datasetId)));
+                return permissionsWrapper.canViewUnpublishedDataset(getDataverseRequest(), (Dataset)dvo);
             } else {
-                seesStatus.put(datasetId, canPublishDataset(datasetId));
+                return permissionsWrapper.canIssuePublishDatasetCommand(dvo);
             }
+        } else {
+            return false;
         }
-        return seesStatus.get(datasetId);
     }
 
     public enum SortOrder {
