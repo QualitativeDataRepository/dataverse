@@ -420,6 +420,7 @@ form.btn-form {display:inline-block;}
 .button-block button.float-end:first-child, .button-block a.btn.float-end:first-child, .button-block div.btn-group.float-end:first-child,
 .button-block div.btn-group button, .button-block div.btn-group a.btn, 
 .button-block .btn:last-child, .button-block div.btn-group:last-child:not(.float-end),
+.button-block div.btn-group:has(+ .file-action-dropdown-backdrop),
 .button-block form.btn-form:last-child .btn-group, 
 .button-block span.ui-state-disabled:last-child, .button-block.float-end .btn:last-child,
 .button-block .btn:only-child, .button-block div.btn-group:only-child {margin-right:0;}
