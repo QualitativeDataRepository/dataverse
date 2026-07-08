@@ -802,8 +802,8 @@ table.ui-picklist div.ui-picklist-filter-container {padding-bottom:5px;}
 #contentTabs .ui-tabs .ui-tabs-panel {padding-left:0; padding-right:0;}
 #contentTabs {position: relative;}
 
-button.card-header[data-bs-toggle="collapse"] {cursor: pointer;}
-button.card-header.text-info[data-bs-toggle="collapse"] {color: #31708F;font-size:14px;}
+div[role="button"].card-header[data-bs-toggle="collapse"] {cursor: pointer;}
+div[role="button"].card-header.text-info[data-bs-toggle="collapse"] {color: #31708F;font-size:14px;}
 
 /* overwrite Bootstrap code red style */
 .ui-widget-content code {background-color: #F0F0F0; color: #333333;}
