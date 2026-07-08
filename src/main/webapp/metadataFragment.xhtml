@@ -353,7 +353,7 @@
                                     <!-- Compound fields -->
                                     <p:fragment id="editCompoundValueFragment" rendered="#{dsf.datasetFieldType.compound}">
                                         <p:autoUpdate/>
-                                        <div>
+                                        <div class="row">
                                           <div id="metadata_#{dsf.datasetFieldType.name}" class="col-sm-3 form-label fw-bold">
                                             #{dsf.datasetFieldType.localeTitle}
                                             <span class="bi bi-asterisk text-danger" jsf:rendered="#{dsf.required}"/>
@@ -371,15 +371,17 @@
                                            <h:outputText value="#{template.getInstructionsFor(dsf.datasetFieldType.name)}" rendered="#{!templatePage and template != null and ! empty template.getInstructionsFor(dsf.datasetFieldType.name)}"/>
                                           </div>
                                         </div> 
+                                        <div class="row">
                                         <div class="col-sm-3"/>
-                                        <div class="row mb-3 form-col-container col-sm-9 dataset-field-values">
+                                        <div class="col-sm-9" style="padding-left:2px">
+                                        <div class="row mb-3 form-col-container dataset-field-values">
                                             <ui:fragment rendered="#{!dsf.required and dsf.hasRequiredChildren}">
                                                 <p class="form-text">
                                                     <h:outputText value="#{bundle.conditionalRequiredMsg}"/>
                                                 </p>
                                             </ui:fragment>
                                             <ui:repeat value="#{dsf.datasetFieldCompoundValues}" var="compoundValue" varStatus="valCount">
-                                                <div class="row mb-3 form-col-container col-sm-9 edit-compound-field"  data-cvoc-parentfield="#{cvocConf.containsKey(dsf.datasetFieldType.id)?cvocConf.get(dsf.datasetFieldType.id).getString('field-name'):''}">
+                                                <div class="row mb-3 form-col-container edit-compound-field"  data-cvoc-parentfield="#{cvocConf.containsKey(dsf.datasetFieldType.id)?cvocConf.get(dsf.datasetFieldType.id).getString('field-name'):''}">
                                                     <!-- Sub Fields -->
                                                     <ui:repeat value="#{compoundValue.childDatasetFields}" var="subdsf">
                                                         <div class="form-col-container #{subdsf.datasetFieldType.fieldType == 'TEXTBOX' ? 'col-sm-12' : 'col-sm-6'}">
@@ -454,6 +456,8 @@
                                                     </p:commandLink>
                                                 </div>
                                             </ui:repeat>
+                                        </div>
+                                        </div>
                                         </div>
                                     </p:fragment>
                                 </div>
