@@ -27,6 +27,7 @@
 <div class="card">
     <div data-bs-toggle="collapse" data-bs-target="#panelCollapse#{block.index}"
          class="card-header text-info #{(block.first and block.last) ? 'hidden':''}"
+         role="button" tabindex="0"
          aria-expanded="#{block.first ? 'true' : 'false'}"
          aria-controls="panelCollapse#{block.index}">
          #{metadataBlockVal.key.localeDisplayName} &#160;<span class="bi #{block.first ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
@@ -39,7 +40,7 @@
                                     <tr id="metadata_persistentId">
                                         <th scope="row">
                                             #{bundle['dataset.metadata.persistentId']}
-                                            <span class="bi bi-question-circle tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon" role="img"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.persistentId.tip']}"></span>
                                         </th>
                                         <td>#{globalId}</td>
@@ -47,7 +48,7 @@
                                     <tr id="metadata_alternativePersistentId" jsf:rendered="#{!empty altPID}">
                                         <th scope="row">
                                             #{bundle['dataset.metadata.alternativePersistentId']}
-                                            <span class="bi bi-question-circle tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon" role="img"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.alternativePersistentId.tip']}"></span>
                                         </th>
                                         <td>#{altPID}</td>
@@ -55,7 +56,7 @@
                                     <tr id="metadata_publicationDate" jsf:rendered="#{!empty publicationDate}">
                                         <th scope="row">
                                             #{bundle['dataset.metadata.publicationDate']}
-                                            <span class="bi bi-question-circle tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon" role="img"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.publicationDate.tip']}"></span>
                                         </th>
                                         <td>#{publicationDate}</td>
@@ -63,7 +64,7 @@
                                     <tr id="metadata_citationDate" jsf:rendered="#{!empty citationDate and (publicationDate ne citationDate)}">
                                         <th scope="row">
                                             #{bundle['dataset.metadata.citationDate']}
-                                            <span class="bi bi-question-circle tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon" role="img"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.metadata.citationDate.tip']}"></span>
                                         </th>
                                         <td>#{citationDate}</td>
@@ -73,7 +74,7 @@
                                     <tr id="metadata_#{dsf.datasetFieldType.name}">
                                         <th scope="row">
                                             #{dsf.datasetFieldType.localeTitle}
-                                            <span class="bi bi-question-circle tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon" role="img"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{dsf.datasetFieldType.localeDescription}"></span>
                                         </th>
                                         <c:set var="cvocOnDsf" value="#{cvocConf.containsKey(dsf.datasetFieldType.id)}"/>
@@ -232,7 +233,7 @@
                     <h:outputLabel for="dsMetadataLanguage"
                         styleClass="col-md-3 form-label">
                                             #{bundle.metadataLanguage}
-                                            <span
+                                            <span role="img"
                             class="bi bi-question-circle tooltip-icon"
                             data-bs-toggle="tooltip" data-bs-placement="right"
                             title="#{bundle['dataset.metadatalanguage.title']}"></span>
@@ -258,6 +259,7 @@
                                                                  or (!datasetPage)}">
 <div data-bs-toggle="collapse" data-bs-target="#panelCollapse#{block.index}"
      class="card-header text-info #{(block.first and block.last) ? 'hidden':''}"
+     role="button" tabindex="0"
      aria-expanded="#{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'true' : 'false'}"
      aria-controls="panelCollapse#{block.index}">
      #{metadataBlockVal.key.localeDisplayName} <span class="bi #{block.first or editMode == 'CREATE' or !cvocConf.isEmpty() ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
@@ -274,7 +276,7 @@
                                           <h:outputLabel for="#{dsf.datasetFieldType.controlledVocabulary ? (!dsf.datasetFieldType.allowMultiples ? 'unique1_focus' : 'unique2_focus') : ('fieldvaluelist:0:'.concat(((dsf.datasetFieldType.fieldType == 'TEXTBOX') ? 'description' : cvocConf.containsKey(dsf.datasetFieldType.id)? 'cvocInputText': 'inputText')))}" styleClass="col-sm-3 form-label">
                                             #{dsf.datasetFieldType.localeTitle}
                                             <span class="bi bi-asterisk text-danger" jsf:rendered="#{dsf.required}"/>
-                                            <span class="bi bi-question-circle tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon" role="img"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{dsf.datasetFieldType.localeDescription}"></span>
                                           </h:outputLabel>
                                           <ui:fragment rendered="#{templatePage}">
@@ -355,7 +357,7 @@
                                           <div id="metadata_#{dsf.datasetFieldType.name}" class="col-sm-3 form-label fw-bold">
                                             #{dsf.datasetFieldType.localeTitle}
                                             <span class="bi bi-asterisk text-danger" jsf:rendered="#{dsf.required}"/>
-                                            <span class="bi bi-question-circle tooltip-icon"
+                                            <span class="bi bi-question-circle tooltip-icon" role="img"
                                                   data-bs-toggle="tooltip" data-bs-placement="right" title="#{dsf.datasetFieldType.localeDescription}"></span>
                                           </div>
                                           
@@ -389,7 +391,7 @@
                                                             <label jsf:for="#{subdsf.datasetFieldType.controlledVocabulary ? 'cvv_focus' : subdsf.datasetFieldType.fieldType == 'TEXTBOX' ? 'description' : cvocConf.containsKey(subdsf.datasetFieldType.id) ? 'cvocInputText' : cvocConf.containsKey(dsf.datasetFieldType.id) ? 'cvocInputText2' : 'inputText'}" class="form-label">
                                                                 #{subdsf.datasetFieldType.localeTitle}
                                                                 <span class="bi bi-asterisk text-danger" jsf:rendered="#{subdsf.required and dsf.required}"/>
-                                                                <span class="bi bi-question-circle tooltip-icon"
+                                                                <span class="bi bi-question-circle tooltip-icon" role="img"
                                                                       data-bs-toggle="tooltip" data-bs-placement="right"
                                                                       title="#{subdsf.datasetFieldType.localeDescription}#{subdsf.required and !dsf.required?' – '.concat(bundle['conditionalRequiredMsg.tooltip']) : ''}"></span>
                                                             </label>
