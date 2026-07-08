@@ -1,16 +1,16 @@
 /*--------- BODY --------- */
 html {
-  /* Sticky footer */
-  position:relative;
-  min-height:100%;
+    /* Sticky footer */
+    position:relative;
+    min-height:100%;
 }
 body {
-  /* Sticky footer Margin bottom by footer height */
-  font-family: 'AntoniaH2', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size:14px;
-  /* #11824 */
-  word-break: normal;
-  overflow-wrap: anywhere;
+    /* Sticky footer Margin bottom by footer height */
+    font-family: 'AntoniaH2', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:14px;
+    /* #11824 */
+    word-break: normal;
+    overflow-wrap: anywhere;
 }
 body.widget-view {margin-bottom:44px;}
 body .ui-widget {font-size: inherit;}
@@ -71,7 +71,7 @@ footer {width:100%; z-index:498; height:60px; color:#666666;position:relative;}
 .messagePanel .bi {font-size: 1.5em; vertical-align: bottom;}
 
 .dropdown-menu>li>a {
-	font-family:AntoniaH2;
+    font-family:AntoniaH2;
 }
 .dropdown-menu>div>a, .dropdown-menu>div>span {
     font-family:AntoniaH2;
@@ -91,7 +91,7 @@ td.col-select-width, th.col-select-width {width:36px;}
 .ui-state-highlight a.btn-link, .ui-widget-content .ui-state-highlight a.btn-link, .ui-widget-header .ui-state-highlight a.btn-link {
     color: #337AB7;
 }
-.ui-state-highlight a.btn-link:focus, .ui-widget-content .ui-state-highlight a.btn-link:focus, .ui-widget-header .ui-state-highlight a.btn-link:focus, 
+.ui-state-highlight a.btn-link:focus, .ui-widget-content .ui-state-highlight a.btn-link:focus, .ui-widget-header .ui-state-highlight a.btn-link:focus,
 .ui-state-highlight a.btn-link:hover, .ui-widget-content .ui-state-highlight a.btn-link:hover, .ui-widget-header .ui-state-highlight a.btn-link:hover {
     color: #23527C;
 }
@@ -242,11 +242,11 @@ body.widget-view #dataverse-header-block {padding-top:0px;}
 #dataverseHeader .dataverseHeaderCell.dataverseHeaderLogo img {max-width:100px; max-height:100px;}
 #dataverseHeader .dataverseHeaderName {padding:7em 1em 0em 0em;}
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName {
-  font-size: 2.5em;
-  text-align: center;
-  display: block;
-  font-weight: bold;
-  color: #101010;
+    font-size: 2.5em;
+    text-align: center;
+    display: block;
+    font-weight: bold;
+    color: #101010;
 }
 #dataverseHeader .dataverseHeaderName .dataverseHeaderDataverseName h1 {
     font-weight: inherit;
@@ -364,7 +364,7 @@ ul.IdPSelectDropDown > li.disabled:hover, ul.IdPSelectDropDown > li.disabled:foc
 
 /* -------- USER -------- */
 .well.terms-agreement-block {max-height:200px; margin-bottom: .5em; padding: 12px; overflow-y:scroll; box-shadow:none; background-image: none; background-color: #f5f5f5;}
-.well.terms-agreement-block h1, .well.terms-agreement-block h2, .well.terms-agreement-block h3, 
+.well.terms-agreement-block h1, .well.terms-agreement-block h2, .well.terms-agreement-block h3,
 .well.terms-agreement-block h4, .well.terms-agreement-block h5, .well.terms-agreement-block h6 {margin-top:0;}
 div[id$='notifications'].ui-tabs-panel div.table-container {display:table;}
 div[id$='notifications'].ui-tabs-panel div.notification-item {display:table-row;}
@@ -414,16 +414,15 @@ form.btn-form {display:inline-block;}
 
 .btn.btn-secondary.btn-access {background-image:none;}
 .btn.btn-secondary.btn-access:focus, .btn.btn-secondary.btn-access:hover,.btn.btn-secondary.btn-access:active {background-image:none;}
-.col-manage-action .button-block button, .col-manage-action .button-block a.btn, .col-manage-action .button-block input.btn, 
-.col-manage-action .button-block div.btn-group, .col-manage-action .button-block span.btn.ui-state-disabled, 
-.button-block div.btn-group div.btn-group, 
+.col-manage-action .button-block button, .col-manage-action .button-block a.btn, .col-manage-action .button-block input.btn,
+.col-manage-action .button-block div.btn-group, .col-manage-action .button-block span.btn.ui-state-disabled,
+.button-block div.btn-group div.btn-group,
 .button-block button.float-end:first-child, .button-block a.btn.float-end:first-child, .button-block div.btn-group.float-end:first-child,
-.button-block div.btn-group button, .button-block div.btn-group a.btn, 
-.button-block .btn:last-child, .button-block div.btn-group:last-child:not(.float-end),
-.button-block div.btn-group:has(+ .file-action-dropdown-backdrop),
-.button-block form.btn-form:last-child .btn-group, 
+.button-block div.btn-group button, .button-block div.btn-group a.btn,
+.button-block .btn:last-child, .button-block div.btn-group:last-of-type,.button-block div.btn-group:has(+ .file-action-dropdown-backdrop),
+.button-block form.btn-form:last-child .btn-group,
 .button-block span.ui-state-disabled:last-child, .button-block.float-end .btn:last-child,
-.button-block .btn:only-child, .button-block div.btn-group:only-child {margin-right:0;}
+.button-block .btn:only-child, .button-block div.btn-group:only-child {margin-right:0 !important;}
 /*QDR*/
 div.btn-group[aria-label='File Actions'] div.btn-group:nth-child(2) {
     margin-left: -8px;
@@ -433,11 +432,11 @@ div.btn-group[aria-label='File Actions'] div.btn-group:nth-child(2) a.btn.btn-li
 }
 
 .disabledTitle {
-  pointer-events: auto;
+    pointer-events: auto;
 }
 /* DIASABLED LINK-BTN TITLE PF COMMANDLINK HACK */
-/* TODO - REVIEW DISABLED CLASS LINKS WHICH 
-          ARE NOW FUNCTIONAL DUE TO HACK?? 
+/* TODO - REVIEW DISABLED CLASS LINKS WHICH
+          ARE NOW FUNCTIONAL DUE TO HACK??
           "This class uses pointer-events: none to try to disable the link functionality"
 html .ui-state-disabled {
     pointer-events: all;
@@ -474,51 +473,51 @@ div.field-add-delete a.btn.nolabel-field-btn {margin-top:0;}
 div.panelSearchForm {margin-bottom: 15px;}
 div.panelSearchForm .input-group {margin-right:1em;}
 div.panelSearchForm input.search-input {
-  margin: auto;
-  padding: 4px;
-  vertical-align: middle;
-  display: block;
-  color: #666666;
-  display: block;
-  font-size: 25px;
-  background: transparent;
-  width: 550px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2), inset 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+    margin: auto;
+    padding: 4px;
+    vertical-align: middle;
+    display: block;
+    color: #666666;
+    display: block;
+    font-size: 25px;
+    background: transparent;
+    width: 550px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2), inset 0 1px 3px 0 rgba(0, 0, 0, 0.2);
 }
 div.panelSearchForm input.search-input::placeholder {color: #666666;}
 div.panelSearchForm .button-block {
-	float: right;
-	margin-top: -35px;
+    float: right;
+    margin-top: -35px;
 }
 
 #dv-main.nofacets {width:100%;float:none;}
 
 /* Off Canvas */
 @media screen and (max-width: 767px) {
-  .row-offcanvas {
-    position: relative;
-    -webkit-transition: all 0.25s ease-out;
-    -moz-transition: all 0.25s ease-out;
-    transition: all 0.25s ease-out;
-  }
+    .row-offcanvas {
+        position: relative;
+        -webkit-transition: all 0.25s ease-out;
+        -moz-transition: all 0.25s ease-out;
+        transition: all 0.25s ease-out;
+    }
 
-  .row-offcanvas-left .sidebar-offcanvas {
-    left: -67%;
-  }
+    .row-offcanvas-left .sidebar-offcanvas {
+        left: -67%;
+    }
 
-  .row-offcanvas-left.active {
-    left: 67%;
-  }
+    .row-offcanvas-left.active {
+        left: 67%;
+    }
 
-  .sidebar-offcanvas {
-    position: absolute;
-    top: 0;
-    width: 67%;
-    margin-left: 10px;
-  }
-  
-  #dvfooter .poweredbylogo {text-align:center;}
-  #dvfooter.widget-view .poweredbylogo {text-align:right;}
+    .sidebar-offcanvas {
+        position: absolute;
+        top: 0;
+        width: 67%;
+        margin-left: 10px;
+    }
+
+    #dvfooter .poweredbylogo {text-align:center;}
+    #dvfooter.widget-view .poweredbylogo {text-align:right;}
 }
 
 .searchTypeButton {display:block; border:1px solid #DDD; padding:4px 0; margin-bottom: .5em;}
@@ -533,8 +532,8 @@ span.search-term-match {font-weight: bold;margin-left:0px;}
     font-size: 90%;
     word-break:break-word;
 }
-[id$='resultsTable'] div[class*='Result'] > div.card-title-icon-block, 
-[id$='resultsTable'] div[class*='Result'] > div.card-preview-icon-block, 
+[id$='resultsTable'] div[class*='Result'] > div.card-title-icon-block,
+[id$='resultsTable'] div[class*='Result'] > div.card-preview-icon-block,
 [id$='resultsTable'] div[class*='Result'] > div.file-tags-block {font-size: 110%;}
 [id$='resultsTable'] span.badge {vertical-align:text-bottom; line-height: normal; margin-left:.5em;}
 [id$='resultsTable'] div.file-tags-block span.badge:first-of-type {margin-left:0;}
@@ -567,17 +566,17 @@ div[id$='facetCategoryList'] div li div.ui-datalist-empty-message {padding:4px 0
 div[id$='facetCategoryList'] div.ui-datalist, div[id$='facetCategoryList'] div.ui-datalist div.ui-datalist-content {padding-top:0;}
 .facetCategoryName {display: block; margin-bottom: 5px;}
 .facetCategoryName, .facetLink {
--ms-word-break: break-all;
+    -ms-word-break: break-all;
 
-     /* Be VERY careful with this, breaks normal words wh_erever */
-     word-break: break-all;
+    /* Be VERY careful with this, breaks normal words wh_erever */
+    word-break: break-all;
 
-     /* Non standard for webkit */
-     word-break: break-word;
+    /* Non standard for webkit */
+    word-break: break-word;
 
--webkit-hyphens: auto;
-   -moz-hyphens: auto;
-        hyphens: auto;}
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;}
 a.facetLink {text-decoration:none; font-size:16px;}
 a.facetLink.facetSelected, a.facetTypeLink.facetSelected {font-weight:bold;}
 a.facetLink.facetSelected span.bi-x {vertical-align:text-top; margin-top:1px; margin-left:.25em;}
@@ -605,7 +604,7 @@ table[id$='resultsTable'] td > div {border-top:1px solid #DDD; margin:6px 0; pad
 /* table[id$='resultsTable'] td > div.dataverseResult {border-color:#c55b28;} */
 /* table[id$='resultsTable'] td > div.datasetResult {border-color:#428bca;} */
 table[id$='resultsTable'] td > div > div.card-title-icon-block,
-table[id$='resultsTable'] td > div > div.card-preview-icon-block, 
+table[id$='resultsTable'] td > div > div.card-preview-icon-block,
 table[id$='resultsTable'] td > div > div.file-tags-block {
     font-size: 110%;
 }
@@ -699,7 +698,7 @@ span[id$='editDataSet'] .ui-button-text {white-space: nowrap;}
 div.row .bi.bi-asterisk {font-size:.5em; vertical-align:text-top;}
 /* #datasetForm .row, #templateForm .row {overflow: hidden;} */
 #datasetCitationActionSummaryBlock .citation-block .row {overflow:visible;}
-div.form-col-container div.form-col-container {padding-left:0;}
+div.form-col-container div.form-col-container {padding-left:15px;}
 div.row .ui-selectonemenu {display:block;}
 div.form-col-container.edit-compound-field div.form-col-container {margin-bottom:.5em;}
 
@@ -739,19 +738,19 @@ div.edit-field div.ui-message {margin:6px 0;}
 
 
 img[alt='ORCID logo'], img[alt='ROR logo'] {
-        vertical-align: text-top;
-        margin-right:1px;
-        margin-left: 3px;
+    vertical-align: text-top;
+    margin-right:1px;
+    margin-left: 3px;
 }
 
 img.ror {
-  vertical-align: middle;
+    vertical-align: middle;
 }
 .expanded.parenthetical[data-cvoc-protocol='ror'] span {
-  margin: 0px 5px 0px 5px;
+    margin: 0px 5px 0px 5px;
 }
 span[data-cvoc-metadata-name="authorIdentifierScheme"] {
-  margin-right:5px;
+    margin-right:5px;
 }
 
 /* TRUNCATION */
@@ -781,7 +780,7 @@ div.radio.no-padding-left label {padding-left:0;}
 .ui-selectmanycheckbox.ui-widget td > .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget, .ui-selectcheckboxmenu-item > .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget {margin-top:0;}
 .ui-selectcheckboxmenu-header > .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget {margin-top:2px;}
 .ui-chkbox .ui-chkbox-label {display:inline; vertical-align:text-top;}
-.chkbox-label-margin {margin-top:3px;} 
+.chkbox-label-margin {margin-top:3px;}
 
 .ui-selectcheckboxmenu.form-control {height:auto;padding:0;}
 .ui-selectcheckboxmenu .ui-selectcheckboxmenu-trigger {width:30px; padding:6px; border-radius:0 4px 4px 0;}
@@ -803,7 +802,7 @@ table.ui-picklist div.ui-picklist-filter-container {padding-bottom:5px;}
 #contentTabs {position: relative;}
 
 div[role="button"].card-header[data-bs-toggle="collapse"] {cursor: pointer;}
-div[role="button"].card-header.text-info[data-bs-toggle="collapse"] {color: #31708F;font-size:14px;}
+div[role="button"].card-header.text-info[data-bs-toggle="collapse"] {color: #31708F!important;font-size:14px;}
 
 /* overwrite Bootstrap code red style */
 .ui-widget-content code {background-color: #F0F0F0; color: #333333;}
@@ -842,15 +841,15 @@ div[id$="filesTable"] .col-file-thumb div.thumbnail-block span.file-thumbnail-ic
 div[id$="filesTable"] .col-file-thumb div.thumbnail-block span.file-thumbnail-preview-img {display:block;}
 div[id$="filesTable"] .col-file-thumb div.thumbnail-block div.file-icon-restricted-block {display:block;position:absolute;bottom:-4px;right:-1px;}
 div[id$="filesTable"] .col-file-metadata {-webkit-flex: 1 100%;
-	-moz-flex: 1 100%;
-	-ms-flex: 1 100%; flex: 1 100%;
-	word-break:break-word;}
+    -moz-flex: 1 100%;
+    -ms-flex: 1 100%; flex: 1 100%;
+    word-break:break-word;}
 div[id$="filesTable"] div.file-tags-block {padding-bottom:2px;}
 div[id$="filesTable"] div.file-tags-block a.ui-commandlink {font-size:12px;}
 div[id$="filesTable"] div.file-tags-block span.badge {display:inline-block;}
 div[id$="filesTable"] div.file-tags-block span.badge, div[id$="filesTable"] div.file-tags-block a.ui-commandlink {margin-right:.5em;}
 div[id$="filesTable"] div.file-tags-block span.badge:last-of-type {margin-right:0;}
-div[id$="filesTable"] td:focus {outline:none;}
+div[id$="filesTable"] td:focus {outline:none!important;}
 div[id$="filesTable"] td.col-file-action {padding-left:0; border-left:0;}
 div[id$="filesTable"] td.col-file-action .btn-group .btn-link {font-size:2em !important;}
 div[id$="filesTable"] div.ui-datatable-header.ui-widget-header {padding:0 10px;}
@@ -915,10 +914,10 @@ div[id$="filesTable"] .ui-paginator .ui-paginator-pages {
     margin-left: 0;
     margin-right: 0;
 }
-div[id$="filesTable"] .ui-paginator .ui-paginator-page, 
-div[id$="filesTable"] .ui-paginator .ui-paginator-next, 
-div[id$="filesTable"] .ui-paginator .ui-paginator-last, 
-div[id$="filesTable"] .ui-paginator .ui-paginator-first, 
+div[id$="filesTable"] .ui-paginator .ui-paginator-page,
+div[id$="filesTable"] .ui-paginator .ui-paginator-next,
+div[id$="filesTable"] .ui-paginator .ui-paginator-last,
+div[id$="filesTable"] .ui-paginator .ui-paginator-first,
 div[id$="filesTable"] .ui-paginator .ui-paginator-prev {
     display: inline-block;
     padding: 6px 12px;
@@ -1117,7 +1116,7 @@ span.ui-autocomplete input.ui-autocomplete-input {width:100%;}
 
 @media print {
     a[href]:after {
-      content: none;
+        content: none;
     }
     .navbar {
         display: block;
@@ -1187,20 +1186,20 @@ span.ui-autocomplete input.ui-autocomplete-input {width:100%;}
 #citation-forward {position: absolute; top:45px; height: calc(100% - 65px); border:0; background:url(/resources/images/ajax-loading.gif) no-repeat 50% 50%;}
 
 .ui-fileupload .ui-fileupload-content {
-  overflow-x:auto;
+    overflow-x:auto;
 }
 
 .hypothesis-btn-status.ui-icon {
-	background: url("/resources/images/hypothesisIcon.svg") no-repeat;
+    background: url("/resources/images/hypothesisIcon.svg") no-repeat;
 }
 
 #datasetForm\3AhypothesisButton {
-	margin-bottom: 5px;
-	margin-left: 15px;
+    margin-bottom: 5px;
+    margin-left: 15px;
 }
 
 #datasetForm\3AhypothesisBlock>div {
-	margin-bottom: 5px;
+    margin-bottom: 5px;
 }
 
 .ui-chkbox .ui-chkbox-label {display:inline; vertical-align:bottom;}
@@ -1208,7 +1207,7 @@ span.ui-autocomplete input.ui-autocomplete-input {width:100%;}
 /* Schema Dataverse Additional Classes */
 
 div.container, div.container-xl {
-  overflow: visible;
+    overflow: visible;
 }
 @media (min-width: 1400px) {
     .container-xl {
@@ -1217,145 +1216,145 @@ div.container, div.container-xl {
 }
 
 #search-row-panel {
-	padding-top:10px;
+    padding-top:10px;
 }
 #search-row-panel-backdrop {
-  width: 100vw;
-  height: 100%;
-  position: absolute;
-  left: calc(-50vw + 50%);
-  background-color: #f7f7f9;
-  margin: 0;
-  z-index: -1;
+    width: 100vw;
+    height: 100%;
+    position: absolute;
+    left: calc(-50vw + 50%);
+    background-color: #f7f7f9;
+    margin: 0;
+    z-index: -1;
 }
 
 .file-row-panel-backdrop {
-  background: #f7f7f9;
-  position: absolute;
-  left: calc(-50vw + 50%);
-  top: 42px;
-  width: 100vw;
-  height: calc(100% + 8vh);
-  z-index: -1;
-  border-top: 2px solid rgba(0, 0, 0, 0.1);
+    background: #f7f7f9;
+    position: absolute;
+    left: calc(-50vw + 50%);
+    top: 42px;
+    width: 100vw;
+    height: calc(100% + 8vh);
+    z-index: -1;
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 #searchResults {position: relative;}
 
 #filter-title {
-  font-weight: 700;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #DDD;
-  padding: 7px 6px 12px 6px;
-  display: block;
+    font-weight: 700;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #DDD;
+    padding: 7px 6px 12px 6px;
+    display: block;
 }
 
 .bi-search {font-size:18px;}
 .searchbutton {
-  position: absolute;
-  top: 9px;
-  right: 27%;
+    position: absolute;
+    top: 9px;
+    right: 27%;
 }
 @media(max-width: 1200px){
-  .searchbutton {
-    right: 24%;
-  }
+    .searchbutton {
+        right: 24%;
+    }
 }
 
 @media(max-width: 992px){
-  .searchbutton {
-    right: 16%;
-  }
+    .searchbutton {
+        right: 16%;
+    }
 }
 .advsearchlink {
-  margin: 10px auto;
-  text-align: left;
-  display: block;
-  width: 540px;
-  color: #666666;
+    margin: 10px auto;
+    text-align: left;
+    display: block;
+    width: 540px;
+    color: #666666;
 }
 
 .searchbutton-file {
-  position: absolute;
-  top: 8px;
-  right: 2.5vw;
+    position: absolute;
+    top: 8px;
+    right: 2.5vw;
 }
 
 .add-data-plus-wrapper {
-  background: none;
-  border: none;
-  right: 15px;
-  z-index: 1;
+    background: none;
+    border: none;
+    right: 15px;
+    z-index: 1;
 }
 .add-data-plus-wrapper:focus {
-	outline:none;
+    outline:none;
 }
 
 .add-data-plus-icon {
-  background-image: url(/resources/images/new-project.svg);
-  background-size: contain;
-  height: 70px;
-  width: 70px;
-  display: block;
-  margin:auto;
+    background-image: url(/resources/images/new-project.svg);
+    background-size: contain;
+    height: 70px;
+    width: 70px;
+    display: block;
+    margin:auto;
 }
 
 .add-data-plus-wrapper span {
-  font-weight: normal;
-  margin-top: 11px;
-  color: #0039f5;
-  font-size: 15px;
-  display: block;
+    font-weight: normal;
+    margin-top: 11px;
+    color: #0039f5;
+    font-size: 15px;
+    display: block;
 }
 
 .color-btn {
-  background: none;
-  border: none;
-  box-shadow: none;
-  font-size: 15px;
-  color: #0039f5;
+    background: none;
+    border: none;
+    box-shadow: none;
+    font-size: 15px;
+    color: #0039f5;
 }
 
 .card-title-icon-block {
-  font-weight: bolder;
-  font-size: 18px !important;
+    font-weight: bolder;
+    font-size: 18px !important;
 }
 
 .dataverseResult > *,
 .datasetResult > *,
 .fileResult > *,
 .cardResult > * {
-  margin-left: 120px;
+    margin-left: 120px;
 }
 
 .metadata-container > .row:last-child {
-  border-bottom: solid 2px rgba(0, 0, 0, 0.1);
-  margin-bottom: 60px;
+    border-bottom: solid 2px rgba(0, 0, 0, 0.1);
+    margin-bottom: 60px;
 }
 
 .metadata-container > .row {
-  margin: 10px 0px;
-  padding: 5px 0px;
-  border-top: solid 2px rgba(0, 0, 0, 0.1);
+    margin: 10px 0px;
+    padding: 5px 0px;
+    border-top: solid 2px rgba(0, 0, 0, 0.1);
 }
 
 ul > li:not(.ui-selectonemenu-item) {
-  border:none !important;
-  font-size: 21px;
-  font-family: 'AntoniaH2Heavy';
-  font-weight: bold;
+    border:none !important;
+    font-size: 21px;
+    font-family: 'AntoniaH2Heavy';
+    font-weight: bold;
 }
 
 #metadata_dsDescription ul > li {
-        font-weight: normal;
-        font-size: 18px;
-        font-family: 'AntoniaH2';
+    font-weight: normal;
+    font-size: 18px;
+    font-family: 'AntoniaH2';
 }
 
 #dsDescription ul > li {
-        font-weight: normal;
-        font-size: 18px;
-        font-family: 'AntoniaH2';
+    font-weight: normal;
+    font-size: 18px;
+    font-family: 'AntoniaH2';
 }
 
 /*TODO: Causes/allows lines in dataset page files table header to appear. Removing it messes up versions table*/
@@ -1368,20 +1367,20 @@ th {background: none !important;}
 #rolesPermissionsForm {word-break:break-word;}
 
 .card-body > * {
-  border-top: 2px solid rgba(0, 0, 0, 0.1);
-  font-family: 'AntoniaH2Heavy';
-  padding-top: 10px;
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
+    font-family: 'AntoniaH2Heavy';
+    padding-top: 10px;
 }
 
 .card {box-shadow: none; -webkit-box-shadow: none; background: #f7f7f9;}
 
 .btn-secondary, .btn-secondary:active, .btn-secondary:hover, .btn-secondary:focus {
-  background: #0039f5 !important;
-  color: #FFF !important; /* TODO: Find ui-widget CSS rules and take out their color so important is not needed here */
-  border-radius: 2px;
-  text-shadow: none !important;
-  font-family: inherit !important;
-  position: relative;
+    background: #0039f5 !important;
+    color: #FFF !important; /* TODO: Find ui-widget CSS rules and take out their color so important is not needed here */
+    border-radius: 2px;
+    text-shadow: none !important;
+    font-family: inherit !important;
+    position: relative;
 }
 
 .btn-secondary.focus, .btn-secondary:focus {
@@ -1393,30 +1392,30 @@ th {background: none !important;}
 
 
 .btn-qdr-explore {
-  margin-top: 6px;
-  max-height: 37px;
+    margin-top: 6px;
+    max-height: 37px;
 }
 
 .btn-explore + ul li {
-        margin: 0px 10px;
+    margin: 0px 10px;
 }
 
 .ui-buttonset { background: #f7f7f9 !important;}
 
 .qdr-menu__header div {
-  height: 60px;
+    height: 60px;
 }
 
 .qdr-menu__close-button i {
-  vertical-align: super;
+    vertical-align: super;
 }
 
 body .ui-widget {
-  font-family: inherit;
+    font-family: inherit;
 }
 
 body .ui-widget button {
-  font-family: inherit;
+    font-family: inherit;
 }
 
 span.bg-primary { background-color: #0039f5; }
@@ -1424,35 +1423,35 @@ span.bg-primary { background-color: #0039f5; }
 /* Pagination Icon URLs and Styles*/
 
 .results-bottom {
-  margin-top: 25px;
+    margin-top: 25px;
 }
 
 .pagination > li.active > a,
 .pagination > li.active > a:focus,
 .pagination > li.active > a:hover {
-  background-color: #0039f5;
-  color: white !important;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    background-color: #0039f5;
+    color: white !important;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .pagination > li > a {
-  color: #0039f5;
-  height: 44px;
-  min-width: 44px;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    color: #0039f5;
+    height: 44px;
+    min-width: 44px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .pagination > li > a.skip {
-  background-size: 44px; /* Fixed size for icons */
-  background-position: center;
-  background-repeat: no-repeat;
-  border: 1px solid #b8b8b8 !important; /* Match other pagination items */
+    background-size: 44px; /* Fixed size for icons */
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 1px solid #b8b8b8 !important; /* Match other pagination items */
 }
 
 .pagination > li > a.skip.top {background-image: url(/resources/images/skip_icon.svg);}
@@ -1463,19 +1462,19 @@ span.bg-primary { background-color: #0039f5; }
 
 /*Direct upload progress bar*/
 progress::-webkit-progress-bar {
-  background-color:white;
+    background-color:white;
 }
 
 progress::-webkit-progress-value {
-  background-color:green;
+    background-color:green;
 }
 #selectTool .dropdown-menu .active a {
-  background-color: #0039f5;
-  background-image: none;
+    background-color: #0039f5;
+    background-image: none;
 }
 
 span.curation-status {
-  background-color: #CE15D1
+    background-color: #CE15D1
 }
 
 /*External vocabulary support*/
@@ -1485,63 +1484,63 @@ span.curation-status {
 }
 
 .select2-container .select2-selection--single {
-        border:1px solid #cccccc;
-        border-radius: 3px;
-        height:34px;
-        display:inline;
-        background:#ffffff;
+    border:1px solid #cccccc;
+    border-radius: 3px;
+    height:34px;
+    display:inline;
+    background:#ffffff;
 }
 
 .select2-container .select2-selection--single .select2-selection__rendered {
-        display:inline-block!important;
-        max-width:80%;
-        padding-right:5px!important;
+    display:inline-block!important;
+    max-width:80%;
+    padding-right:5px!important;
 }
 .select2-selection__clear, .select2-selection__rendered {
-        vertical-align: middle;
+    vertical-align: middle;
 }
 .select2-results ul > li {
-        font-weight:400;
-        font-size:14px;
+    font-weight:400;
+    font-size:14px;
 }
 .select2-rendered__match {
-        font-weight:600;
+    font-weight:600;
 }
 .cvoc-vocab {
-padding-left:0px;
-padding-right:0px;
+    padding-left:0px;
+    padding-right:0px;
 }
 .cvoc-term {
-padding-right:0px;
+    padding-right:0px;
 }
 
 /*EMBARGO*/
 .ui-datepicker {
-  z-index: 100001!important;
+    z-index: 100001!important;
 }
 .embargoright {
-  margin-left:10px;
+    margin-left:10px;
 }
 .embargocheckbox {
-  margin-top: 20px;
-  padding-bottom: 30px;
+    margin-top: 20px;
+    padding-bottom: 30px;
 }
 .embargomsg {
-  display:block;
+    display:block;
 }
 .embargo {
-        display:flex;
-        flex-direction:column;
+    display:flex;
+    flex-direction:column;
 }
 .embargo.text-warning, .embargo.text-danger {
-        flex-direction:row;
+    flex-direction:row;
 }
 .embargo span {
-        margin-right: 10px;
+    margin-right: 10px;
 }
 .embargo span.bi-asterisk {
-            font-size: .5em;
-                vertical-align: top;
+    font-size: .5em;
+    vertical-align: top;
 }
 
 .embargo .col-lg-3 {
@@ -1554,28 +1553,28 @@ padding-right:0px;
 
 /*RETENTION*/
 .retentionright {
-  margin-left:10px;
+    margin-left:10px;
 }
 .retentioncheckbox {
-  margin-top: 20px;
-  padding-bottom: 30px;
+    margin-top: 20px;
+    padding-bottom: 30px;
 }
 .retentionmsg {
-  display:block;
+    display:block;
 }
 .retention {
-        display:flex;
-        flex-direction:column;
+    display:flex;
+    flex-direction:column;
 }
 .retention.text-warning, .retention.text-danger {
-        flex-direction:row;
+    flex-direction:row;
 }
 .retention span {
-        margin-right: 10px;
+    margin-right: 10px;
 }
 .retention span.bi-asterisk {
-            font-size: .5em;
-                vertical-align: top;
+    font-size: .5em;
+    vertical-align: top;
 }
 
 .retention .col-lg-3 {
@@ -1589,14 +1588,14 @@ padding-right:0px;
 /*Accessibility*/
 
 .text-muted {
-        color: #636363;
+    color: #636363;
 }
 a, #content a {
-  color: #0039f5;
+    color: #0039f5;
 }
 
 .bg-warning a, .bg-citation a, .terms .form-text a, #panelCollapseTOU .form-text a,  #dataset-summary-metadata a, .alert a {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 .pagination>.disabled>a {
@@ -1618,8 +1617,8 @@ span.bg-danger { background-color: #D3413C }
 #embargoInputs label { font-weight: normal; }
 
 .ui-message-error {
-        color:#AA4241;
-        background-color:#F7EDED;
+    color:#AA4241;
+    background-color:#F7EDED;
 }
 
 /*Template Instructions Editing*/
@@ -1630,35 +1629,35 @@ span.bg-danger { background-color: #D3413C }
 /*Accomodate long placeholder text */
 
 @media(min-width:768px){
-  div:has(> input[placeholder='1) FamilyName, GivenName or 2) Organization']) {
-    width:75%;
-  }
+    div:has(> input[placeholder='1) FamilyName, GivenName or 2) Organization']) {
+        width:75%;
+    }
 }
 /*Override previous for child fields*/
 div:has(> input[placeholder='1) FamilyName, GivenName or 2) Organization']):has( > label) {
-  width:100%;
+    width:100%;
 }
 @media(min-width:768px){
-  div:has(> input[placeholder='provided by QDR']) {
-    width:100%;
-  }
+    div:has(> input[placeholder='provided by QDR']) {
+        width:100%;
+    }
 }
 div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
     width:100%;
 }
 /*File sorting*/
 #datasetForm .file-sort {
-	float: right;
-	padding-right:21px;
+    float: right;
+    padding-right:21px;
 }
 
 #datasetForm .file-sort .btn-group {
-	padding-top: 4px;
+    padding-top: 4px;
 }
 
 #datasetForm .file-group-by {
-	min-width: 130px;
-	padding: 0px;
+    min-width: 130px;
+    padding: 0px;
 }
 
 /* editFilesFragment */
@@ -1674,7 +1673,7 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
     margin: 10px 0px 10px 0px;
     padding: 10px;
     display: inline;
-    }
+}
 
 #datasetForm\:cslLabel {
     margin-top:30px;
@@ -1690,8 +1689,8 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
     display: inline;
     margin-left: 5px;
 }
-    
-/* Suppress the number in some styles indication this references ordinal position in a larger bibliography (which is always 1 in our dialog)*/ 
+
+/* Suppress the number in some styles indication this references ordinal position in a larger bibliography (which is always 1 in our dialog)*/
 .csl-left-margin {
     display:none;
 }
@@ -1701,7 +1700,7 @@ div:has(> input[placeholder='QDR strongly encourages the use of ORCIDs']) {
     margin-left: 8px;
 }
 
- /* Ensure dropdown menus have sufficient width */
+/* Ensure dropdown menus have sufficient width */
 .dropdown-menu {
     min-width: max-content;
     width: auto;
