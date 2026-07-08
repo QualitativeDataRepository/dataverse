@@ -839,7 +839,7 @@
                         <div class="row mb-3"  jsf:rendered="#{DatasetPage.hasDataversesToChoose and DatasetPage.editMode == 'CREATE'}">
                             <label jsf:for="#{DatasetPage.editMode == 'CREATE' ? 'selectHostDataverse_input' : 'select_HostDataverse_Static'}" class="col-md-3 form-label">
                                 #{bundle.hostDataverse}
-                                <span class="bi bi-question-circle tooltip-icon"
+                                <span class="bi bi-question-circle tooltip-icon" role="img"
                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataverse.host.title']}"></span>
                             </label>
                             <div class="col-md-7">
@@ -888,7 +888,7 @@
                         <div class="row mb-3" jsf:rendered="#{!empty DatasetPage.dataverseTemplates and DatasetPage.editMode == 'CREATE'}">
                             <label jsf:for="select_DatasetTemplate" class="col-md-3 form-label">
                                 #{bundle['dataset.manageTemplates.tab.action.btn.view.dialog.datasetTemplate']}
-                                <span class="bi bi-question-circle tooltip-icon"
+                                <span class="bi bi-question-circle tooltip-icon" role="img"
                                       data-bs-toggle="tooltip" data-bs-placement="right" title="#{bundle['dataset.manageTemplates.tab.action.btn.view.dialog.datasetTemplate.title']}"></span>
                             </label>
                             <div class="col-md-7">
