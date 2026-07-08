@@ -62,14 +62,14 @@
                     </p>
                 </ui:fragment>
                 <!-- Upload -->
-                <div class="panel-group" role="tablist" aria-multiselectable="true"
+                <div class="panel-group"
                       id="fileUploadFragment" jsf:rendered="#{showFileUploadFragment}">
                     
                     <div jsf:id="httpPanel" jsf:rendered="#{settingsWrapper.HTTPUpload}" class="card">
-                        <div role="tab" id="headingHTTP" data-bs-toggle="collapse" data-bs-target="#panelCollapseHTTP" class="card-header text-info" aria-expanded="true" aria-controls="panelCollapseHTTP">
+                        <div role="button" tabindex="0" id="headingHTTP" data-bs-toggle="collapse" data-bs-target="#panelCollapseHTTP" class="card-header text-info" aria-expanded="true" aria-controls="panelCollapseHTTP">
                             #{bundle['file.fromHTTP']} &#160;<span class="bi bi-chevron-up"/>
                         </div>
-                        <div id="panelCollapseHTTP" class="panel-collapse collapse show" role="tabpanel" aria-labelledby="headingHTTP">
+                        <div id="panelCollapseHTTP" class="panel-collapse collapse show" aria-labelledby="headingHTTP">
                             <div class="card-body" jsf:id="httpUploadDisabledDueToExistingRsyncPackage" jsf:rendered="#{hasPackageFile and !isDatasetReleased}">
                                 <p class="form-text">
                                     <span class="bi bi-exclamation-triangle-fill text-warning"></span>
@@ -264,11 +264,11 @@
                     
                     <div jsf:id="rsyncPanel" jsf:rendered="#{rsyncSupported and !EditDatafilesPage.fileReplaceOperation}" class="panel panel-default">
                         <!-- NOTE: conditional logic for 'bi-chevron-up' icon in rsync header if HTTP is off, but isn't scalable when a third upload mode is added -->
-                        <div role="tab" id="headingRsync" data-bs-toggle="collapse" data-bs-target="#panelCollapseRsync" class="card-header text-info" aria-expanded="true" aria-controls="panelCollapseRsync">
+                        <div role="button" tabindex="0" id="headingRsync" data-bs-toggle="collapse" data-bs-target="#panelCollapseRsync" class="card-header text-info" aria-expanded="true" aria-controls="panelCollapseRsync">
                             #{bundle['file.fromRsync']} &#160;<span class="bi #{!settingsWrapper.HTTPUpload ? 'bi-chevron-up' : 'bi-chevron-down'}"/>
                         </div>
                         <!-- NOTE: conditional logic for 'in' style class opens the rsync panel if HTTP is off, but isn't scalable when a third upload mode is added -->
-                        <div id="panelCollapseRsync" class="panel-collapse collapse #{!settingsWrapper.HTTPUpload ? 'show' : ''}" role="tabpanel" aria-labelledby="headingRsync">
+                        <div id="panelCollapseRsync" class="panel-collapse collapse #{!settingsWrapper.HTTPUpload ? 'show' : ''}" aria-labelledby="headingRsync">
                             <div class="card-body">
                                 <ui:fragment rendered="#{createDataset}">
                                     <ui:fragment rendered="#{!hasFileMetadatas}">
