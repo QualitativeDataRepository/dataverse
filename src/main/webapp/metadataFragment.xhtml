@@ -357,7 +357,7 @@
                                                               rendered="#{!templatePage and template!=null and not empty template.getInstructionsFor(dsf.datasetFieldType.name)}"/>
                                             </div>
                                             <div class="col-sm-3"/>
-                                            <div class="col-sm-9" style="padding-left:2px">
+                                            <div class="col-sm-9">
                                                 <div class="row mb-3">
                                                     <div class="form-col-container col-sm-12">
                                                         <ui:repeat value="#{dsf.datasetFieldValues}" var="dsfv"
@@ -454,9 +454,9 @@
                                         <p:fragment id="editCompoundValueFragment"
                                                     rendered="#{dsf.datasetFieldType.compound}">
                                             <p:autoUpdate/>
-                                            <div class="row">
+                                            <div class="col-sm-3">
                                                 <div id="metadata_#{dsf.datasetFieldType.name}"
-                                                     class="col-sm-3 form-label fw-bold">
+                                                     class="form-label fw-bold">
                                                     #{dsf.datasetFieldType.localeTitle}
                                                     <span class="bi bi-asterisk text-danger"
                                                           jsf:rendered="#{dsf.required}"/>
@@ -465,8 +465,8 @@
                                                           title="#{dsf.datasetFieldType.localeDescription}"></span>
                                                 </div>
 
-                                                <div class="col-sm-7">
-                                                    <ui:fragment rendered="#{templatePage}">
+                                                <ui:fragment rendered="#{templatePage}">
+                                                    <div>
                                                         <h:outputLabel for="compinstr"
                                                                        value="#{bundle['template.instructions.label']} "
                                                                        title="#{bundle['template.instructions.label.tip']}"
@@ -477,15 +477,13 @@
                                                             <p:inputText
                                                                     value="#{TemplatePage.template.instructionsMap[dsf.datasetFieldType.name]}"/>
                                                         </p:inplace>
-                                                    </ui:fragment>
-                                                    <h:outputText
-                                                            value="#{template.getInstructionsFor(dsf.datasetFieldType.name)}"
-                                                            rendered="#{!templatePage and template != null and ! empty template.getInstructionsFor(dsf.datasetFieldType.name)}"/>
-                                                </div>
+                                                    </div>
+                                                </ui:fragment>
+                                                <h:outputText
+                                                        value="#{template.getInstructionsFor(dsf.datasetFieldType.name)}"
+                                                        rendered="#{!templatePage and template != null and ! empty template.getInstructionsFor(dsf.datasetFieldType.name)}"/>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-sm-3"/>
-                                                <div class="col-sm-9" style="padding-left:2px">
+                                            <div class="col-sm-9">
                                                     <div class="row mb-3 form-col-container dataset-field-values">
                                                         <ui:fragment
                                                                 rendered="#{!dsf.required and dsf.hasRequiredChildren}">
@@ -616,7 +614,6 @@
                                                         </ui:repeat>
                                                     </div>
                                                 </div>
-                                            </div>
                                         </p:fragment>
                                     </div>
                                 </ui:repeat>
