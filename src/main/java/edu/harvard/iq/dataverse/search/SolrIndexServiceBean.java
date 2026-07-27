@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -53,6 +54,8 @@ import org.apache.solr.common.SolrInputDocument;
 public class SolrIndexServiceBean {
 
     private static final Logger logger = Logger.getLogger(SolrIndexServiceBean.class.getCanonicalName());
+
+    private static final AtomicBoolean indexingInProgress = new AtomicBoolean(false);
 
     @EJB
     private SolrIndexServiceBean self; // Self-injection to allow calling methods in new transactions (from other methods in this bean)
@@ -191,8 +194,18 @@ public class SolrIndexServiceBean {
         }
     }
 
+    public boolean asyncIndexAllPermissions() {
+        if (!indexingInProgress.compareAndSet(false, true)) {
+            logger.info("Asynchronous indexing of all permissions is already in progress. Skipping this invocation.");
+            return false;
+        }
+        self.doAsyncIndexAllPermissions();
+        return true;
+    }
+
     @Asynchronous
-    public void asyncIndexAllPermissions() {
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public void doAsyncIndexAllPermissions() {
         logger.info("Starting asynchronous indexing of all permissions");
         long startTime = System.currentTimeMillis();
 
@@ -242,6 +255,8 @@ public class SolrIndexServiceBean {
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error during asynchronous permission indexing", e);
+        } finally {
+            indexingInProgress.set(false);
         }
     }
 
