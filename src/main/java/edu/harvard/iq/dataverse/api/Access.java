@@ -2236,7 +2236,7 @@ public class Access extends AbstractApiBean {
         User requestor = getRequestor(user);
         // PrivateUrlUser access to draft files is exempt from guestbook responses in JSF https://github.com/IQSS/dataverse/issues/12535
         if (requestor instanceof PrivateUrlUser) {
-            exempt = (ds.getId() == ((PrivateUrlUser) user).getDatasetId());
+            exempt = (ds.getId() == ((PrivateUrlUser) requestor).getDatasetId());
         }
         boolean required = !exempt && ds.hasEnabledGuestbook() && !ds.getEffectiveGuestbookEntryAtRequest();
         boolean wasWrittenInPost = false;
