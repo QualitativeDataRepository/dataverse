@@ -24,7 +24,8 @@ public class PrivateUrlUser implements User {
      * is a DvObject.
      */
     private final long datasetId;
-    private final boolean anonymizedAccess; 
+    private final boolean anonymizedAccess;
+    private String token = null;
 
     public PrivateUrlUser(long datasetId) {
         this(datasetId, false);
@@ -42,7 +43,14 @@ public class PrivateUrlUser implements User {
     public boolean hasAnonymizedAccess() {
         return anonymizedAccess;
     }
-    
+
+    public String getToken() {
+        return token;
+    }
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     /**
      * By always returning false for isAuthenticated(), we prevent a
      * name from appearing in the corner as well as preventing an account page
