@@ -2233,14 +2233,14 @@ public class Access extends AbstractApiBean {
     private boolean checkGuestbookRequiredResponse(User user, UriInfo uriInfo, Dataset ds, String gbrids) throws WebApplicationException {
         // Check if guestbook response is required
         boolean exempt = false;
+        User requestor = getRequestor(user);
         // PrivateUrlUser access to draft files is exempt from guestbook responses in JSF https://github.com/IQSS/dataverse/issues/12535
-        if (user instanceof PrivateUrlUser) {
+        if (requestor instanceof PrivateUrlUser) {
             exempt = (ds.getId() == ((PrivateUrlUser) user).getDatasetId());
         }
         boolean required = !exempt && ds.hasEnabledGuestbook() && !ds.getEffectiveGuestbookEntryAtRequest();
         boolean wasWrittenInPost = false;
         if (required) {
-            User requestor = getRequestor(user);
             if (requestor instanceof AuthenticatedUser && permissionService.userOn(requestor, ds).has(Permission.EditDataset)) {
                 required = false;
             }
