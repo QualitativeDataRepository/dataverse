@@ -188,13 +188,15 @@ public class Access extends AbstractApiBean {
         
         // This will throw a ForbiddenException if access isn't authorized:
         checkAuthorization(req.getUser(), df);
-        if (checkGuestbookRequiredResponse(req.getUser(), uriInfo, df.getOwner(), gbrids)) {
+        if (checkGuestbookRequiredResponse(req.getUser(), uriInfo, df, gbrids)) {
             throw new BadRequestException(BundleUtil.getStringFromBundle("access.api.download.failure.guestbookResponseMissing", getGuestbookIdFromDatafile(df)));
         }
-        // Assumes gbrecs is always true if gbrids is sent
-        if (gbrecs != true && df.isReleased()) {
+        if(!gbrecs && StringUtil.nonEmpty(gbrids)) {
+            throw new BadRequestException(BundleUtil.getStringFromBundle("access.api.download.failure.submittingGuestbookResponseTwice"));
+        }
+        if (!gbrecs && df.isReleased()) {
             // Write Guestbook record if not done previously and file is released
-            GuestbookResponse gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, getRequestor(req.getUser()));
+            GuestbookResponse gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, req.getUser());
             guestbookResponseService.save(gbr);
             MakeDataCountEntry entry = new MakeDataCountEntry(uriInfo, headers, dvRequestService, df);
             mdcLogService.logEntry(entry);
@@ -319,13 +321,15 @@ public class Access extends AbstractApiBean {
                
         // This will throw a ForbiddenException if access isn't authorized:
         checkAuthorization(req.getUser(), df);
-        if (checkGuestbookRequiredResponse(req.getUser(), uriInfo, df.getOwner(), gbrids)) {
+        if (checkGuestbookRequiredResponse(req.getUser(), uriInfo, df, gbrids)) {
             return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.download.failure.guestbookResponseMissing", getGuestbookIdFromDatafile(df)));
         }
-        // Assumes gbrecs is always true if gbrids is sent
-        if (gbrecs != true && df.isReleased()){
+        if(!gbrecs && StringUtil.nonEmpty(gbrids)) {
+            throw new BadRequestException(BundleUtil.getStringFromBundle("access.api.download.failure.submittingGuestbookResponseTwice"));
+        }
+        if (!gbrecs && df.isReleased()){
             // Write Guestbook record if not done previously and file is released
-            gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, getRequestor(req.getUser()));
+            gbr = guestbookResponseService.initAPIGuestbookResponse(df.getOwner(), df, session, req.getUser());
         }
 
         DownloadInfo dInfo = new DownloadInfo(df);
@@ -508,12 +512,12 @@ public class Access extends AbstractApiBean {
         }
 
         // Handle Guestbook Responses
+        String displayName = "";
         String gbrids = null;
         DataFile firstDatafile = datafiles.getFirst();
         Dataset ds = firstDatafile.getOwner();
 
-        boolean guestbookResponseRequired = checkGuestbookRequiredResponse(user, uriInfo, ds, null);
-        // ToDo - should a guestbook cause a response even for draft files?
+        boolean guestbookResponseRequired = checkGuestbookRequiredResponse(user, uriInfo, datafiles, null);
         if (guestbookResponseRequired) {
             try {
                 GuestbookResponse gbr = getGuestbookResponseFromBody(firstDatafile, GuestbookResponse.DOWNLOAD, jsonBody, user);
@@ -1235,7 +1239,7 @@ public class Access extends AbstractApiBean {
         String customZipServiceUrl = settingsService.getValueForKey(SettingsServiceBean.Key.CustomZipDownloadServiceUrl);
         boolean useCustomZipService = customZipServiceUrl != null;
 
-        User user = getRequestor(getRequestUser(crc));
+        User user = getRequestUser(crc);
         DataverseRequest req = createDataverseRequest(user);
 
         Boolean getOrig = false;
@@ -1263,9 +1267,6 @@ public class Access extends AbstractApiBean {
         }
         if(!selectedDataFiles.isEmpty()) {
 
-            Boolean guestbookResponseRequired = checkGuestbookRequiredResponse(user, uriInfo, selectedDataFiles.getFirst().getOwner(), gbrids);
-            logger.fine("Downloading" + fileIdsList.size() + " files. GBR required: " + guestbookResponseRequired);
-
             for (DataFile df : selectedDataFiles) {
                 if (isAccessAuthorized(user, df)) {
                     authorizedDatafiles.add(df);
@@ -1274,6 +1275,9 @@ public class Access extends AbstractApiBean {
             if (authorizedDatafiles.isEmpty()) {
                 throw new ForbiddenException();
             }
+            Boolean guestbookResponseRequired = checkGuestbookRequiredResponse(user, uriInfo, authorizedDatafiles, gbrids);
+            logger.fine("Downloading" + fileIdsList.size() + " files. GBR required: " + guestbookResponseRequired);
+
             if (guestbookResponseRequired) {
                 return error(BAD_REQUEST, BundleUtil.getStringFromBundle("access.api.download.failure.guestbookResponseMissing", getGuestbookIdFromDatafile(authorizedDatafiles.getFirst())));
             } else if (!donotwriteGBResponse) {
@@ -2229,42 +2233,55 @@ public class Access extends AbstractApiBean {
         jsonObjectBuilder.add("canEditOwnerDataset", permissionService.userOn(requestUser, dataFile.getOwner()).has(Permission.EditDataset));
         return ok(jsonObjectBuilder);
     }
+    private boolean checkGuestbookRequiredResponse(User user, UriInfo uriInfo, DataFile df, String gbrids) throws WebApplicationException {
+        return checkGuestbookRequiredResponse(user, uriInfo, Collections.singletonList(df), gbrids);
+    }
 
-    private boolean checkGuestbookRequiredResponse(User user, UriInfo uriInfo, Dataset ds, String gbrids) throws WebApplicationException {
+    private boolean checkGuestbookRequiredResponse(User user, UriInfo uriInfo, List<DataFile> authorizedFiles, String gbrids) throws WebApplicationException {
         // Check if guestbook response is required
-        boolean exempt = false;
-        User requestor = getRequestor(user);
-        // PrivateUrlUser access to draft files is exempt from guestbook responses in JSF https://github.com/IQSS/dataverse/issues/12535
-        if (requestor instanceof PrivateUrlUser) {
-            exempt = (ds.getId() == ((PrivateUrlUser) requestor).getDatasetId());
-        }
-        boolean required = !exempt && ds.hasEnabledGuestbook() && !ds.getEffectiveGuestbookEntryAtRequest();
-        boolean wasWrittenInPost = false;
+        // All files should be in the same dataset (assume this is checked by callers)
+        Dataset ds = authorizedFiles.get(0).getOwner();
+        boolean required = ds.hasEnabledGuestbook() && !ds.getEffectiveGuestbookEntryAtRequest();
         if (required) {
-            if (requestor instanceof AuthenticatedUser && permissionService.userOn(requestor, ds).has(Permission.EditDataset)) {
-                required = false;
-            }
-            // Check if we are downloading a thumbnail image which doesn't require a guestbook response
-            boolean imageThumb = uriInfo.getQueryParameters().containsKey("imageThumb");
-            if (imageThumb) {
-                required = false;
-            }
-
-            if (required && gbrids != null && !gbrids.isEmpty()) {
+            //Check gbrids first - relatively fast and the user thought it was needed.
+            if (StringUtil.nonEmpty(gbrids)) {
                 try {
                     // verify that this id is good
-                    GuestbookResponse gbr = guestbookResponseService.findById(Long.valueOf(gbrids));
-                    if (gbr == null) {
+                    Object[] gbrData = guestbookResponseService.getDatasetIdAndResponseTime(Long.valueOf(gbrids));
+                    if (gbrData == null) {
                         throw new NotFoundException("GuestbookResponse Not Found for id:" + gbrids);
                     }
-                    Long delta = Instant.now().toEpochMilli() - gbr.getResponseTime().getTime();
-                    wasWrittenInPost = gbr.getDataset().getId().equals(ds.getId()) && delta <= (GUESTBOOK_RESPONSE_SIGNEDURL_TIMEOUT_MINUTES * 60000L);
+                    Long datasetId = (Long) gbrData[0];
+                    Date responseTime = (Date) gbrData[1];
+                    Long delta = Instant.now().toEpochMilli() - responseTime.getTime();
+                    return !(datasetId.equals(ds.getId()) && delta <= (GUESTBOOK_RESPONSE_SIGNEDURL_TIMEOUT_MINUTES * 60000L));
+                    // We're only checking one guestbookresponse - for performance.
                 } catch (NumberFormatException | DateTimeParseException ex) {
                     throw new BadRequestException(ex.getMessage());
                 }
             }
+
+            // Check if we are downloading a thumbnail image which doesn't require a guestbook response
+            boolean imageThumb = uriInfo.getQueryParameters().containsKey("imageThumb");
+            if (imageThumb) {
+                return false;
+            }
+
+            // Since the user is authorized to see these files (verified in callers), the question here is just whether the file is in the draft version (GB response not required) or not (GB response required)
+            // If all files are in the draft, no guestbook response required, and we can return false
+            boolean availableInDraft = true;
+            for (DataFile df : authorizedFiles) {
+                if (df.getDraftFileMetadata() == null) {
+                    availableInDraft = false;
+                    break;
+                }
+            }
+            if (availableInDraft && StringUtil.isEmpty(gbrids)) {
+                return false;
+            }
+
         }
-        return required && !wasWrittenInPost;
+        return required;
     }
 
     private GuestbookResponse getGuestbookResponseFromBody(DataFile dataFile, String type, String jsonBody, User requestor) throws JsonParseException {
@@ -2283,19 +2300,10 @@ public class Access extends AbstractApiBean {
 
     // checkAuthorization is a convenience method; it calls the boolean method
     // isAccessAuthorized(), the actual workhorse, and throws a 403 exception if not.
-    private void checkAuthorization(User initialUser, DataFile df) throws WebApplicationException {
-        User user = getRequestor(initialUser);
-        if (!isAccessAuthorized(user, df)) {
+    private void checkAuthorization(User requestUser, DataFile df) throws WebApplicationException {
+        if (!isAccessAuthorized(requestUser, df)) {
             throw new ForbiddenException();
         }        
-    }
-    private User getRequestor(User user) {
-        // CompoundAuthMechanism should find the user by API Key/Token, Workflow, etc. And for SPA the Bearer Token
-        // For JSF check if CompoundAuthMechanism couldn't find the user then try to get it from the session
-        if (session!=null && user instanceof GuestUser) {
-            user = session.getUser();
-        }
-        return user;
     }
 
     private boolean isAccessAuthorized(User requestUser, DataFile df) {
