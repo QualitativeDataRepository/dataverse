@@ -197,7 +197,7 @@ public class MakeDataCountApi extends AbstractApiBean {
                     }
                 });
 
-                JsonObjectBuilder output = Json.createObjectBuilder();
+                JsonObjectBuilder output = JsonUtil.createObjectBuilder();
                 output.add("status", "queued");
                 output.add("message", "Citation update for dataset " + pid.asString() + " has been queued for processing");
                 return ok(output);
@@ -261,7 +261,7 @@ public class MakeDataCountApi extends AbstractApiBean {
         
         logger.fine("Retrieving Citations from " + url.toString());
         boolean nextPage = true;
-        JsonArrayBuilder dataBuilder = Json.createArrayBuilder();
+        JsonArrayBuilder dataBuilder = JsonUtil.createArrayBuilder();
         
         try {
             do {
@@ -357,7 +357,7 @@ public class MakeDataCountApi extends AbstractApiBean {
             return error(Status.BAD_REQUEST,e.getMessage());
         }
         if (mdcps != null) {
-            JsonObjectBuilder output = Json.createObjectBuilder();
+            JsonObjectBuilder output = JsonUtil.createObjectBuilder();
             output.add("yearMonth", mdcps.getYearMonth());
             output.add("state", mdcps.getState().name());
             output.add("stateChangeTimestamp", mdcps.getStateChangeTime().toString());
@@ -388,7 +388,7 @@ public class MakeDataCountApi extends AbstractApiBean {
             return badRequest(e.getMessage());
         }
 
-        JsonObjectBuilder output = Json.createObjectBuilder();
+        JsonObjectBuilder output = JsonUtil.createObjectBuilder();
         output.add("yearMonth", mdcps.getYearMonth());
         output.add("state", mdcps.getState().name());
         output.add("stateChangeTimestamp", mdcps.getStateChangeTime().toString());
