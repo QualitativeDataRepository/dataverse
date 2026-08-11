@@ -2098,7 +2098,7 @@ public class DatasetVersion implements Serializable {
             Integer maxFilesForDownloadEntries = JvmSettings.EXPORTS_SCHEMA_DOT_ORG_MAX_FILES_FOR_DOWNLOAD_ENTRIES.lookupOptional(Integer.class).orElse(Integer.MAX_VALUE);
             if (fileMetadatasSorted.size() <= maxFilesForDownloadEntries) {
 
-                JsonArrayBuilder fileArray = Json.createArrayBuilder();
+                JsonArrayBuilder fileArray = JsonUtil.createArrayBuilder();
                 String dataverseSiteUrl = SystemConfig.getDataverseSiteUrlStatic();
                 for (FileMetadata fileMetadata : fileMetadatasSorted) {
                     JsonObjectBuilder fileObject = NullSafeJsonBuilder.jsonObjectBuilder();
@@ -2137,16 +2137,16 @@ public class DatasetVersion implements Serializable {
                 }
 
                 // Create the potentialAction object
-                JsonObjectBuilder potentialAction = Json.createObjectBuilder()
+                JsonObjectBuilder potentialAction = JsonUtil.createObjectBuilder()
                         .add("@type", "SearchAction")
-                        .add("target", Json.createObjectBuilder()
+                        .add("target", JsonUtil.createObjectBuilder()
                                 .add("@type", "EntryPoint")
-                                .add("contentType", Json.createArrayBuilder().add("*/*"))
+                                .add("contentType", JsonUtil.createArrayBuilder().add("*/*"))
                                 .add("urlTemplate", SystemConfig.getDataverseSiteUrlStatic() + "/api/access/datafile/{fileId}")
                                 .add("description", "Download each file from the dataset based on file id")
-                                .add("httpMethod", Json.createArrayBuilder().add("GET")))
-                        .add("query-input", Json.createArrayBuilder()
-                                .add(Json.createObjectBuilder()
+                                .add("httpMethod", JsonUtil.createArrayBuilder().add("GET")))
+                        .add("query-input", JsonUtil.createArrayBuilder()
+                                .add(JsonUtil.createObjectBuilder()
                                         .add("@type", "PropertyValueSpecification")
                                         .add("valueName", "fileId")
                                         .add("description", "Id of the desired file")

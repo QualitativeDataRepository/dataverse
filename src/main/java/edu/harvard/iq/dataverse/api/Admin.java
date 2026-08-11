@@ -22,7 +22,6 @@ import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsValidationException;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.cache.CacheFactoryBean;
-import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
 import edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder;
 import edu.harvard.iq.dataverse.validation.EMailValidator;
@@ -1319,10 +1318,10 @@ public class Admin extends AbstractApiBean {
     public Response listSuperusers() {
         try {
             List<AuthenticatedUser> superusers = authSvc.findSuperUsers();
-            JsonArrayBuilder userArray = Json.createArrayBuilder();
+            JsonArrayBuilder userArray = JsonUtil.createArrayBuilder();
 
             for (AuthenticatedUser user : superusers) {
-                JsonObjectBuilder userObject = Json.createObjectBuilder()
+                JsonObjectBuilder userObject = JsonUtil.createObjectBuilder()
                     .add("id", user.getId())
                     .add("name", user.getName())
                     .add("email", user.getEmail());
@@ -1764,7 +1763,7 @@ public class Admin extends AbstractApiBean {
         if (!u.isSuperuser()) {
             return error(Status.FORBIDDEN, BundleUtil.getStringFromBundle("admin.api.auth.mustBeSuperUser"));
         }
-        JsonObjectBuilder info = Json.createObjectBuilder();
+        JsonObjectBuilder info = JsonUtil.createObjectBuilder();
 
         List<String> accessibleDriverIds = DataAccess.getIdsForStorageDriversWithReadableFiles();
         List<Long> affectedFileIds = fileService.selectFilesWithMissingSizes(accessibleDriverIds);
