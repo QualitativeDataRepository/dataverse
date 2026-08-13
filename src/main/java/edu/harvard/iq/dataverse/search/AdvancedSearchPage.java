@@ -15,11 +15,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import jakarta.ejb.EJB;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -267,6 +272,44 @@ public class AdvancedSearchPage implements java.io.Serializable {
     public Collection<ControlledVocabularyValue> getDvFieldSubjectValues() {
         DatasetFieldType subjectType = datasetFieldService.findByName(DatasetFieldConstant.subject);
         return subjectType.getControlledVocabularyValues();
+    }
+
+    public DatasetFieldType getSubjectDatasetFieldType() {
+        return datasetFieldService.findByName(DatasetFieldConstant.subject);
+    }
+
+    private final Set<Long> slowModeFieldTypeIds = new HashSet<>();
+
+    public List<ControlledVocabularyValue> completeControlledVocabularyValue(String query) {
+        UIComponent component = UIComponent.getCurrentComponent(FacesContext.getCurrentInstance());
+        DatasetFieldType dsft = (DatasetFieldType) component.getAttributes().get("dsft");
+        if (dsft == null || dsft.getControlledVocabularyValues() == null || query == null) {
+            return Collections.emptyList();
+        }
+
+        List<ControlledVocabularyValue> results = new ArrayList<>();
+        String queryLower = query.toLowerCase();
+
+        for (ControlledVocabularyValue cvv : dsft.getControlledVocabularyValues()) {
+            String localeLabel = cvv.getLocaleStrValue();
+            if (localeLabel != null && localeLabel.toLowerCase().contains(queryLower)) {
+                results.add(cvv);
+            }
+            if (results.size() >= 101) {
+                break;
+            }
+        }
+        return results;
+    }
+
+    public boolean isSlowMode(Long fieldTypeId) {
+        return fieldTypeId != null && slowModeFieldTypeIds.contains(fieldTypeId);
+    }
+
+    public void switchToSlowMode(Long fieldTypeId) {
+        if (fieldTypeId != null) {
+            slowModeFieldTypeIds.add(fieldTypeId);
+        }
     }
 
     public String getDsPublicationDate() {
