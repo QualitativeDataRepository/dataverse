@@ -245,7 +245,7 @@
                                                                     </li>
                                                                     <!-- Original Format too big -->
                                                                     <ui:fragment rendered="#{tooLargeToDownloadOriginal}">                                                                                                                               
-                                                                        <h:outputText value="#{bundle['dataset.accessBtn.original.too.big']}">                                           
+                                                                        <h:outputText escape='false' value="#{bundle['dataset.accessBtn.original.too.big']}">
                                                                         </h:outputText>                                                            
                                                                     </ui:fragment>
                                                                     <!-- DOWNLOAD ARCHIVAL FILES (TABULAR FILES PRESENT) -->
@@ -261,14 +261,14 @@
                                                                     </li>
                                                                     <!-- Archival Format too big -->
                                                                     <ui:fragment rendered="#{tooLargeToDownloadArchival}">                                                                                                                               
-                                                                        <h:outputText value="#{bundle['dataset.accessBtn.archival.too.big']}">                                           
+                                                                        <h:outputText escape='false' value="#{bundle['dataset.accessBtn.archival.too.big']}">
                                                                         </h:outputText>                                                            
                                                                     </ui:fragment>
                                                                 </ui:fragment>
                                                             </ui:fragment>
                                                             <!-- Can Download, but Download either format too big-->
                                                             <ui:fragment rendered="#{tooLargeToDownload}">                                                                                                                               
-                                                                <h:outputText value="#{bundle['dataset.accessBtn.too.big']}">                                           
+                                                                <h:outputText escape='false' value="#{bundle['dataset.accessBtn.too.big']}">
                                                                 </h:outputText>                                                            
                                                             </ui:fragment>
                                                         </ui:fragment>
