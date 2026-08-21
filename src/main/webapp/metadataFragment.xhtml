@@ -327,10 +327,11 @@
                                         <!-- Primitive fields -->
                                         <p:fragment id="editPrimitiveValueFragment"
                                                     rendered="#{dsf.datasetFieldType.primitive}">
+                                            <c:set var="vocabSize" value="#{dsf.datasetFieldType.controlledVocabularyValues.size()}"/>
                                             <p:autoUpdate/>
                                             <div>
                                                 <h:outputLabel
-                                                        for="#{dsf.datasetFieldType.controlledVocabulary ? (!dsf.datasetFieldType.allowMultiples ? 'unique1_focus' : 'unique2_focus') : ('fieldvaluelist:0:'.concat(((dsf.datasetFieldType.fieldType == 'TEXTBOX') ? 'description' : cvocConf.containsKey(dsf.datasetFieldType.id)? 'cvocInputText': 'inputText')))}"
+                                                        for="#{dsf.datasetFieldType.controlledVocabulary ? (!dsf.datasetFieldType.allowMultiples ? (vocabSize gt 500 and not ControlledVocabularyAutocompleteBean.isSlowMode(dsf.datasetFieldType.id) ? 'unique1_autocomplete_input' : 'unique1_focus') : (vocabSize gt 500 and not ControlledVocabularyAutocompleteBean.isSlowMode(dsf.datasetFieldType.id) ? 'unique2_autocomplete_input' : 'unique2_focus')) : ('fieldvaluelist:0:'.concat(((dsf.datasetFieldType.fieldType == 'TEXTBOX') ? 'description' : cvocConf.containsKey(dsf.datasetFieldType.id)? 'cvocInputText': 'inputText')))}"
                                                         styleClass="col-sm-3 form-label">
                                                     #{dsf.datasetFieldType.localeTitle}
                                                     <span class="bi bi-asterisk text-danger"
@@ -396,7 +397,6 @@
                                                         </ui:repeat>
                                                         <ui:fragment
                                                                 rendered="#{dsf.datasetFieldType.controlledVocabulary}">
-                                                            <c:set var="vocabSize" value="#{dsf.datasetFieldType.controlledVocabularyValues.size()}"/>
                                                             <div class="row mb-3 dataset-field-values">
                                                                 <div class="form-col-container col-sm-9 edit-field">
                                                                     <h:panelGroup id="vocab_widget_container" layout="block">
@@ -424,7 +424,11 @@
                                                                                     var="cvv" itemLabel="#{cvv.getLocaleStrValue(mdLangCode)}" itemValue="#{cvv}"
                                                                                     forceSelection="true" dropdown="true" dropdownMode="current" minQueryLength="2" scrollHeight="250"
                                                                                     maxResults="100" moreText="#{bundle['controlledvocabulary.autocomplete.moreText']}"
-                                                                                    placeholder="#{bundle['controlledvocabulary.autocomplete.watermark']}">
+                                                                                    placeholder="#{bundle['controlledvocabulary.autocomplete.watermark']}"
+                                                                                    style="width: auto !important; max-width:100%; min-width:200px;"
+                                                                                    styleClass="DropdownPopup" panelStyleClass="DropdownPopupPanel"
+                                                                                    inputStyleClass="form-control"
+                                                                                    dropdownAriaLabel="#{bundle.select}">
                                                                         <f:attribute name="dsf" value="#{dsf}"/>
                                                                     </p:autoComplete>
                                                                     <!--
@@ -458,7 +462,10 @@
                                                                                     var="cvv" itemLabel="#{cvv.getLocaleStrValue(mdLangCode)}" itemValue="#{cvv}"
                                                                                     forceSelection="true" dropdown="true" dropdownMode="current" minQueryLength="2" scrollHeight="250"
                                                                                     multiple="true" maxResults="100" moreText="#{bundle['controlledvocabulary.autocomplete.moreText']}"
-                                                                                    placeholder="#{bundle['controlledvocabulary.autocomplete.watermark']}">
+                                                                                    placeholder="#{bundle['controlledvocabulary.autocomplete.watermark']}"
+                                                                                    styleClass="DropdownPopup" panelStyleClass="DropdownPopupPanel"
+                                                                                    inputStyleClass="form-control"
+                                                                                    dropdownAriaLabel="#{bundle.select}">
                                                                         <f:attribute name="dsf" value="#{dsf}"/>
                                                                     </p:autoComplete>
                                                                     <p:commandLink title="#{bundle['controlledvocabulary.showAll.tooltip']}"
@@ -535,6 +542,7 @@
                                                                         <ui:repeat
                                                                                 value="#{compoundValue.childDatasetFields}"
                                                                                 var="subdsf">
+                                                                            <c:set var="subVocabSize" value="#{subdsf.datasetFieldType.controlledVocabularyValues.size()}"/>
                                                                             <div class="form-col-container #{subdsf.datasetFieldType.fieldType == 'TEXTBOX' ? 'col-sm-12' : 'col-sm-6'}">
                                                                                 <ui:fragment
                                                                                         rendered="#{subdsf.datasetFieldType.name == 'dsDescriptionValue'}">
@@ -544,7 +552,7 @@
                                                                                                 escape="false"/>
                                                                                     </p>
                                                                                 </ui:fragment>
-                                                                                <label jsf:for="#{subdsf.datasetFieldType.controlledVocabulary ? 'cvv_focus' : subdsf.datasetFieldType.fieldType == 'TEXTBOX' ? 'description' : cvocConf.containsKey(subdsf.datasetFieldType.id) ? 'cvocInputText' : cvocConf.containsKey(dsf.datasetFieldType.id) ? 'cvocInputText2' : 'inputText'}"
+                                                                                <label jsf:for="#{subdsf.datasetFieldType.controlledVocabulary ? (subVocabSize gt 500 and not ControlledVocabularyAutocompleteBean.isSlowMode(subdsf.datasetFieldType.id) ? 'cvv_autocomplete_input' : 'cvv_focus') : subdsf.datasetFieldType.fieldType == 'TEXTBOX' ? 'description' : cvocConf.containsKey(subdsf.datasetFieldType.id) ? 'cvocInputText' : cvocConf.containsKey(dsf.datasetFieldType.id) ? 'cvocInputText2' : 'inputText'}"
                                                                                        class="form-label">
                                                                                     #{subdsf.datasetFieldType.localeTitle}
                                                                                     <span class="bi bi-asterisk text-danger"
@@ -570,8 +578,7 @@
                                                                                 <!-- MOVED SELECT ONE TO dataFieldForEdit -->
                                                                                 <div jsf:rendered="#{subdsf.datasetFieldType.controlledVocabulary}"
                                                                                      data-cvoc-managed-field="#{settingsWrapper.isCvocField(subdsf.datasetFieldType.id)? subdsf.datasetFieldType.name : ''}">
-                                                                                    <c:set var="subVocabSize" value="#{subdsf.datasetFieldType.controlledVocabularyValues.size()}"/>
-                                                                                    <h:panelGroup id="vocab_widget_sub_container" layout="block">
+                                                                                     <h:panelGroup id="vocab_widget_sub_container" layout="block">
                                                                                     <p:selectOneMenu id="cvv"
                                                                                                      value="#{subdsf.singleControlledVocabularyValue}"
                                                                                                      converter="controlledVocabularyValueConverter"
@@ -595,7 +602,11 @@
                                                                                                     var="cvv" itemLabel="#{cvv.getLocaleStrValue(mdLangCode)}" itemValue="#{cvv}"
                                                                                                     forceSelection="true" dropdown="true" dropdownMode="current" minQueryLength="2" scrollHeight="250"
                                                                                                     maxResults="100" moreText="#{bundle['controlledvocabulary.autocomplete.moreText']}"
-                                                                                                    placeholder="#{bundle['controlledvocabulary.autocomplete.watermark']}">
+                                                                                                    placeholder="#{bundle['controlledvocabulary.autocomplete.watermark']}"
+                                                                                                    style="width: auto !important; max-width:100%; min-width:200px;"
+                                                                                                    styleClass="DropdownPopup" panelStyleClass="DropdownPopupPanel"
+                                                                                                    inputStyleClass="form-control"
+                                                                                                    dropdownAriaLabel="#{bundle.select}">
                                                                                         <f:attribute name="dsf" value="#{subdsf}"/>
                                                                                     </p:autoComplete>
 
@@ -634,7 +645,10 @@
                                                                                                         var="cvv" itemLabel="#{cvv.getLocaleStrValue(mdLangCode)}" itemValue="#{cvv}"
                                                                                                         forceSelection="true" dropdown="true" dropdownMode="current" minQueryLength="2" scrollHeight="250"
                                                                                                         multiple="true" maxResults="100" moreText="#{bundle['controlledvocabulary.autocomplete.moreText']}"
-                                                                                                        placeholder="#{bundle['controlledvocabulary.autocomplete.watermark']}">
+                                                                                                        placeholder="#{bundle['controlledvocabulary.autocomplete.watermark']}"
+                                                                                                        styleClass="DropdownPopup" panelStyleClass="DropdownPopupPanel"
+                                                                                                        inputStyleClass="form-control"
+                                                                                                        dropdownAriaLabel="#{bundle.select}">
                                                                                             <f:attribute name="dsf" value="#{subdsf}"/>
                                                                                         </p:autoComplete>
                                                                                         <p:commandLink title="#{bundle['controlledvocabulary.showAll.tooltip']}"
