@@ -362,7 +362,7 @@
                                         <!-- END: DOWNLOAD/ACCESS DATASET -->
 
                                         <!-- PUBLISH DATASET -->
-                                        <div class="btn-group w-100" jsf:rendered="#{showSubmitForReviewLink or showReturnToAuthorLink or showPublishLink or latestVersionInReview}">
+                                        <div class="btn-group w-100" jsf:rendered="#{showSubmitForReviewLink or showReturnToAuthorLink or showPublishLink}">
                                             <div class="btn-group w-100">
                                                 <!-- Publish BTN -->
                                                 <h:outputLink value="#" disabled="#{DatasetPage.lockedFromPublishing or !DatasetPage.hasValidTermsOfAccess or !valid}">
@@ -1483,7 +1483,7 @@
                         <p class="text-warning"><span class="bi bi-exclamation-triangle-fill"/> #{bundle['file.deaccessionDialog.deaccessionDataset.tip']}</p>
                         <div class="button-block">
                             <h:commandButton styleClass="btn btn-secondary" value="#{bundle.yes}"
-                                            onclick="PF('deaccessionAllConfirmation').hide();PF('deaccessionBlock').hide();PF('blockDatasetForm').hide();" 
+                                            onclick="PF('deaccessionAllConfirmation').hide();PF('deaccessionBlock').hide();PF('blockDatasetForm').hide();"
                                             action="#{DatasetPage.deaccessionVersions}"/>
                             <button class="btn btn-link" onclick="PF('deaccessionAllConfirmation').hide();PF('blockDatasetForm').hide();" type="button">
                                 #{bundle.no}
@@ -1854,7 +1854,7 @@
                         </div>
                         <div class="button-block">
                             <p:commandButton id="saveLinkButton" styleClass="btn btn-secondary"
-                                           update="linkNameContent @([id$=Messages])" 
+                                           update="linkNameContent @([id$=Messages])"
                                            oncomplete="if (args &amp;&amp; !args.validationFailed) linkDatasetCommand();"
                                            value="#{bundle['dataset.link.save']}">
                                 <f:param name="DO_DS_LINK_VALIDATION" value="true"/>
