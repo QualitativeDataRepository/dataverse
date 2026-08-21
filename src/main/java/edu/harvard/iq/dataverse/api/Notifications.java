@@ -8,34 +8,40 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import edu.harvard.iq.dataverse.util.json.JsonUtil;
 import jakarta.ejb.Stateless;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObjectBuilder;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 import static edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder.jsonObjectBuilder;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Stateless
 @Path("notifications")
+@Tag(name = "Notifications", description = "User notification lookup and notification preference operations.")
 public class Notifications extends AbstractApiBean {
 
     @GET
     @AuthRequired
     @Path("/all")
+    @Operation(summary = "Lists user notifications",
+            description = "Returns notifications for the authenticated user with optional unread filtering, formatting, and pagination.")
     public Response getAllNotificationsForUser(@Context ContainerRequestContext crc,
+                                               @Parameter(description = "Limit results to unread notifications.")
                                                @QueryParam("onlyUnread") boolean onlyUnread,
+                                               @Parameter(description = "Format notifications for in-app display.")
                                                @QueryParam("inAppNotificationFormat") boolean inAppNotificationFormat,
+                                               @Parameter(description = "Maximum number of notifications to return.")
                                                @QueryParam("limit") Integer limit,
+                                               @Parameter(description = "Number of notifications to skip before returning results.")
                                                @QueryParam("offset") Integer offset) {
         try {
             AuthenticatedUser authenticatedUser = getRequestAuthenticatedUserOrDie(crc);
@@ -50,11 +56,13 @@ public class Notifications extends AbstractApiBean {
     @GET
     @AuthRequired
     @Path("/unreadCount")
+    @Operation(summary = "Returns unread notification count",
+            description = "Returns the number of unread notifications for the authenticated user.")
     public Response getUnreadNotificationsCountForUser(@Context ContainerRequestContext crc) {
         try {
             AuthenticatedUser au = getRequestAuthenticatedUserOrDie(crc);
             long unreadCount = userNotificationSvc.getUnreadNotificationCountByUser(au.getId());
-            return ok(Json.createObjectBuilder()
+            return ok(JsonUtil.createObjectBuilder()
                     .add("unreadCount", unreadCount));
         } catch (WrappedResponse wr) {
             return wr.getResponse();
@@ -69,7 +77,11 @@ public class Notifications extends AbstractApiBean {
     @PUT
     @AuthRequired
     @Path("/{id}/markAsRead")
-    public Response markNotificationAsReadForUser(@Context ContainerRequestContext crc, @PathParam("id") long id) {
+    @Operation(summary = "Marks a notification as read",
+            description = "Marks one notification as read when it belongs to the authenticated user.")
+    public Response markNotificationAsReadForUser(@Context ContainerRequestContext crc,
+            @Parameter(description = "Notification id to mark as read.", required = true)
+            @PathParam("id") long id) {
         try {
             AuthenticatedUser au = getRequestAuthenticatedUserOrDie(crc);
             Long userId = au.getId();
@@ -92,7 +104,11 @@ public class Notifications extends AbstractApiBean {
     @DELETE
     @AuthRequired
     @Path("/{id}")
-    public Response deleteNotificationForUser(@Context ContainerRequestContext crc, @PathParam("id") long id) {
+    @Operation(summary = "Deletes a notification",
+            description = "Deletes one notification when it belongs to the authenticated user.")
+    public Response deleteNotificationForUser(@Context ContainerRequestContext crc,
+            @Parameter(description = "Notification id to delete.", required = true)
+            @PathParam("id") long id) {
         try {
             AuthenticatedUser authenticatedUser = getRequestAuthenticatedUserOrDie(crc);
             Long userId = authenticatedUser.getId();
@@ -112,13 +128,16 @@ public class Notifications extends AbstractApiBean {
     @GET
     @AuthRequired
     @Path("/mutedEmails")
+    @Operation(summary = "Lists muted notification emails",
+            description = "Returns notification types whose emails are muted for the authenticated user.")
     public Response getMutedEmailsForUser(@Context ContainerRequestContext crc) {
         try {
             AuthenticatedUser authenticatedUser = getRequestAuthenticatedUserOrDie(crc);
-            JsonArrayBuilder mutedEmails = Json.createArrayBuilder();
+            JsonArrayBuilder mutedEmails = JsonUtil.createArrayBuilder();
             authenticatedUser.getMutedEmails().stream().forEach(
-                    x -> mutedEmails.add(jsonObjectBuilder().add("name", x.name()).add("description", x.getDescription())));
-            JsonObjectBuilder result = Json.createObjectBuilder().add("mutedEmails", mutedEmails);
+                    x -> mutedEmails.add(jsonObjectBuilder().add("name", x.name()).add("description", x.getDescription()))
+            );
+            JsonObjectBuilder result = JsonUtil.createObjectBuilder().add("mutedEmails", mutedEmails);
             return ok(result);
         } catch (WrappedResponse wr) {
             return wr.getResponse();
@@ -128,7 +147,11 @@ public class Notifications extends AbstractApiBean {
     @PUT
     @AuthRequired
     @Path("/mutedEmails/{typeName}")
-    public Response muteEmailsForUser(@Context ContainerRequestContext crc, @PathParam("typeName") String typeName) {
+    @Operation(summary = "Mutes notification emails",
+            description = "Adds the specified notification type to the authenticated user's muted email preferences.")
+    public Response muteEmailsForUser(@Context ContainerRequestContext crc,
+            @Parameter(description = "Notification type name whose emails are muted.", required = true)
+            @PathParam("typeName") String typeName) {
         UserNotification.Type notificationType;
         try {
             notificationType = UserNotification.Type.valueOf(typeName);
@@ -150,7 +173,11 @@ public class Notifications extends AbstractApiBean {
     @DELETE
     @AuthRequired
     @Path("/mutedEmails/{typeName}")
-    public Response unmuteEmailsForUser(@Context ContainerRequestContext crc, @PathParam("typeName") String typeName) {
+    @Operation(summary = "Unmutes notification emails",
+            description = "Removes the specified notification type from the authenticated user's muted email preferences.")
+    public Response unmuteEmailsForUser(@Context ContainerRequestContext crc,
+            @Parameter(description = "Notification type name whose emails are unmuted.", required = true)
+            @PathParam("typeName") String typeName) {
         UserNotification.Type notificationType;
         try {
             notificationType = UserNotification.Type.valueOf(typeName);
@@ -172,13 +199,16 @@ public class Notifications extends AbstractApiBean {
     @GET
     @AuthRequired
     @Path("/mutedNotifications")
+    @Operation(summary = "Lists muted in-app notifications",
+            description = "Returns notification types whose in-app notifications are muted for the authenticated user.")
     public Response getMutedNotificationsForUser(@Context ContainerRequestContext crc) {
         try {
             AuthenticatedUser authenticatedUser = getRequestAuthenticatedUserOrDie(crc);
-            JsonArrayBuilder mutedNotifications = Json.createArrayBuilder();
+            JsonArrayBuilder mutedNotifications = JsonUtil.createArrayBuilder();
             authenticatedUser.getMutedNotifications().stream().forEach(
-                    x -> mutedNotifications.add(jsonObjectBuilder().add("name", x.name()).add("description", x.getDescription())));
-            JsonObjectBuilder result = Json.createObjectBuilder().add("mutedNotifications", mutedNotifications);
+                    x -> mutedNotifications.add(jsonObjectBuilder().add("name", x.name()).add("description", x.getDescription()))
+            );
+            JsonObjectBuilder result = JsonUtil.createObjectBuilder().add("mutedNotifications", mutedNotifications);
             return ok(result);
         } catch (WrappedResponse wr) {
             return wr.getResponse();
@@ -188,7 +218,11 @@ public class Notifications extends AbstractApiBean {
     @PUT
     @AuthRequired
     @Path("/mutedNotifications/{typeName}")
-    public Response muteNotificationsForUser(@Context ContainerRequestContext crc, @PathParam("typeName") String typeName) {
+    @Operation(summary = "Mutes in-app notifications",
+            description = "Adds the specified notification type to the authenticated user's muted in-app notification preferences.")
+    public Response muteNotificationsForUser(@Context ContainerRequestContext crc,
+            @Parameter(description = "Notification type name whose in-app notifications are muted.", required = true)
+            @PathParam("typeName") String typeName) {
         UserNotification.Type notificationType;
         try {
             notificationType = UserNotification.Type.valueOf(typeName);
@@ -210,7 +244,11 @@ public class Notifications extends AbstractApiBean {
     @DELETE
     @AuthRequired
     @Path("/mutedNotifications/{typeName}")
-    public Response unmuteNotificationsForUser(@Context ContainerRequestContext crc, @PathParam("typeName") String typeName) {
+    @Operation(summary = "Unmutes in-app notifications",
+            description = "Removes the specified notification type from the authenticated user's muted in-app notification preferences.")
+    public Response unmuteNotificationsForUser(@Context ContainerRequestContext crc,
+            @Parameter(description = "Notification type name whose in-app notifications are unmuted.", required = true)
+            @PathParam("typeName") String typeName) {
         UserNotification.Type notificationType;
         try {
             notificationType = UserNotification.Type.valueOf(typeName);

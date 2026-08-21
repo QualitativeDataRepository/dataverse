@@ -418,7 +418,7 @@
                                      rowIndexVar="rowNum" 
                                      rowKey="#{fileMetadata.dataFile.storageIdentifier}"
                                      rowClickSelect="false"
-                                     selection="#{EditDatafilesPage.selectedFiles}" 
+                                     selection="#{EditDatafilesPage.selectedFiles}"
                                      var="fileMetadata" 
                                      widgetVar="filesTable"
                                      emptyMessage="#{showFileUploadFragment ? bundle['file.noUploadedFiles.tip'] : bundle['file.noSelectedFiles.tip']}"
@@ -509,7 +509,7 @@
                                             <label class="form-label" for="fileDescription" style="margin-right:1em; margin-top:.5em; vertical-align:top;">
                                                 #{bundle.description}
                                             </label>
-                                            <p:inputTextarea id="fileDescription" rows="2" cols="40" value="#{fileMetadata.description}" style="width:60%; margin-top:.5em;"
+                                            <p:inputTextarea id="fileDescription" rows="2" cols="40" value="#{fileMetadata.description}" escape="false" style="width:60%; margin-top:.5em;"
                                                     placeholder="#{bundle['file.addDescription']}"/>
                                             <p:message for="fileDescription"/>
                                         </div>

@@ -5,7 +5,7 @@
      xmlns:c="jakarta.tags.core"
      xmlns:p="http://primefaces.org/ui"
      xmlns:o="http://omnifaces.org/ui"
-     xmlns:of="http://omnifaces.org/functions"
+     xmlns:Strings="http://omnifaces.org/functions"
      xmlns:jsf="jakarta.faces">
 
     <c:set var="page" value="/dataverse/#{DataversePage.dataverse.alias}"/>
@@ -734,7 +734,7 @@
                         </div>
 
                         <div>
-                          <h:outputText value="#{Strings:abbreviate(result.descriptionNoSnippet, descriptionAbbreviationThreshold)}" rendered="#{result.descriptionSnippets.size() eq 0}"/>
+                          <h:outputText value="#{Strings:abbreviate(MarkupChecker:stripAllTags(result.descriptionNoSnippet), descriptionAbbreviationThreshold)}" escape="false" rendered="#{result.descriptionSnippets.size() eq 0}"/>
                           <ui:repeat value="#{result.descriptionSnippets}" var="snippet" varStatus="varStatus"
                                    rendered="#{result.descriptionSnippets.size() gt 0}">
                             <h:outputText value="#{snippet}" escape="false"/>
