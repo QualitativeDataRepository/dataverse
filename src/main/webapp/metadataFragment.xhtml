@@ -445,7 +445,7 @@
                                                                             showHeader="#{(vocabSize ge 10) ? 'true':'false'}"
                                                                             panelStyleClass="#{vocabSize gt 500 ? 'no-selectall' : ''}"
                                                                             id="unique2"
-                                                                            rendered="#{dsf.datasetFieldType.allowMultiples}">
+                                                                            rendered="#{dsf.datasetFieldType.allowMultiples  and (vocabSize lt 501 or ControlledVocabularyAutocompleteBean.isSlowMode(dsf.datasetFieldType.id))}">
                                                                         <f:selectItems
                                                                                 value="#{dsf.datasetFieldType.controlledVocabularyValues}"
                                                                                 var="cvv"
