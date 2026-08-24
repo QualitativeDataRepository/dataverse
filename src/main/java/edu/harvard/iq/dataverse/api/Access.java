@@ -205,13 +205,7 @@ public class Access extends AbstractApiBean {
         DownloadInfo dInfo = new DownloadInfo(df);
         BundleDownloadInstance downloadInstance = new BundleDownloadInstance(dInfo);
 
-        FileMetadata fileMetadata = null;
-
-        if (fileMetadataId == null) {
-            fileMetadata = df.getFileMetadata();
-        } else {
-            fileMetadata = dataFileService.findFileMetadata(fileMetadataId);
-        }
+        FileMetadata fileMetadata = getFileMetadataToExport(df, fileMetadataId, req);
         
         downloadInstance.setFileCitationEndNote(new DataCitation(fileMetadata).toEndNoteString());
         downloadInstance.setFileCitationRIS(new DataCitation(fileMetadata).toRISString());
@@ -219,14 +213,13 @@ public class Access extends AbstractApiBean {
 
         ByteArrayOutputStream outStream = null;
         outStream = new ByteArrayOutputStream();
-        Long dfId = df.getId();
         try {
             ddiExportService.exportDataFile(
-                    dfId,
+                    df,
                     outStream,
                     null,
                     null,
-                    fileMetadataId);
+                    fileMetadata);
 
             downloadInstance.setFileDDIXML(outStream.toString());
 
@@ -686,7 +679,10 @@ public class Access extends AbstractApiBean {
         DataverseRequest req = createDataverseRequest(getRequestUser(crc));
         dataFile = findDataFileUserCanSeeOrDieWrapper(fileId, req);
         
-        if (!dataFile.isTabularData()) { 
+        // This will throw a ForbiddenException if access isn't authorized:
+        checkAuthorization(req.getUser(), dataFile);
+
+        if (!dataFile.isTabularData()) {
            throw new BadRequestException("tabular data required");
         }
         if (FileUtil.isRetentionExpired(dataFile)) {
@@ -707,12 +703,7 @@ public class Access extends AbstractApiBean {
 
         response.setHeader("Content-disposition", "attachment; filename=\"dataverse_files.zip\"");
 
-        FileMetadata fm = null;
-        if (fileMetadataId == null) {
-            fm = dataFile.getFileMetadata();
-        } else {
-            fm = dataFileService.findFileMetadata(fileMetadataId);
-        }
+        FileMetadata fm = getFileMetadataToExport(dataFile, fileMetadataId, req);
 
         String fileName = fm.getLabel().replaceAll("\\.tab$", "-ddi.xml");
 
@@ -721,14 +712,13 @@ public class Access extends AbstractApiBean {
         
         ByteArrayOutputStream outStream = null;
         outStream = new ByteArrayOutputStream();
-        Long dataFileId = dataFile.getId();
         try {
             ddiExportService.exportDataFile(
-                    dataFileId,
+                    dataFile,
                     outStream,
                     exclude,
                     include,
-                    fileMetadataId);
+                    fm);
 
             retValue = outStream.toString();
 
@@ -2304,6 +2294,33 @@ public class Access extends AbstractApiBean {
         if (!isAccessAuthorized(requestUser, df)) {
             throw new ForbiddenException();
         }        
+    }
+
+    private FileMetadata getFileMetadataToExport(DataFile dataFile, Long fileMetadataId, DataverseRequest req) {
+        FileMetadata fm = null;
+        if (fileMetadataId == null) {
+            if (permissionService.requestOn(req, dataFile.getOwner()).has(Permission.ViewUnpublishedDataset)) {
+                fm = dataFile.getFileMetadata();
+            } else {
+                try {
+                    fm = dataFile.getLatestPublishedFileMetadata();
+                } catch (UnsupportedOperationException e) {
+                    throw new ForbiddenException("No released version found");
+                }
+            }
+        } else {
+            fm = dataFile.getFileMetadatas().stream()
+                    .filter(fileMetadata -> fileMetadataId.equals(fileMetadata.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (fm == null) {
+                throw new BadRequestException("Invalid fileMetadataId for the given fileId");
+            }
+            if (!fm.getDatasetVersion().isReleased() && !permissionService.requestOn(req, dataFile.getOwner()).has(Permission.ViewUnpublishedDataset)) {
+                throw new ForbiddenException("No permission to view unpublished metadata");
+            }
+        }
+        return fm;
     }
 
     private boolean isAccessAuthorized(User requestUser, DataFile df) {
