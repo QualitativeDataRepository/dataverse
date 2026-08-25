@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.jetty.HttpJettySolrClient;
 
 import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.util.SystemConfig;
@@ -16,6 +17,11 @@ import jakarta.ejb.EJB;
  */
 public abstract class AbstractSolrClientService {
     private static final Logger logger = Logger.getLogger(AbstractSolrClientService.class.getCanonicalName());
+
+    static {
+        // Register our customizer to increase Jetty HttpClient header size limits
+        System.setProperty(HttpJettySolrClient.CLIENT_CUSTOMIZER_SYSPROP, DataverseSolrClientCustomizer.class.getName());
+    }
 
     @EJB
     SystemConfig systemConfig;
