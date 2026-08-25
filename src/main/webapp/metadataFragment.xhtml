@@ -537,10 +537,19 @@
     // A11y fix for PrimeFaces sentinel inputs focusable inside aria-hidden containers
     function fixPrimeFacesFocusSentinels() {
         document
-            .querySelectorAll('#datasetForm input[id$="_focus"]')
+            .querySelectorAll('#datasetForm [aria-hidden="true"] input[id$="_focus"]')
             .forEach((el) => {
                 el.setAttribute('tabindex', '-1');
                 el.setAttribute('aria-hidden', 'true');
+            });
+
+        document
+            .querySelectorAll('#datasetForm input[id$="_focus"]:not([aria-hidden="true"])')
+            .forEach((el) => {
+                if (!el.closest('[aria-hidden="true"]')) {
+                    el.removeAttribute('tabindex');
+                    el.removeAttribute('aria-hidden');
+                }
             });
     }
 
