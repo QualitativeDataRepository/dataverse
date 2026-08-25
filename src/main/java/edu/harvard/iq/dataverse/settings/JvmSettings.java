@@ -69,6 +69,7 @@ public enum JvmSettings {
     SOLR_PROT(SCOPE_SOLR, "protocol"),
     SOLR_CORE(SCOPE_SOLR, "core"),
     SOLR_PATH(SCOPE_SOLR, "path"),
+    SOLR_MAX_HEADER_SIZE(SCOPE_SOLR, "max-header-size"),
     MIN_FILES_TO_USE_PROXY(SCOPE_SOLR, "min-files-to-use-proxy"),
 
 
