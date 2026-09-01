@@ -27,7 +27,9 @@ public class SolrClientIndexService extends AbstractSolrClientService {
 
     @PostConstruct
     public void init() {
-        HttpJettySolrClient httpClient = new HttpJettySolrClient.Builder(getSolrUrl()).build();
+        HttpJettySolrClient httpClient = new HttpJettySolrClient.Builder(getSolrUrl())
+            .build();
+        //new DataverseSolrClientCustomizer().setup(httpClient);
         
         solrClient = new ConcurrentUpdateJettySolrClient.Builder(
             getSolrUrl(), httpClient).withDefaultCollection(getSolrCollection()).build();

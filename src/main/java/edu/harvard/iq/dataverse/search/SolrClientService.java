@@ -30,7 +30,11 @@ public class SolrClientService extends AbstractSolrClientService {
     
     @PostConstruct
     public void init() {
-        solrClient = new HttpJettySolrClient.Builder(getSolrUrl()).withDefaultCollection(getSolrCollection()).build();
+        HttpJettySolrClient client = new HttpJettySolrClient.Builder(getSolrUrl())
+            .withDefaultCollection(getSolrCollection())
+            .build();
+        //new DataverseSolrClientCustomizer().setup(client);
+        solrClient = client;
     }
     
     @PreDestroy
