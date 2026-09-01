@@ -172,7 +172,7 @@
     
         <!-- Testing dependencies -->
         <testcontainers.version>2.0.2</testcontainers.version>
-        <smallrye-mpconfig.version>3.7.1</smallrye-mpconfig.version>
+        <smallrye-mpconfig.version>3.18.2</smallrye-mpconfig.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <mockito.version>5.11.0</mockito.version>
         
@@ -214,6 +214,19 @@
     </properties>
     
     <pluginRepositories>
+        <pluginRepository>
+            <id>payara-nexus-artifacts</id>
+            <name>Payara Nexus Artifacts</name>
+            <url>https://nexus.payara.fish/repository/payara-artifacts</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+        </pluginRepository>
         <pluginRepository>
             <id>central</id>
             <name>Central Repository</name>
