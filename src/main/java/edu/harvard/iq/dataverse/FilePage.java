@@ -183,12 +183,14 @@ public class FilePage implements java.io.Serializable {
             if (file == null || fileId == null) {
                 return permissionsWrapper.notFound();
             }
-
+            
+            dataset = file.getOwner();
+            
             // Is the Dataset harvested?
-            if (file.getOwner().isHarvested()) {
+            if (dataset.isHarvested()) {
                 // if so, we'll simply forward to the remote URL for the original
                 // source of this harvested dataset:
-                String originalSourceURL = file.getOwner().getRemoteArchiveURL();
+                String originalSourceURL = dataset.getRemoteArchiveURL();
                 if (originalSourceURL != null && !originalSourceURL.equals("")) {
                     logger.fine("redirecting to " + originalSourceURL);
                     try {
@@ -223,8 +225,7 @@ public class FilePage implements java.io.Serializable {
             
             // Check permissions
             DatasetVersion datasetVersion = fileMetadata.getDatasetVersion();
-            Dataset dataset = datasetVersion.getDataset();
-            
+                        
             // Check Locally FAIR permissions for released datasets
             boolean releasedAndCanView = datasetVersion.isReleased() && (!file.isLocallyFAIR() ||
                     permissionsWrapper.hasLocallyFAIRAccess(dvRequestService.getDataverseRequest(), file));
@@ -277,9 +278,7 @@ public class FilePage implements java.io.Serializable {
                     setSelectedTool(getAllAvailableTools().get(0));
                 }
             }
-            if(null == dataset) {
-                dataset = file.getOwner();
-            }
+
             if(dataset.isLockedFor(DatasetLock.Reason.EditInProgress))  {
                 JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.locked.editInProgress.message"),
                         BundleUtil.getStringFromBundle("dataset.locked.editInProgress.message.details"));
@@ -574,6 +573,9 @@ public class FilePage implements java.io.Serializable {
             return null;
         }
         
+        if (dataset == null) {
+            dataset = file.getOwner();
+        }
         boolean ingestLock = dataset.isLockedFor(DatasetLock.Reason.Ingest);
         
         if (ingestLock) {
