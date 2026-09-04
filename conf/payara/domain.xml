@@ -243,7 +243,6 @@
                 <jvm-options>--add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</jvm-options>
                 <jvm-options>--add-opens=java.base/java.io=ALL-UNNAMED</jvm-options>
                 <jvm-options>--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</jvm-options>
-                <jvm-options>--add-opens=java.base/java.lang.reflect=ALL-UNNAMED</jvm-options>
                 <jvm-options>[24|]--sun-misc-unsafe-memory-access=allow</jvm-options>
                 <jvm-options>[24|]--enable-native-access=ALL-UNNAMED</jvm-options>
                 <jvm-options>[25|]-XX:+EnableDynamicAgentLoading</jvm-options>
@@ -414,9 +413,6 @@
                     <property name="certificate-validation" value="true" />
                 </auth-realm>
                 <jacc-provider policy-provider="org.glassfish.exousia.modules.def.DefaultPolicy" name="default" policy-configuration-factory-provider="org.glassfish.exousia.modules.def.DefaultPolicyConfigurationFactory"></jacc-provider>
-                <audit-module classname="com.sun.enterprise.security.ee.Audit" name="default">
-                    <property value="false" name="auditOn" />
-                </audit-module>
                 <message-security-config auth-layer="SOAP">
                     <provider-config provider-type="client" provider-id="XWS_ClientProvider" class-name="com.sun.xml.wss.provider.ClientSecurityAuthModule">
                         <request-policy auth-source="content" />
@@ -628,7 +624,7 @@
         </config>
     </configs>
     <property name="administrative.domain.name" value="domain1" />
-    <secure-admin special-admin-indicator="d009fe82-2a4a-48e1-8f9b-521bdb46da47">
+    <secure-admin special-admin-indicator="1d2e6dec-2a8b-4939-b77f-90bd11534638">
         <secure-admin-principal dn="CN=localhost,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
         <secure-admin-principal dn="CN=localhost-instance,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK"></secure-admin-principal>
     </secure-admin>

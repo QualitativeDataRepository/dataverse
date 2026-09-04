@@ -1,9 +1,12 @@
 package edu.harvard.iq.dataverse.export;
 
+import io.gdcc.spi.export.DatasetExportQuery;
 import static org.junit.jupiter.api.Assertions.*;
 
 import edu.harvard.iq.dataverse.util.json.JsonUtil;
 import io.gdcc.spi.export.ExportDataProvider;
+import io.gdcc.spi.export.FileExportQuery;
+import io.gdcc.spi.export.PageRequest;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -11,6 +14,7 @@ import jakarta.json.JsonReader;
 import jakarta.json.JsonWriter;
 import jakarta.json.JsonWriterFactory;
 import jakarta.json.stream.JsonGenerator;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -24,9 +28,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.w3c.dom.Document;
 
 public class CroissantExporterSlimTest {
 
@@ -77,7 +84,11 @@ public class CroissantExporterSlimTest {
                     public JsonArray getDatasetFileDetails() {
                         String pathToJsonFile =
                                 "src/test/resources/croissant/minimal/in/datasetFileDetails.json";
-                        try { return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8)); } catch (IOException ex) { return null; }
+                        try {
+                            return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8));
+                        } catch (IOException ex) {
+                            return null;
+                        }
                     }
 
                     @Override
@@ -101,6 +112,38 @@ public class CroissantExporterSlimTest {
                         } catch (IOException ex) {
                             return null;
                         }
+                    }
+
+                    // extra methods in the new-and-improved ExportDataProvider interface
+                    // (that we do not need for our current purposes)
+
+                    public JsonObject getDatasetJson(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetORE(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q, PageRequest p) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetSchemaDotOrg(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Document getDataCiteXml(DatasetExportQuery q) {
+                        return null;
                     }
                 };
 
@@ -133,7 +176,11 @@ public class CroissantExporterSlimTest {
                     public JsonArray getDatasetFileDetails() {
                         String pathToJsonFile =
                                 "src/test/resources/croissant/max/in/datasetFileDetails.json";
-                        try { return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8)); } catch (IOException ex) { return null; }
+                        try {
+                            return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8));
+                        } catch (IOException ex) {
+                            return null;
+                        }
                     }
 
                     @Override
@@ -157,6 +204,38 @@ public class CroissantExporterSlimTest {
                         } catch (IOException ex) {
                             return null;
                         }
+                    }
+
+                    // extra methods in the new-and-improved ExportDataProvider interface
+                    // (that we do not need for our current purposes)
+
+                    public JsonObject getDatasetJson(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetORE(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q, PageRequest p) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetSchemaDotOrg(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Document getDataCiteXml(DatasetExportQuery q) {
+                        return null;
                     }
                 };
 
@@ -189,7 +268,11 @@ public class CroissantExporterSlimTest {
                     public JsonArray getDatasetFileDetails() {
                         String pathToJsonFile =
                                 "src/test/resources/croissant/cars/in/datasetFileDetails.json";
-                        try { return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8)); } catch (IOException ex) { return null; }
+                        try {
+                            return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8));
+                        } catch (IOException ex) {
+                            return null;
+                        }
                     }
 
                     @Override
@@ -213,6 +296,38 @@ public class CroissantExporterSlimTest {
                         } catch (IOException ex) {
                             return null;
                         }
+                    }
+
+                    // extra methods in the new-and-improved ExportDataProvider interface
+                    // (that we do not need for our current purposes)
+
+                    public JsonObject getDatasetJson(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetORE(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q, PageRequest p) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetSchemaDotOrg(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Document getDataCiteXml(DatasetExportQuery q) {
+                        return null;
                     }
                 };
 
@@ -245,7 +360,11 @@ public class CroissantExporterSlimTest {
                     public JsonArray getDatasetFileDetails() {
                         String pathToJsonFile =
                                 "src/test/resources/croissant/restricted/in/datasetFileDetails.json";
-                        try { return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8)); } catch (IOException ex) { return null; }
+                        try {
+                            return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8));
+                        } catch (IOException ex) {
+                            return null;
+                        }
                     }
 
                     @Override
@@ -269,6 +388,38 @@ public class CroissantExporterSlimTest {
                         } catch (IOException ex) {
                             return null;
                         }
+                    }
+
+                    // extra methods in the new-and-improved ExportDataProvider interface
+                    // (that we do not need for our current purposes)
+
+                    public JsonObject getDatasetJson(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetORE(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q, PageRequest p) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetSchemaDotOrg(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Document getDataCiteXml(DatasetExportQuery q) {
+                        return null;
                     }
                 };
 
@@ -301,7 +452,11 @@ public class CroissantExporterSlimTest {
                     public JsonArray getDatasetFileDetails() {
                         String pathToJsonFile =
                                 "src/test/resources/croissant/junk/in/datasetFileDetails.json";
-                        try { return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8)); } catch (IOException ex) { return null; }
+                        try {
+                            return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8));
+                        } catch (IOException ex) {
+                            return null;
+                        }
                     }
 
                     @Override
@@ -325,6 +480,38 @@ public class CroissantExporterSlimTest {
                         } catch (IOException ex) {
                             return null;
                         }
+                    }
+
+                    // extra methods in the new-and-improved ExportDataProvider interface
+                    // (that we do not need for our current purposes)
+
+                    public JsonObject getDatasetJson(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetORE(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q, PageRequest p) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetSchemaDotOrg(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Document getDataCiteXml(DatasetExportQuery q) {
+                        return null;
                     }
                 };
 
@@ -357,7 +544,11 @@ public class CroissantExporterSlimTest {
                     public JsonArray getDatasetFileDetails() {
                         String pathToJsonFile =
                                 "src/test/resources/croissant/draft/in/datasetFileDetails.json";
-                        try { return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8)); } catch (IOException ex) { return null; }
+                        try {
+                            return JsonUtil.getJsonArray(Files.readString(Paths.get(pathToJsonFile), StandardCharsets.UTF_8));
+                        } catch (IOException ex) {
+                            return null;
+                        }
                     }
 
                     @Override
@@ -382,7 +573,39 @@ public class CroissantExporterSlimTest {
                             return null;
                         }
                     }
-                };
+
+                    // extra methods in the new-and-improved ExportDataProvider interface
+                    // (that we do not need for our current purposes)
+
+                    public JsonObject getDatasetJson(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetORE(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Stream<JsonObject> getDatasetFileDetails(FileExportQuery q, PageRequest p) {
+                        return null;
+                    }
+
+                    @Override
+                    public JsonObject getDatasetSchemaDotOrg(DatasetExportQuery q) {
+                        return null;
+                    }
+
+                    @Override
+                    public Document getDataCiteXml(DatasetExportQuery q) {
+                        return null;
+                    }
+            };
     }
 
     @Test
@@ -455,7 +678,9 @@ public class CroissantExporterSlimTest {
         assertEquals(prettyPrint(expected), prettyPrint(outputStreamCars.toString()));
     }
 
-    /** Same as the cars data but the stata13-auto.dta file is restricted. */
+    /**
+     * Same as the cars data but the stata13-auto.dta file is restricted.
+     */
     @Test
     public void testExportDatasetRestricted() throws Exception {
         exporter.exportDataset(dataProviderRestricted, outputStreamRestricted);
