@@ -259,9 +259,14 @@ public class OAIRecordServiceBean implements java.io.Serializable {
     
     @TransactionAttribute(REQUIRES_NEW)
     public void exportAllFormatsInNewTransaction(Dataset dataset) throws ExportException {
+        exportFormatsInNewTransaction(dataset, List.of());
+    }
+
+    @TransactionAttribute(REQUIRES_NEW)
+    public void exportFormatsInNewTransaction(Dataset dataset, List<String> formatNames) throws ExportException {
         try {
             ExportService exportServiceInstance = ExportService.getInstance();
-            exportServiceInstance.exportAllFormats(dataset);
+            exportServiceInstance.exportFormats(dataset, formatNames);
             datasetService.setLastExportTimeInNewTransaction(dataset.getId(), dataset.getLastExportTime());
         } catch (OptimisticLockException ole) {
             datasetService.setLastExportTimeInNewTransaction(dataset.getId(), dataset.getLastExportTime());

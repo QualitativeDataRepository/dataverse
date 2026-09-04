@@ -1,16 +1,12 @@
 package edu.harvard.iq.dataverse.engine.command.impl;
 
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.GlobalId;
-import edu.harvard.iq.dataverse.RoleAssignment;
-import edu.harvard.iq.dataverse.Template;
-import edu.harvard.iq.dataverse.UserNotification;
+import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
+import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.exception.IllegalCommandException;
 import edu.harvard.iq.dataverse.pidproviders.PidProvider;
@@ -20,7 +16,6 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import static edu.harvard.iq.dataverse.util.StringUtil.nonEmpty;
 import java.util.logging.Logger;
 
-import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
 import java.util.List;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -46,7 +41,7 @@ import java.time.Instant;
 
 public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
     private static final Logger logger = Logger.getLogger(CreateNewDatasetCommand.class.getName());
-    
+
     private final Template template;
     private boolean allowSelfNotification = false;
 
@@ -66,7 +61,7 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
     
     public CreateNewDatasetCommand(Dataset theDataset, DataverseRequest aRequest, Template template, boolean validate) {
         super(theDataset, aRequest, false, validate);
-        this.template = template;
+        this.template = template != null ? template : theDataset.getTemplate();
     }
     
     /**
@@ -110,7 +105,7 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
     
     @Override
     protected void postPersist( Dataset theDataset, CommandContext ctxt ){
-        
+
         if ( template != null ) {
             ctxt.templates().incrementUsageCount(template.getId());
         }
@@ -157,7 +152,7 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
          * This method checks if dataset creation notifications are enabled. If so, it notifies all users with {@code Permission.PublishDataset} on the new dataset. The user who initiated the action can be
          * included or excluded from this notification based on the allowSelfNotification flag.
          */
-        
+
         // 1. Exit early if the SendNotificationOnDatasetCreation setting is disabled.
         if (!ctxt.settings().isTrueForKey(SettingsServiceBean.Key.SendNotificationOnDatasetCreation, false)) {
             return;
@@ -166,7 +161,7 @@ public class CreateNewDatasetCommand extends AbstractCreateDatasetCommand {
         // 2. Identify the user who initiated the action.
         final User user = getUser();
         final AuthenticatedUser requestor = user.isAuthenticated() ? (AuthenticatedUser) user : null;
-        
+
         // 3. Get all users with publish permission and notify them.
         // Should this create a notification too? (which would let us use the notification mailcapbilities to generate the subject/body.
         ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, theDataset)

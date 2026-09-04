@@ -16,7 +16,6 @@
         <module>../../pom.xml</module>
         <module>../../scripts/zipdownload</module>
         <module>../container-base</module>
-        <module>../dataverse-spi</module>
     </modules>
     
     <!-- Transitive dependencies, bigger library "bill of materials" (BOM) and
@@ -175,7 +174,7 @@
         <smallrye-mpconfig.version>3.18.2</smallrye-mpconfig.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <mockito.version>5.11.0</mockito.version>
-        
+
         <checkstyle.version>9.3</checkstyle.version>
         
         <!-- Official Maven Plugins -->
@@ -201,16 +200,16 @@
         <pomchecker-maven-plugin.version>1.7.0</pomchecker-maven-plugin.version>
         <sonar.version>5.7.0.6970</sonar.version>
         <maven-jacoco-plugin.version>0.8.14</maven-jacoco-plugin.version>
-        
+
         <!-- Container related -->
         <fabric8-dmp.version>0.48.0</fabric8-dmp.version>
-        
+
         <!-- SonarQube Code Quality related -->
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>iqss</sonar.organization>
         <sonar.projectKey>IQSS_dataverse</sonar.projectKey>
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>   
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     </properties>
     
     <pluginRepositories>
@@ -452,8 +451,6 @@
             </snapshots>
         </repository>
         <!-- Uncomment when using snapshot releases from Maven Central -->
-        <!-- Note the new - as of Sept. 2025 sonatype url -->
-        <!--
         <repository>
             <id>central-portal-snapshots</id>
             <name>Central Portal Snapshots</name>
@@ -467,6 +464,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+	<!--
         <repository>
             <id>s01-oss-sonatype</id>
             <name>s01-oss-sonatype</name>
