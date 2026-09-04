@@ -222,7 +222,8 @@
                             <p:panel id="historyPanel" deferred="true" deferredMode="visible">
                                 <div class="card-body">
                                     <div class="button-group margin-bottom text-end">
-                                        <h:outputLink value="#{managePermissionsPage.signedUrlForRAHistoryCsv}" 
+                                        <h:outputLink value="#{managePermissionsPage.signedUrlForRAHistoryCsv}"
+                                                     rendered="#{not empty managePermissionsPage.signedUrlForRAHistoryCsv}"
                                                      styleClass="btn btn-secondary"
                                                      onclick="downloadRAHistoryCSV(this.href, '#{managePermissionsPage.permissionsHistoryFilename}'); return false;">
                                             <span class="bi bi-download"></span> #{bundle['dataverse.permissions.history.download']}

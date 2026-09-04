@@ -19,7 +19,7 @@ public abstract class AbstractSolrClientService {
     private static final Logger logger = Logger.getLogger(AbstractSolrClientService.class.getCanonicalName());
 
     static {
-        // Register our customizer to increase Jetty HttpClient header size limits
+        // Register our customizer to increase Jetty HttpClient header size limits for all HttpJettySolrClient instances
         System.setProperty(HttpJettySolrClient.CLIENT_CUSTOMIZER_SYSPROP, DataverseSolrClientCustomizer.class.getName());
     }
 

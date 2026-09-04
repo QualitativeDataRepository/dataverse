@@ -5,7 +5,7 @@
  
     <groupId>edu.harvard.iq</groupId>
     <artifactId>dataverse-parent</artifactId>
-    <version>6.11-qdr-dev-pf15</version>
+    <version>6.12-qdr-dev-pf15</version>
     <!--version>${revision}</version-->
     <packaging>pom</packaging>
  
@@ -16,7 +16,6 @@
         <module>../../pom.xml</module>
         <module>../../scripts/zipdownload</module>
         <module>../container-base</module>
-        <module>../dataverse-spi</module>
     </modules>
     
     <!-- Transitive dependencies, bigger library "bill of materials" (BOM) and
@@ -172,10 +171,10 @@
     
         <!-- Testing dependencies -->
         <testcontainers.version>2.0.2</testcontainers.version>
-        <smallrye-mpconfig.version>3.7.1</smallrye-mpconfig.version>
+        <smallrye-mpconfig.version>3.18.2</smallrye-mpconfig.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <mockito.version>5.11.0</mockito.version>
-        
+
         <checkstyle.version>9.3</checkstyle.version>
         
         <!-- Official Maven Plugins -->
@@ -214,6 +213,19 @@
     </properties>
     
     <pluginRepositories>
+        <pluginRepository>
+            <id>payara-nexus-artifacts</id>
+            <name>Payara Nexus Artifacts</name>
+            <url>https://nexus.payara.fish/repository/payara-artifacts</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
+        </pluginRepository>
         <pluginRepository>
             <id>central</id>
             <name>Central Repository</name>
@@ -439,8 +451,6 @@
             </snapshots>
         </repository>
         <!-- Uncomment when using snapshot releases from Maven Central -->
-        <!-- Note the new - as of Sept. 2025 sonatype url -->
-        <!--
         <repository>
             <id>central-portal-snapshots</id>
             <name>Central Portal Snapshots</name>
@@ -454,6 +464,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+	<!--
         <repository>
             <id>s01-oss-sonatype</id>
             <name>s01-oss-sonatype</name>

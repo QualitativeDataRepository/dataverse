@@ -245,6 +245,7 @@
                             <!-- Download button for file permissions history -->
                             <div class="button-group margin-bottom text-end">
                                 <h:outputLink value="#{manageFilePermissionsPage.signedUrlForRAHistoryCsv}" 
+                                             rendered="#{not empty manageFilePermissionsPage.signedUrlForRAHistoryCsv}" 
                                              styleClass="btn btn-secondary"
                                              onclick="downloadRAHistoryCSV(this.href, '#{manageFilePermissionsPage.permissionsHistoryFilename}'); return false;">
                                     <span class="bi bi-download"></span> #{bundle['dataverse.permissions.history.download']}

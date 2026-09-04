@@ -235,7 +235,7 @@ public class Files extends AbstractApiBean {
     @Tag(name = "replaceFilesInDataset", 
          description = "Replace a file to a dataset")
     @RequestBody(description = "Multipart request containing replacement file content and JSON replacement metadata.",
-            content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA)) 
+            content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA))
     public Response replaceFileInDataset(
                     @Context ContainerRequestContext crc,
                     @Parameter(description = "Data file id or persistent identifier for the file being replaced.", required = true)
@@ -993,7 +993,6 @@ public class Files extends AbstractApiBean {
                     ") does not match file content type (" + fileContentType + ").");
             }
 
-
             // Get the current user and create a request object
             User user = getRequestUser(crc);
             DataverseRequest req = createDataverseRequest(user);
@@ -1138,7 +1137,7 @@ public class Files extends AbstractApiBean {
         if (!dataFile.isTabularData()) {
             return badRequest(BundleUtil.getStringFromBundle("files.api.only.tabular.supported"));
         }
-        return ok(jsonDT(dataFile.getDataTables()));
+        return ok(jsonDT(dataFile.getDataTables(), true));
     }
 
     @POST

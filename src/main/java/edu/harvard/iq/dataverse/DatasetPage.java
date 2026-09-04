@@ -966,7 +966,7 @@ public class DatasetPage implements java.io.Serializable {
 
         // Main query:
         if (StringUtil.isEmpty(pattern)) {
-            //if no search pattern is supplied, 
+            //if no search pattern is supplied,
             // (presumably, one or more facet fields is supplied, below)
             pattern="*";
         }
@@ -975,7 +975,7 @@ public class DatasetPage implements java.io.Serializable {
         facetList.add(SearchFields.ACCESS);
         facetList.add(SearchFields.FILE_TAG);
 
-        // Extra filter queries from the facets, if specified: 
+        // Extra filter queries from the facets, if specified:
 
         if (!StringUtil.isEmpty(fileTypeFacet)) {
             filterQueries.add(SearchFields.FILE_TYPE + ":" + fileTypeFacet);
@@ -1028,8 +1028,8 @@ public class DatasetPage implements java.io.Serializable {
         boolean fileDeletedFlagNotIndexed = false;
         Set<Long> resultIds = new HashSet<>();
         SearchService searchService = searchServiceFactory.getSearchService(SearchServiceFactory.INTERNAL_SOLR_SERVICE_NAME);
-        
-        // Unlimited number of search results: 
+
+        // Unlimited number of search results:
         // (but we are searching within one dataset(version), so it should be manageable)
         try {
             queryResponse = searchService.simpleSearch(dvRequestService.getDataverseRequest(), SearchFields.ENTITY_ID, pattern, filterQueries, facetList, 0, Integer.MAX_VALUE);
@@ -2314,7 +2314,7 @@ public class DatasetPage implements java.io.Serializable {
             }
         }
     }
-    
+
     private void displayWorkflowComments() {
         List<WorkflowComment> comments = workingVersion.getWorkflowComments();
         for (WorkflowComment wfc : comments) {
@@ -2640,10 +2640,10 @@ public class DatasetPage implements java.io.Serializable {
                                 }
                             }
                             //QDR - pre-select ORCID even when we don't have an ORCID as part of a profile
-                            if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.authorIdType)) {  
+                            if (subField.getDatasetFieldType().getName().equals(DatasetFieldConstant.authorIdType)) {
                                 DatasetFieldType authorIdTypeDatasetField = fieldService.findByName(DatasetFieldConstant.authorIdType);
                                 subField.setSingleControlledVocabularyValue(fieldService.findControlledVocabularyValueByDatasetFieldTypeAndStrValue(authorIdTypeDatasetField, "ORCID", true));
-                             }   
+                             }
                         }
                     }
                 }
@@ -2782,7 +2782,7 @@ public class DatasetPage implements java.io.Serializable {
                     }
                 }
             }
-            
+
             JH.addMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.message.editMetadata.label"), BundleUtil.getStringFromBundle("dataset.message.editMetadata.message"));
             //FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Edit Dataset Metadata", " - Add more metadata about your dataset to help others easily find it."));
         } else if (editMode.equals(EditMode.LICENSE)){
@@ -3113,7 +3113,7 @@ public class DatasetPage implements java.io.Serializable {
             this.workingVersion = datasetVersionService.findDeep(versionId);
             dataset = workingVersion.getDataset();
         } 
-        
+
         if (this.workingVersion == null) {
             // TODO:
             // should probably redirect to the 404 page, if we can't find
@@ -4257,7 +4257,7 @@ public class DatasetPage implements java.io.Serializable {
      public String reportEditContinues() {
          editMode = null;
          bulkFileDeleteInProgress = false;
-         
+
          logger.fine("Timeout during long edit. Redirecting to draft Dataset page...");
          if (dataset.isLockedFor(DatasetLock.Reason.EditInProgress)) {
              JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.locked.editContinues.message"),
@@ -4265,9 +4265,9 @@ public class DatasetPage implements java.io.Serializable {
           } else {
               JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.message.actiontimeout"),
                       BundleUtil.getStringFromBundle("dataset.message.actiontimeout.details"));
-             
+
           }
-         
+
          return returnToDraftVersion();
      }
 
