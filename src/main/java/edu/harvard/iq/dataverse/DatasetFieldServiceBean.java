@@ -409,58 +409,59 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
             JsonObject filtering = getRetrievalFilteringObject(cvocEntry, termUri);
             String termUriField = cvocEntry.getJsonString("term-uri-field").getString();
 
-        if (jo != null && !filtering.isEmpty()) {
-            try {
-                for (String key : jo.keySet()) {
-                    String indexIn = filtering.getJsonObject(key).getString("indexIn", null);
-                    // Either we are in mapping mode so indexingField (solr field) equals indexIn (cvoc config)
-                    // Or we are in default mode indexingField is termUriField, indexIn is not defined then only termName and personName keys are used
-                    if (indexingField.equals(indexIn) ||
-                            (indexIn == null && termUriField.equals(indexingField) && (key.equals("termName")) || key.equals("personName"))) {
-                        JsonValue jv = jo.get(key);
-                        if (jv.getValueType() == ValueType.STRING) {
-                            logger.fine("adding " + jo.getString(key) + " for " + termUri);
-                            strings.add(jo.getString(key));
-                        } else if (jv.getValueType() == ValueType.ARRAY) {
-                            JsonArray jarr = jv.asJsonArray();
-                            for (int i = 0; i < jarr.size(); i++) {
-                                if (jarr.get(i).getValueType() == ValueType.STRING) {
-                                    strings.add(jarr.getString(i));
-                                } else if (jarr.get(i).getValueType() == ValueType.OBJECT) { // This condition handles SKOSMOS format like [{"lang": "en","value": "non-apis bee"},{"lang": "fr","value": "abeille non apis"}]
-                                    JsonObject entry = jarr.getJsonObject(i);
-                                    if (entry.containsKey("value")) {
-                                        logger.fine("adding " + entry.getString("value") + " for " + termUri);
-                                        strings.add(entry.getString("value"));
-                                    } else if (entry.containsKey("content")) {
-                                        logger.fine("adding " + entry.getString("content") + " for " + termUri);
-                                        strings.add(entry.getString("content"));
+            if (!filtering.isEmpty()) {
+                try {
+                    for (String key : jo.keySet()) {
+                        String indexIn = filtering.getJsonObject(key).getString("indexIn", null);
+                        // Either we are in mapping mode so indexingField (solr field) equals indexIn (cvoc config)
+                        // Or we are in default mode indexingField is termUriField, indexIn is not defined then only termName and personName keys are used
+                        if (indexingField.equals(indexIn) ||
+                                (indexIn == null && termUriField.equals(indexingField) && (key.equals("termName")) || key.equals("personName"))) {
+                            JsonValue jv = jo.get(key);
+                            if (jv.getValueType() == ValueType.STRING) {
+                                logger.fine("adding " + jo.getString(key) + " for " + termUri);
+                                strings.add(jo.getString(key));
+                            } else if (jv.getValueType() == ValueType.ARRAY) {
+                                JsonArray jarr = jv.asJsonArray();
+                                for (int i = 0; i < jarr.size(); i++) {
+                                    if (jarr.get(i).getValueType() == ValueType.STRING) {
+                                        strings.add(jarr.getString(i));
+                                    } else if (jarr.get(i).getValueType() == ValueType.OBJECT) { // This condition handles SKOSMOS format like [{"lang": "en","value": "non-apis bee"},{"lang": "fr","value": "abeille non apis"}]
+                                        JsonObject entry = jarr.getJsonObject(i);
+                                        if (entry.containsKey("value")) {
+                                            logger.fine("adding " + entry.getString("value") + " for " + termUri);
+                                            strings.add(entry.getString("value"));
+                                        } else if (entry.containsKey("content")) {
+                                            logger.fine("adding " + entry.getString("content") + " for " + termUri);
+                                            strings.add(entry.getString("content"));
 
+                                        }
                                     }
                                 }
-                            }
-                        } else if (jv.getValueType() == ValueType.OBJECT) {
-                            JsonObject joo = jv.asJsonObject();
-                            for (Map.Entry<String, JsonValue> entry : joo.entrySet()) {
-                                if (entry.getValue().getValueType() == ValueType.STRING) { // This condition handles format like { "fr": "association de quartier", "en": "neighborhood associations"}
-                                    logger.fine("adding " + joo.getString(entry.getKey()) + " for " + termUri);
-                                    strings.add(joo.getString(entry.getKey()));
-                                } else if (entry.getValue().getValueType() == ValueType.ARRAY) { // This condition handles format like {"en": ["neighbourhood societies"]}
-                                    JsonArray jarr = entry.getValue().asJsonArray();
-                                    for (int i = 0; i < jarr.size(); i++) {
-                                        if (jarr.get(i).getValueType() == ValueType.STRING) {
-                                            logger.fine("adding " + jarr.getString(i) + " for " + termUri);
-                                            strings.add(jarr.getString(i));
+                            } else if (jv.getValueType() == ValueType.OBJECT) {
+                                JsonObject joo = jv.asJsonObject();
+                                for (Map.Entry<String, JsonValue> entry : joo.entrySet()) {
+                                    if (entry.getValue().getValueType() == ValueType.STRING) { // This condition handles format like { "fr": "association de quartier", "en": "neighborhood associations"}
+                                        logger.fine("adding " + joo.getString(entry.getKey()) + " for " + termUri);
+                                        strings.add(joo.getString(entry.getKey()));
+                                    } else if (entry.getValue().getValueType() == ValueType.ARRAY) { // This condition handles format like {"en": ["neighbourhood societies"]}
+                                        JsonArray jarr = entry.getValue().asJsonArray();
+                                        for (int i = 0; i < jarr.size(); i++) {
+                                            if (jarr.get(i).getValueType() == ValueType.STRING) {
+                                                logger.fine("adding " + jarr.getString(i) + " for " + termUri);
+                                                strings.add(jarr.getString(i));
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                } catch (Exception e) {
+                    logger.warning(
+                            "Problem interpreting external vocab value for uri: " + termUri + " : " + e.getMessage());
+                    return new HashSet<String>();
                 }
-            } catch (Exception e) {
-                logger.warning(
-                        "Problem interpreting external vocab value for uri: " + termUri + " : " + e.getMessage());
-                return new HashSet<String>();
             }
         }
         logger.fine("Returning " + String.join(",", strings) + " for " + termUri);
