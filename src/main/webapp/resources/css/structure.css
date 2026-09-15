@@ -1328,7 +1328,7 @@ div.container {
   border-top: solid 2px rgba(0, 0, 0, 0.1);
 }
 
-ul > li:not(.ui-selectonemenu-item) {
+ul:not(table.metadata ul) > li:not(.ui-selectonemenu-item) {
   border:none !important;
   font-size: 21px;
   font-family: 'AntoniaH2Heavy';
