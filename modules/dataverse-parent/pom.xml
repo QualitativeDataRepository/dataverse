@@ -139,7 +139,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <additionalparam>-Xdoclint:none</additionalparam>
         <!-- Needed to avoid IDEA IDE compilation failures. See commits in GH #5059 -->
-        <compilerArgument></compilerArgument>
         <project.timezone>UTC</project.timezone>
         <project.language>en</project.language>
         <project.region>US</project.region>
@@ -150,7 +149,7 @@
         <argLine>-Duser.timezone=${project.timezone} -Dfile.encoding=${project.build.sourceEncoding} -Duser.language=${project.language} -Duser.region=${project.region}</argLine>
     
         <!-- Major system components and dependencies -->
-        <payara.version>7.2026.8</payara.version>
+        <payara.version>7.2026.9</payara.version>
         <postgresql.version>42.7.12</postgresql.version>
         <solr.version>9.10.0</solr.version>
         <postgresql.server.version>16</postgresql.server.version>
