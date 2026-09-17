@@ -97,7 +97,7 @@
                                             </div>
                                         </div>
                                         <p:commandButton id="save" styleClass="btn btn-default" value="#{bundle.saveChanges}"
-                                            action="#{DataverseUserPage.save}" onclick="PF('muteCollapse').collapse('hide')" update="@form"/>
+                                            action="#{DataverseUserPage.save}" onclick="PF('muteCollapse').collapse('hide')" update="@form" process="@form"/>
                                     </div>
                                 </div>
                             </div>
@@ -737,7 +737,7 @@
                     </p:tabView>
 
                     <!-- QDRCustom- Do not display accountInfoView tabView -->
-                    <p:tabView id="accountInfoView" rendered="false">
+                    <p:tabView id="accountInfoView" rendered="false" dynamic="true">
                         <p:tab id="accountInfoEdit" title="#{bundle['account.info']}">
                             <ui:fragment rendered="#{DataverseUserPage.editMode == 'CREATE' and DataverseUserPage.nonLocalLoginEnabled}">
                                 <p class="help-block">
@@ -876,7 +876,7 @@
                                     <div class="col-sm-12 button-block">
                                         <p:commandButton id="save" styleClass="btn btn-default"
                                                          value="#{DataverseUserPage.editMode == 'CREATE' ? bundle['user.createBtn']:bundle.saveChanges}"
-                                                         action="#{DataverseUserPage.save}" update="@form,:messagePanel,:userDisplayInfoTitle"/>
+                                                         action="#{DataverseUserPage.save}" update="@form,:messagePanel,:userDisplayInfoTitle" process="@form"/>
                                         <p:commandButton id="cancel" styleClass="btn btn-link" value="#{bundle.cancel}"
                                                          action="#{DataverseUserPage.cancel}" process="@this" update="@form">
                                             <p:resetInput target="@form"/>
