@@ -1824,19 +1824,31 @@ public class EditDatafilesPage implements java.io.Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             BundleUtil.getStringFromBundle("dataset.file.uploadWarning"),
                             "Direct upload not supported for this dataset"));
+            return;
+        }
+        Long maxSize = systemConfig.getMaxFileUploadSizeForStore(dataset.getEffectiveStorageDriverId());
+        if (maxSize != null) {
+            if (fileSize > maxSize) {
+                FacesContext.getCurrentInstance().addMessage(uploadComponentId,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                BundleUtil.getStringFromBundle("dataset.file.uploadWarning"),
+                                BundleUtil.getStringFromBundle("file.addreplace.error.file_exceeds_limit",
+                                        Arrays.asList(FileSizeChecker.bytesToHumanReadable(fileSize), FileSizeChecker.bytesToHumanReadable(maxSize)))));
+                return;
+            }
         }
         JsonObjectBuilder urls = null;
         String storageIdentifier = null;
         try {
             storageIdentifier = FileUtil.getStorageIdentifierFromLocation(s3io.getStorageLocation());
             urls = s3io.generateTemporaryS3UploadUrls(dataset.getGlobalIdForFileStorageAsString(), storageIdentifier, fileSize);
-
         } catch (IOException io) {
             logger.warning(io.getMessage());
             FacesContext.getCurrentInstance().addMessage(uploadComponentId,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             BundleUtil.getStringFromBundle("dataset.file.uploadWarning"),
                             "Issue in connecting to S3 store for direct upload"));
+            return;
         }
 
         PrimeFaces.current().executeScript(

@@ -49,7 +49,7 @@
                 <ui:repeat value="#{dataverseHeaderFragment.bannerMessages}" var="message" varStatus="status">                
                     <div id="status-alert" class="bg-warning" jsf:rendered="#{!empty message.displayValue }">
                         <div class="alert alert-dismissible container text-warning">
-                            <p:commandButton class="close" id="closeButton" actionListener="#{dataverseSession.dismissMessage(message)}" update="@form" value="&#215;"/>
+                            <p:commandButton class="close" id="closeButton" actionListener="#{dataverseSession.dismissMessage(message)}" update="@form" value="&#215;" process="@this"/>
                             <h:outputText rendered="#{!empty message.displayValue }" value=" #{message.displayValue }" escape="false"/>
                         </div>
                     </div>
