@@ -7,7 +7,7 @@
         <groupId>edu.harvard.iq</groupId>
         <artifactId>dataverse-parent</artifactId>
         <version>6.12-qdr-dev</version>
-        <relativePath>modules/dataverse-parent</relativePath>
+        <relativePath>modules/dataverse-parent/pom.xml</relativePath>
     </parent>
     
     <!--
