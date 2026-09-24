@@ -750,8 +750,8 @@ public class DatasetPage implements java.io.Serializable {
         if (isIndexedVersion() && StringUtil.isEmpty(fileLabelSearchTerm) && StringUtil.isEmpty(fileTypeFacet) && StringUtil.isEmpty(fileAccessFacet) && StringUtil.isEmpty(fileTagsFacet)) {
             // Indexed version: we need facets, they are set as a side effect of getFileIdsInVersionFromSolr method.
             // But, no search terms were specified, we will return the full
-            // list of the files in the version: we discard the result from getFileIdsInVersionFromSolr.
-            getFileIdsInVersionFromSolr(workingVersion.getId(), this.fileLabelSearchTerm);
+            // list of the files in the version: we only ask Solr for the facets, not for the file ids.
+            getFileIdsInVersionFromSolr(workingVersion.getId(), this.fileLabelSearchTerm, false);
             // Since the search results should include the full set of fmds if all the
             // terms/facets are empty, setting them to null should just be
             // an optimization to skip the loop below
@@ -955,6 +955,14 @@ public class DatasetPage implements java.io.Serializable {
      *
      */
     public Set<Long> getFileIdsInVersionFromSolr(Long datasetVersionId, String pattern) {
+        return getFileIdsInVersionFromSolr(datasetVersionId, pattern, true);
+    }
+
+    /**
+     * @param idsNeeded false when only the facets are needed: Solr then returns no documents,
+     * which matters for versions with many files; the returned set is empty
+     */
+    private Set<Long> getFileIdsInVersionFromSolr(Long datasetVersionId, String pattern, boolean idsNeeded) {
         logger.fine("searching for file ids, in solr");
 
         List<String> queryStrings = new ArrayList<>();
