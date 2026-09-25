@@ -100,5 +100,5 @@ public interface SearchService {
      */
     default public void setSolrSearchService(SearchService solrSearchService) {}
     
-    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String entityId, String pattern, List<String> filterQueries, List<String> facetList, int i, int maxValue) throws SearchException;
+    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String pattern, List<String> filterQueries, List<String> facetList, int i, int maxValue) throws SearchException;
 }

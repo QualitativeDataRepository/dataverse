@@ -15,34 +15,13 @@ import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.MissingResourceException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBTransactionRolledbackException;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionRolledbackLocalException;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.json.Json;
-import jakarta.json.JsonArrayBuilder;
 import jakarta.persistence.NoResultException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.request.SolrQuery;
 import org.apache.solr.client.solrj.request.SolrQuery.SortClause;
@@ -55,6 +34,11 @@ import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Stateless
 @Named
@@ -574,6 +558,9 @@ public class SolrSearchServiceBean implements SearchService {
             if (Boolean.TRUE.equals((Boolean) solrDocument.getFieldValue(SearchFields.IS_HARVESTED))) {
                 solrSearchResult.setHarvested(true);
             }
+            if (Boolean.TRUE.equals(solrDocument.getFieldValue(SearchFields.IS_LINKED))) {
+                solrSearchResult.setLinked(true);
+            }
 
             solrSearchResult.setEmbargoEndDate(embargoEndDate);
             solrSearchResult.setRetentionEndDate(retentionEndDate);
@@ -1002,13 +989,13 @@ public class SolrSearchServiceBean implements SearchService {
         return solrQueryResponse;
     }
 
-    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String returnField, String query, List<String> filterQueries, List<String> facets, int paginationStart, int numResultsPerPage) throws SearchException {
+    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String query, List<String> filterQueries, List<String> facets, int paginationStart, int numResultsPerPage) throws SearchException {
 
         if (paginationStart < 0) {
             throw new IllegalArgumentException("paginationStart must be 0 or greater");
         }
-        if (numResultsPerPage < 1) {
-            throw new IllegalArgumentException("numResultsPerPage must be 1 or greater");
+        if (numResultsPerPage < 0) {
+            throw new IllegalArgumentException("numResultsPerPage must be 0 or greater");
         }
 
         SolrQuery solrQuery = new SolrQuery();
@@ -1031,7 +1018,7 @@ public class SolrSearchServiceBean implements SearchService {
         }
 
         solrQuery.setQuery(query);
-        //solrQuery.setParam("fl", returnField);
+        solrQuery.setFields(SearchFields.ENTITY_ID);
         solrQuery.setParam("qt", "/select");
 
         if (null!=facets && !facets.isEmpty()) {
