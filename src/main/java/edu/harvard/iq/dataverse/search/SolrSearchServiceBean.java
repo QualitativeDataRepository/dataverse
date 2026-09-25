@@ -994,8 +994,8 @@ public class SolrSearchServiceBean implements SearchService {
         if (paginationStart < 0) {
             throw new IllegalArgumentException("paginationStart must be 0 or greater");
         }
-        if (numResultsPerPage < 1) {
-            throw new IllegalArgumentException("numResultsPerPage must be 1 or greater");
+        if (numResultsPerPage < 0) {
+            throw new IllegalArgumentException("numResultsPerPage must be 0 or greater");
         }
 
         SolrQuery solrQuery = new SolrQuery();
