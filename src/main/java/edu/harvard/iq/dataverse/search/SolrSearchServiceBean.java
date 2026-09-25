@@ -989,7 +989,7 @@ public class SolrSearchServiceBean implements SearchService {
         return solrQueryResponse;
     }
 
-    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String returnField, String query, List<String> filterQueries, List<String> facets, int paginationStart, int numResultsPerPage) throws SearchException {
+    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String query, List<String> filterQueries, List<String> facets, int paginationStart, int numResultsPerPage) throws SearchException {
 
         if (paginationStart < 0) {
             throw new IllegalArgumentException("paginationStart must be 0 or greater");
@@ -1018,7 +1018,7 @@ public class SolrSearchServiceBean implements SearchService {
         }
 
         solrQuery.setQuery(query);
-        //solrQuery.setParam("fl", returnField);
+        solrQuery.setFields(SearchFields.ENTITY_ID);
         solrQuery.setParam("qt", "/select");
 
         if (null!=facets && !facets.isEmpty()) {

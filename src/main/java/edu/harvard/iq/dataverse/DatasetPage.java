@@ -1037,7 +1037,7 @@ public class DatasetPage implements java.io.Serializable {
         // Unlimited number of search results:
         // (but we are searching within one dataset(version), so it should be manageable)
         try {
-            queryResponse = searchService.simpleSearch(dvRequestService.getDataverseRequest(), SearchFields.ENTITY_ID, pattern, filterQueries, facetList, 0, Integer.MAX_VALUE);
+            queryResponse = searchService.simpleSearch(dvRequestService.getDataverseRequest(), pattern, filterQueries, facetList, 0, (idsNeeded? Integer.MAX_VALUE : 0));
         } catch (RemoteSolrException | SearchException ex) {
             logger.fine("Solr Exception: " + ex.getLocalizedMessage());
             String msg = ex.getLocalizedMessage();
@@ -1060,7 +1060,7 @@ public class DatasetPage implements java.io.Serializable {
             logger.fine("Solr query (trying again)");
 
             try {
-                queryResponse = searchService.simpleSearch(dvRequestService.getDataverseRequest(), SearchFields.ENTITY_ID, pattern, filterQueries, facetList, 0, Integer.MAX_VALUE);
+                queryResponse = searchService.simpleSearch(dvRequestService.getDataverseRequest(), pattern, filterQueries, facetList, 0, Integer.MAX_VALUE);
             } catch (Exception ex) {
                 logger.warning("Caught a Solr exception (again!): " + ex.getLocalizedMessage());
                 isIndexedVersion = false; 

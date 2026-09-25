@@ -107,11 +107,11 @@ public abstract class AbstractExternalSearchServiceBean implements ConfigurableS
     }
     
     @Override
-    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String entityId, String pattern, List<String> filterQueries, List<String> facetList, int i, int maxValue) throws SearchException {
+    public QueryResponse simpleSearch(DataverseRequest dataverseRequest, String pattern, List<String> filterQueries, List<String> facetList, int i, int maxValue) throws SearchException {
         if(solrSearchService == null) {
             throw new UnsupportedOperationException("SolrSearchService is not set");
         } else {
-            return solrSearchService.simpleSearch(dataverseRequest, entityId, pattern, filterQueries, facetList, i, maxValue);
+            return solrSearchService.simpleSearch(dataverseRequest, pattern, filterQueries, facetList, i, maxValue);
         }
     }
 }
