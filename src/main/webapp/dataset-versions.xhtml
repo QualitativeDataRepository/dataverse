@@ -52,7 +52,11 @@
     <p:dataTable id="versionsTable" value="#{DatasetPage.versionTabListForPostLoad}" var="versionTab" widgetVar="versionsTable"
                  rowIndexVar="rowNum" selection="#{DatasetPage.selectedVersions}" disabledSelection="#{versionTab.deaccessioned}" rowKey="#{versionTab}">
         <!-- start: checkbox column -->
-        <p:column selectionMode="multiple" class="col-select-width text-center" rendered="#{DatasetPage.compareVersionsCount > 2}"/><!-- end: checkbox column -->
+        <p:column selectionMode="multiple" class="col-select-width text-center" rendered="#{DatasetPage.compareVersionsCount > 2}">
+            <f:facet name="header">
+                <h:outputText styleClass="sr-only" value="#{bundle['file.dataFilesTab.versions.headers.select']}" />
+            </f:facet>
+        </p:column><!-- end: checkbox column -->
 
         <!-- start: version number column -->
         <p:column headerText="#{bundle['file.dataFilesTab.versions.headers.dataset']}" class="col-sm-1 text-center">

@@ -10,6 +10,13 @@
 
 
     <h:outputScript name='js/fileupload.js?version=#{systemConfig.getVersion()}' />
+    <script>
+        //<![CDATA[
+        $(document).ready(function () {
+            addFileUploadMessageCloseLabel('#{bundle.close}');
+        });
+        //]]>
+    </script>
 
     <p:dialog id="editProvenancePopup" styleClass="smallPopUp" header="#{bundle['file.editProvenanceDialog']}" widgetVar="editProvenancePopup" modal="true" >
         <p:fragment id="assignMessages">
@@ -52,6 +59,8 @@
                                           listener="#{provPopupFragmentBean.handleFileUpload}" 
                                           update="provPopupOutput,assignMessages" 
                                           label="#{bundle['file.editProvenanceDialog.selectToAddBtn']}"
+                                          ariaLabel="#{bundle['file.editProvenanceDialog.selectToAddBtn']}"
+                                          oncomplete="addFileUploadMessageCloseLabel('#{bundle.close}');"
                                           onstart="javascript:uploadStarted();"
                                           onerror="javascript:uploadFailure();"
                                           fileLimit="1" 

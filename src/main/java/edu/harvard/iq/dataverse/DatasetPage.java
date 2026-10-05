@@ -1997,7 +1997,7 @@ public class DatasetPage implements java.io.Serializable {
                 
                 // We are only performing these lookups to obtain the database id
                 // of the version that we are displaying, and then we will use it
-                // to perform a .findDeep(versionId); see below. 
+                // to perform a .find(versionId); see below. 
                 
                 // TODO: replace the code block below, the combination of 
                 // datasetService.find(id) and datasetVersionService.selectRequestedVersion()
@@ -2030,9 +2030,7 @@ public class DatasetPage implements java.io.Serializable {
             // ... And now the "real" working version lookup: 
             
             if (versionId != null) {
-                logger.fine("Start time: " + System.currentTimeMillis());
-                this.workingVersion = datasetVersionService.findDeep(versionId);
-                logger.fine("End time: " + System.currentTimeMillis());
+                this.workingVersion = datasetVersionService.find(versionId);
                 dataset = workingVersion.getDataset();
                 logger.fine("Dataset time: " + System.currentTimeMillis());
             }
@@ -2253,9 +2251,6 @@ public class DatasetPage implements java.io.Serializable {
         checkFilepathLength();
         // TODO: replace this loop, and the loop in the method that calculates 
         // the total "originals" size of the dataset with direct custom queries; 
-        // then we'll be able to drop the lookup hint for DataTable from the 
-        // findDeep() method for the version and further speed up the lookup 
-        // a little bit.
         boolean globusDownloadEnabled = systemConfig.isGlobusDownload();
         for (FileMetadata fmd : workingVersion.getFileMetadatas()) {
             DataFile df = fmd.getDataFile();
@@ -3115,7 +3110,7 @@ public class DatasetPage implements java.io.Serializable {
             // versionId must have been set by now (see null check above), in the init()
             // method, regardless of how the page was originally called - by the dataset
             // database id, by the persistent identifier, or by the db id of the version.
-            this.workingVersion = datasetVersionService.findDeep(versionId);
+            this.workingVersion = datasetVersionService.find(versionId);
             dataset = workingVersion.getDataset();
         } 
 

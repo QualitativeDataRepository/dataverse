@@ -506,6 +506,10 @@ function uploadFinished(fileupload) {
         }
 }
 
+function addFileUploadMessageCloseLabel(label) {
+        $('.ui-fileupload-messages .ui-messages-close').attr('aria-label', label);
+}
+
 async function directUploadFinished() {
 
         numDone = finishFile();
