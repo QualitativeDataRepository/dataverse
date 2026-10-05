@@ -959,7 +959,7 @@ public class Access extends AbstractApiBean {
         try {
             User user = getRequestUser(crc);
             DataverseRequest req = createDataverseRequest(user);
-            final Dataset retrieved = findDatasetUserCanSeeOrDie(datasetIdOrPersistentId, req, false);
+            final Dataset retrieved = findDatasetUserCanSeeOrDie(datasetIdOrPersistentId, req);
             if (!(user instanceof GuestUser)) {
                 // The reason we are only looking up a draft version for a NON-guest user
                 // is that we know that guest never has the Permission.ViewUnpublishedDataset. 
@@ -1115,7 +1115,7 @@ public class Access extends AbstractApiBean {
 
     private DatasetVersion getDatasetVersionFromVersion(ContainerRequestContext crc, String datasetIdOrPersistentId, String versionId) throws WrappedResponse {
         DataverseRequest req = createDataverseRequest(getRequestUser(crc));
-        final Dataset ds = execCommand(new GetDatasetCommand(req, findDatasetUserCanSeeOrDie(datasetIdOrPersistentId, req, false)));
+        final Dataset ds = execCommand(new GetDatasetCommand(req, findDatasetUserCanSeeOrDie(datasetIdOrPersistentId, req)));
         return execCommand(handleVersion(versionId, new Datasets.DsVersionHandler<>() {
 
             @Override
