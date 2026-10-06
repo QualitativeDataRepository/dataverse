@@ -508,6 +508,17 @@ function uploadFinished(fileupload) {
 
 function addFileUploadMessageCloseLabel(label) {
         $('.ui-fileupload-messages .ui-messages-close').attr('aria-label', label);
+
+        $('.ui-fileupload-messages').each(function () {
+                if (this.fileUploadMessageObserver) {
+                        return;
+                }
+
+                this.fileUploadMessageObserver = new MutationObserver(function () {
+                        $(this).find('.ui-messages-close').attr('aria-label', label);
+                }.bind(this));
+                this.fileUploadMessageObserver.observe(this, { childList: true, subtree: true });
+        });
 }
 
 async function directUploadFinished() {
