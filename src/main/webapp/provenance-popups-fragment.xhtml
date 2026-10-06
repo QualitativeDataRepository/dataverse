@@ -10,16 +10,11 @@
 
 
     <h:outputScript name='js/fileupload.js?version=#{systemConfig.getVersion()}' />
-    <script>
-        //<![CDATA[
-        $(document).ready(function () {
-            addFileUploadMessageCloseLabel('#{bundle.close}');
-        });
-        //]]>
-    </script>
 
-    <p:dialog id="editProvenancePopup" styleClass="smallPopUp" header="#{bundle['file.editProvenanceDialog']}" widgetVar="editProvenancePopup" modal="true" >
+    <p:dialog id="editProvenancePopup" styleClass="smallPopUp" header="#{bundle['file.editProvenanceDialog']}" widgetVar="editProvenancePopup" modal="true" dynamic="true">
+        <p:ajax event="loadContent" oncomplete="addFileUploadMessageCloseLabel('#{bundle.close}');" />
         <p:fragment id="assignMessages">
+            
             <div class="popupMessagePanel">
                 <iqbs:messages collapsible="true" />
             </div>
@@ -60,8 +55,8 @@
                                           update="provPopupOutput,assignMessages" 
                                           label="#{bundle['file.editProvenanceDialog.selectToAddBtn']}"
                                           ariaLabel="#{bundle['file.editProvenanceDialog.selectToAddBtn']}"
-                                          oncomplete="addFileUploadMessageCloseLabel('#{bundle.close}');"
                                           onstart="javascript:uploadStarted();"
+                                          onvalidationfailure="addFileUploadMessageCloseLabel('#{bundle.close}');"
                                           onerror="javascript:uploadFailure();"
                                           fileLimit="1" 
                                           invalidSizeMessage="#{bundle['file.edit.error.file_exceeds_limit']}"/>
