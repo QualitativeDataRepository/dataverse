@@ -41,7 +41,7 @@ node {
 
     stage('Build') {
       /*
-      * Run Unit tests
+      * Build artifact
       */
       notifyBuild("Building..", "good")
 
@@ -65,7 +65,7 @@ node {
       * Deploy
       */
       timeout(time: 2, unit: "HOURS") {
-        def DEPLOY_TARGET = input message: 'Deploy to', parameters: [string(defaultValue: "${DEPLOY_TARGET}", description: 'qdr-dev, qdr-stage, qdr-prod', name: 'DEPLOY_TARGET')]
+        def DEPLOY_TARGET = input message: 'Deploy to', parameters: [string(defaultValue: "${DEPLOY_TARGET}", description: 'qdr-dev, dev-26, qdr-stage, stage-26, qdr-prod, prod-26', name: 'DEPLOY_TARGET')]
       }
 
       notifyBuild("Deploying ${ARTIFACT_ID}-${VERSION} to ${DEPLOY_TARGET}", "good")
