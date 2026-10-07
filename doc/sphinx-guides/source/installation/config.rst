@@ -4023,6 +4023,14 @@ The default status, as long there is not any other information,  is Off.
 To check the status of feature flags via API, see :ref:`list-all-feature-flags` in the API Guide.
 
 
+.. _dataverse.feature.treat-sandbox-orcids-as-pids:
+
+dataverse.feature.treat-sandbox-orcids-as-pids
+++++++++++++++++++++++++++++++++++++++++++++++
+
+Treats ORCID identifiers hosted at ``https://sandbox.orcid.org`` as persistent identifiers when validating identifiers and exporting metadata. The default is ``false``. Enable this flag only when testing Dataverse with the ORCID sandbox configured for login, external vocabularies, etc.
+
+
 .. _dataverse.feature.api-session-auth:
 
 dataverse.feature.api-session-auth
