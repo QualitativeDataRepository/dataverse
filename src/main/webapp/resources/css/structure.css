@@ -1335,6 +1335,10 @@ ul:not(table.metadata ul) > li:not(.ui-selectonemenu-item), ul:not(#datasetForm:
   font-weight: bold;
 }
 
+.ui-selectcheckboxmenu-token {
+    white-space: normal;
+}
+
 #metadata_dsDescription ul > li {
         font-weight: normal;
         font-size: 18px;
