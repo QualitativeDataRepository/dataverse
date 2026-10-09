@@ -1328,7 +1328,7 @@ div.container {
   border-top: solid 2px rgba(0, 0, 0, 0.1);
 }
 
-ul:not(table.metadata ul) > li:not(.ui-selectonemenu-item), ul:not(#datasetForm:tabView:metadataMapTab) > li:not(ui-selectcheckboxmenu-token) {
+ul:not(table.metadata ul):not(#datasetForm\:tabView\:metadataMapTab) > li:not(.ui-selectonemenu-item):not(.ui-selectcheckboxmenu-token) {
   border:none !important;
   font-size: 21px;
   font-family: 'AntoniaH2Heavy';
