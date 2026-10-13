@@ -129,6 +129,31 @@ public class XmlMetadataTemplateTest {
         return dataset;
     }
 
+    @Test
+    public void testDatasetFileMetadataUsesLatestVersionFiles() {
+        Dataset dataset = resourceTypeTestDataset(DatasetType.DATASET_TYPE_DATASET);
+        DatasetVersion version = dataset.getLatestVersionForCopy();
+
+        DataFile versionFile = new DataFile();
+        versionFile.setFilesize(10L);
+        versionFile.setContentType("text/csv");
+        FileMetadata versionMetadata = new FileMetadata();
+        versionMetadata.setDataFile(versionFile);
+        versionMetadata.setDatasetVersion(version);
+        version.setFileMetadatas(new ArrayList<>(List.of(versionMetadata)));
+
+        DataFile fileFromAnotherVersion = new DataFile();
+        fileFromAnotherVersion.setFilesize(20L);
+        fileFromAnotherVersion.setContentType("application/json");
+        dataset.setFiles(new ArrayList<>(List.of(versionFile, fileFromAnotherVersion)));
+
+        String xml = new XmlMetadataTemplate(new DoiMetadata()).generateXML(dataset);
+        XmlPath xmlPath = XmlPath.from(xml);
+
+        assertEquals(List.of("10"), xmlPath.getList("resource.sizes.size"));
+        assertEquals(List.of("text/csv"), xmlPath.getList("resource.formats.format"));
+    }
+
     /**
      * A minimal example to assure that the XMLMetadataTemplate generates output
      * consistent with the DataCite XML v4.x schema.
