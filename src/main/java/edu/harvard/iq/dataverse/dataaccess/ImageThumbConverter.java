@@ -122,6 +122,17 @@ public class ImageThumbConverter {
 
         if (isThumbnailCached(storageIO, size)) {
             logger.fine("Found cached thumbnail for " + file.getId());
+            // Thumbnail exists in storage but the database flag may not be set — persist it now
+            if (!file.isPreviewImageAvailable()) {
+                file.setPreviewImageAvailable(true);
+                try {
+                    DataFileServiceBean datafileService = CDI.current().select(DataFileServiceBean.class).get();
+                    datafileService.save(file);
+                    logger.fine("Marked previewImageAvailable = true for cached thumbnail on file " + file.getId());
+                } catch (Exception ex) {
+                    logger.warning("Failed to persist previewImageAvailable flag for file " + file.getId() + ": " + ex.getMessage());
+                }
+            }
             return true;
         }
         return generateThumbnail(file, storageIO, size);
@@ -138,10 +149,20 @@ public class ImageThumbConverter {
             } else if (file.getContentType().equalsIgnoreCase("application/pdf")) {
                 thumbnailGenerated = generatePDFThumbnail(storageIO, size);
             }
-            if (!thumbnailGenerated) {
+            if (thumbnailGenerated) {
+                file.setPreviewImageAvailable(true);
+                file.setPreviewImageFail(false);
+                logger.fine("Thumbnail generated for " + file.getId() + ", marking previewImageAvailable = true");
+            } else {
                 file.setPreviewImageFail(true);
                 file.setPreviewImageAvailable(false);
                 logger.fine("No thumbnail generated for " + file.getId());
+            }
+            try {
+                DataFileServiceBean datafileService = CDI.current().select(DataFileServiceBean.class).get();
+                datafileService.save(file);
+            } catch (Exception ex) {
+                logger.warning("Failed to persist previewImageAvailable flag for file " + file.getId() + ": " + ex.getMessage());
             }
         }
 
