@@ -2022,19 +2022,8 @@ public class DatasetPage implements java.io.Serializable {
                 
                 versionId = workingVersion.getId();
 
-                this.workingVersion = null;
-                this.dataset = null;
-
             } 
-            
-            // ... And now the "real" working version lookup: 
-            
-            if (versionId != null) {
-                this.workingVersion = datasetVersionService.find(versionId);
-                dataset = workingVersion.getDataset();
-                logger.fine("Dataset time: " + System.currentTimeMillis());
-            }
-            
+            // No ids supplied - send 404
             if (workingVersion == null) {
                 logger.warning("Failed to retrieve version");
                 return permissionsWrapper.notFound();
