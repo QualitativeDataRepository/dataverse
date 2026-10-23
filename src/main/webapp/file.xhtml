@@ -35,11 +35,13 @@
                     <f:viewParam name="datasetVersionId" value="#{FilePage.datasetVersionId}"/>
                     <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
                     <f:viewAction action="#{FilePage.init}"/>
-                    <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbsForFileMetadata(FilePage.fileMetadata)}"/>
+                    <f:viewAction rendered="#{not empty FilePage.fileMetadata}"
+                                  action="#{dataverseHeaderFragment.initBreadcrumbsForFileMetadata(FilePage.fileMetadata)}"/>
                 </f:metadata>
             </ui:define>
             <ui:define name="body">
-                <h:form id="fileForm">
+                <ui:fragment rendered="#{not empty FilePage.fileMetadata}">
+                    <h:form id="fileForm">
                   <!-- Top Button/Citation Blocks -->
                   <p:fragment id="topDatasetBlockFragment">
                     <div id="fileVersionBlock" class="row">
@@ -769,7 +771,8 @@
                             </button>
                         </div>
                     </p:dialog>
-                </h:form>
+                    </h:form>
+                </ui:fragment>
                 <script>
                     //<![CDATA[
                     function editTerms(){
