@@ -95,7 +95,8 @@ public class SearchPermissionsServiceBean {
         return perms;
     }
 
-    List<String> findDvObjectPerms(DvObject dvObject) {
+    //QDR requires public here
+    public List<String> findDvObjectPerms(DvObject dvObject) {
         List<String> permStrings = new ArrayList<>();
         Permission p = getRequiredSearchPermission(dvObject);
 
