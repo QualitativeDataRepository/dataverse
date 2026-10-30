@@ -6106,7 +6106,7 @@ public class DatasetPage implements java.io.Serializable {
 
     public void selectAllFiles() {
         logger.fine("selectAllFiles called");
-        selectedFiles = workingVersion.getFileMetadatas();
+        selectedFiles = fileMetadatasSearch;
     }
 
     public void clearSelection() {
