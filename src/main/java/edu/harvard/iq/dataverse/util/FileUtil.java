@@ -1815,6 +1815,9 @@ public class FileUtil implements java.io.Serializable  {
     }
 
     public static boolean isActivelyEmbargoed(FileMetadata fileMetadata) {
+        if (fileMetadata == null) {
+            return false;
+        }
         return isActivelyEmbargoed(fileMetadata.getDataFile());
     }
     
@@ -1880,6 +1883,9 @@ public class FileUtil implements java.io.Serializable  {
     }
 
     public static boolean isRetentionExpired(FileMetadata fileMetadata) {
+        if (fileMetadata == null) {
+            return false;
+        }
         return isRetentionExpired(fileMetadata.getDataFile());
     }
 
