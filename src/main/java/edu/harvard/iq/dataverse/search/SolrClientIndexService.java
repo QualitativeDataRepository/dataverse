@@ -32,7 +32,11 @@ public class SolrClientIndexService extends AbstractSolrClientService {
         //new DataverseSolrClientCustomizer().setup(httpClient);
         
         solrClient = new ConcurrentUpdateJettySolrClient.Builder(
-            getSolrUrl(), httpClient).withDefaultCollection(getSolrCollection()).build();
+            getSolrUrl(), httpClient)
+            .withDefaultCollection(getSolrCollection())
+            .withQueueSize(1000)
+            .withThreadCount(10)
+            .build();
     }
 
     @PreDestroy

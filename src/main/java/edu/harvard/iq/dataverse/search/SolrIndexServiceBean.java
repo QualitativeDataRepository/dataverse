@@ -305,7 +305,7 @@ public class SolrIndexServiceBean {
         /**
          * @todo Do something with these responses from Solr.
          */
-        int maxRetries = 3;
+        int maxRetries = 5;
         int retryCount = 0;
         boolean success = false;
 
@@ -646,8 +646,8 @@ public class SolrIndexServiceBean {
             persistToSolr(docs);
             logger.fine("Indexed " + filesToReindexAsBatch.size() + " files across " + docs.size() + " Solr documents");
         } catch (SolrServerException | IOException ex) {
-            logger.log(Level.WARNING, "Failed to reindex " + filesToReindexAsBatch.size() +
-                    " files across " + docs.size() + " Solr documents", ex);
+            logger.warning("Failed to reindex " + filesToReindexAsBatch.size() +
+                    " files across " + docs.size() + " Solr documents");
         }
     }
 
