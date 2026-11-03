@@ -398,7 +398,7 @@
                             styleClass="highlightBold">
                         <f:param value="#{(DatasetPage.filePaginatorPage * DatasetPage.rowsPerPage) + 1}"/>
                         <f:param
-                                value="#{Math:min((DatasetPage.filePaginatorPage + 1) * DatasetPage.rowsPerPage,fileMetadataCount) }"/>
+                                value="#{Math:min((DatasetPage.filePaginatorPage + 1) * DatasetPage.rowsPerPage,DatasetPage.fileMetadatasSearch.size()) }"/>
                         <f:param value="#{DatasetPage.fileMetadatasSearch.size()}"/>
                     </h:outputFormat>
                 </div>
